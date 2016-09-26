@@ -1,0 +1,8 @@
+# local environment requirements
+
+#includes the base.txt requirements needed in all environments
+-r requirements_base.txt
+
+# below are requirements specific to the local environment
+django-sslserver
+django-debug-toolbar

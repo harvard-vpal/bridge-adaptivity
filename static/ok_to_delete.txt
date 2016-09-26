@@ -1,0 +1,1 @@
+this file can safely be deleted. It was added to allow the static directory to exist in the project in git.

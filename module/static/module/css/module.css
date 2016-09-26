@@ -1,0 +1,19 @@
+/* module css */
+
+div.toolbar {
+	margin: .5em;
+}
+
+div.toolbar-item {
+	padding: 0em;
+}
+
+div#toolbar-points form{
+	margin: 0;
+}
+
+/* remove border around LTI window */
+iframe#vpal-activity {
+	border: none;
+	resize: vertical;
+}

@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# local Django logs:
+*.log
+
+# local database
+*.sqlite3
+
+# collected static files
+http_static/
+
+######### deploy to eb ############
+## comment in .ebignore
+## uncomment in .gitignore
+
+## Secure settings
+secure.py
+secure.config
+
+## Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+
+
+
+
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -1,0 +1,34 @@
+[
+  {
+    "pk": 1, 
+    "model": "module.module", 
+    "fields": {
+      "max_points": 25, 
+      "name": "How do we find exoplanets?"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "module.module", 
+    "fields": {
+      "max_points": 30, 
+      "name": "How do we learn about exoplanets?"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "module.module", 
+    "fields": {
+      "max_points": 15, 
+      "name": "What Makes a Planet Habitable?"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "module.module", 
+    "fields": {
+      "max_points": 15, 
+      "name": "What Makes Super-Earths Favorable for Life?"
+    }
+  }
+]

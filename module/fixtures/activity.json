@@ -1,0 +1,392 @@
+[
+  {
+    "pk": 1, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7dc219bf317a498089fb12de76cd1b51", 
+      "name": "Transit Method", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7dc219bf317a498089fb12de76cd1b51"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0ff18d30b07649edb36292f32afaabbd", 
+      "name": "Wobble Method", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0ff18d30b07649edb36292f32afaabbd"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c6e5085f10b1414bb88b389830485116", 
+      "name": "Direct Imaging", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c6e5085f10b1414bb88b389830485116"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3cd5ac72356443e381803adc8559a613", 
+      "name": "Light Curves", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3cd5ac72356443e381803adc8559a613"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a", 
+      "name": "Gravitational Redshift on the Sun", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a"
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486", 
+      "name": "The Deflection of Mercury", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486"
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1", 
+      "name": "Parallax Angle", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1"
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11", 
+      "name": "Telescope Size", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11"
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1b6a7dcb9c1d413d9101909e91b81241", 
+      "name": "Hardest via Transit", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1b6a7dcb9c1d413d9101909e91b81241"
+    }
+  }, 
+  {
+    "pk": 10, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@669c7d91223e40deb8a9c7fbb8663bcc", 
+      "name": "Hardest via Wobble", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@669c7d91223e40deb8a9c7fbb8663bcc"
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879", 
+      "name": "Ion Drive", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879"
+    }
+  }, 
+  {
+    "pk": 12, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@145f91b6ee0f498f9b93988f371c0773", 
+      "name": "Easiest via Direct Imaging", 
+      "module": 1, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@145f91b6ee0f498f9b93988f371c0773"
+    }
+  }, 
+  {
+    "pk": 13, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@741fe4dd1d5544f4a353fef973ab8d90", 
+      "name": "Planet and Star Speeds", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@741fe4dd1d5544f4a353fef973ab8d90"
+    }
+  }, 
+  {
+    "pk": 14, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@003c9858904a408397abf8a7ab70612f", 
+      "name": "Using the Wobble Method", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@003c9858904a408397abf8a7ab70612f"
+    }
+  }, 
+  {
+    "pk": 15, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c7c23996a8514fca8c12ac567454b517", 
+      "name": "Using the Light Curve", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c7c23996a8514fca8c12ac567454b517"
+    }
+  }, 
+  {
+    "pk": 16, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d", 
+      "name": "Kepler Planet Distance", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d"
+    }
+  }, 
+  {
+    "pk": 17, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb", 
+      "name": "Kepler Planet Speed", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb"
+    }
+  }, 
+  {
+    "pk": 18, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db", 
+      "name": "A New Kepler Planet?", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db"
+    }
+  }, 
+  {
+    "pk": 19, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@08e556c06d54441bb58d77f7b936f347", 
+      "name": "Jupiter Pulls the Sun", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@08e556c06d54441bb58d77f7b936f347"
+    }
+  }, 
+  {
+    "pk": 20, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bd2ca3f35d7840e8a35f6739f67a3b03", 
+      "name": "The Moon Pulls Earth", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bd2ca3f35d7840e8a35f6739f67a3b03"
+    }
+  }, 
+  {
+    "pk": 21, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0aea267902c24baf8995c299b97ff8f2", 
+      "name": "Planetary Speed", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0aea267902c24baf8995c299b97ff8f2"
+    }
+  }, 
+  {
+    "pk": 22, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc", 
+      "name": "Star Clusters", 
+      "module": 2, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc"
+    }
+  }, 
+  {
+    "pk": 23, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b15ce7f2dadd406e9258478388a13395", 
+      "name": "Low Atmosphere", 
+      "module": 3, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b15ce7f2dadd406e9258478388a13395"
+    }
+  }, 
+  {
+    "pk": 24, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6aba57fcccd54c4c87205d3ff097d9b3", 
+      "name": "Candidates for Life", 
+      "module": 3, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6aba57fcccd54c4c87205d3ff097d9b3"
+    }
+  }, 
+  {
+    "pk": 25, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a", 
+      "name": "A Brighter Sun", 
+      "module": 3, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a"
+    }
+  }, 
+  {
+    "pk": 26, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a3d67fb5d4404b7c9c6a8f9c10bb760e", 
+      "name": "Smooth and Rough Planets", 
+      "module": 3, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a3d67fb5d4404b7c9c6a8f9c10bb760e"
+    }
+  }, 
+  {
+    "pk": 27, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@39d70e95e72f462c83468a2888d31f42", 
+      "name": "Life on Neptune would have a Real Hard Time", 
+      "module": 3, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@39d70e95e72f462c83468a2888d31f42"
+    }
+  }, 
+  {
+    "pk": 28, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71", 
+      "name": "Volcanoes and Climate", 
+      "module": 3, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71"
+    }
+  }, 
+  {
+    "pk": 29, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bfdf8a2ec51a4e2893c2e758ecf42cdf", 
+      "name": "Plate Tectonics", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bfdf8a2ec51a4e2893c2e758ecf42cdf"
+    }
+  }, 
+  {
+    "pk": 30, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ef77267987174ac1a4e53aa9f11a34ce", 
+      "name": "Why So Super?", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ef77267987174ac1a4e53aa9f11a34ce"
+    }
+  }, 
+  {
+    "pk": 31, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@190a7900202f4010bbe149b26a92036b", 
+      "name": "Escape Velocity", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@190a7900202f4010bbe149b26a92036b"
+    }
+  }, 
+  {
+    "pk": 32, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5a9bb89358c4da98840592cb11fc0ff", 
+      "name": "Radius and Mass", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5a9bb89358c4da98840592cb11fc0ff"
+    }
+  }, 
+  {
+    "pk": 33, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@20d8797c388149eebe73a7f5a3f97b98", 
+      "name": "Features of Super-Earths", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@20d8797c388149eebe73a7f5a3f97b98"
+    }
+  }, 
+  {
+    "pk": 34, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@663d472f549d467da10c488f37020fa1", 
+      "name": "The Many Carbon Cycles", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@663d472f549d467da10c488f37020fa1"
+    }
+  }, 
+  {
+    "pk": 35, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5b9082917a264dfeb5cec5a675d766ab", 
+      "name": "Cloud Collapse", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5b9082917a264dfeb5cec5a675d766ab"
+    }
+  }, 
+  {
+    "pk": 36, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9f9fadf9d8ad432b8762694e1ca11a54", 
+      "name": "Mass and Radius", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9f9fadf9d8ad432b8762694e1ca11a54"
+    }
+  }, 
+  {
+    "pk": 37, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d", 
+      "name": "Changes in Temperature", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d"
+    }
+  }, 
+  {
+    "pk": 38, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093", 
+      "name": "Limestone", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093"
+    }
+  }, 
+  {
+    "pk": 39, 
+    "model": "module.activity", 
+    "fields": {
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1281d1201fdf435d846ec11bdf331661", 
+      "name": "Titan's Atmosphere", 
+      "module": 4, 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1281d1201fdf435d846ec11bdf331661"
+    }
+  }
+]

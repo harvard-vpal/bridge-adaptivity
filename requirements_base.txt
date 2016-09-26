@@ -1,0 +1,10 @@
+Django
+django-bootstrap3
+requests
+django-cors-middleware
+
+## install LTI libraries (uses library from DCE github repo)
+ims-lti-py
+git+git://github.com/harvard-dce/django-auth-lti.git@dce-lti-py
+# dce-lti-py is installed by django-auth-lti, but need upgrade to 0.7.4
+dce-lti-py
