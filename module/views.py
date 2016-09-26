@@ -33,6 +33,12 @@ def launch(request, user_module_id):
     else:
         activity = utils.get_first_activity(user_module)
         last_position = 1
+        sequence_item = SequenceItem(
+            user_module=user_module,
+            position=1,
+            activity = activity,
+        )
+        sequence_item.save()
 
     return redirect('module:sequence_item', user_module_id=user_module_id, position=last_position)
     

@@ -61,7 +61,8 @@ class UserModule(models.Model):
             grade = 1
 
         response = lti.utils.grade_passback(self, grade)
-        print response.description
+        if response:
+            print response.description
         return response
 
     def __unicode__(self):

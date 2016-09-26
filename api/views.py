@@ -3,6 +3,7 @@ from module.models import *
 from module import utils
 from lti.utils import grade_passback
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 ## choose the recommendation service here
 if settings.ACTIVITY_SERVICE is 'tutorgen':

@@ -2,9 +2,6 @@ $(document).ready(function(){
     console.log('Every Problem Script working');
 
     var problemID;
-
-    // get username from browser cookie
-    var username = JSON.parse(eval(getCookie('prod-edx-user-info')))['username'];
     
     $('button.check').off('.hx').one('click.hx tap.hx', function(){
         problemID = $(this).closest('.xblock').attr('data-usage-id');
@@ -36,9 +33,14 @@ $(document).ready(function(){
             maxGradeNumber = gradeText[0].split(' ')[0].split('(')[1];
         }
 
-        // Get username after button press, since analytics variable not available right away at document.ready
-        var username = analytics._user._getTraits()['username'];
-        
+        // Get username 
+        var username;
+        username = analytics._user._getTraits()['username'];
+        // If analytics user info is empty, grab from browser cookie
+        if (!username){
+            username = JSON.parse(eval(getCookie('prod-edx-user-info')))['username'];
+        }
+
         //Log info: edX username, problem ID, current and maximum grade.
         console.log('User: ' + username);
         console.log('Problem ID: ' + problemID);
@@ -63,7 +65,7 @@ $(document).ready(function(){
         setTimeout(afterButtonPress.bind(null, problemID), 2000);
     }
 
-    function getCookie(cname) {
+    function getCookie(cname){
         // get a value of a browser cookie
         var name = cname + "=";
         var ca = document.cookie.split(';');

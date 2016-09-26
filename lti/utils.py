@@ -12,6 +12,10 @@ def grade_passback(user_module, grade):
     # get LTI launch parameters for user module
     lti_parameters = user_module.ltiparameters
 
+    # check if there is a url
+    if not lti_parameters.lis_outcome_service_url:
+        return None
+
     # construct a outcome request object
     outcome = OutcomeRequest({
         'lis_outcome_service_url':lti_parameters.lis_outcome_service_url,
