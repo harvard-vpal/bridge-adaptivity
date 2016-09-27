@@ -114,7 +114,7 @@ class SequenceItem(models.Model):
 
     def __unicode__(self):
         return "{}: user={}, activity={}".format(
-            self.user_module.pk, 
+            self.pk, 
             self.user_module.ltiparameters.lis_person_sourcedid,
             self.activity.pk
         )

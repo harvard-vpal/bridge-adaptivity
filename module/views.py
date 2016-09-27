@@ -97,6 +97,7 @@ def next_activity(request, user_module_id, position):
 
     # get the next item in sequence, or create if needed
     # not using django get_or_create shortcut here because we may not want to save the created instance
+    # note from beta testing, it is possible to for the time between sequenceitem existence check and save to be too long such that user clicks again and tries to make another sequence item
     try:
         next_sequence_item = SequenceItem.objects.get(
             user_module = user_module,
