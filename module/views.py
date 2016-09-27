@@ -16,7 +16,6 @@ def launch(request, user_module_id):
         student sees module for first time
         students may navigate away in the middle of the module and they come back
     '''
-
     user_module_id = int(user_module_id)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
     sequence = user_module.sequenceitem_set.order_by('position')
@@ -25,9 +24,6 @@ def launch(request, user_module_id):
     if sequence.exists():
         # go to end of sequence
         last_position = sequence.last().position
-
-        # alternative: go to last activity visited
-        # last_position = sequence.get(position=user_module.last_position)
 
      # first time someone comes to the page
     else:
@@ -74,52 +70,13 @@ def sequence_item(request, user_module_id, position):
     return render(request, 'module/module.html', context)
 
 
-def sequence_complete(request, user_module_id):
-    '''
-    Outer view once module is complete
-    '''
-
-    user_module_id = int(user_module_id)
-    user_module = get_object_or_404(UserModule, pk=user_module_id)
-
-    # set "completion" state to true on user_module
-    user_module.completed = True
-    user_module.save()
-
-    sequence = user_module.sequenceitem_set.order_by('position')
-    # sequence_item = sequence.get(position=position)
-
-    # update grade to display and do grade passback
-    user_module.recompute_grade()
-    user_module.grade_passback()
-
-    # dictionary replacement for sequence_item
-
-    context = {
-        'user_module':user_module,
-        'sequence':sequence,
-        'position': len(sequence)+1,
-        'sequence_length':len(sequence), # precompute sequence length for template
-        'module_complete': True, # helper conditional variable for template appearance
-    }
-
-    return render(request, 'module/module.html', context)
-
-def completion_message(request):
-    '''
-    replacement for activity content in sequence_complete view
-    '''
-    return render(request, 'module/completion_message.html')
-
-
 def next_activity(request, user_module_id, position):
     '''
     Called when student clicks the "next" button - 
     Go to next item if student has already been there, or request one if not reached yet
     position argument is the position from the previous sequence item
     '''
-
-    # pause, to increase the chance that previous attempt submission have made it into the database
+    # short pause, to increase the chance that previous attempt submission has made it into the database
     # sleep(.1)
 
     user_module_id = int(user_module_id)
@@ -177,8 +134,38 @@ def next_activity(request, user_module_id, position):
         next_sequence_item.activity = next_activity
         next_sequence_item.save()
 
-
     return redirect('module:sequence_item', user_module_id=user_module_id, position=position+1)
     
 
+def sequence_complete(request, user_module_id):
+    '''
+    Outer view once module is complete
+    '''
+    user_module_id = int(user_module_id)
+    user_module = get_object_or_404(UserModule, pk=user_module_id)
 
+    # set "completion" state to true on user_module
+    user_module.completed = True
+    user_module.save()
+
+    sequence = user_module.sequenceitem_set.order_by('position')
+
+    # update grade to display and do grade passback
+    user_module.recompute_grade()
+    user_module.grade_passback()
+
+    context = {
+        'user_module':user_module,
+        'sequence':sequence,
+        'position': len(sequence)+1,
+        'sequence_length':len(sequence), # precompute sequence length for template
+        'module_complete': True, # helper conditional variable for template appearance
+    }
+
+    return render(request, 'module/module.html', context)
+
+def completion_message(request):
+    '''
+    replacement for activity content in sequence_complete view
+    '''
+    return render(request, 'module/completion_message.html')
