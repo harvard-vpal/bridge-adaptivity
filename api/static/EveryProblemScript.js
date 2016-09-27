@@ -3,7 +3,7 @@ $(document).ready(function(){
 
     var problemID;
     
-    $('button.check').off('.hx').one('click.hx tap.hx', function(){
+    $('button.check').off('.hx').one('click.hx tap.hx', function(event){
         problemID = $(this).closest('.xblock').attr('data-usage-id');
         onCheckButton(problemID);
     });
