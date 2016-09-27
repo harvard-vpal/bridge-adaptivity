@@ -28,13 +28,14 @@ class Transaction:
             'learner_id': attempt.user.pk,
             'timestamp': timestamp,
         }
-        print "sending transaction to tutorgen: {}".format(json)
+
         # send the post request
         r = requests.post("{}/transaction".format(settings.TUTORGEN_URL_BASE),
             auth=auth,
             json=json,
         )
         self.response = r.json()
+        print "TUTORGEN POST TRANSACTION: sent: {}".format(json)
 
     def success(self):
         '''
@@ -62,23 +63,26 @@ class Activity:
             params=params,
         )
         self.response = r.json()
-        print "requested activity from tutorgen, sent: {}, recieved: {}".format(params,self.response)
-        self.activity_info = self.response['_embedded']['item'][0]
-
+        print "TUTORGEN: GET ACTIVITY, sent: {}, received: {}".format(params,self.response)
+        result = self.response['_embedded']['item']
+        if len(result)==1:
+            self.activity_info = result[0]
+        elif len(result)==0:
+            print 
+            self.activity_info = None
+        elif len(result)>1:
+            print "TUTORGEN: ERROR more than one item returned in get activity request"
 
     def get_activity_id(self):
-        return self.activity_info['next_activity']
+        if self.activity_info:
+            return self.activity_info['next_activity']
+        else:
+            return None
 
     def level_up(self):
-        return self.activity_info['level_up']
-
-
-        # # grab activity id from api response
-        # level_up = False
-        # for record in self.response['_embedded']['item']:
-        #     if record['learner_id'] == user.pk:
-        #         return level_up = record['level_up']
-
-
+        if self.activity_info:
+            return self.activity_info['level_up']=='true'
+        else:
+            return False
 
 
