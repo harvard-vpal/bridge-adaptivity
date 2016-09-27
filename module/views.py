@@ -134,6 +134,10 @@ def next_activity(request, user_module_id, position):
         if not Attempt.objects.filter(sequence_item=last_sequence_item).exists():
             return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
+    # check if student has exhausted all questions in module; if so, go to completion screen
+    if user_module.sequenceitem_set.count() == Activity.objects.filter(module=user_module.module).count():
+        return redirect('module:sequence_complete', user_module_id=user_module_id)
+
     # get the next item in sequence, or create if needed
     # not using django get_or_create shortcut here because we may not want to save the created instance
     try:
@@ -176,3 +180,5 @@ def next_activity(request, user_module_id, position):
 
     return redirect('module:sequence_item', user_module_id=user_module_id, position=position+1)
     
+
+
