@@ -27,15 +27,12 @@ def problem_attempt(request):
             'message': 'problem not found for given usage id'
         })
 
-    points = 
-    max_points = 
-
     # construct initial attempt object
     attempt = Attempt(
         activity = activity,
         username = request.POST['user'],
         points = float(request.POST['points']),
-        max_points = float(request.POST.get('points', 0)),
+        max_points = float(request.POST.get('points', 0)), # max_points may not be passed for some questions
     )
     attempt.save()
 
@@ -47,7 +44,7 @@ def problem_attempt(request):
             ltiparameters__lis_person_sourcedid = request.POST['user'],
             module = activity.module,
         )
-        # set user objecct on attempt.user
+        # set user object on attempt.user
         attempt.user = user_module.user
 
     # if there is no existing user module, still save attempt instance but take no further action (like posting to tutorgen)
@@ -61,8 +58,6 @@ def problem_attempt(request):
 
     # submit problem grade info to tutorgen
     transaction = activity_service.Transaction(attempt)
-    # TODO could check response validity? transaction.success()
-    
 
     # identify the sequence_item for the activity
     try:
