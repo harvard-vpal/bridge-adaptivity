@@ -17,31 +17,6 @@ def problem_attempt(request):
     when students make a problem submission in edx, 
     embedded javascript sends the answer data to this API endpoint    
     '''
-
-    # # input validation: make sure all required fields are present in POST data
-    # required_fields = [
-    #     'user',
-    #     'problem',
-    #     'points',
-    #     'max_points',
-    # ]
-    # for field in required_fields:
-    #     if field not in request.POST:
-    #         return JsonResponse({
-    #             'success':False,
-    #             'message': 'parameter "{}" not found in POST parameters'.format(field)
-    #         })
-    # # input validation: make sure expected numeric inputs are numeric
-    # try:
-    #     float(request.POST['points'])
-    #     float(request.POST['max_points'])
-    # except:
-    #     return JsonResponse({
-    #         'success':False,
-    #         'message': '"points" or "max_points" not numeric'
-    #     })
-
-
     
     # identify problem based on usage id
     try: 
@@ -49,19 +24,18 @@ def problem_attempt(request):
     except ObjectDoesNotExist:
         return JsonResponse({
             'success':False,
-            'message': 'problem not found'
+            'message': 'problem not found for given usage id'
         })
 
-    # case where max_points doesnt exist
-    if 'max_points' not in request.POST:
-        request.POST['max_points'] = 0
+    points = 
+    max_points = 
 
     # construct initial attempt object
     attempt = Attempt(
         activity = activity,
         username = request.POST['user'],
         points = float(request.POST['points']),
-        max_points = float(request.POST['max_points']),
+        max_points = float(request.POST.get('points', 0)),
     )
     attempt.save()
 
