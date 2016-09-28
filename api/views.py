@@ -32,7 +32,7 @@ def problem_attempt(request):
         activity = activity,
         username = request.POST['user'],
         points = float(request.POST['points']),
-        max_points = float(request.POST.get('points', 0)), # max_points may not be passed for some questions
+        max_points = float(request.POST.get('max_points', 0)), # max_points may not be passed for some questions
     )
 
     # attempt to populate user field on attempt instance
