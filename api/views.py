@@ -43,7 +43,8 @@ def problem_attempt(request):
             module = activity.module,
         )
         # set user object on attempt.user
-        attempt.update(user = user_module.user)
+        attempt.user = user_module.user
+        attempt.save()
 
     # if there is no existing user module, still save attempt instance but take no further action (like posting transaction to activity service)
     except ObjectDoesNotExist:
@@ -57,7 +58,8 @@ def problem_attempt(request):
 
     # identify the sequence_item for the activity
     try:
-        attempt.update(sequence_item = user_module.sequenceitem_set.get(activity=activity))
+        attempt.sequence_item = user_module.sequenceitem_set.get(activity=activity)
+        attempt.save()
 
     # catches a case where student does the problem outside the lti module, before they see the activity in the module
     except ObjectDoesNotExist:
