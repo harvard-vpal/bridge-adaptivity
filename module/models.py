@@ -102,7 +102,7 @@ class SequenceItem(models.Model):
     user_module = models.ForeignKey(UserModule)
 
     # activity displayed for this sequence item
-    activity = models.ForeignKey(Activity, null=True)
+    activity = models.ForeignKey(Activity)
     # position within the module sequence this activity is displayed for the user
     position = models.PositiveIntegerField()
     timestamp_created = models.DateTimeField(null=True,auto_now=True)
@@ -111,6 +111,9 @@ class SequenceItem(models.Model):
 
     # def __unicode__(self):
     #     return "{}: {}".format(self.pk, self.name)
+
+    class Meta:
+        unique_together = ('user_module','position')
 
     def __unicode__(self):
         return "{}: user={}, activity={}".format(
