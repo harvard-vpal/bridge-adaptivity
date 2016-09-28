@@ -1,7 +1,7 @@
+import os
+os.environ.setdefault('ENV_TYPE', 'aws')
 from .base import *
 import secure
-
-# Need to set AWS_ENV_TYPE as environment variable in AWS console, e.g. 'production', 'development' or 'test'
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
@@ -16,13 +16,3 @@ AWS_SECRET_ACCESS_KEY = secure.AWS_SECRET_ACCESS_KEY
 DATABASES = {
     'default': secure.AWS_DATABASE
 }
-
-
-# INSTALLED_APPS += ('debug_toolbar', )
-# MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-# def show_toolbar(request):
-#     return True
-# DEBUG_TOOLBAR_CONFIG = {
-#     "SHOW_TOOLBAR_CALLBACK" : show_toolbar,
-#     'INTERCEPT_REDIRECTS': True,
-# }
