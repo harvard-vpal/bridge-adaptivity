@@ -6,6 +6,7 @@ import random
 from . import utils
 from django.core.exceptions import ObjectDoesNotExist
 from time import sleep
+from django.db import transaction
 
 
 def launch(request, user_module_id):
@@ -30,8 +31,8 @@ def launch(request, user_module_id):
         activity = utils.get_first_activity(user_module)
         last_position = 1
         sequence_item = SequenceItem(
-            user_module=user_module,
-            position=1,
+            user_module = user_module,
+            position = 1,
             activity = activity,
         )
         sequence_item.save()
@@ -76,65 +77,57 @@ def next_activity(request, user_module_id, position):
     Go to next item if student has already been there, or request one if not reached yet
     position argument is the position from the previous sequence item
     '''
-    # short pause, to increase the chance that previous attempt submission has made it into the database
-    # sleep(.1)
 
     user_module_id = int(user_module_id)
     position = int(position)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
+    sequence_length = user_module.sequenceitem_set.count()
+    last_sequence_item = get_object_or_404(SequenceItem, user_module=user_module, position=position)
+    last_activity = last_sequence_item.activity
 
-    # if user hasn't made any attempts, don't move them to the next question; just reload the same one without making new sequence item
-    last_activity = None
-    if position > 0:
-        last_sequence_item = get_object_or_404(SequenceItem, user_module=user_module, position=position)
-        last_activity = last_sequence_item.activity
-        if not Attempt.objects.filter(sequence_item=last_sequence_item).exists():
-            return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
+    # if user hasn't made any attempts, stay on the same sequence item
+    if not Attempt.objects.filter(activity=last_activity).exists():
+        return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
     # check if student has exhausted all questions in module; if so, go to completion screen
-    if user_module.sequenceitem_set.count() == Activity.objects.filter(module=user_module.module).count():
+    if sequence_length == Activity.objects.filter(module=user_module.module).count():
         return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-    # get the next item in sequence, or create if needed
-    # not using django get_or_create shortcut here because we may not want to save the created instance
-    # note from beta testing, it is possible to for the time between sequenceitem existence check and save to be too long such that user clicks again and tries to make another sequence item
-    try:
+    # if not at end of sequence, get the next item in pre-populated sequence
+    if position < sequence_length:
         next_sequence_item = SequenceItem.objects.get(
             user_module = user_module,
-            position = position+1,
-        )
-        exists = True
-
-    except ObjectDoesNotExist:
-        next_sequence_item = SequenceItem(
-            user_module = user_module,
-            position = position+1,
-        )
-        exists = False
-
-    # if created just now, make an api call to get a new activity
-    if not exists:
-
-        # ask for next activity
-        next_activity = utils.get_activity(
-            user_module = user_module,
-            # last_activity_id = last_activity_id,
+            position = position + 1,
         )
 
-        ## in these two cases the next sequence_item is NOT saved
+    # if at the end of sequence, ask for a new activity
+    elif position == sequence_length:
 
-        # 1. if same activity, redirect to same 
+        # request activity
+        next_activity = utils.get_activity(user_module=user_module)
+
+        # if activity service returns same activity as the last one, redirect to last sequence item 
         if next_activity == last_activity:
             return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
-        # 2. if next_activity = None here, this signals that the student completed the module
+        # if utils.activity() retuns None, this signals that the student completed the module
         if not next_activity:
             return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-        # Go ahead and save the proposed next sequence_item with the recommended activity
-        next_sequence_item.activity = next_activity
-        next_sequence_item.save()
+        try:
+            # look for a next item just in case next_question is triggered more than once before page load, so the later process gets rather than creates a duplicate
+            next_sequence_item = SequenceItem.objects.get(
+                user_module = user_module,
+                position = position + 1,
+            )
+        except ObjectDoesNotExist:
+            next_sequence_item = SequenceItem.objects.create(
+                user_module = user_module,
+                position = position + 1,
+                activity = next_activity,
+            )
 
+    # go to the next sequence item screen
     return redirect('module:sequence_item', user_module_id=user_module_id, position=position+1)
     
 
