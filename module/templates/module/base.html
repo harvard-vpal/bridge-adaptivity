@@ -1,0 +1,30 @@
+<html>
+
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% load staticfiles %}
+
+<head>
+	<link rel="stylesheet" href="{% static 'module/css/base.css' %}"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Adaptive edX tools</title>
+
+	{% block head %}
+	{% endblock %}
+</head>
+
+
+<body>
+
+<div>
+{% block body %}
+	
+{% endblock body %}
+</div>
+
+</body>
+
+</html>

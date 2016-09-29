@@ -1,0 +1,43 @@
+Bucket Policy
+  - Change "BUCKET-NAME" to the bucket name, and "USER-ARN" to the user ARN
+  - From: <https://www.caktusgroup.com/blog/2014/11/10/Using-Amazon-S3-to-store-your-Django-sites-static-and-media-files/>
+
+{
+    "Statement": [
+        {
+          "Sid":"PublicReadForGetBucketObjects",
+          "Effect":"Allow",
+          "Principal": {
+                "AWS": "*"
+             },
+          "Action":["s3:GetObject"],
+          "Resource":["arn:aws:s3:::BUCKET-NAME/*"
+          ]
+        },
+        {
+            "Action": "s3:*",
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::BUCKET-NAME",
+                "arn:aws:s3:::BUCKET-NAME/*"
+            ],
+            "Principal": {
+                "AWS": [
+                    "USER-ARN"
+                ]
+            }
+        }
+    ]
+}
+
+
+CORS policy
+
+<CORSConfiguration>
+    <CORSRule>
+        <AllowedOrigin>*</AllowedOrigin>
+        <AllowedMethod>GET</AllowedMethod>
+        <MaxAgeSeconds>3000</MaxAgeSeconds>
+        <AllowedHeader>Authorization</AllowedHeader>
+    </CORSRule>
+</CORSConfiguration>

@@ -1,0 +1,93 @@
+{% extends "module/base.html" %}
+{% load staticfiles %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'module/css/module.css' %}"/>
+{% endblock head %}
+
+
+{% block body %}
+
+{# top toolbar #}
+<div class="container-fluid toolbar">
+  <div class="row">
+
+    {# sequential problem navigation #}
+    <div class="col-xs-8 toolbar-item">
+      <span class="btn-group
+      {% if sequence_length >= 10 %}
+      btn-group-sm
+      {% endif %}
+      " role="group" aria-label="...">
+      {% for item in sequence %}
+        <a class="btn btn-default sequence-num 
+        {# add class active to current problem's button #}
+        {% if item.position == position %}
+          active
+        {% endif %}
+        "
+        href="{% url 'module:sequence_item' user_module_id=user_module.pk position=item.position %}" role="button">{{ forloop.counter }}</a>
+      {% endfor %}
+      {# add an extra block if module is complete #}
+      {% if user_module.completed %}
+        <a class="btn btn-default 
+        {% if not sequence_item %}
+        active
+        {% endif %}
+        "
+        href="{% url 'module:sequence_complete' user_module_id=user_module.pk %}" role="button">*</a>
+      {% endif %}
+      
+      </span>
+
+    </div>
+
+    {# points earned #}
+
+    <div class="col-xs-4 toolbar-item" id="toolbar-points">
+    <form class="form-inline pull-right">
+      <div class="input-group">
+        <span class="input-group-addon">Total points earned</span>
+        <input type="text" class="form-control" value='{{user_module.grade|floatformat:"-2"}}' size="7" readonly>
+      </div>
+    </form>
+    </div>
+
+  </div>
+</div>
+
+{# edx problem window #}
+<iframe id="vpal-activity" src="
+{% if module_complete %}
+{% url 'module:completion_message' %}
+{% else %}
+ {{sequence_item.activity.url}}  
+{% endif %} 
+" height='80%', width='100%'></iframe>
+
+{# bottom toolbar #}
+<div class="container-fluid toolbar">
+  <div class="row">
+
+    {# shareable link #}
+    <div class="col-xs-6 toolbar-item">
+      <div class="input-group">
+        <span class="input-group-addon">Shareable link</span>
+        <input type="text" class="form-control" value="{{sequence_item.activity.url}}" readonly>
+      </div>
+    </div>
+
+    {# next question button #}
+    <div class="col-xs-6 toolbar-item">
+      <span class="pull-right">
+      <a class="btn btn-primary {% if module_complete %}disabled{% endif %}" href="{% url 'module:next_activity' user_module_id=user_module.pk position=position %}" role="button">Next Question <span aria-hidden="true">&rarr;</span></a>
+      </span>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock body %}
+
+
