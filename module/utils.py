@@ -74,7 +74,7 @@ def get_activity(user_module):
     # backup case
     # somehow an activity_id isn't found in here, or the request failed
     if not activity_id:
-        return get_backup_activity()
+        return get_backup_activity(user_module)
 
     # look up activity object by id
     activity = get_object_or_404(Activity, pk=activity_id)
