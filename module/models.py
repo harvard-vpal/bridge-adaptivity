@@ -19,8 +19,6 @@ class Module(models.Model):
     '''
     # descriptive name, corresponds to edx subsection title
     name = models.CharField(max_length=200)
-    # full credit threshold for module
-    max_points = models.FloatField()
 
     def __unicode__(self):
         return "{}: {}".format(self.pk, self.name)
@@ -83,13 +81,18 @@ class Activity(models.Model):
     usage_id = models.CharField(max_length=200)
     # display url
     url = models.URLField(max_length=200)
-    # type = models.CharField(max_length=100, choices=(('problem','problem'),))
+    type = models.CharField(max_length=100, choices=(
+        ('problem','problem'),
+        ('html','html'),
+    ))
+    dependencies = models.ManyToManyField(Activity, blank=True)
 
     class Meta:
         verbose_name_plural = 'Activities'
 
     def __unicode__(self):
         return "{}: {}".format(self.pk, self.name)
+
 
 
 class SequenceItem(models.Model):

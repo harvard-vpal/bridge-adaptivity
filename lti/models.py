@@ -8,10 +8,12 @@ class LtiParameters(models.Model):
     Used to store outcome service url for a particular user and module
     Enables asynchronous or API-triggered grade passback
     '''
-    # user = models.ForeignKey(User)
-    # module = models.ForeignKey(Module)
+
+    max_points = models.FloatField()
     user_module = models.OneToOneField(UserModule)
     timestamp_last_launch = models.DateTimeField(null=True,auto_now=True)
+    # full credit threshold for module
+    max_points = models.FloatField()
 
     # save all raw POST parameters
     data = models.TextField(default='')
