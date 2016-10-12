@@ -25,11 +25,13 @@ def launch(request):
         raise Http404('custom parameter "module" not specified in custom LTI parameters')
     module_id = int(request.POST['custom_module'])
     module = get_object_or_404(Module,pk=module_id)
+    max_points = float(request.POST['max_points'])
 
     # create new usermodule object if doesnt exist
     user_module, created = UserModule.objects.get_or_create(
         user = request.user,
         module = module,
+        max_points = max_points,
     )
 
     # save or update user LTI parameters in db

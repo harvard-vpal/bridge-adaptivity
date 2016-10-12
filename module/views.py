@@ -46,35 +46,7 @@ def launch(request, user_module_id):
     return redirect('module:sequence_item', user_module_id=user_module_id, position=last_position)
     
 
-def sequence_item(request, user_module_id, position):
-    '''
-    Activity in a module. sequence item already has to exist
-    '''
-    position = int(position)
-    user_module_id = int(user_module_id)
-    user_module = get_object_or_404(UserModule, pk=user_module_id)
-    
-    sequence = user_module.sequenceitem_set.order_by('position')
-    sequence_item = sequence.get(position=position)
 
-    # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
-    # # in that case, associate the attempts with this sequence item / user
-    # utils.assign_prior_attempts(user_module, sequence_item)
-
-    # update grade to display and do grade passback
-    user_module.recompute_grade()
-    user_module.grade_passback()
-
-    context = {
-        'user_module':user_module,
-        'sequence':sequence,
-        'sequence_item':sequence_item,
-        'position':position,
-        'sequence_length':len(sequence), # precompute sequence length for template
-        'module_complete':False, # helper conditional variable for template appearance
-    }
-
-    return render(request, 'module/module.html', context)
 
 
 def next_activity(request, user_module_id, position):
@@ -130,7 +102,36 @@ def next_activity(request, user_module_id, position):
 
     # go to the next sequence item screen
     return redirect('module:sequence_item', user_module_id=user_module_id, position=position+1)
+   
+def sequence_item(request, user_module_id, position):
+    '''
+    Activity in a module. sequence item already has to exist
+    '''
+    position = int(position)
+    user_module_id = int(user_module_id)
+    user_module = get_object_or_404(UserModule, pk=user_module_id)
     
+    sequence = user_module.sequenceitem_set.order_by('position')
+    sequence_item = sequence.get(position=position)
+
+    # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
+    # # in that case, associate the attempts with this sequence item / user
+    # utils.assign_prior_attempts(user_module, sequence_item)
+
+    # update grade to display and do grade passback
+    user_module.recompute_grade()
+    user_module.grade_passback()
+
+    context = {
+        'user_module':user_module,
+        'sequence':sequence,
+        'sequence_item':sequence_item,
+        'position':position,
+        'sequence_length':len(sequence), # precompute sequence length for template
+        'module_complete':False, # helper conditional variable for template appearance
+    }
+
+    return render(request, 'module/module.html', context) 
 
 def sequence_complete(request, user_module_id):
     '''

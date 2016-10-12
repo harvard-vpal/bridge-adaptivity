@@ -140,13 +140,12 @@ def assign_prior_activities(user_module):
         # create new sequence item
         SequenceItem.objects.create(
             user_module = user_module,
-            activity = activity_id,
+            activity_id = activity_id,
             position = p
         )
         # associate attempts with the new sequence item
-        prior_attempts.filter(activity=activity_id).update(sequence_item=sequence_item)
+        prior_attempts.filter(activity_id=activity_id).update(sequence_item=sequence_item)
 
     return True if prior_attempts else False
     
-
 
