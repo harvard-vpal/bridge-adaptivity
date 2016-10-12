@@ -23,10 +23,16 @@ def launch(request, user_module_id):
     
     # existing activity history: go to the last activity
     if sequence.exists():
+        # OPTIONAL: could change this to be the last activity visited
         # go to end of sequence
         last_position = sequence.last().position
 
-     # first time someone comes to the page
+    # check for and add existing completed activities that could be added to the module
+    elif utils.assign_prior_activities(user_module):
+        # still go to first item if they exist
+        return redirect('module:sequence_item', user_module_id=user_module_id, position=1)
+
+    # first time someone sees the module or any problems from it
     else:
         activity = utils.get_first_activity(user_module)
         last_position = 1
@@ -53,7 +59,7 @@ def sequence_item(request, user_module_id, position):
 
     # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
     # # in that case, associate the attempts with this sequence item / user
-    utils.assign_prior_attempts(user_module, sequence_item)
+    # utils.assign_prior_attempts(user_module, sequence_item)
 
     # update grade to display and do grade passback
     user_module.recompute_grade()
