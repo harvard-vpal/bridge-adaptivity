@@ -3,7 +3,6 @@
     "pk": 1, 
     "model": "module.module", 
     "fields": {
-      "max_points": 25, 
       "name": "How do we find exoplanets?"
     }
   }, 
@@ -11,7 +10,6 @@
     "pk": 2, 
     "model": "module.module", 
     "fields": {
-      "max_points": 30, 
       "name": "How do we learn about exoplanets?"
     }
   }, 
@@ -19,7 +17,6 @@
     "pk": 3, 
     "model": "module.module", 
     "fields": {
-      "max_points": 15, 
       "name": "What Makes a Planet Habitable?"
     }
   }, 
@@ -27,8 +24,126 @@
     "pk": 4, 
     "model": "module.module", 
     "fields": {
-      "max_points": 15, 
       "name": "What Makes Super-Earths Favorable for Life?"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "module.module", 
+    "fields": {
+      "name": "How To Do edX Homework"
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "module.module", 
+    "fields": {
+      "name": "Syllabus Quiz"
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "module.module", 
+    "fields": {
+      "name": "What is Life?"
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "module.module", 
+    "fields": {
+      "name": "What Does Life Need?"
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "module.module", 
+    "fields": {
+      "name": "What is Evolution?"
+    }
+  }, 
+  {
+    "pk": 10, 
+    "model": "module.module", 
+    "fields": {
+      "name": "How did Life Arise?"
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "module.module", 
+    "fields": {
+      "name": "What is a Planet?"
+    }
+  }, 
+  {
+    "pk": 12, 
+    "model": "module.module", 
+    "fields": {
+      "name": "What are Super-Earths?"
+    }
+  }, 
+  {
+    "pk": 13, 
+    "model": "module.module", 
+    "fields": {
+      "name": "Mid-Course Recap"
+    }
+  }, 
+  {
+    "pk": 14, 
+    "model": "module.module", 
+    "fields": {
+      "name": "The Co-Evolution of Planets and Life"
+    }
+  }, 
+  {
+    "pk": 15, 
+    "model": "module.module", 
+    "fields": {
+      "name": "How Many Habitable Planets Are There?"
+    }
+  }, 
+  {
+    "pk": 16, 
+    "model": "module.module", 
+    "fields": {
+      "name": "How Could We Find Unintelligent Life?"
+    }
+  }, 
+  {
+    "pk": 17, 
+    "model": "module.module", 
+    "fields": {
+      "name": "How Could We Find Intelligent Life?"
+    }
+  }, 
+  {
+    "pk": 18, 
+    "model": "module.module", 
+    "fields": {
+      "name": "How Hard Is It To Detect?"
+    }
+  }, 
+  {
+    "pk": 19, 
+    "model": "module.module", 
+    "fields": {
+      "name": "Course Review"
+    }
+  }, 
+  {
+    "pk": 20, 
+    "model": "module.module", 
+    "fields": {
+      "name": "Important Pre-Course Survey"
+    }
+  }, 
+  {
+    "pk": 21, 
+    "model": "module.module", 
+    "fields": {
+      "name": "Post-Course Survey"
     }
   }
 ]
