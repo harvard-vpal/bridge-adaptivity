@@ -26,7 +26,7 @@
         {% if item.position == position %} active {% endif %}
 
         {# change button style based on item type #}
-        {% if item.type=='problem' %} btn-default {% else %} btn-info {% endif %}
+        {% if item.activity.type == "problem" %} btn-default {% else %} btn-info {% endif %}
         "
         href="{% url 'module:sequence_item' user_module_id=user_module.pk position=item.position %}" role="button">{{ forloop.counter }}</a>
       {% endfor %}

@@ -95,6 +95,7 @@ class Activity(models.Model):
     ))
     dependencies = models.ManyToManyField('Activity', blank=True)
     visible = models.BooleanField(default=False)
+    max_points = models.FloatField(null=True)
 
     class Meta:
         verbose_name_plural = 'Activities'

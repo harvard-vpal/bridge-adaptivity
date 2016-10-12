@@ -8,7 +8,8 @@ def get_generic_label(obj):
 	return "{}: {}".format(obj._meta.model_name, obj.pk)
 
 class ActivityAdmin(admin.ModelAdmin):
-	list_display = ['name','pk', 'module','usage_id']
+	list_display = ['name','id', 'type','module']
+	list_filter = ['type']
 
 class SequenceItemAdmin(admin.ModelAdmin):
 	list_display = ['get_label','activity','get_module','get_user','get_username','position']
