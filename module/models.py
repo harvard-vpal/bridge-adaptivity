@@ -54,19 +54,19 @@ class UserModule(models.Model):
 
     def grade_passback(self):
         '''
-        Grade passback to LMS, accepts grade between 0.0 and 1.0
+        Grade passback to LMS, convert raw grade to a scaled grade between 0.0 and 1.0
         '''
         if not self.ltiparameters:
             return None
 
         # if points earned is greater than max_points, pass back maximum of 100%
-        if self.max_points > 0 and grade < max_points:
-            grade = self.grade/self.max_points
+        if self.max_points > 0 and self.grade < max_points:
+            percent_grade = self.grade/self.max_points
         else:
-            grade = 1
+            percent_grade = 1
 
 
-        response = lti.utils.grade_passback(self, grade)
+        response = lti.utils.grade_passback(self, percent_grade)
         if response:
             print response.description
         return response
