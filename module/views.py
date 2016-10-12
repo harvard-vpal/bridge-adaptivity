@@ -69,7 +69,7 @@ def next_activity(request, user_module_id, position):
         return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
     # check if student has exhausted all servable questions in module; if so, go to completion screen
-    if sequence.filter(type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
+    if sequence.filter(activity__type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
         return redirect('module:sequence_complete', user_module_id=user_module_id)
 
 
