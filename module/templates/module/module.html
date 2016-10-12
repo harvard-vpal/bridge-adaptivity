@@ -20,11 +20,13 @@
       {% endif %}
       " role="group" aria-label="...">
       {% for item in sequence %}
-        <a class="btn btn-default sequence-num 
+        <a class="btn sequence-num 
+
         {# add class active to current problem's button #}
-        {% if item.position == position %}
-          active
-        {% endif %}
+        {% if item.position == position %} active {% endif %}
+
+        {# change button style based on item type #}
+        {% if item.type=='problem' %} btn-default {% else %} btn-info {% endif %}
         "
         href="{% url 'module:sequence_item' user_module_id=user_module.pk position=item.position %}" role="button">{{ forloop.counter }}</a>
       {% endfor %}
