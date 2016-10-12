@@ -85,7 +85,8 @@ class Activity(models.Model):
         ('problem','problem'),
         ('html','html'),
     ))
-    dependencies = models.ManyToManyField(Activity, blank=True)
+    dependencies = models.ManyToManyField('Activity', blank=True)
+    visible = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'Activities'
@@ -133,6 +134,7 @@ class Attempt(models.Model):
         this info kept in same model because they might be from students that may see the question later in the LTI module
     '''
     activity = models.ForeignKey(Activity)
+    # TODO make this required
     user = models.ForeignKey(User,null=True,blank=True)
     # this model can store attempts for users not seen before
     username = models.CharField(max_length=200,null=True,blank=True)
