@@ -81,29 +81,24 @@ def next_activity(request, user_module_id, position):
     user_module_id = int(user_module_id)
     position = int(position)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
-    sequence_length = user_module.sequenceitem_set.count()
-    last_sequence_item = get_object_or_404(SequenceItem, user_module=user_module, position=position)
+    sequence = user_module.sequenceitem_set
+    sequence_length = sequence.count()
+    last_sequence_item = sequence.get(position=position)
     last_activity = last_sequence_item.activity
 
-    # if user hasn't made any attempts, stay on the same sequence item
-    if not Attempt.objects.filter(activity=last_activity).exists():
+    # if user hasn't made any attempts for a problem, stay on the same sequence item
+    if last_activity.type=='problem' and not Attempt.objects.filter(activity=last_activity).exists(): # TODO only do this for activity type=problem
         return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
-    # check if student has exhausted all questions in module; if so, go to completion screen
-    if sequence_length == Activity.objects.filter(module=user_module.module).count():
+    # check if student has exhausted all servable questions in module; if so, go to completion screen
+    if sequence.filter(type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
         return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-    # if not at end of sequence, get the next item in pre-populated sequence
-    if position < sequence_length:
-        next_sequence_item = SequenceItem.objects.get(
-            user_module = user_module,
-            position = position + 1,
-        )
 
-    # if at the end of sequence, ask for a new activity
-    elif position == sequence_length:
+    # if at the most recent item in sequence, ask for a new activity
+    if position == sequence_length:
 
-        # request activity
+        # ACTIVITY REQUEST
         next_activity = utils.get_activity(user_module=user_module)
 
         # if activity service returns same activity as the last one, redirect to last sequence item 
@@ -113,6 +108,14 @@ def next_activity(request, user_module_id, position):
         # if utils.activity() retuns None, this signals that the student completed the module
         if not next_activity:
             return redirect('module:sequence_complete', user_module_id=user_module_id)
+
+        # check next activity for html dependencies
+        # if dependencies not satisfied, create sequence items for html pages
+        for prereq_activity in next_activity.dependencies.all():
+            if prereq_activity not in sequence:
+                next_activity = prereq_activity
+                break 
+                # OPTIONAL could decide to add both html and question as sequence items here
 
         try:
             # look for a next item just in case next_question is triggered more than once before page load, so the later process gets rather than creates a duplicate
