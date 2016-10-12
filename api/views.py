@@ -49,20 +49,42 @@ def problem_attempt(request):
     # submit problem grade info to activity service
     transaction = activity_service.Transaction(attempt)
 
-    # see if there is an existing sequence item corresponding to the user/activity
-    try:
-        sequence_item = SequenceItem.objects.get(user=user,activity=activity)
+    # everything below this point is only relevant for problems that could be served in adaptive modules
+    if not activity.visible:
+        return JsonResponse({
+            'success': True,
+            'message': 'attempt recorded, non-adaptive problem'
+        })
 
+    # try to identify a user module for the activity
+    try:
+        user_module = UserModule.objects.get(user=user,module=activity.module)
+    # if user_module doesn't exist, user hasn't seen the activity yet
     except ObjectDoesNotExist:
         return JsonResponse({
             'success':True,
-            'message': 'attempt recorded outside of module context',
+            'message': 'attempt recorded, outside of adaptive module context',
         })
+
+    # if user_module found, try to find a sequence item within module
+    try:
+        sequence_item = user_module.get(activity=activity)
+    # if activity could have been served in user_module but not served yet, add to user_module
+    except ObjectDoesNotExist:
+        sequence_length = user_module.sequenceitem_set.count()
+        sequence_item = SequenceItem.objects.create(
+            user_module = user_module,
+            activity = activity,
+            position = sequence_length+1,
+        )
+    # shouldn't be true, but just in case there are duplicate activities in sequence
     except MultipleObjectsReturned:
         sequence_item = SequenceItem.objects.filter(user=user,activity=activity).last()
         print "WARNING: Multiple sequence items returned for user={} and activity={}".format(user, activity)
+
+    # at this point, both user_module and sequence item are identified
     
-    # update the attempt object with the sequence item id
+    # update the attempt object with the sequence item
     attempt.sequence_item = sequence_item
     attempt.save(update_fields=['sequence_item'])
 
