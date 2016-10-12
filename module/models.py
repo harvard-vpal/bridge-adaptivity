@@ -75,7 +75,7 @@ class UserModule(models.Model):
 
         # if points earned is greater than max_points, pass back maximum of 100%
         if self.module.max_points > 0 and self.grade < self.module.max_points:
-            percent_grade = self.grade/self.max_points
+            percent_grade = self.grade/self.module.max_points
         else:
             percent_grade = 1
 
