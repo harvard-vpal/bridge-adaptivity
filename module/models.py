@@ -35,6 +35,8 @@ class UserModule(models.Model):
     # position of last sequence_item loaded, take this out?
     last_position = models.PositiveIntegerField(default=1)
     completed = models.BooleanField(default=False)
+    # full credit threshold for module; defined here so that it can be changed lti custom parameter screen
+    max_points = models.FloatField(null=True)
 
     def recompute_grade(self):
         '''
@@ -54,9 +56,15 @@ class UserModule(models.Model):
         '''
         Grade passback to LMS, accepts grade between 0.0 and 1.0
         '''
-        grade = self.grade/self.module.max_points
-        if grade > 1:
+        if not self.ltiparameters:
+            return None
+
+        # if points earned is greater than max_points, pass back maximum of 100%
+        if self.max_points > 0 and grade < max_points:
+            grade = self.grade/self.max_points
+        else:
             grade = 1
+
 
         response = lti.utils.grade_passback(self, grade)
         if response:
@@ -110,6 +118,7 @@ class SequenceItem(models.Model):
     # position within the module sequence this activity is displayed for the user
     position = models.PositiveIntegerField()
     timestamp_created = models.DateTimeField(null=True,auto_now=True)
+    method = models.CharField(max_length=200,blank=True,default='')   # for storing a short description of the method used to select the activity
     # maximum running score for activity
     # grade = models.FloatField(default=0)
 

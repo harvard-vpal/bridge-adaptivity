@@ -9,11 +9,8 @@ class LtiParameters(models.Model):
     Enables asynchronous or API-triggered grade passback
     '''
 
-    max_points = models.FloatField()
     user_module = models.OneToOneField(UserModule)
     timestamp_last_launch = models.DateTimeField(null=True,auto_now=True)
-    # full credit threshold for module
-    max_points = models.FloatField()
 
     # save all raw POST parameters
     data = models.TextField(default='')
