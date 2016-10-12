@@ -122,3 +122,31 @@ def assign_prior_attempts(user_module,sequence_item):
         user = user_module.user,
         sequence_item = sequence_item,
     )
+
+def assign_prior_activities(user_module):
+    '''
+    For a given user_module, searches for previously attempted activities from the module, and associates them with the user_module
+    Use case: when user first sees the module, but they have done activity from the module because they saw it in the forum, etc
+    '''
+    prior_attempts = Attempt.objects.filter(
+        user = user_module.user,
+        activity__module = user_module.module,
+        sequence_item = None,
+    )
+    activity_ids = prior_attempts.values_list('activity',flat=True).distinct()
+    p = user_module.sequenceitem_set.count() # should be zero if used on first load of module
+    for activity_id in activity_ids:
+        p += 1
+        # create new sequence item
+        SequenceItem.objects.create(
+            user_module = user_module,
+            activity = activity_id,
+            position = p
+        )
+        # associate attempts with the new sequence item
+        prior_attempts.filter(activity=activity_id).update(sequence_item=sequence_item)
+
+    return True if prior_attempts else False
+    
+
+
