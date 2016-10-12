@@ -19,6 +19,8 @@ class Module(models.Model):
     '''
     # descriptive name, corresponds to edx subsection title
     name = models.CharField(max_length=200)
+    # full credit threshold for module
+    max_points = models.FloatField(null=True)
 
     def __unicode__(self):
         return "{}: {}".format(self.pk, self.name)
@@ -35,8 +37,20 @@ class UserModule(models.Model):
     # position of last sequence_item loaded, take this out?
     last_position = models.PositiveIntegerField(default=1)
     completed = models.BooleanField(default=False)
-    # full credit threshold for module; defined here so that it can be changed lti custom parameter screen
-    max_points = models.FloatField(null=True)
+
+
+    def __unicode__(self):
+        return "{}: username={}, module={}".format(
+            self.pk,
+            self.ltiparameters.lis_person_sourcedid,
+            self.module.pk
+        )
+
+    def sequence(self):
+        return self.sequenceitem_set
+
+    def sequence_length(self):
+        return self.sequenceitem_set.count()
 
     def recompute_grade(self):
         '''
@@ -71,12 +85,21 @@ class UserModule(models.Model):
             print response.description
         return response
 
-    def __unicode__(self):
-        return "{}: username={}, module={}".format(
-            self.pk,
-            self.ltiparameters.lis_person_sourcedid,
-            self.module.pk
-        )
+    def validate_max_points(self):
+        '''
+        Check if student has seen enough questions in sequence to reach max_points of module
+        '''
+        # undefined or zero max_points for module
+        if not self.module.max_points or self.module.max_points == 0:
+            return True
+        # no sequence_items in current sequence
+        if self.sequence_length() == 0:
+            return False
+        # aggregate max_points of all graded items seen in sequence so far and compare to module max_points
+        if self.sequence().exclude(max_points=None).aggregate(Sum('max_points')) < self.module.max_points:
+            return False
+        # default
+        return True
 
 
 class Activity(models.Model):

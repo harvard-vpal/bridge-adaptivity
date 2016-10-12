@@ -31,7 +31,6 @@ def launch(request):
     user_module, created = UserModule.objects.get_or_create(
         user = request.user,
         module = module,
-        max_points = max_points,
     )
 
     # save or update user LTI parameters in db

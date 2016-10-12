@@ -76,14 +76,14 @@ def next_activity(request, user_module_id, position):
     # if at the most recent item in sequence, ask for a new activity
     if position == sequence_length:
 
-        # ACTIVITY REQUEST
-        next_activity = utils.get_activity(user_module=user_module)
+        # ACTIVITY REQUEST: returns a tuple of (activity object, description)
+        next_activity, method = utils.get_activity(user_module=user_module)
 
         # if activity service returns same activity as the last one, redirect to last sequence item 
         if next_activity == last_activity:
             return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
-        # if utils.activity() retuns None, this signals that the student completed the module
+        # if utils.get_activity() retuns None, this signals that the student completed the module
         if not next_activity:
             return redirect('module:sequence_complete', user_module_id=user_module_id)
 
@@ -98,6 +98,7 @@ def next_activity(request, user_module_id, position):
                 user_module = user_module,
                 position = position + 1,
                 activity = next_activity,
+                method = method,
             )
 
     # go to the next sequence item screen

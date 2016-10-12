@@ -6,14 +6,14 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from time import sleep
 from django.conf import settings
+from django.db.models import Sum
 
 ## choose the recommendation service here
 if settings.ACTIVITY_SERVICE is 'tutorgen':
     import tutorgen_api as activity_service
 else:
     import activity_service.utils as activity_service
-
-# import activity_service.utils as activity_service
+    
 
 def get_first_activity(user_module):
     activity = Activity.objects.filter(module=user_module.module).first()
@@ -52,50 +52,55 @@ def retry_get_activity(user_module, last_activity_id=None):
             retries -= 1
 
 
+def get_next_missing_prereq(user_module, activity):
+    '''
+    Check if a activity has a prereq activity not present in sequence. If so, return first prereq activity
+    '''
+    sequence = user_module.sequenceitem_set
+    for prereq_activity in activity.dependencies.all():
+        if prereq_activity not in sequence:
+            return prereq_activity
+    return None
+
 
 def get_activity(user_module):
     '''
     for a given student, return the recommended next activity
-    uses tutorgen api to get next activity id
-    returns an activity object instance
-    has some backup logic for handling failure cases
+    uses activity service (e.g. tutorgen api) to get next activity id, with backup logic for handling failure cases
+    returns an tuple of (activity object, method), where method is a text description of method used to determine activity
     '''
 
     user = user_module.user
 
 	# get activity from tutorgen
-    # recommended_activity is a object associated with the tutorgen api, rather than a django Activity
     activity_recommendation = activity_service.Activity(user_module)
-    if activity_recommendation.level_up():
-        # signal that module is complete
-        return None
-
     activity_id = activity_recommendation.get_activity_id()
 
-    # backup case
-    # somehow an activity_id isn't found in here, or the request failed
+    # backup case if request failed
     if not activity_id:
-        return get_backup_activity(user_module)
+        activity = get_backup_activity(user_module)
+        method = "backup: activity service request failed"
 
-    # look up activity object by id
-    activity = get_object_or_404(Activity, pk=activity_id)
+    # module completion
+    elif activity_recommendation.level_up():
+        # double check if student has seen enough questions in sequence to reach max_points of module
+        if user_module.validate_max_points():
+            return None, None
+        # if condition not satisfied, serve a backup question instead
+        else:
+            activity = get_backup_activity(user_module)
+            method = "backup: insufficient max_points sequence total"
+
+    else:
+        activity = get_object_or_404(Activity, pk=activity_id)
+        method = "activity service"
 
     # check if activity has unfulfilled manually defined dependencies
-    sequence = user_module.sequenceitem_set
-    for prereq_activity in activity.dependencies.all():
-        if prereq_activity not in sequence:
-            return prereq_activity
+    prereq_activity = get_next_missing_prereq(user_module, activity)
+    if prereq_activity:
+        return prereq_activity, "prerequisite"
 
-    return activity
-
-
-def get_activity_placeholder(**kwargs):
-    '''
-    placeholder function for use in development
-    TODO delete this if not needed anymore
-    '''
-    # placeholder
-    return Activity.objects.get(pk=1)
+    return activity, method
 
 
 def get_random_activity(**kwargs):
