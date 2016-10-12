@@ -25,7 +25,7 @@ def get_backup_activity(user_module):
     get a random activity from the remaining questions left in the module
     '''
     previous_activity_ids = list(user_module.sequenceitem_set.values_list('activity',flat=True))
-    activity = Activity.objects.filter(module=user_module.module).exclude(pk__in=previous_activity_ids).first()
+    activity = Activity.objects.filter(module=user_module.module,visible=True).exclude(pk__in=previous_activity_ids).first()
     return activity
 
 
@@ -65,11 +65,12 @@ def get_activity(user_module):
 
 	# get activity from tutorgen
     # recommended_activity is a object associated with the tutorgen api, rather than a django Activity
-    recommended_activity = activity_service.Activity(user_module)
-    if recommended_activity.level_up():
+    activity_recommendation = activity_service.Activity(user_module)
+    if activity_recommendation.level_up():
+        # signal that module is complete
         return None
 
-    activity_id = recommended_activity.get_activity_id()
+    activity_id = activity_recommendation.get_activity_id()
 
     # backup case
     # somehow an activity_id isn't found in here, or the request failed
@@ -78,6 +79,12 @@ def get_activity(user_module):
 
     # look up activity object by id
     activity = get_object_or_404(Activity, pk=activity_id)
+
+    # check if activity has unfulfilled manually defined dependencies
+    sequence = user_module.sequenceitem_set
+    for prereq_activity in activity.dependencies.all():
+        if prereq_activity not in sequence:
+            return prereq_activity
 
     return activity
 
@@ -98,6 +105,7 @@ def get_random_activity(**kwargs):
     N = len(Activity.objects.all())
     activity_id = random.randint(1,N)
     return activity_id
+
 
 def assign_prior_attempts(user_module,sequence_item):
     '''

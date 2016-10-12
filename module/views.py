@@ -109,14 +109,6 @@ def next_activity(request, user_module_id, position):
         if not next_activity:
             return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-        # check next activity for html dependencies
-        # if dependencies not satisfied, create sequence items for html pages
-        for prereq_activity in next_activity.dependencies.all():
-            if prereq_activity not in sequence:
-                next_activity = prereq_activity
-                break 
-                # OPTIONAL could decide to add both html and question as sequence items here
-
         try:
             # look for a next item just in case next_question is triggered more than once before page load, so the later process gets rather than creates a duplicate
             next_sequence_item = SequenceItem.objects.get(
