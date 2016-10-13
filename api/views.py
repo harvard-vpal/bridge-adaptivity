@@ -89,7 +89,6 @@ def problem_attempt(request):
     attempt.save(update_fields=['sequence_item'])
 
     # recompute user_module.grade state and do grade passback
-    user.module = sequence_item.user_module
     user_module.recompute_grade()
     user_module.grade_passback()
 

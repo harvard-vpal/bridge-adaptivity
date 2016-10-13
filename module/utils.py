@@ -46,6 +46,7 @@ def get_activity(user_module):
     uses activity service (e.g. tutorgen api) to get next activity id, with backup logic for handling failure cases
     returns an tuple of (activity object, method), where method is a text description of method used to determine activity
     '''
+    #TODO handle case where activity already ssen before in module is served
 
 	# get activity from tutorgen
     activity_recommendation = activity_service.Activity(user_module)
@@ -53,6 +54,7 @@ def get_activity(user_module):
 
     # backup case if request failed
     if not activity_id:
+        # OPTIONAL could do another activity service request here
         activity = get_backup_activity(user_module)
         method = "backup: activity service request failed"
 

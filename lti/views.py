@@ -25,6 +25,8 @@ def launch(request):
         raise Http404('custom parameter "module" not specified in custom LTI parameters')
     module_id = int(request.POST['custom_module'])
     module = get_object_or_404(Module,pk=module_id)
+
+    # TODO probably cross check this with existing value under module model
     max_points = float(request.POST['custom_max_points'])
 
     # create new usermodule object if doesnt exist

@@ -691,15 +691,15 @@
   {
     "pk": 5, 
     "model": "module.activity", 
-    "dependencies": [
-      173
-    ], 
     "fields": {
       "name": "Gravitational Redshift on the Sun", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a", 
       "module": 1, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        173
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a"
     }
@@ -707,15 +707,15 @@
   {
     "pk": 6, 
     "model": "module.activity", 
-    "dependencies": [
-      173
-    ], 
     "fields": {
       "name": "The Deflection of Mercury", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486", 
       "module": 1, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        173
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486"
     }
@@ -723,15 +723,15 @@
   {
     "pk": 7, 
     "model": "module.activity", 
-    "dependencies": [
-      175
-    ], 
     "fields": {
       "name": "Parallax Angle", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1", 
       "module": 1, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        175
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1"
     }
@@ -739,16 +739,16 @@
   {
     "pk": 8, 
     "model": "module.activity", 
-    "dependencies": [
-      174, 
-      175
-    ], 
     "fields": {
       "name": "Telescope Size", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11", 
       "module": 1, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        174, 
+        175
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11"
     }
@@ -756,15 +756,15 @@
   {
     "pk": 11, 
     "model": "module.activity", 
-    "dependencies": [
-      176
-    ], 
     "fields": {
       "name": "Ion Drive", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879", 
       "module": 1, 
       "visible": true, 
       "max_points": 5.0, 
+      "dependencies": [
+        176
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879"
     }
@@ -902,15 +902,15 @@
   {
     "pk": 16, 
     "model": "module.activity", 
-    "dependencies": [
-      175
-    ], 
     "fields": {
       "name": "Kepler Planet Distance", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d", 
       "module": 2, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        175
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d"
     }
@@ -918,15 +918,15 @@
   {
     "pk": 17, 
     "model": "module.activity", 
-    "dependencies": [
-      178
-    ], 
     "fields": {
       "name": "Kepler Planet Speed", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb", 
       "module": 2, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        178
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb"
     }
@@ -934,15 +934,15 @@
   {
     "pk": 18, 
     "model": "module.activity", 
-    "dependencies": [
-      178
-    ], 
     "fields": {
       "name": "A New Kepler Planet?", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db", 
       "module": 2, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        178
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db"
     }
@@ -950,15 +950,15 @@
   {
     "pk": 22, 
     "model": "module.activity", 
-    "dependencies": [
-      179
-    ], 
     "fields": {
       "name": "Star Clusters", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc", 
       "module": 2, 
       "visible": true, 
       "max_points": 5.0, 
+      "dependencies": [
+        179
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc"
     }
@@ -1239,15 +1239,15 @@
   {
     "pk": 25, 
     "model": "module.activity", 
-    "dependencies": [
-      180
-    ], 
     "fields": {
       "name": "A Brighter Sun", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a", 
       "module": 3, 
       "visible": true, 
       "max_points": 10.0, 
+      "dependencies": [
+        180
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a"
     }
@@ -1255,15 +1255,15 @@
   {
     "pk": 28, 
     "model": "module.activity", 
-    "dependencies": [
-      181
-    ], 
     "fields": {
       "name": "Volcanoes and Climate", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71", 
       "module": 3, 
       "visible": true, 
       "max_points": 5.0, 
+      "dependencies": [
+        181
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71"
     }
@@ -1505,16 +1505,16 @@
   {
     "pk": 38, 
     "model": "module.activity", 
-    "dependencies": [
-      183, 
-      184
-    ], 
     "fields": {
       "name": "Limestone", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093", 
       "module": 4, 
       "visible": true, 
       "max_points": 5.0, 
+      "dependencies": [
+        183, 
+        184
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093"
     }
@@ -1535,15 +1535,15 @@
   {
     "pk": 37, 
     "model": "module.activity", 
-    "dependencies": [
-      182
-    ], 
     "fields": {
       "name": "Changes in Temperature", 
       "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d", 
       "module": 4, 
       "visible": true, 
       "max_points": 5.0, 
+      "dependencies": [
+        182
+      ], 
       "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d"
     }
