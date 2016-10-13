@@ -4,6 +4,8 @@ from module import utils
 from lti.utils import grade_passback
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
+from django.contrib.auth.models import User
+
 
 ## choose the recommendation service here
 if settings.ACTIVITY_SERVICE is 'tutorgen':
