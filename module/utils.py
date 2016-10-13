@@ -34,8 +34,9 @@ def get_next_missing_prereq(user_module, activity):
     '''
     Check if a activity has a prereq activity not present in sequence. If so, return first prereq activity
     '''
+    user_module_activities = [item.activity for item in user_module.sequence()]
     for prereq_activity in activity.dependencies.all():
-        if prereq_activity not in user_module.sequenceitem_set.all():
+        if prereq_activity not in user_module_activities:
             return prereq_activity
     return None
 
