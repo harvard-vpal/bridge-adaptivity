@@ -12,7 +12,7 @@ class ActivityAdmin(admin.ModelAdmin):
 	list_filter = ['type']
 
 class SequenceItemAdmin(admin.ModelAdmin):
-	list_display = ['get_label','activity','get_module','get_user','get_username','position', 'method']
+	list_display = ['get_label','activity','get_module','position','method','get_username', 'get_user',]
 	list_filter = ['user_module']
 
 	def get_user(self, obj):
@@ -21,9 +21,9 @@ class SequenceItemAdmin(admin.ModelAdmin):
 	get_user.admin_order_field = 'user_module__user'
 
 	def get_username(self, obj):
-		return obj.user_module.ltiparameters.lis_person_sourcedid
-	get_username.short_description = 'edx username'
-	get_username.admin_order_field = 'user_module__ltiparameters__lis_person_sourcedid'
+		return obj.user_module.user.username
+	get_username.short_description = 'username'
+	get_username.admin_order_field = 'user_module__user'
 
 	def get_module(self, obj):
 		return obj.user_module.module.pk
