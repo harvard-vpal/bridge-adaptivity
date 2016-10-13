@@ -3,15 +3,15 @@ $(document).ready(function(){
 
     var problemID;
     
-    $('button.check').off('.hx').one('click.hx tap.hx', function(event){
+    $('button.submit').off('.hx').one('click.hx tap.hx', function(event){
         problemID = $(this).closest('.xblock').attr('data-usage-id');
         onCheckButton(problemID);
     });
 
     function afterButtonPress(problemID){
         
-        // Add new listener to the check button.
-        var theButton = $('div.xblock[data-usage-id="' + problemID + '"]').find('button.check');
+        // Add new listener to the submit button.
+        var theButton = $('div.xblock[data-usage-id="' + problemID + '"]').find('button.submit');
         theButton.off('.hx').on('click.hx tap.hx', function(problemID){
             problemID = $(this).closest('.xblock').attr('data-usage-id');
             onCheckButton(problemID);
@@ -24,23 +24,18 @@ $(document).ready(function(){
         var maxGradeNumber = 0;
         
         var gradeFullText = $('div.xblock[data-usage-id="' + problemID + '"]').find('.problem-progress').text();
-        var gradeText = gradeFullText.split('/');
+        var gradeText = gradeFullText.split(' ')[0];
         
         if(gradeText.length > 1){
-            gradeNumber = gradeText[0].split('(')[1];
-            maxGradeNumber = gradeText[1].split(' ')[0];
+            gradeNumber = gradeText.split('/')[0];
+            maxGradeNumber = gradeText.split('/')[1];
         }else{
-            maxGradeNumber = gradeText[0].split(' ')[0].split('(')[1];
+            maxGradeNumber = gradeText;
         }
 
-        // Get username 
-        var username;
-        username = analytics._user._getTraits()['username'];
-        // If analytics user info is empty, grab from browser cookie
-        if (!username){
-            username = JSON.parse(eval(getCookie('prod-edx-user-info')))['username'];
-        }
-
+        // Get username after button press, since analytics variable not available right away at document.ready
+        var username = analytics._user._getTraits()['username'];
+        
         //Log info: edX username, problem ID, current and maximum grade.
         console.log('User: ' + username);
         console.log('Problem ID: ' + problemID);
@@ -63,22 +58,6 @@ $(document).ready(function(){
         
         // Wait before rebinding the listeners and getting the log info.
         setTimeout(afterButtonPress.bind(null, problemID), 2000);
-    }
-
-    function getCookie(cname){
-        // get a value of a browser cookie
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i = 0; i <ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0)==' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length,c.length);
-            }
-        }
-        return "";
     }
 
 });
