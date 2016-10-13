@@ -12,7 +12,7 @@ class ActivityAdmin(admin.ModelAdmin):
 	list_filter = ['type']
 
 class SequenceItemAdmin(admin.ModelAdmin):
-	list_display = ['get_label','activity','get_module','get_user','get_username','position']
+	list_display = ['get_label','activity','get_module','get_user','get_username','position', 'method']
 	list_filter = ['user_module']
 
 	def get_user(self, obj):

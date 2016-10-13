@@ -34,11 +34,21 @@ def get_next_missing_prereq(user_module, activity):
     '''
     Check if a activity has a prereq activity not present in sequence. If so, return first prereq activity
     '''
-    user_module_activities = [item.activity for item in user_module.sequence()]
+    sequence_activities = [item.activity for item in user_module.sequence()]
     for prereq_activity in activity.dependencies.all():
-        if prereq_activity not in user_module_activities:
+        if prereq_activity not in sequence_activities:
             return prereq_activity
     return None
+
+
+def validate_sequence_history(user_module, activity):
+
+    # activity ids of previously seen activities; used to check for repeated activity
+    sequence_activity_ids = user_module.sequence().values_list('activity',flat=True)
+
+    # check if activity has been seen before in sequence
+    if activity_id in sequence_activity_ids:
+    
 
 
 def get_activity(user_module):
@@ -47,9 +57,8 @@ def get_activity(user_module):
     uses activity service (e.g. tutorgen api) to get next activity id, with backup logic for handling failure cases
     returns an tuple of (activity object, method), where method is a text description of method used to determine activity
     '''
-    #TODO handle case where activity already ssen before in module is served
 
-	# get activity from tutorgen
+	# ACTIVITY SERVICE: GET ACTIVITY
     activity_recommendation = activity_service.Activity(user_module)
     activity_id = activity_recommendation.get_activity_id()
 
@@ -58,6 +67,11 @@ def get_activity(user_module):
         # OPTIONAL could do another activity service request here
         activity = get_backup_activity(user_module)
         method = "backup: activity service request failed"
+
+    # check if activity has been seen before in sequence (excluding last item)
+    elif len(sequence_activity_ids)>1 and activity_id in sequence_activity_ids[:-1]:
+        activity = get_backup_activity(user_module)
+        method = "backup: activity service recommended activity previously seen in sequence"
 
     # module completion
     elif activity_recommendation.level_up():
@@ -73,7 +87,7 @@ def get_activity(user_module):
         activity = get_object_or_404(Activity, pk=activity_id)
         method = "activity service"
 
-    # check if activity has unfulfilled manually defined dependencies
+    # check if activity has unfulfilled manually defined dependencies, if so replace the next activity with a prereq
     prereq_activity = get_next_missing_prereq(user_module, activity)
     if prereq_activity:
         return prereq_activity, "prerequisite"
