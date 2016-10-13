@@ -115,10 +115,6 @@ def sequence_item(request, user_module_id, position):
     sequence = user_module.sequence()
     sequence_item = sequence.get(position=position)
 
-    # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
-    # # in that case, associate the attempts with this sequence item / user
-    # utils.assign_prior_attempts(user_module, sequence_item)
-
     # update grade to display and do grade passback
     user_module.recompute_grade()
     user_module.grade_passback()

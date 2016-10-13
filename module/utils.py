@@ -19,6 +19,7 @@ def get_first_activity(user_module):
     activity = Activity.objects.filter(module=user_module.module).first()
     return activity
 
+
 def get_backup_activity(user_module):
     '''
     hopefully don't use this
@@ -27,29 +28,6 @@ def get_backup_activity(user_module):
     previous_activity_ids = list(user_module.sequenceitem_set.values_list('activity',flat=True))
     activity = Activity.objects.filter(module=user_module.module,visible=True).exclude(pk__in=previous_activity_ids).first()
     return activity
-
-
-def retry_get_activity(user_module, last_activity_id=None):
-    '''
-    # maybe transaction hasn't updated the system yet and the same activity as the last one is returned
-    # in this case retry after a 2 second wait
-
-    '''
-    user = user_module.user
-
-    NUM_RETRIES = 1 # number of extra retries in case returned activity id is same as last activity
-    TIME_BETWEEN_RETRIES = 2 # time in seconds between retries
-
-    if activity_id == last_activity_id:
-        # number of extra retries
-        retries = NUM_RETRIES
-        while retries > 0:
-            sleep(TIME_BETWEEN_RETRIES)
-            activity_id = activity_service.get_activity_id(
-                user = user,
-                module = module,
-            )
-            retries -= 1
 
 
 def get_next_missing_prereq(user_module, activity):
@@ -108,22 +86,6 @@ def get_random_activity(**kwargs):
     activity_id = random.randint(1,N)
     return activity_id
 
-
-def assign_prior_attempts(user_module,sequence_item):
-    '''
-    # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
-    # # in that case, associate the attempts with this sequence item / user
-    sequence item should already have somethign assigned to it
-    '''
-    prior_attempts = Attempt.objects.filter(
-        username=user_module.ltiparameters.lis_person_sourcedid,
-        activity=sequence_item.activity,
-        user = None,
-        sequence_item = None
-    ).update(
-        user = user_module.user,
-        sequence_item = sequence_item,
-    )
 
 def assign_prior_activities(user_module):
     '''
