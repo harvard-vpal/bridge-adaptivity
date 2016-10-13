@@ -46,9 +46,6 @@ def launch(request, user_module_id):
     return redirect('module:sequence_item', user_module_id=user_module_id, position=last_position)
     
 
-
-
-
 def next_activity(request, user_module_id, position):
     '''
     Called when student clicks the "next" button - 
