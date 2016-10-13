@@ -4,8 +4,6 @@ from module import utils
 from lti.utils import grade_passback
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
-from django.contrib.auth.models import User
-
 
 ## choose the recommendation service here
 if settings.ACTIVITY_SERVICE is 'tutorgen':
@@ -36,7 +34,7 @@ def problem_attempt(request):
             'success':False,
             'message': 'username not given',
         })
-    user = User.objects.get_or_create(username=request.POST['user'])
+    user, created = User.objects.get_or_create(username=request.POST['user'])
     
     # create and save the attempt
     attempt = Attempt.objects.create(
