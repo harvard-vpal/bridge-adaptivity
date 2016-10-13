@@ -19,7 +19,7 @@ def launch(request, user_module_id):
     '''
     user_module_id = int(user_module_id)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
-    sequence = user_module.sequenceitem_set.order_by('position')
+    sequence = user_module.sequence()
     
     # existing activity history: go to the last activity
     if sequence.exists():
@@ -59,7 +59,7 @@ def next_activity(request, user_module_id, position):
     user_module_id = int(user_module_id)
     position = int(position)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
-    sequence = user_module.sequenceitem_set
+    sequence = user_module.sequence()
     sequence_length = sequence.count()
     last_sequence_item = sequence.get(position=position)
     last_activity = last_sequence_item.activity
@@ -112,7 +112,7 @@ def sequence_item(request, user_module_id, position):
     user_module_id = int(user_module_id)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
     
-    sequence = user_module.sequenceitem_set.order_by('position')
+    sequence = user_module.sequence()
     sequence_item = sequence.get(position=position)
 
     # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
@@ -145,7 +145,7 @@ def sequence_complete(request, user_module_id):
     user_module.completed = True
     user_module.save()
 
-    sequence = user_module.sequenceitem_set.order_by('position')
+    sequence = user_module.sequence()
 
     # update grade to display and do grade passback
     user_module.recompute_grade()

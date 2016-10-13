@@ -68,7 +68,7 @@ def problem_attempt(request):
 
     # if user_module found, try to find a sequence item within module
     try:
-        sequence_item = user_module.get(activity=activity)
+        sequence_item = user_module.sequenceitem_set.get(activity=activity)
     # if activity could have been served in user_module but not served yet, add to user_module
     except ObjectDoesNotExist:
         sequence_length = user_module.sequenceitem_set.count()

@@ -47,7 +47,7 @@ class UserModule(models.Model):
         )
 
     def sequence(self):
-        return self.sequenceitem_set
+        return self.sequenceitem_set.order_by('position')
 
     def sequence_length(self):
         return self.sequenceitem_set.count()
@@ -96,7 +96,7 @@ class UserModule(models.Model):
         if self.sequence_length() == 0:
             return False
         # aggregate max_points of all graded items seen in sequence so far and compare to module max_points
-        if self.sequence().exclude(max_points=None).aggregate(Sum('max_points')) < self.module.max_points:
+        if self.sequenceitem_set.exclude(max_points=None).aggregate(Sum('max_points')) < self.module.max_points:
             return False
         # default
         return True

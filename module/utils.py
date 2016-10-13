@@ -13,7 +13,7 @@ if settings.ACTIVITY_SERVICE is 'tutorgen':
     import tutorgen_api as activity_service
 else:
     import activity_service.utils as activity_service
-    
+
 
 def get_first_activity(user_module):
     activity = Activity.objects.filter(module=user_module.module).first()
@@ -56,9 +56,8 @@ def get_next_missing_prereq(user_module, activity):
     '''
     Check if a activity has a prereq activity not present in sequence. If so, return first prereq activity
     '''
-    sequence = user_module.sequenceitem_set
     for prereq_activity in activity.dependencies.all():
-        if prereq_activity not in sequence:
+        if prereq_activity not in user_module.sequenceitem_set.all():
             return prereq_activity
     return None
 
@@ -69,8 +68,6 @@ def get_activity(user_module):
     uses activity service (e.g. tutorgen api) to get next activity id, with backup logic for handling failure cases
     returns an tuple of (activity object, method), where method is a text description of method used to determine activity
     '''
-
-    user = user_module.user
 
 	# get activity from tutorgen
     activity_recommendation = activity_service.Activity(user_module)
