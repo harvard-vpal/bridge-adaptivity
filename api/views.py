@@ -81,6 +81,7 @@ def problem_attempt(request):
             user_module = user_module,
             activity = activity,
             position = sequence_length+1,
+            method = "problem seen outside of module context added to existing user module",
         )
     # shouldn't be true, but just in case there are duplicate activities in sequence
     except MultipleObjectsReturned:
