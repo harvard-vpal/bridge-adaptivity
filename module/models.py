@@ -162,15 +162,11 @@ class SequenceItem(models.Model):
 
 class Attempt(models.Model):
     '''
-    Row for each time a student makes a problem attempt.
-    Instances are also made when problems are submitted outside of LTI module context;
-        this info kept in same model because they might be from students that may see the question later in the LTI module
+    problem attempt by a student
     '''
     activity = models.ForeignKey(Activity)
     # TODO make this required
     user = models.ForeignKey(User,null=True,blank=True)
-    # this model can store attempts for users not seen before
-    username = models.CharField(max_length=200,null=True,blank=True)
     # user score for specific attempt
     points = models.FloatField()
     # number of points possible for problem
