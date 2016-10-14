@@ -8,8 +8,7 @@ class LtiParameters(models.Model):
     Used to store outcome service url for a particular user and module
     Enables asynchronous or API-triggered grade passback
     '''
-    # user = models.ForeignKey(User)
-    # module = models.ForeignKey(Module)
+
     user_module = models.OneToOneField(UserModule)
     timestamp_last_launch = models.DateTimeField(null=True,auto_now=True)
 
@@ -22,7 +21,7 @@ class LtiParameters(models.Model):
     oauth_consumer_key = models.CharField(max_length=300,default='')
     user_id = models.CharField(max_length=300,default='') # lti user id
     lis_person_sourcedid = models.CharField(max_length=300,default='') #edx username
-    # roles
+    roles = models.CharField(max_length=300,default='') # roles
 
     parameter_list = [
         'lis_outcome_service_url',
@@ -30,6 +29,7 @@ class LtiParameters(models.Model):
         'oauth_consumer_key',
         'user_id',
         'lis_person_sourcedid',
+        'roles',
     ]
 
     class Meta:
