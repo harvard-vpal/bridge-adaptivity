@@ -51,8 +51,9 @@ class LtiParametersAdmin(admin.ModelAdmin):
 		return get_generic_label(obj)
 
 class AttemptAdmin(admin.ModelAdmin):
-	list_display = ['get_label','activity','username', 'points','max_points','sequence_item','user','timestamp']
+	list_display = ['get_label','activity', 'points','max_points','sequence_item','user','timestamp']
 	readonly_fields = ['timestamp']
+	list_filter = ['user','activity']
 	def get_label(self,obj):
 		return get_generic_label(obj)
 
