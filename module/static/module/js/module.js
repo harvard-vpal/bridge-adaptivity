@@ -13,6 +13,7 @@ $(document).ready(function(){
 
     // after timeout, follow the next activity link
     function afterTimeout(){
+        console.log(next_button.attr('href'));
         window.location = next_button.attr('href');
     }
 
