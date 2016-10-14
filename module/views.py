@@ -63,7 +63,7 @@ def next_activity(request, user_module_id, position):
     last_activity = last_sequence_item.activity
 
     # if user hasn't made any attempts for a problem, stay on the same sequence item
-    if last_activity.type=='problem' and not Attempt.objects.filter(activity=last_activity).exists(): # TODO only do this for activity type=problem
+    if last_activity.type=='problem' and not Attempt.objects.filter(sequence_item=last_sequence_item).exists():
         return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
     # if at the most recent item in sequence, ask for a new activity
