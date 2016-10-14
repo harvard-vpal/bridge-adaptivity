@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from module.models import *
 from module import utils
 from lti.utils import grade_passback
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
 
 ## choose the recommendation service here
@@ -17,7 +17,7 @@ def problem_attempt(request):
     when students make a problem submission in edx, 
     embedded javascript sends the answer data to this API endpoint    
     '''
-    
+    print "[problem_attempt]: problem attempt API submission recieved"
     # identify problem based on usage id
     try: 
         activity = Activity.objects.get(usage_id = request.POST['problem'])
@@ -27,53 +27,80 @@ def problem_attempt(request):
             'message': 'problem not found for given usage id'
         })
 
+    print "[problem_attempt]: getting or creating user"
+    # get or create the user by the edx username
+    username = request.POST.get('user','')
+    if not username:
+        return JsonResponse({
+            'success':False,
+            'message': 'username not given',
+        })
+    user, created = User.objects.get_or_create(username=request.POST['user'])
+    
+    print "[problem_attempt]: creating or saving attempt"
     # create and save the attempt
     attempt = Attempt.objects.create(
         activity = activity,
-        username = request.POST['user'],
+        user = user,
         points = float(request.POST['points']),
-        max_points = float(request.POST.get('max_points', 0)), # max_points may not be passed for some questions
+        # max_points may not be passed if question is ungraded, in which case it is set to 0
+        max_points = float(request.POST.get('max_points', 0)), 
     )
 
-    # attempt to populate user field on attempt instance
-    # identify user by looking for existing user_module, based on edx username and activity.module
-    try: 
-        user_module = UserModule.objects.get(
-            ltiparameters__lis_person_sourcedid = request.POST['user'],
-            module = activity.module,
-        )
-        # set user object on attempt.user
-        attempt.user = user_module.user
-        attempt.save(update_fields=['user'])
-
-    # if there is no existing user module, still save attempt instance but take no further action (like posting transaction to activity service)
-    except ObjectDoesNotExist:
-        return JsonResponse({
-            'success':True,
-            'message': 'attempt recorded, but user_module not identified',
-        })
-
+    print "[problem_attempt]: sending transaction to activity service"
+    # ACTIVITY SERVICE: TRANSACTION
     # submit problem grade info to activity service
     transaction = activity_service.Transaction(attempt)
 
-    # identify the sequence_item for the activity
-    try:
-        attempt.sequence_item = user_module.sequenceitem_set.get(activity=activity)
-        attempt.save(update_fields=['sequence_item'])
+    # everything below this point is only relevant for problems that could be served in adaptive modules
+    if not activity.visible:
+        return JsonResponse({
+            'success': True,
+            'message': 'attempt recorded, non-adaptive problem'
+        })
 
-    # catches a case where student does the problem outside the lti module, before they see the activity in the module
+    print "[problem_attempt]: identifying user module"
+    # try to identify a user module for the activity
+    try:
+        user_module = UserModule.objects.get(user=user,module=activity.module)
+    # if user_module doesn't exist, user hasn't seen the activity yet
     except ObjectDoesNotExist:
         return JsonResponse({
             'success':True,
-            'message': 'attempt recorded and user_module identified, but sequence_item with specified activity not found',
+            'message': 'attempt recorded, outside of adaptive module context',
         })
 
+    print "[problem_attempt]: identifying sequence_item"
+    # if user_module found, try to find a sequence item within module
+    try:
+        sequence_item = user_module.sequenceitem_set.get(activity=activity)
+    # if activity could have been served in user_module but not served yet, add to user_module
+    except ObjectDoesNotExist:
+        sequence_length = user_module.sequenceitem_set.count()
+        sequence_item = SequenceItem.objects.create(
+            user_module = user_module,
+            activity = activity,
+            position = sequence_length+1,
+        )
+    # shouldn't be true, but just in case there are duplicate activities in sequence
+    except MultipleObjectsReturned:
+        sequence_item = SequenceItem.objects.filter(user=user,activity=activity).last()
+        print "WARNING: Multiple sequence items returned for user={} and activity={}".format(user, activity)
+
+    # at this point, both user_module and sequence item are identified
+    
+    # update the attempt object with the sequence item
+    attempt.sequence_item = sequence_item
+    attempt.save(update_fields=['sequence_item'])
+
+    print "[problem_attempt]: recomputing grade"
     # recompute user_module.grade state and do grade passback
     user_module.recompute_grade()
+    print "[problem_attempt]: doing grade passback"
     user_module.grade_passback()
-
+    print "[problem_attempt]: grade passback completed"
     return JsonResponse({
         'success':True,
-        'message':'Grade submitted successfully',
+        'message':'attempt recorded and module grade updated',
     })
 

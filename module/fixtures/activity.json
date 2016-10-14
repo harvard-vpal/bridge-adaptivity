@@ -1,11 +1,612 @@
 [
   {
+    "pk": 40, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Multiple Choice", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f729548e1b3244aebba483a32881ea60", 
+      "module": 5, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f729548e1b3244aebba483a32881ea60"
+    }
+  }, 
+  {
+    "pk": 41, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Dropdown", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@22c0bc0811394e1abd3bb466d06eeb71", 
+      "module": 5, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@22c0bc0811394e1abd3bb466d06eeb71"
+    }
+  }, 
+  {
+    "pk": 42, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Checkboxes", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8a497e374278446cb36f6dfc0417b720", 
+      "module": 5, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8a497e374278446cb36f6dfc0417b720"
+    }
+  }, 
+  {
+    "pk": 43, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Numerical Input", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@96d58ca5212441fcb033bd7ed22e833d", 
+      "module": 5, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@96d58ca5212441fcb033bd7ed22e833d"
+    }
+  }, 
+  {
+    "pk": 44, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Exponential Input", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@227734d8593643fe8017cc963b2b5861", 
+      "module": 5, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@227734d8593643fe8017cc963b2b5861"
+    }
+  }, 
+  {
+    "pk": 45, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Matching", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@eb4ecd8f822d441cacf2dd59d9d6bbbe", 
+      "module": 5, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@eb4ecd8f822d441cacf2dd59d9d6bbbe"
+    }
+  }, 
+  {
+    "pk": 46, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Section Order", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@92501b19e4284b27b3ab242886dbe92b", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@92501b19e4284b27b3ab242886dbe92b"
+    }
+  }, 
+  {
+    "pk": 47, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Grades", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3744561e973d420d821ef26b33199ca3", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3744561e973d420d821ef26b33199ca3"
+    }
+  }, 
+  {
+    "pk": 48, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Certificates", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0c00cf455a5540849cc4d45e8cfad5de", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0c00cf455a5540849cc4d45e8cfad5de"
+    }
+  }, 
+  {
+    "pk": 49, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Navigating from Page to Page", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5c57776283b45d7822550e25fffc613", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5c57776283b45d7822550e25fffc613"
+    }
+  }, 
+  {
+    "pk": 50, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Collaboration", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@945543bdd20141e3b6d476f13a3b514f", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@945543bdd20141e3b6d476f13a3b514f"
+    }
+  }, 
+  {
+    "pk": 51, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "STAFF posts", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8ccad1b9b24d4b6f9b44960723b7416c", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8ccad1b9b24d4b6f9b44960723b7416c"
+    }
+  }, 
+  {
+    "pk": 52, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Where to Learn More", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@679b532ba9674a5098055eabb0da17da", 
+      "module": 6, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@679b532ba9674a5098055eabb0da17da"
+    }
+  }, 
+  {
+    "pk": 53, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Where is Life?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fb3e84a222f24c3a8f9b3964f22d9ff7", 
+      "module": 7, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fb3e84a222f24c3a8f9b3964f22d9ff7"
+    }
+  }, 
+  {
+    "pk": 54, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Where is Life?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7c81957ce97740edb2270845392e5a61", 
+      "module": 7, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7c81957ce97740edb2270845392e5a61"
+    }
+  }, 
+  {
+    "pk": 55, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mathematical Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@eb6d3123e2564b6eb6eaacd6441f3ce0", 
+      "module": 7, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@eb6d3123e2564b6eb6eaacd6441f3ce0"
+    }
+  }, 
+  {
+    "pk": 56, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Chemical Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6025f2f8274d47f283e497fa07642394", 
+      "module": 7, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6025f2f8274d47f283e497fa07642394"
+    }
+  }, 
+  {
+    "pk": 57, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Wood Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7ecbf41e36d6477c97e8ed857f5bf8f6", 
+      "module": 7, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7ecbf41e36d6477c97e8ed857f5bf8f6"
+    }
+  }, 
+  {
+    "pk": 58, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Oxygen", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5a1a466cc71f45b793156e0f6485863f", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5a1a466cc71f45b793156e0f6485863f"
+    }
+  }, 
+  {
+    "pk": 59, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Element Abundance", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@07a6815fcc394ba3b98aef6fa39f3014", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@07a6815fcc394ba3b98aef6fa39f3014"
+    }
+  }, 
+  {
+    "pk": 60, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Oxygen", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa7c8086bb3d4350b988b8c927003fa3", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa7c8086bb3d4350b988b8c927003fa3"
+    }
+  }, 
+  {
+    "pk": 61, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Element Abundance", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7703ae66aa2b4bebb8d59ea06aebd8d7", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7703ae66aa2b4bebb8d59ea06aebd8d7"
+    }
+  }, 
+  {
+    "pk": 62, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Enzymes", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@36373d3b18d543c3bc957e60a846ba7b", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@36373d3b18d543c3bc957e60a846ba7b"
+    }
+  }, 
+  {
+    "pk": 63, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Water", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@527eb5b38a50417daf6797dfba533c94", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@527eb5b38a50417daf6797dfba533c94"
+    }
+  }, 
+  {
+    "pk": 64, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Building Blocks", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@77206743c4cb4dcaa4b525c1e3da695f", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@77206743c4cb4dcaa4b525c1e3da695f"
+    }
+  }, 
+  {
+    "pk": 65, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Why Stars?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f7e7d3c138e4449bb14ec7e4c0edb563", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f7e7d3c138e4449bb14ec7e4c0edb563"
+    }
+  }, 
+  {
+    "pk": 66, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "The First Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d2c770b2a0c44951b56e64f8e10b0290", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d2c770b2a0c44951b56e64f8e10b0290"
+    }
+  }, 
+  {
+    "pk": 67, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Changing Atoms", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a58fe97ffa484b0393ed2cb8976bbd65", 
+      "module": 8, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a58fe97ffa484b0393ed2cb8976bbd65"
+    }
+  }, 
+  {
+    "pk": 68, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Darwin", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b424e67a162f40b9b75b07f871bcb91f", 
+      "module": 9, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b424e67a162f40b9b75b07f871bcb91f"
+    }
+  }, 
+  {
+    "pk": 69, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Darwin", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2d4b493b5ee6412e9f7fa95758bd6ac1", 
+      "module": 9, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2d4b493b5ee6412e9f7fa95758bd6ac1"
+    }
+  }, 
+  {
+    "pk": 70, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Evolution and Genetic Material", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@979f9fd25b6547018a71bc135a544310", 
+      "module": 9, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@979f9fd25b6547018a71bc135a544310"
+    }
+  }, 
+  {
+    "pk": 71, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mutation", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0279a6e4db2c4375911fb0f1c4e0b6e7", 
+      "module": 9, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0279a6e4db2c4375911fb0f1c4e0b6e7"
+    }
+  }, 
+  {
+    "pk": 72, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Tree of Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa62b9e6b9404660a9eea051c94155fb", 
+      "module": 9, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa62b9e6b9404660a9eea051c94155fb"
+    }
+  }, 
+  {
+    "pk": 73, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Cells", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@54550ed7665c451d93ee586c441a5596", 
+      "module": 10, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@54550ed7665c451d93ee586c441a5596"
+    }
+  }, 
+  {
+    "pk": 74, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Cells", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9d24eda702b943a887209680ec8be391", 
+      "module": 10, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9d24eda702b943a887209680ec8be391"
+    }
+  }, 
+  {
+    "pk": 75, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Cell Components", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@095eea02b1574ae09fb61eb3c4f5d0cc", 
+      "module": 10, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@095eea02b1574ae09fb61eb3c4f5d0cc"
+    }
+  }, 
+  {
+    "pk": 76, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Find the Missing Link", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@e637788f269a4646b0772f7ccddb0e96", 
+      "module": 10, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@e637788f269a4646b0772f7ccddb0e96"
+    }
+  }, 
+  {
+    "pk": 77, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Life Questions", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@824b148739504ac5b818fbbb39259068", 
+      "module": 10, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@824b148739504ac5b818fbbb39259068"
+    }
+  }, 
+  {
+    "pk": 78, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Inorganic and Organic", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bc6e7518e27c4b60bd531eeb2a205b18", 
+      "module": 10, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bc6e7518e27c4b60bd531eeb2a205b18"
+    }
+  }, 
+  {
+    "pk": 79, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Pluto", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@71681817711b4570953920f200a6ad6e", 
+      "module": 11, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@71681817711b4570953920f200a6ad6e"
+    }
+  }, 
+  {
+    "pk": 80, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Pluto", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@cefa72352e88490a84837ba0876b5557", 
+      "module": 11, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@cefa72352e88490a84837ba0876b5557"
+    }
+  }, 
+  {
+    "pk": 81, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Terrestrial or Gas?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2d6e25d1845c4d5a9f81e56f3e19b370", 
+      "module": 11, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2d6e25d1845c4d5a9f81e56f3e19b370"
+    }
+  }, 
+  {
+    "pk": 82, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Dwarf Planet Atmospheres", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@103dc09a2bc8470989a80acbdf0cb5d8", 
+      "module": 11, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@103dc09a2bc8470989a80acbdf0cb5d8"
+    }
+  }, 
+  {
+    "pk": 83, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Long Range", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a6b9f55c06894bf98f0c39408c8ce2e2", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a6b9f55c06894bf98f0c39408c8ce2e2"
+    }
+  }, 
+  {
+    "pk": 84, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Travel Time to Proxima Centauri", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f060ebcaf8bc4ab787c0c5546197b9d6", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": 0.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f060ebcaf8bc4ab787c0c5546197b9d6"
+    }
+  }, 
+  {
+    "pk": 85, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Long Range", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1f9565c70ab4b96aad343f28243c819", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1f9565c70ab4b96aad343f28243c819"
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7dc219bf317a498089fb12de76cd1b51", 
       "name": "Transit Method", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7dc219bf317a498089fb12de76cd1b51", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7dc219bf317a498089fb12de76cd1b51"
     }
   }, 
@@ -13,9 +614,12 @@
     "pk": 2, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0ff18d30b07649edb36292f32afaabbd", 
       "name": "Wobble Method", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0ff18d30b07649edb36292f32afaabbd", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0ff18d30b07649edb36292f32afaabbd"
     }
   }, 
@@ -23,9 +627,12 @@
     "pk": 3, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c6e5085f10b1414bb88b389830485116", 
       "name": "Direct Imaging", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c6e5085f10b1414bb88b389830485116", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c6e5085f10b1414bb88b389830485116"
     }
   }, 
@@ -33,59 +640,25 @@
     "pk": 4, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3cd5ac72356443e381803adc8559a613", 
       "name": "Light Curves", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3cd5ac72356443e381803adc8559a613", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3cd5ac72356443e381803adc8559a613"
-    }
-  }, 
-  {
-    "pk": 5, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a", 
-      "name": "Gravitational Redshift on the Sun", 
-      "module": 1, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a"
-    }
-  }, 
-  {
-    "pk": 6, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486", 
-      "name": "The Deflection of Mercury", 
-      "module": 1, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486"
-    }
-  }, 
-  {
-    "pk": 7, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1", 
-      "name": "Parallax Angle", 
-      "module": 1, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1"
-    }
-  }, 
-  {
-    "pk": 8, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11", 
-      "name": "Telescope Size", 
-      "module": 1, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11"
     }
   }, 
   {
     "pk": 9, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1b6a7dcb9c1d413d9101909e91b81241", 
       "name": "Hardest via Transit", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1b6a7dcb9c1d413d9101909e91b81241", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1b6a7dcb9c1d413d9101909e91b81241"
     }
   }, 
@@ -93,39 +666,171 @@
     "pk": 10, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@669c7d91223e40deb8a9c7fbb8663bcc", 
       "name": "Hardest via Wobble", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@669c7d91223e40deb8a9c7fbb8663bcc", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@669c7d91223e40deb8a9c7fbb8663bcc"
-    }
-  }, 
-  {
-    "pk": 11, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879", 
-      "name": "Ion Drive", 
-      "module": 1, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879"
     }
   }, 
   {
     "pk": 12, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@145f91b6ee0f498f9b93988f371c0773", 
       "name": "Easiest via Direct Imaging", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@145f91b6ee0f498f9b93988f371c0773", 
       "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@145f91b6ee0f498f9b93988f371c0773"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Gravitational Redshift on the Sun", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a", 
+      "module": 1, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        173
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f1bbab7f1353450991c9b846ff6ce86a"
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "The Deflection of Mercury", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486", 
+      "module": 1, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        173
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@13d081701a834306adade5fe27ae0486"
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Parallax Angle", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1", 
+      "module": 1, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        175
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@781c561a32c04ef6b6aeccc77b6bfda1"
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Telescope Size", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11", 
+      "module": 1, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        174, 
+        175
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@393795cfd06f493ab11974deee1d0e11"
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Ion Drive", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879", 
+      "module": 1, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "dependencies": [
+        176
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fa6e0ed87b3942d9b739b8664bb4d879"
+    }
+  }, 
+  {
+    "pk": 86, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Gas Giants", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7da1a23f3d7d4e5bb46d77a473f0668f", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7da1a23f3d7d4e5bb46d77a473f0668f"
+    }
+  }, 
+  {
+    "pk": 87, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mass Ranking", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2772d8e000ea4336b803956dcd3346b0", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2772d8e000ea4336b803956dcd3346b0"
+    }
+  }, 
+  {
+    "pk": 88, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Gas Giants", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5194de2180a14a5eb7647b95454c8374", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5194de2180a14a5eb7647b95454c8374"
+    }
+  }, 
+  {
+    "pk": 89, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mass Ranking", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@efba31f610ee411d8f285de19e841787", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@efba31f610ee411d8f285de19e841787"
     }
   }, 
   {
     "pk": 13, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@741fe4dd1d5544f4a353fef973ab8d90", 
       "name": "Planet and Star Speeds", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@741fe4dd1d5544f4a353fef973ab8d90", 
       "module": 2, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@741fe4dd1d5544f4a353fef973ab8d90"
     }
   }, 
@@ -133,9 +838,12 @@
     "pk": 14, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@003c9858904a408397abf8a7ab70612f", 
       "name": "Using the Wobble Method", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@003c9858904a408397abf8a7ab70612f", 
       "module": 2, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@003c9858904a408397abf8a7ab70612f"
     }
   }, 
@@ -143,49 +851,38 @@
     "pk": 15, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c7c23996a8514fca8c12ac567454b517", 
       "name": "Using the Light Curve", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c7c23996a8514fca8c12ac567454b517", 
       "module": 2, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c7c23996a8514fca8c12ac567454b517"
     }
   }, 
   {
-    "pk": 16, 
+    "pk": 21, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d", 
-      "name": "Kepler Planet Distance", 
+      "name": "Planetary Speed", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0aea267902c24baf8995c299b97ff8f2", 
       "module": 2, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d"
-    }
-  }, 
-  {
-    "pk": 17, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb", 
-      "name": "Kepler Planet Speed", 
-      "module": 2, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb"
-    }
-  }, 
-  {
-    "pk": 18, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db", 
-      "name": "A New Kepler Planet?", 
-      "module": 2, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db"
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0aea267902c24baf8995c299b97ff8f2"
     }
   }, 
   {
     "pk": 19, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@08e556c06d54441bb58d77f7b936f347", 
       "name": "Jupiter Pulls the Sun", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@08e556c06d54441bb58d77f7b936f347", 
       "module": 2, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@08e556c06d54441bb58d77f7b936f347"
     }
   }, 
@@ -193,39 +890,310 @@
     "pk": 20, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bd2ca3f35d7840e8a35f6739f67a3b03", 
       "name": "The Moon Pulls Earth", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bd2ca3f35d7840e8a35f6739f67a3b03", 
       "module": 2, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bd2ca3f35d7840e8a35f6739f67a3b03"
     }
   }, 
   {
-    "pk": 21, 
+    "pk": 16, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0aea267902c24baf8995c299b97ff8f2", 
-      "name": "Planetary Speed", 
+      "name": "Kepler Planet Distance", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d", 
       "module": 2, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0aea267902c24baf8995c299b97ff8f2"
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        175
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a0747df77c8145378635326922a3bd0d"
+    }
+  }, 
+  {
+    "pk": 17, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Kepler Planet Speed", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb", 
+      "module": 2, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        178
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@16fe90d76f8c4c88ae97754c52559cfb"
+    }
+  }, 
+  {
+    "pk": 18, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "A New Kepler Planet?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db", 
+      "module": 2, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        178
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d42fe82689724512a810730d5e8807db"
     }
   }, 
   {
     "pk": 22, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc", 
       "name": "Star Clusters", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc", 
       "module": 2, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "dependencies": [
+        179
+      ], 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b310828125914d9594a845d6b419d8fc"
+    }
+  }, 
+  {
+    "pk": 90, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "What Kind Of Planets?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a59ce6f208d8433cab77fe5bc183b137", 
+      "module": 12, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a59ce6f208d8433cab77fe5bc183b137"
+    }
+  }, 
+  {
+    "pk": 91, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "What Kind Of Planets?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bc3cb44db77a4411972740ff54bc4390", 
+      "module": 12, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bc3cb44db77a4411972740ff54bc4390"
+    }
+  }, 
+  {
+    "pk": 92, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Planetary Interior", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f8b9f9c9c77e4ae7be917cc6c9a254a3", 
+      "module": 12, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f8b9f9c9c77e4ae7be917cc6c9a254a3"
+    }
+  }, 
+  {
+    "pk": 93, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Planetary Atmosphere", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@88c01932245f4f8298ad706c00471550", 
+      "module": 12, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@88c01932245f4f8298ad706c00471550"
+    }
+  }, 
+  {
+    "pk": 94, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "RNA World Hypothesis", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@64f5c4d7848f4bf09a7dbc26eeb561b9", 
+      "module": 13, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@64f5c4d7848f4bf09a7dbc26eeb561b9"
+    }
+  }, 
+  {
+    "pk": 95, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Origin of the Elements", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@86993d86a3b040a9a9b0df09287e5c9c", 
+      "module": 13, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@86993d86a3b040a9a9b0df09287e5c9c"
+    }
+  }, 
+  {
+    "pk": 96, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Definition of Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f480c01deab84efc9082f2086bf09361", 
+      "module": 13, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f480c01deab84efc9082f2086bf09361"
+    }
+  }, 
+  {
+    "pk": 97, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Supporting Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@942f2973048d49ef824623f6dd5b69b2", 
+      "module": 13, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@942f2973048d49ef824623f6dd5b69b2"
+    }
+  }, 
+  {
+    "pk": 98, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Detecting Planets", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6f8ec5fc09364d25a2eee33cf647839f", 
+      "module": 13, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6f8ec5fc09364d25a2eee33cf647839f"
+    }
+  }, 
+  {
+    "pk": 99, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Changed by Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7f4b913a068c477392655b9650cc7fe3", 
+      "module": 14, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7f4b913a068c477392655b9650cc7fe3"
+    }
+  }, 
+  {
+    "pk": 100, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Changed by Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8abdd6ece9644f5f8f45e794061f639c", 
+      "module": 14, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8abdd6ece9644f5f8f45e794061f639c"
+    }
+  }, 
+  {
+    "pk": 101, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Where does Oxygen Come From?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2a56dad75ec049bbb2c663883dd5a096", 
+      "module": 14, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2a56dad75ec049bbb2c663883dd5a096"
+    }
+  }, 
+  {
+    "pk": 102, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Supporting Complex Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@593f8c95d62f40be83b87571b28f4d6e", 
+      "module": 14, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@593f8c95d62f40be83b87571b28f4d6e"
+    }
+  }, 
+  {
+    "pk": 103, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Venus", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8dbbc62ecc99433690380e70fedd1ffc", 
+      "module": 3, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8dbbc62ecc99433690380e70fedd1ffc"
+    }
+  }, 
+  {
+    "pk": 104, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mars", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@001ce619b8a24c9fb78ace8abe0bf5bc", 
+      "module": 3, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@001ce619b8a24c9fb78ace8abe0bf5bc"
+    }
+  }, 
+  {
+    "pk": 105, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Venus", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7d27af62183a4c0db44610b11828450b", 
+      "module": 3, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7d27af62183a4c0db44610b11828450b"
+    }
+  }, 
+  {
+    "pk": 106, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mars", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@daed7629e6ca40ccb86aa5d1d638a80d", 
+      "module": 3, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@daed7629e6ca40ccb86aa5d1d638a80d"
     }
   }, 
   {
     "pk": 23, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b15ce7f2dadd406e9258478388a13395", 
       "name": "Low Atmosphere", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b15ce7f2dadd406e9258478388a13395", 
       "module": 3, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b15ce7f2dadd406e9258478388a13395"
     }
   }, 
@@ -233,29 +1201,25 @@
     "pk": 24, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6aba57fcccd54c4c87205d3ff097d9b3", 
       "name": "Candidates for Life", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6aba57fcccd54c4c87205d3ff097d9b3", 
       "module": 3, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6aba57fcccd54c4c87205d3ff097d9b3"
-    }
-  }, 
-  {
-    "pk": 25, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a", 
-      "name": "A Brighter Sun", 
-      "module": 3, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a"
     }
   }, 
   {
     "pk": 26, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a3d67fb5d4404b7c9c6a8f9c10bb760e", 
       "name": "Smooth and Rough Planets", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a3d67fb5d4404b7c9c6a8f9c10bb760e", 
       "module": 3, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a3d67fb5d4404b7c9c6a8f9c10bb760e"
     }
   }, 
@@ -263,29 +1227,187 @@
     "pk": 27, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@39d70e95e72f462c83468a2888d31f42", 
       "name": "Life on Neptune would have a Real Hard Time", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@39d70e95e72f462c83468a2888d31f42", 
       "module": 3, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@39d70e95e72f462c83468a2888d31f42"
+    }
+  }, 
+  {
+    "pk": 25, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "A Brighter Sun", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a", 
+      "module": 3, 
+      "visible": true, 
+      "max_points": 10.0, 
+      "dependencies": [
+        180
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@231992f73f824271b56b4a1b9fae498a"
     }
   }, 
   {
     "pk": 28, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71", 
       "name": "Volcanoes and Climate", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71", 
       "module": 3, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "dependencies": [
+        181
+      ], 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2841c2b28dd04e0c9abd81eed5cc3f71"
+    }
+  }, 
+  {
+    "pk": 107, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "How Many Stars?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5154e1cf1b8c4c7ea9e342198cfd1812", 
+      "module": 15, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5154e1cf1b8c4c7ea9e342198cfd1812"
+    }
+  }, 
+  {
+    "pk": 108, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Probability of Detection", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@034bb92aa76147b7b532da8df0bb1ca9", 
+      "module": 15, 
+      "visible": false, 
+      "max_points": 0.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@034bb92aa76147b7b532da8df0bb1ca9"
+    }
+  }, 
+  {
+    "pk": 109, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "How Many Stars?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@aa767863a57a43e68720bc5fab8e1d79", 
+      "module": 15, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@aa767863a57a43e68720bc5fab8e1d79"
+    }
+  }, 
+  {
+    "pk": 110, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Kepler's Tilt", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8b90564463024717bb7f09d4d69134a5", 
+      "module": 15, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8b90564463024717bb7f09d4d69134a5"
+    }
+  }, 
+  {
+    "pk": 111, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Stars per Cubic Light Year", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@110d48725a2644ff9b09062fbb984d19", 
+      "module": 15, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@110d48725a2644ff9b09062fbb984d19"
+    }
+  }, 
+  {
+    "pk": 112, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Nearby Stars", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@055416856cc04c619915b8a1a55955ee", 
+      "module": 15, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@055416856cc04c619915b8a1a55955ee"
+    }
+  }, 
+  {
+    "pk": 113, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Hazardous Conditions", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8db7bbe8c49e4ee3a45b38073d5ce7fd", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8db7bbe8c49e4ee3a45b38073d5ce7fd"
+    }
+  }, 
+  {
+    "pk": 114, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Earth versus Mars", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bce252e118d64658a987d204b7b859a9", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bce252e118d64658a987d204b7b859a9"
+    }
+  }, 
+  {
+    "pk": 115, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Hazardous Conditions", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@cec0112c1b3b4b29b850130854214d48", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@cec0112c1b3b4b29b850130854214d48"
+    }
+  }, 
+  {
+    "pk": 116, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Earth versus Mars", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@506fa3b419f249d2ac822143157e021c", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@506fa3b419f249d2ac822143157e021c"
     }
   }, 
   {
     "pk": 29, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bfdf8a2ec51a4e2893c2e758ecf42cdf", 
       "name": "Plate Tectonics", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bfdf8a2ec51a4e2893c2e758ecf42cdf", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bfdf8a2ec51a4e2893c2e758ecf42cdf"
     }
   }, 
@@ -293,9 +1415,12 @@
     "pk": 30, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ef77267987174ac1a4e53aa9f11a34ce", 
       "name": "Why So Super?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ef77267987174ac1a4e53aa9f11a34ce", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ef77267987174ac1a4e53aa9f11a34ce"
     }
   }, 
@@ -303,9 +1428,12 @@
     "pk": 31, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@190a7900202f4010bbe149b26a92036b", 
       "name": "Escape Velocity", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@190a7900202f4010bbe149b26a92036b", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 0.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@190a7900202f4010bbe149b26a92036b"
     }
   }, 
@@ -313,9 +1441,12 @@
     "pk": 32, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5a9bb89358c4da98840592cb11fc0ff", 
       "name": "Radius and Mass", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5a9bb89358c4da98840592cb11fc0ff", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c5a9bb89358c4da98840592cb11fc0ff"
     }
   }, 
@@ -323,9 +1454,12 @@
     "pk": 33, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@20d8797c388149eebe73a7f5a3f97b98", 
       "name": "Features of Super-Earths", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@20d8797c388149eebe73a7f5a3f97b98", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@20d8797c388149eebe73a7f5a3f97b98"
     }
   }, 
@@ -333,9 +1467,12 @@
     "pk": 34, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@663d472f549d467da10c488f37020fa1", 
       "name": "The Many Carbon Cycles", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@663d472f549d467da10c488f37020fa1", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@663d472f549d467da10c488f37020fa1"
     }
   }, 
@@ -343,9 +1480,12 @@
     "pk": 35, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5b9082917a264dfeb5cec5a675d766ab", 
       "name": "Cloud Collapse", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5b9082917a264dfeb5cec5a675d766ab", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5b9082917a264dfeb5cec5a675d766ab"
     }
   }, 
@@ -353,29 +1493,29 @@
     "pk": 36, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9f9fadf9d8ad432b8762694e1ca11a54", 
       "name": "Mass and Radius", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9f9fadf9d8ad432b8762694e1ca11a54", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9f9fadf9d8ad432b8762694e1ca11a54"
-    }
-  }, 
-  {
-    "pk": 37, 
-    "model": "module.activity", 
-    "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d", 
-      "name": "Changes in Temperature", 
-      "module": 4, 
-      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d"
     }
   }, 
   {
     "pk": 38, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093", 
       "name": "Limestone", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "dependencies": [
+        183, 
+        184
+      ], 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ffd981f9324b493a9b8de74cf376f093"
     }
   }, 
@@ -383,10 +1523,913 @@
     "pk": 39, 
     "model": "module.activity", 
     "fields": {
-      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1281d1201fdf435d846ec11bdf331661", 
       "name": "Titan's Atmosphere", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1281d1201fdf435d846ec11bdf331661", 
       "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "type": "problem", 
       "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1281d1201fdf435d846ec11bdf331661"
+    }
+  }, 
+  {
+    "pk": 37, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Changes in Temperature", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d", 
+      "module": 4, 
+      "visible": true, 
+      "max_points": 5.0, 
+      "dependencies": [
+        182
+      ], 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d05346e464d84a19be7bc15caaf76c1d"
+    }
+  }, 
+  {
+    "pk": 117, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Scientific Laws", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b834fbe00de946b7bb254d4a06001a53", 
+      "module": 16, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b834fbe00de946b7bb254d4a06001a53"
+    }
+  }, 
+  {
+    "pk": 118, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Oxygen", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2436f065b0dd47c6b22e51c336a1e837", 
+      "module": 16, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2436f065b0dd47c6b22e51c336a1e837"
+    }
+  }, 
+  {
+    "pk": 119, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Scientific Laws", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8f7da319a7d642eca751d912279da7d7", 
+      "module": 16, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@8f7da319a7d642eca751d912279da7d7"
+    }
+  }, 
+  {
+    "pk": 120, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Oxygen", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c627d4b9cafc43038e5f24c6bd6bbc0b", 
+      "module": 16, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c627d4b9cafc43038e5f24c6bd6bbc0b"
+    }
+  }, 
+  {
+    "pk": 121, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Spectroscopy", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@987eda77d3b04dab9c4d33932c0e4d63", 
+      "module": 16, 
+      "visible": false, 
+      "max_points": 15.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@987eda77d3b04dab9c4d33932c0e4d63"
+    }
+  }, 
+  {
+    "pk": 122, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Absorption in Earth's Atmosphere", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6acb9c85a6cd43f5adb4b57b6e3f9e84", 
+      "module": 16, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@6acb9c85a6cd43f5adb4b57b6e3f9e84"
+    }
+  }, 
+  {
+    "pk": 123, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Communication Methods", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@84dc37ef09be4a8d987b7501b0cce793", 
+      "module": 17, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@84dc37ef09be4a8d987b7501b0cce793"
+    }
+  }, 
+  {
+    "pk": 124, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Communication Methods", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9177a4a85ae049628c706cee0c9f135e", 
+      "module": 17, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9177a4a85ae049628c706cee0c9f135e"
+    }
+  }, 
+  {
+    "pk": 125, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Mediocrity", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a36a04836d3a49abb6d5dd51be92c61b", 
+      "module": 17, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a36a04836d3a49abb6d5dd51be92c61b"
+    }
+  }, 
+  {
+    "pk": 126, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Artifact SETI and Communication SETI", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@74b5ee67e0b74d37af09bff02b28de00", 
+      "module": 17, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@74b5ee67e0b74d37af09bff02b28de00"
+    }
+  }, 
+  {
+    "pk": 127, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Wow", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bf759e5841e74e88bbbd3a572fb80ce6", 
+      "module": 17, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bf759e5841e74e88bbbd3a572fb80ce6"
+    }
+  }, 
+  {
+    "pk": 128, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Signal to Noise", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@298ef215c79e4e23bd538607de5da0ec", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@298ef215c79e4e23bd538607de5da0ec"
+    }
+  }, 
+  {
+    "pk": 129, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Signal to Noise", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a7f0e64407444851b3624347af1a4959", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a7f0e64407444851b3624347af1a4959"
+    }
+  }, 
+  {
+    "pk": 130, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Transmitter Range", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1277caaf5b06472d884c559781b65f82", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 10.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1277caaf5b06472d884c559781b65f82"
+    }
+  }, 
+  {
+    "pk": 131, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Gamma Mind Control", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fac99c904c324cccb5f60914037104a6", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@fac99c904c324cccb5f60914037104a6"
+    }
+  }, 
+  {
+    "pk": 132, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Communication Frequencies", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c11c1a16a39f4c9e8c3cd32f16d0c869", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@c11c1a16a39f4c9e8c3cd32f16d0c869"
+    }
+  }, 
+  {
+    "pk": 133, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Communication Laser", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@e7ff4915f73a435fb67ab624f25eb7d6", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@e7ff4915f73a435fb67ab624f25eb7d6"
+    }
+  }, 
+  {
+    "pk": 134, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Red Dwarf Planets", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bb99d6fc5d7f434d9ec99b1a36cc6e95", 
+      "module": 18, 
+      "visible": false, 
+      "max_points": 5.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@bb99d6fc5d7f434d9ec99b1a36cc6e95"
+    }
+  }, 
+  {
+    "pk": 135, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Evolution", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d1619565b5a744df890db4841a658089", 
+      "module": 19, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d1619565b5a744df890db4841a658089"
+    }
+  }, 
+  {
+    "pk": 136, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Why No Aliens?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@52ea7cb029884d8d9a5bcd144379861b", 
+      "module": 19, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@52ea7cb029884d8d9a5bcd144379861b"
+    }
+  }, 
+  {
+    "pk": 137, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "What Helps Life Arise?", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a6a433f6ca2141cd970a6811e4421454", 
+      "module": 19, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a6a433f6ca2141cd970a6811e4421454"
+    }
+  }, 
+  {
+    "pk": 138, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Extrasolar Planets", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2c539edb48f74bf09d3c09a41f505095", 
+      "module": 19, 
+      "visible": false, 
+      "max_points": 1.0, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2c539edb48f74bf09d3c09a41f505095"
+    }
+  }, 
+  {
+    "pk": 139, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Alpha", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ce5a131db69d720d2142", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ce5a131db69d720d2142"
+    }
+  }, 
+  {
+    "pk": 140, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Beta", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a9d86d5e915fcb8259fc", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@a9d86d5e915fcb8259fc"
+    }
+  }, 
+  {
+    "pk": 141, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Gamma", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@e3ea56955b067f1ae1f6", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@e3ea56955b067f1ae1f6"
+    }
+  }, 
+  {
+    "pk": 142, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Delta", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ebd48948769d64ab1f11", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@ebd48948769d64ab1f11"
+    }
+  }, 
+  {
+    "pk": 143, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Epsilon", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@dfd7b420cb67c1d6a3bf", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@dfd7b420cb67c1d6a3bf"
+    }
+  }, 
+  {
+    "pk": 144, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Zeta", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@14b5dee4b60ed5c5e21e", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@14b5dee4b60ed5c5e21e"
+    }
+  }, 
+  {
+    "pk": 145, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Eta", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@26124951941193ed1c80", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@26124951941193ed1c80"
+    }
+  }, 
+  {
+    "pk": 146, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Theta", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@48cc2e9e2b6a08630fb9", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@48cc2e9e2b6a08630fb9"
+    }
+  }, 
+  {
+    "pk": 147, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Iota", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2e2b23b550cacca356ec", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2e2b23b550cacca356ec"
+    }
+  }, 
+  {
+    "pk": 148, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Kappa", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3092ccfa121feb226e9a", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3092ccfa121feb226e9a"
+    }
+  }, 
+  {
+    "pk": 149, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Lambda", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@557fa5b34a574aef0f6a", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@557fa5b34a574aef0f6a"
+    }
+  }, 
+  {
+    "pk": 150, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Mu", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9d12293aa10c297f049b", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9d12293aa10c297f049b"
+    }
+  }, 
+  {
+    "pk": 151, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Nu", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@960e1e3f5e99e9c4dac5", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@960e1e3f5e99e9c4dac5"
+    }
+  }, 
+  {
+    "pk": 152, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Xi", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3088129e103cffbc06d6", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3088129e103cffbc06d6"
+    }
+  }, 
+  {
+    "pk": 153, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Omicron", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@860619ff6076cba01d5b", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@860619ff6076cba01d5b"
+    }
+  }, 
+  {
+    "pk": 154, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Pi", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7bd657b86297d1fe2510", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@7bd657b86297d1fe2510"
+    }
+  }, 
+  {
+    "pk": 155, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Rho", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3bd15bf6f9066b5c2adc", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@3bd15bf6f9066b5c2adc"
+    }
+  }, 
+  {
+    "pk": 156, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Sigma", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d9a3089077a826e12eef", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d9a3089077a826e12eef"
+    }
+  }, 
+  {
+    "pk": 157, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Tau", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f3e70ef16e7394f63010", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f3e70ef16e7394f63010"
+    }
+  }, 
+  {
+    "pk": 158, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Upsilon", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@eeafe12978f39f04ce48", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@eeafe12978f39f04ce48"
+    }
+  }, 
+  {
+    "pk": 159, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Phi", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d6660f7e31dbdac413bb", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@d6660f7e31dbdac413bb"
+    }
+  }, 
+  {
+    "pk": 160, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Chi", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9539308449c08a142b6d", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@9539308449c08a142b6d"
+    }
+  }, 
+  {
+    "pk": 161, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Psi", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5ad243677e5b15cb2ab5", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@5ad243677e5b15cb2ab5"
+    }
+  }, 
+  {
+    "pk": 162, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Omega", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f897a84f1e5cf982791e", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f897a84f1e5cf982791e"
+    }
+  }, 
+  {
+    "pk": 163, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Aleph", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0f4c92cbfd67ee8b3351", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@0f4c92cbfd67ee8b3351"
+    }
+  }, 
+  {
+    "pk": 164, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Bet", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@cd7dd92bd436af611e2b", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@cd7dd92bd436af611e2b"
+    }
+  }, 
+  {
+    "pk": 165, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Gimel", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@378e37e2a840c1ae8ec9", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@378e37e2a840c1ae8ec9"
+    }
+  }, 
+  {
+    "pk": 166, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Dalet", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@36adf1174412db67c199", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@36adf1174412db67c199"
+    }
+  }, 
+  {
+    "pk": 167, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Hei", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@efffefbcb0d61d888c3a", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@efffefbcb0d61d888c3a"
+    }
+  }, 
+  {
+    "pk": 168, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Vav", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1c6efa33708474fb01d4", 
+      "module": 20, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@1c6efa33708474fb01d4"
+    }
+  }, 
+  {
+    "pk": 169, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Zayin", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2f03313c1fc312c601c7", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@2f03313c1fc312c601c7"
+    }
+  }, 
+  {
+    "pk": 170, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Cheit", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@65f70fda6d6b40e1a4f2", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@65f70fda6d6b40e1a4f2"
+    }
+  }, 
+  {
+    "pk": 171, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Teit", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b892666c87a8568246fc", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@b892666c87a8568246fc"
+    }
+  }, 
+  {
+    "pk": 172, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Question Yod", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f81eb04981b6586f101f", 
+      "module": 21, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "problem", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@problem+block@f81eb04981b6586f101f"
+    }
+  }, 
+  {
+    "pk": 173, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Light Deflection by Gravity (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@d9fccd76622d423790b0b4648dd78012", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@d9fccd76622d423790b0b4648dd78012"
+    }
+  }, 
+  {
+    "pk": 174, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Direct Imaging and Interferometry (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@859661eb04e14a0e8d4e097977eb410c", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@859661eb04e14a0e8d4e097977eb410c"
+    }
+  }, 
+  {
+    "pk": 175, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Extrasolar Planets and the Issue of Distance (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@d1e6db76221343d8a324e673bcea79f7", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@d1e6db76221343d8a324e673bcea79f7"
+    }
+  }, 
+  {
+    "pk": 176, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Interstellar Travel? (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@1a27ea359ea440788abf481e46804080", 
+      "module": 1, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@1a27ea359ea440788abf481e46804080"
+    }
+  }, 
+  {
+    "pk": 177, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Planetary Size (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@7120b1242d8e4fb1a9bf57a042cf3d8e", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@7120b1242d8e4fb1a9bf57a042cf3d8e"
+    }
+  }, 
+  {
+    "pk": 178, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Planetary Mass (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@0df9c0fb30f84860acb44ca719a966ba", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@0df9c0fb30f84860acb44ca719a966ba"
+    }
+  }, 
+  {
+    "pk": 179, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Planetary Spectra (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@80a194c06df846eeb1a329e7233c516d", 
+      "module": 2, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@80a194c06df846eeb1a329e7233c516d"
+    }
+  }, 
+  {
+    "pk": 180, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Surface Temperature (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@bce6035b21b941a6ad7e7a164ad7c454", 
+      "module": 3, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@bce6035b21b941a6ad7e7a164ad7c454"
+    }
+  }, 
+  {
+    "pk": 181, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Atmosphere and Surface Temperature (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@ee8ce4a2bb67427b8dbed477a39c6d67", 
+      "module": 3, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@ee8ce4a2bb67427b8dbed477a39c6d67"
+    }
+  }, 
+  {
+    "pk": 182, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Atmosphere Retention and Evolution (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@5c251ba9c31846d5bd7464418928dcab", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@5c251ba9c31846d5bd7464418928dcab"
+    }
+  }, 
+  {
+    "pk": 183, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Plate Tectonics (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@cd4f9ddeb1c8430a8354a10cea017860", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@cd4f9ddeb1c8430a8354a10cea017860"
+    }
+  }, 
+  {
+    "pk": 184, 
+    "model": "module.activity", 
+    "fields": {
+      "name": "Plate Tectonics and Climate (Advanced)", 
+      "url": "https://courses.edx.org/xblock/block-v1:HarvardX+SPU30x+3T2016+type@html+block@713e062b9009423bbac9cedef0cef7c4", 
+      "module": 4, 
+      "visible": false, 
+      "max_points": null, 
+      "type": "html", 
+      "usage_id": "block-v1:HarvardX+SPU30x+3T2016+type@html+block@713e062b9009423bbac9cedef0cef7c4"
     }
   }
 ]

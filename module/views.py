@@ -19,14 +19,20 @@ def launch(request, user_module_id):
     '''
     user_module_id = int(user_module_id)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
-    sequence = user_module.sequenceitem_set.order_by('position')
+    sequence = user_module.sequence()
     
     # existing activity history: go to the last activity
     if sequence.exists():
+        # OPTIONAL: could change this to be the last activity visited
         # go to end of sequence
         last_position = sequence.last().position
 
-     # first time someone comes to the page
+    # check for and add existing completed activities that could be added to the module
+    elif utils.assign_prior_activities(user_module):
+        # still go to first item if they exist
+        return redirect('module:sequence_item', user_module_id=user_module_id, position=1)
+
+    # first time someone sees the module or any problems from it
     else:
         activity = utils.get_first_activity(user_module)
         last_position = 1
@@ -34,42 +40,12 @@ def launch(request, user_module_id):
             user_module = user_module,
             position = 1,
             activity = activity,
+            method = "default first activity"
         )
         sequence_item.save()
 
     return redirect('module:sequence_item', user_module_id=user_module_id, position=last_position)
     
-
-def sequence_item(request, user_module_id, position):
-    '''
-    Activity in a module. sequence item already has to exist
-    '''
-    position = int(position)
-    user_module_id = int(user_module_id)
-    user_module = get_object_or_404(UserModule, pk=user_module_id)
-    
-    sequence = user_module.sequenceitem_set.order_by('position')
-    sequence_item = sequence.get(position=position)
-
-    # # check if there are prior attempts for the chosen next activity (in case they see through forums and user/sequence_item fields didn't get set)
-    # # in that case, associate the attempts with this sequence item / user
-    utils.assign_prior_attempts(user_module, sequence_item)
-
-    # update grade to display and do grade passback
-    user_module.recompute_grade()
-    user_module.grade_passback()
-
-    context = {
-        'user_module':user_module,
-        'sequence':sequence,
-        'sequence_item':sequence_item,
-        'position':position,
-        'sequence_length':len(sequence), # precompute sequence length for template
-        'module_complete':False, # helper conditional variable for template appearance
-    }
-
-    return render(request, 'module/module.html', context)
-
 
 def next_activity(request, user_module_id, position):
     '''
@@ -81,36 +57,31 @@ def next_activity(request, user_module_id, position):
     user_module_id = int(user_module_id)
     position = int(position)
     user_module = get_object_or_404(UserModule, pk=user_module_id)
-    sequence_length = user_module.sequenceitem_set.count()
-    last_sequence_item = get_object_or_404(SequenceItem, user_module=user_module, position=position)
+    sequence = user_module.sequence()
+    sequence_length = sequence.count()
+    last_sequence_item = sequence.get(position=position)
     last_activity = last_sequence_item.activity
 
-    # if user hasn't made any attempts, stay on the same sequence item
-    if not Attempt.objects.filter(activity=last_activity).exists():
+    # if user hasn't made any attempts for a problem, stay on the same sequence item
+    if last_activity.type=='problem' and not Attempt.objects.filter(activity=last_activity).exists(): # TODO only do this for activity type=problem
         return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
-    # check if student has exhausted all questions in module; if so, go to completion screen
-    if sequence_length == Activity.objects.filter(module=user_module.module).count():
+    # check if student has exhausted all servable questions in module; if so, go to completion screen
+    if sequence.filter(activity__type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
         return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-    # if not at end of sequence, get the next item in pre-populated sequence
-    if position < sequence_length:
-        next_sequence_item = SequenceItem.objects.get(
-            user_module = user_module,
-            position = position + 1,
-        )
 
-    # if at the end of sequence, ask for a new activity
-    elif position == sequence_length:
+    # if at the most recent item in sequence, ask for a new activity
+    if position == sequence_length:
 
-        # request activity
-        next_activity = utils.get_activity(user_module=user_module)
+        # ACTIVITY REQUEST: returns a tuple of (activity object, description)
+        next_activity, method = utils.get_activity(user_module=user_module)
 
         # if activity service returns same activity as the last one, redirect to last sequence item 
         if next_activity == last_activity:
             return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
 
-        # if utils.activity() retuns None, this signals that the student completed the module
+        # if utils.get_activity() retuns None, this signals that the student completed the module
         if not next_activity:
             return redirect('module:sequence_complete', user_module_id=user_module_id)
 
@@ -125,11 +96,37 @@ def next_activity(request, user_module_id, position):
                 user_module = user_module,
                 position = position + 1,
                 activity = next_activity,
+                method = method,
             )
 
     # go to the next sequence item screen
     return redirect('module:sequence_item', user_module_id=user_module_id, position=position+1)
+   
+def sequence_item(request, user_module_id, position):
+    '''
+    Activity in a module. sequence item already has to exist
+    '''
+    position = int(position)
+    user_module_id = int(user_module_id)
+    user_module = get_object_or_404(UserModule, pk=user_module_id)
     
+    sequence = user_module.sequence()
+    sequence_item = sequence.get(position=position)
+
+    # update grade to display and do grade passback
+    user_module.recompute_grade()
+    user_module.grade_passback()
+
+    context = {
+        'user_module':user_module,
+        'sequence':sequence,
+        'sequence_item':sequence_item,
+        'position':position,
+        'sequence_length':len(sequence), # precompute sequence length for template
+        'module_complete':False, # helper conditional variable for template appearance
+    }
+
+    return render(request, 'module/module.html', context) 
 
 def sequence_complete(request, user_module_id):
     '''
@@ -142,7 +139,7 @@ def sequence_complete(request, user_module_id):
     user_module.completed = True
     user_module.save()
 
-    sequence = user_module.sequenceitem_set.order_by('position')
+    sequence = user_module.sequence()
 
     # update grade to display and do grade passback
     user_module.recompute_grade()
