@@ -168,5 +168,5 @@ class Attempt(models.Model):
     sequence_item = models.ForeignKey(SequenceItem, null=True, blank=True)
 
     def __unicode__(self):
-        return "{}: username={}, activity={}, score={}/{}".format(self.pk, self.username, self.activity.pk, self.points, self.max_points)
+        return "{}: username={}, activity={}, score={}/{}".format(self.pk, self.user.username, self.activity.pk, self.points, self.max_points)
 
