@@ -133,21 +133,13 @@ class SequenceItem(models.Model):
     each row represents the first time user visits a resource, in a module
     set of sequence items for a particular user/module represent problem history
     '''
-    # user = models.ForeignKey(User)
-    # module = models.ForeignKey(Module)
     user_module = models.ForeignKey(UserModule)
-
     # activity displayed for this sequence item
     activity = models.ForeignKey(Activity)
     # position within the module sequence this activity is displayed for the user
     position = models.PositiveIntegerField()
     timestamp_created = models.DateTimeField(null=True,auto_now=True)
     method = models.CharField(max_length=200,blank=True,default='')   # for storing a short description of the method used to select the activity
-    # maximum running score for activity
-    # grade = models.FloatField(default=0)
-
-    # def __unicode__(self):
-    #     return "{}: {}".format(self.pk, self.name)
 
     class Meta:
         unique_together = ('user_module','position')
@@ -159,14 +151,13 @@ class SequenceItem(models.Model):
             self.activity.pk
         )
 
-
 class Attempt(models.Model):
     '''
     problem attempt by a student
     '''
     activity = models.ForeignKey(Activity)
     # TODO make this required
-    user = models.ForeignKey(User,null=True,blank=True)
+    user = models.ForeignKey(User)
     # user score for specific attempt
     points = models.FloatField()
     # number of points possible for problem
