@@ -40,6 +40,7 @@ def launch(request, user_module_id):
             user_module = user_module,
             position = 1,
             activity = activity,
+            method = "default first activity"
         )
         sequence_item.save()
 

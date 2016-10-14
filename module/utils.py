@@ -48,7 +48,7 @@ def validate_sequence_history(user_module, activity):
     # activity ids of previously seen activities; used to check for repeated activity
     sequence_activity_ids = user_module.sequence().values_list('activity',flat=True)
     # check if activity has been seen before in sequence (excluding last item)
-    if len(sequence_activity_ids)>1 and activity_id in sequence_activity_ids[:-1]:
+    if len(sequence_activity_ids)>1 and activity.pk in list(sequence_activity_ids)[:-1]:
         return False
     return True
 
@@ -70,6 +70,8 @@ def get_activity(user_module):
         activity = get_backup_activity(user_module)
         method = "backup: activity service request failed"
 
+    activity = get_object_or_404(Activity, pk=activity_id)
+
     # check if activity has been seen before in sequence (excluding last item)
     if not validate_sequence_history(user_module, activity):
         activity = get_backup_activity(user_module)
@@ -86,7 +88,6 @@ def get_activity(user_module):
             method = "backup: insufficient max_points sequence total"
 
     else:
-        activity = get_object_or_404(Activity, pk=activity_id)
         method = "activity service"
 
     # check if activity has unfulfilled manually defined dependencies, if so replace the next activity with a prereq
