@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Max
+from django.db.models import Max, Sum
 import lti.utils
 
 class Course(models.Model):
@@ -96,7 +96,7 @@ class UserModule(models.Model):
         if self.sequence_length() == 0:
             return False
         # aggregate max_points of all graded items seen in sequence so far and compare to module max_points
-        if self.sequenceitem_set.exclude(max_points=None).aggregate(Sum('max_points')) < self.module.max_points:
+        if self.sequenceitem_set.exclude(activity__max_points=None).aggregate(Sum('activity__max_points'))['activity__max_points__sum'] < self.module.max_points:
             return False
         # default
         return True
