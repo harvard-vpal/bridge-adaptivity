@@ -17,7 +17,6 @@ def problem_attempt(request):
     when students make a problem submission in edx, 
     embedded javascript sends the answer data to this API endpoint    
     '''
-    print "[problem_attempt]: problem attempt API submission recieved"
     # identify problem based on usage id
     try: 
         activity = Activity.objects.get(usage_id = request.POST['problem'])
@@ -27,7 +26,6 @@ def problem_attempt(request):
             'message': 'problem not found for given usage id'
         })
 
-    print "[problem_attempt]: getting or creating user"
     # get or create the user by the edx username
     username = request.POST.get('user','')
     if not username:
@@ -37,7 +35,6 @@ def problem_attempt(request):
         })
     user, created = User.objects.get_or_create(username=request.POST['user'])
     
-    print "[problem_attempt]: creating or saving attempt"
     # create and save the attempt
     attempt = Attempt.objects.create(
         activity = activity,
@@ -47,7 +44,6 @@ def problem_attempt(request):
         max_points = float(request.POST.get('max_points', 0)), 
     )
 
-    print "[problem_attempt]: sending transaction to activity service"
     # ACTIVITY SERVICE: TRANSACTION
     # submit problem grade info to activity service
     transaction = activity_service.Transaction(attempt)
@@ -59,7 +55,6 @@ def problem_attempt(request):
             'message': 'attempt recorded, non-adaptive problem'
         })
 
-    print "[problem_attempt]: identifying user module"
     # try to identify a user module for the activity
     try:
         user_module = UserModule.objects.get(user=user,module=activity.module)
@@ -70,7 +65,6 @@ def problem_attempt(request):
             'message': 'attempt recorded, outside of adaptive module context',
         })
 
-    print "[problem_attempt]: identifying sequence_item"
     # if user_module found, try to find a sequence item within module
     try:
         sequence_item = user_module.sequenceitem_set.get(activity=activity)
@@ -94,12 +88,9 @@ def problem_attempt(request):
     attempt.sequence_item = sequence_item
     attempt.save(update_fields=['sequence_item'])
 
-    print "[problem_attempt]: recomputing grade"
     # recompute user_module.grade state and do grade passback
     user_module.recompute_grade()
-    print "[problem_attempt]: doing grade passback"
     user_module.grade_passback()
-    print "[problem_attempt]: grade passback completed"
     return JsonResponse({
         'success':True,
         'message':'attempt recorded and module grade updated',
