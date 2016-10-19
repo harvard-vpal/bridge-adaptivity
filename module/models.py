@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Max
+from django.db.models import Max, Sum
 import lti.utils
 
 class Course(models.Model):
@@ -96,7 +96,7 @@ class UserModule(models.Model):
         if self.sequence_length() == 0:
             return False
         # aggregate max_points of all graded items seen in sequence so far and compare to module max_points
-        if self.sequenceitem_set.exclude(max_points=None).aggregate(Sum('max_points')) < self.module.max_points:
+        if self.sequenceitem_set.exclude(activity__max_points=None).aggregate(Sum('activity__max_points'))['activity__max_points__sum'] < self.module.max_points:
             return False
         # default
         return True
@@ -133,21 +133,13 @@ class SequenceItem(models.Model):
     each row represents the first time user visits a resource, in a module
     set of sequence items for a particular user/module represent problem history
     '''
-    # user = models.ForeignKey(User)
-    # module = models.ForeignKey(Module)
     user_module = models.ForeignKey(UserModule)
-
     # activity displayed for this sequence item
     activity = models.ForeignKey(Activity)
     # position within the module sequence this activity is displayed for the user
     position = models.PositiveIntegerField()
     timestamp_created = models.DateTimeField(null=True,auto_now=True)
     method = models.CharField(max_length=200,blank=True,default='')   # for storing a short description of the method used to select the activity
-    # maximum running score for activity
-    # grade = models.FloatField(default=0)
-
-    # def __unicode__(self):
-    #     return "{}: {}".format(self.pk, self.name)
 
     class Meta:
         unique_together = ('user_module','position')
@@ -159,18 +151,13 @@ class SequenceItem(models.Model):
             self.activity.pk
         )
 
-
 class Attempt(models.Model):
     '''
-    Row for each time a student makes a problem attempt.
-    Instances are also made when problems are submitted outside of LTI module context;
-        this info kept in same model because they might be from students that may see the question later in the LTI module
+    problem attempt by a student
     '''
     activity = models.ForeignKey(Activity)
     # TODO make this required
-    user = models.ForeignKey(User,null=True,blank=True)
-    # this model can store attempts for users not seen before
-    username = models.CharField(max_length=200,null=True,blank=True)
+    user = models.ForeignKey(User)
     # user score for specific attempt
     points = models.FloatField()
     # number of points possible for problem
@@ -181,5 +168,5 @@ class Attempt(models.Model):
     sequence_item = models.ForeignKey(SequenceItem, null=True, blank=True)
 
     def __unicode__(self):
-        return "{}: username={}, activity={}, score={}/{}".format(self.pk, self.username, self.activity.pk, self.points, self.max_points)
+        return "{}: username={}, activity={}, score={}/{}".format(self.pk, self.user.username, self.activity.pk, self.points, self.max_points)
 

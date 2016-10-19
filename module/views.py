@@ -63,16 +63,15 @@ def next_activity(request, user_module_id, position):
     last_activity = last_sequence_item.activity
 
     # if user hasn't made any attempts for a problem, stay on the same sequence item
-    if last_activity.type=='problem' and not Attempt.objects.filter(activity=last_activity).exists(): # TODO only do this for activity type=problem
+    if last_activity.type=='problem' and not Attempt.objects.filter(sequence_item=last_sequence_item).exists():
         return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
-
-    # check if student has exhausted all servable questions in module; if so, go to completion screen
-    if sequence.filter(activity__type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
-        return redirect('module:sequence_complete', user_module_id=user_module_id)
-
 
     # if at the most recent item in sequence, ask for a new activity
     if position == sequence_length:
+
+        # check if student has exhausted all servable questions in module; if so, go to completion screen
+        if sequence.filter(activity__type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
+            return redirect('module:sequence_complete', user_module_id=user_module_id)
 
         # ACTIVITY REQUEST: returns a tuple of (activity object, description)
         next_activity, method = utils.get_activity(user_module=user_module)
