@@ -125,8 +125,9 @@ def assign_prior_activities(user_module):
         # create new sequence item
         sequence_item = SequenceItem.objects.create(
             user_module = user_module,
+            position = p,
             activity_id = activity_id,
-            position = p
+            method = "previously completed problem assigned to module"
         )
         # associate attempts with the new sequence item
         prior_attempts.filter(activity_id=activity_id).update(sequence_item=sequence_item)
