@@ -122,7 +122,7 @@ def assign_prior_activities(user_module):
     for activity_id in activity_ids:
         p += 1
         # create new sequence item
-        SequenceItem.objects.create(
+        sequence_item = SequenceItem.objects.create(
             user_module = user_module,
             activity_id = activity_id,
             position = p
