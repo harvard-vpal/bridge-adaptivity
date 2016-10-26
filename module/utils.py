@@ -115,6 +115,7 @@ def assign_prior_activities(user_module):
     prior_attempts = Attempt.objects.filter(
         user = user_module.user,
         activity__module = user_module.module,
+        activity__visible = True,
         sequence_item = None,
     )
     activity_ids = prior_attempts.values_list('activity',flat=True).distinct()
