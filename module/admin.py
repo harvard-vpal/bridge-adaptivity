@@ -59,6 +59,7 @@ class AttemptAdmin(admin.ModelAdmin):
 
 class UserModuleAdmin(admin.ModelAdmin):
 	list_display = ['get_label','user','module','grade','last_position']
+	list_filter = ['user','module']
 	def get_label(self,obj):
 		return get_generic_label(obj)
 
