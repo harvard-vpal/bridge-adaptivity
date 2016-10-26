@@ -34,14 +34,20 @@ def problem_attempt(request):
             'message': 'username not given',
         })
     user, created = User.objects.get_or_create(username=request.POST['user'])
+
+    # max_points may not be passed if question is ungraded, in which case it is set to 0
+    # have also seen instance where non-number string was passed
+    try:
+        max_points = float(request.POST['max_points'])
+    except:
+        max_points = 0
     
     # create and save the attempt
     attempt = Attempt.objects.create(
         activity = activity,
         user = user,
         points = float(request.POST['points']),
-        # max_points may not be passed if question is ungraded, in which case it is set to 0
-        max_points = float(request.POST.get('max_points', 0)), 
+        max_points = max_points, 
     )
 
     # ACTIVITY SERVICE: TRANSACTION
