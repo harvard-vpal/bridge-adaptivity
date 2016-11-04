@@ -41,16 +41,16 @@ def get_next_missing_prereq(user_module, activity):
     return None
 
 
-def validate_sequence_history(user_module, activity):
+def activity_in_prior_sequence_items(activity, user_module):
     '''
-    look for activity in sequence history, return True if not found 
+    look for activity in sequence history, return True if found 
     '''
     # activity ids of previously seen activities; used to check for repeated activity
     sequence_activity_ids = user_module.sequence().values_list('activity',flat=True)
     # check if activity has been seen before in sequence (excluding last item)
     if len(sequence_activity_ids)>1 and activity.pk in list(sequence_activity_ids)[:-1]:
-        return False
-    return True
+        return True
+    return False
 
 
 def get_activity(user_module):
@@ -73,7 +73,7 @@ def get_activity(user_module):
     activity = get_object_or_404(Activity, pk=activity_id)
 
     # check if activity has been seen before in sequence (excluding last item)
-    if not validate_sequence_history(user_module, activity):
+    if activity_in_prior_sequence_items(activity, user_module):
         activity = get_backup_activity(user_module)
         method = "backup: activity service recommended activity previously seen in sequence"
 
