@@ -1,7 +1,9 @@
-import os
-os.environ.setdefault('ENV_TYPE', 'aws')
+
+# os.environ.setdefault('ENV_TYPE', 'development')
 from .base import *
 import secure
+
+ALLOWED_HOSTS = [secure.HOST[os.environ['ENV_TYPE']]]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
