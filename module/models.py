@@ -25,6 +25,7 @@ class Module(models.Model):
     def __unicode__(self):
         return "{}: {}".format(self.pk, self.name)
 
+
 class UserModule(models.Model):
     '''
     One instance for each combination of user and module
@@ -37,7 +38,6 @@ class UserModule(models.Model):
     # position of last sequence_item loaded, take this out?
     last_position = models.PositiveIntegerField(default=1)
     completed = models.BooleanField(default=False)
-
 
     def __unicode__(self):
         return "{}: username={}, module={}".format(
@@ -78,7 +78,6 @@ class UserModule(models.Model):
             percent_grade = self.grade/self.module.max_points
         else:
             percent_grade = 1
-
 
         response = lti.utils.grade_passback(self, percent_grade)
         if response:
@@ -127,7 +126,6 @@ class Activity(models.Model):
         return "{}: {}".format(self.pk, self.name)
 
 
-
 class SequenceItem(models.Model):
     '''
     each row represents the first time user visits a resource, in a module
@@ -151,6 +149,7 @@ class SequenceItem(models.Model):
             self.activity.pk
         )
 
+
 class Attempt(models.Model):
     '''
     problem attempt by a student
@@ -166,6 +165,8 @@ class Attempt(models.Model):
     timestamp = models.DateTimeField(null=True,auto_now=True)
     # can be null, if this attempt is outside of a lti window
     sequence_item = models.ForeignKey(SequenceItem, null=True, blank=True)
+    # whether this attempt was manually added retroactively (e.g. javascript problem submission didnt fire so edx backend data used to populate attempt)
+    manual = models.BooleanField(default=False)
 
     def __unicode__(self):
         return "{}: username={}, activity={}, score={}/{}".format(self.pk, self.user.username, self.activity.pk, self.points, self.max_points)

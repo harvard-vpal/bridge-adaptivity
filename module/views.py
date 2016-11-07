@@ -62,19 +62,25 @@ def next_activity(request, user_module_id, position):
     last_sequence_item = sequence.get(position=position)
     last_activity = last_sequence_item.activity
 
-    # if user hasn't made any attempts for a problem, stay on the same sequence item
-    if last_activity.type=='problem' and not Attempt.objects.filter(sequence_item=last_sequence_item).exists():
-        return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
-
     # if at the most recent item in sequence, ask for a new activity
     if position == sequence_length:
 
+        # if user doesn't have any attempts for any problem, assume that javascript isn't working for them and serve a next question
+        if not Attempt.objects.filter(user=user_module.user, manual=False).exists():
+            next_activity = utils.get_backup_activity(user_module=user_module)
+            method = 'assumed javascript not working, served random activity'
+
+        # if javascript seems to work, and user hasn't made any attempts for a problem, stay on the same sequence item
+        elif last_activity.type=='problem' and not Attempt.objects.filter(sequence_item=last_sequence_item).exists():
+            return redirect('module:sequence_item', user_module_id=user_module_id, position=position)
+
         # check if student has exhausted all servable questions in module; if so, go to completion screen
-        if sequence.filter(activity__type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
+        elif sequence.filter(activity__type='problem').count() == Activity.objects.filter(module=user_module.module,visible=True).count():
             return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-        # ACTIVITY REQUEST: returns a tuple of (activity object, description)
-        next_activity, method = utils.get_activity(user_module=user_module)
+        else:
+            # ACTIVITY REQUEST: returns a tuple of (activity object, description)
+            next_activity, method = utils.get_activity(user_module=user_module)
 
         # if activity service returns same activity as the last one, redirect to last sequence item 
         if next_activity == last_activity:
@@ -84,23 +90,18 @@ def next_activity(request, user_module_id, position):
         if not next_activity:
             return redirect('module:sequence_complete', user_module_id=user_module_id)
 
-        try:
-            # look for a next item just in case next_question is triggered more than once before page load, so the later process gets rather than creates a duplicate
-            next_sequence_item = SequenceItem.objects.get(
-                user_module = user_module,
-                position = position + 1,
-            )
-        except ObjectDoesNotExist:
-            next_sequence_item = SequenceItem.objects.create(
-                user_module = user_module,
-                position = position + 1,
-                activity = next_activity,
-                method = method,
-            )
+        # create the next sequence item with chosen activity
+        next_sequence_item = SequenceItem.objects.create(
+            user_module = user_module,
+            position = position + 1,
+            activity = next_activity,
+            method = method,
+        )
 
     # go to the next sequence item screen
     return redirect('module:sequence_item', user_module_id=user_module_id, position=position+1)
    
+
 def sequence_item(request, user_module_id, position):
     '''
     Activity in a module. sequence item already has to exist
@@ -126,6 +127,7 @@ def sequence_item(request, user_module_id, position):
     }
 
     return render(request, 'module/module.html', context) 
+
 
 def sequence_complete(request, user_module_id):
     '''
@@ -154,8 +156,10 @@ def sequence_complete(request, user_module_id):
 
     return render(request, 'module/module.html', context)
 
+
 def completion_message(request):
     '''
     replacement for activity content in sequence_complete view
     '''
     return render(request, 'module/completion_message.html')
+
