@@ -16,5 +16,5 @@ AWS_SECRET_ACCESS_KEY = secure.AWS_SECRET_ACCESS_KEY
 
 # Database
 DATABASES = {
-    'default': secure.AWS_DATABASE
+    'default': secure.AWS_DATABASE[os.environ['ENV_TYPE']]
 }
