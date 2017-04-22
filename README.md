@@ -1,6 +1,6 @@
 # Bridge for Adaptivity
 
-A tool to that interfaces with an adaptive engine to dynamically serve content in MOOCs based on real time student activity.
+A tool that interfaces with an adaptive engine to dynamically serve content in MOOCs based on real time student activity.
 
 Github wiki: https://github.com/harvard-vpal/bridge-adaptivity/wiki
 
