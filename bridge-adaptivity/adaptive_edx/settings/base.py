@@ -49,7 +49,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     ## external apps
     'storages',
     'bootstrap3',
@@ -164,6 +164,6 @@ TUTORGEN_PASS = secure.TUTORGEN_PASS
 TUTORGEN_COURSE_ID = secure.TUTORGEN_COURSE_ID
 
 # switch for activity service
-ACTIVITY_SERVICE = secure.ACTIVITY_SERVICE[os.environ['ENV_TYPE']]
+ACTIVITY_SERVICE = 'adaptive_engine'  #secure.ACTIVITY_SERVICE[os.environ['ENV_TYPE']]
 
 
