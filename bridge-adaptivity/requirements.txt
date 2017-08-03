@@ -8,3 +8,5 @@ boto
 
 # temporary for debugging
 # django-debug-toolbar
+
+gunicorn

@@ -9,34 +9,51 @@ Blog post: http://vpal.harvard.edu/blog/bridge-adaptivity-enabling-use-adaptive-
 
 ## Deployment
 
-Deployment is based on the `Docker` containers. There are two files in
-the repository for local and production deployments `local-compose.yml`
-and `docker-compose.yml` respectively.
+Deployment is based on the `Docker` containers. There are two config
+files `docker-compose_local.yml` and `docker-compose.yml` for local
+and production deployments respectively.
 
-Docker (Docker CE) and Docker Compose are required to be installed
-before start deploying on local machine for local deployment and on
-production server for production deployment.
+Docker and Docker Compose are required to be installed before start
+the deploying.
 
-1. [Guide for Docker installation on Ubuntu.](https://docs.docker.com/engine/installation/linux/ubuntu/#install-using-the-repository)
+Clone project.
 
-2. [Guide for Docker Compose installation on Ubuntu.](https://docs.docker.com/compose/install/)
-
-After docker is installed clone project to the host machine (local or
-prod).
+Before running deployment configure `secure.py` settings in the
+`bridge-adaptivity/adaptive_edx/settings/` directory.
 
 ### Local deployment
 
-Local deployment is used for development and base testing. To run local
-deployment use docker-compose up command in console:
+Local deployment can be started by the docker-compose up command in the
+console:
 
-`docker-compose -f local-compose.yml up`
+`docker-compose -f docker-compose_local.yml up`
 
 Local deployment contains two containers:
 
-- itero -- container with the Itero application.
+- BFA_local -- container with the Bridge for Adaptivity.
 
-  Itero application is running on default test server.
+- postgresql_BFA -- container with the postgresql database.
 
-- postgres -- container with the database.
+  Volume "pgs" is added to the the database container.
 
-  Volume "pgdata" is added to the the database container.
+### Production deployment
+
+Please ensure that file in `nginx/sites_enabled/bridge.conf` exists and
+is configured in proper way.
+
+Run docker-compose up command with default `docker-compose.yml` file
+to start production deployment:
+
+  `sudo docker-compose up -d`
+
+Production deployment contains three containers:
+
+- BFA -- container with the the Bridge for Adaptivity.
+
+  Bridge for Adaptivity application is running on gunicorn server.
+
+- postgresql_BFA -- container with the postgresql database.
+
+  Volume "pgs" is added to the the database container.
+
+- nginx_BFA -- container with nginx server

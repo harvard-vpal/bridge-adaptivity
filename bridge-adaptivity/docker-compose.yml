@@ -10,17 +10,29 @@ services:
       - "5432:5432"
 
   bridge:
-    container_name: bridge_local
+    container_name: BFA
     build:
       context: .
       dockerfile: Dockerfile_local
-    command: bash -c "sleep 5 && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep 5 && /usr/local/bin/gunicorn adaptive_edx.wsgi:application -w 2 -b :8000"
     volumes:
       - .:/bridge-adaptivity
     ports:
       - "8000:8000"
     links:
       - postgres
+      
+  nginx:
+    container_name: nginx_BFA
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - /www/static
+    volumes_from:
+      - bridge
+    links:
+      - bridge
 
 volumes:
   pgs:
