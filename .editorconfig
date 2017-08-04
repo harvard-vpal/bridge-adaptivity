@@ -1,0 +1,17 @@
+# EditorConfig helps developers define and maintain
+# consistent coding styles between different editors and IDEs.
+#
+# Grab a plugin for your editor of choice here http://editorconfig.org/#download
+
+root=true  # most-top config file in .editorconfig configuration tree
+
+[*]
+charset = utf-8
+end_of_line = lf  # Unix-style newlines
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{yml,md}]
+indent_size = 2

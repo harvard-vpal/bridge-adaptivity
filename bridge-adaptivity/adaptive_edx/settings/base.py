@@ -56,7 +56,7 @@ INSTALLED_APPS = (
     'corsheaders',
 
     ## core functions
-    'lti',
+    'bridge_lti',
     'module',
     'api',
 
@@ -152,7 +152,7 @@ LTI_OAUTH_CREDENTIALS = secure.LTI_OAUTH_CREDENTIALS
 
 ## for dce version of django-auth-lti
 from oauthlib.oauth1 import RequestValidator
-LTI_REQUEST_VALIDATOR = 'lti.validator.LTIRequestValidator'
+LTI_REQUEST_VALIDATOR = 'bridge_lti.validator.LTIRequestValidator'
 
 # base url for rendering xblocks from edx
 EDX_BASE_URL = 'https://courses.edx.org/xblock/'

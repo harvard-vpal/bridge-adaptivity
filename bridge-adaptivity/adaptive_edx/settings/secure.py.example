@@ -1,1 +1,27 @@
-# TO UPDATE
+"""
+Example of secret module with secure settings.
+
+Should be ignored by VCS (Git).
+"""
+
+# Standard Django secret key (can be generated via http://www.miniwebtool.com/django-secret-key-generator/)
+# https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
+SECRET_KEY = 'your_generated_django_secret-key'
+HOST = {}
+
+# django-auth-lti - https://github.com/Harvard-University-iCommons/django-auth-lti
+LTI_OAUTH_CREDENTIALS = {}
+
+ACTIVITY_SERVICE = {'local': ''}
+
+# Tutorgen related:
+TUTORGEN_URL_BASE = ''
+TUTORGEN_USER = ''
+TUTORGEN_PASS = ''
+TUTORGEN_COURSE_ID = ''
+
+# Amazon S3 related:
+AWS_STORAGE_BUCKET_NAME = ''
+AWS_S3_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
+AWS_DATABASE = {}
