@@ -7,7 +7,7 @@ import logging
 from dce_lti_py import OutcomeRequest
 
 from module.models import UserModule, Module
-from lti.models import LtiParameters
+from bridge_lti.models import LtiParameters
 
 logger = logging.getLogger(__name__)
 

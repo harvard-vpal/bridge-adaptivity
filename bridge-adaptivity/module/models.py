@@ -163,7 +163,7 @@ class Attempt(models.Model):
     max_points = models.FloatField()
     # time of attempt
     timestamp = models.DateTimeField(null=True,auto_now=True)
-    # can be null, if this attempt is outside of a lti window
+    # can be null, if this attempt is outside of a bridge_lti window
     sequence_item = models.ForeignKey(SequenceItem, null=True, blank=True)
     # whether this attempt was manually added retroactively (e.g. javascript problem submission didnt fire so edx backend data used to populate attempt)
     manual = models.BooleanField(default=False)

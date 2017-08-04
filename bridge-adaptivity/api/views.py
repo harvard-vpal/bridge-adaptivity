@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from module.models import *
 from module import utils
-from lti.utils import grade_passback
+from bridge_lti.utils import grade_passback
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.conf import settings
 
