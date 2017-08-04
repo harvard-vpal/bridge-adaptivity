@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from .models import *
-from lti.models import *
+from bridge_lti.models import *
 
 def get_generic_label(obj):
 	return "{}: {}".format(obj._meta.model_name, obj.pk)

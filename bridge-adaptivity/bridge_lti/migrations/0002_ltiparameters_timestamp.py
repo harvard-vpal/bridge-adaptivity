@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lti', '0001_initial'),
+        ('bridge_lti', '0001_initial'),
     ]
 
     operations = [
