@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('lti', '0005_remove_ltiparameters_max_points'),
+        ('bridge_lti', '0005_remove_ltiparameters_max_points'),
     ]
 
     operations = [

@@ -19,9 +19,9 @@ class LtiParameters(models.Model):
     lis_outcome_service_url = models.CharField(max_length=300,default='')
     lis_result_sourcedid = models.CharField(max_length=300,default='')
     oauth_consumer_key = models.CharField(max_length=300,default='')
-    user_id = models.CharField(max_length=300,default='') # lti user id
-    lis_person_sourcedid = models.CharField(max_length=300,default='') #edx username
-    roles = models.CharField(max_length=300,default='') # roles
+    user_id = models.CharField(max_length=300,default='')  # bridge_lti user id
+    lis_person_sourcedid = models.CharField(max_length=300,default='')  # edx username
+    roles = models.CharField(max_length=300,default='')  # roles
 
     parameter_list = [
         'lis_outcome_service_url',
