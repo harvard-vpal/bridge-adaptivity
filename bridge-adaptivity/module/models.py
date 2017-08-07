@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Max, Sum
-import lti.utils
+import bridge_lti.utils
 
 class Course(models.Model):
     '''
