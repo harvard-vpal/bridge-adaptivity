@@ -166,3 +166,5 @@ ACTIVITY_SERVICE = secure.ACTIVITY_SERVICE[os.environ['ENV_TYPE']]
 
 AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'module:collection-list'
