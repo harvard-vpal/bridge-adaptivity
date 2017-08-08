@@ -1,3 +1,6 @@
+import hashlib
+
+import shortuuid
 from dce_lti_py import OutcomeRequest
 from django.conf import settings
 
@@ -28,3 +31,12 @@ def grade_passback(user_module, grade):
     outcome_response = outcome.post_replace_result(grade)
 
     return outcome_response
+
+
+def short_token():
+    """
+    Generate a hash that can be used as lti consumer key.
+    """
+    hash = hashlib.sha1(shortuuid.uuid())
+    hash.update(settings.SECRET_KEY)
+    return hash.hexdigest()[::2]
