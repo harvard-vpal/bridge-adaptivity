@@ -1,0 +1,36 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}
+  Collection: {{ collection.name }}
+  <a href="{% url 'module:collection-list' %}">
+    {% bootstrap_button 'back to Collections' size='lg' icon='menu-up' %}
+  </a>
+{% endblock title %}
+
+<hr>
+
+{% block content %}
+<table class="table table-hover">
+  <tr>
+    {% for field in model_fields %}
+      <th>{{ field }}</th>
+    {% endfor %}
+  </tr>
+  {% for activity in activities %}
+  <tr>
+    <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
+    <td>{{ activity.tag }}</td>
+    <td>{{ activity.difficulty }}</td>
+    <td>{{ activity.points }}</td>
+    <td>{{ activity.launch_url }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<hr>
+<a href="{% url 'module:activity-add' collection.pk %}">
+  {% bootstrap_button 'Add Activity' size='lg' icon='plus' %}
+</a>
+
+{% endblock content %}

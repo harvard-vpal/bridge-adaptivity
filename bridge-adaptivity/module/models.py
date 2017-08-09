@@ -75,6 +75,8 @@ class Activity(models.Model):
     def __str__(self):
         return '<Activity: {}>'.format(self.name)
 
+    def get_absolute_url(self):
+        return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
 
 @python_2_unicode_compatible
 class Log(models.Model):
