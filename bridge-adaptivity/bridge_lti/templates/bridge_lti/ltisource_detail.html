@@ -1,0 +1,38 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}
+Content Source:
+<a class="pull-right" href="{% url 'lti:source-list' %}">
+  {% bootstrap_button 'back to LTI Content Sources' size='lg' icon='menu-up' %}
+</a>
+<h2>
+  {{ lti_source.name }} from {{ lti_source.lti_consumer.name }}
+</h2>
+<hr>
+{% endblock title %}
+
+
+{% block content %}
+
+<h4>{{ lti_source.launch_url }}</h4>
+
+rendered LTI source here
+
+
+<iframe
+    style="width:100%;height:600px;%;display:block;border:0px;"
+    title="${display_name}"
+    class="ltiLaunchFrame"
+    name="ltiFrame-{{ lti_source.id }}"
+    src="google.com"
+    allowfullscreen="true"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+></iframe>
+<hr>
+
+
+
+
+{% endblock content %}

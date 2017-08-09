@@ -19,6 +19,11 @@ class LtiUserAdmin(admin.ModelAdmin):
     pass
 
 
+@admin.register(LtiSource)
+class LtiSourceAdmin(admin.ModelAdmin):
+    pass
+
+
 @admin.register(BridgeUser)
 class BridgeUserAdmin(UserAdmin):
     fieldsets = (

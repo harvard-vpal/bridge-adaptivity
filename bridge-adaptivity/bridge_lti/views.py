@@ -4,8 +4,23 @@ import logging
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
+from django.views.generic import DetailView
+from django.views.generic import ListView
+
+from bridge_lti.models import LtiSource
 
 logger = logging.getLogger(__name__)
+
+
+class LtiSourceList(ListView):
+    model = LtiSource
+    context_object_name = 'lti_sources'
+    paginate_by = 10
+
+
+class LtiSourceDetail(DetailView):
+    model = LtiSource
+    context_object_name = 'lti_source'
 
 
 @login_required()
