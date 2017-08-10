@@ -1,0 +1,17 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+<hr>
+
+{% block content %}
+<h2>Activity configuration</h2>
+
+<form role="form" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button class="btn btn-default" type="submit">Change</button>
+  <a href="{% url 'module:collection-detail' current_collection_id %}" class="btn btn-default" role="button"
+     type="reset">Cancel</a>
+</form>
+
+{% endblock content %}

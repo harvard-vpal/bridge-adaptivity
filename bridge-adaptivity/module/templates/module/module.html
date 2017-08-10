@@ -62,14 +62,11 @@
 
 {# edx problem window #}
 <iframe id="vpal-activity" 
-sandbox="allow-same-origin allow-scripts allow-popups allow-forms" 
-src="
-{% if module_complete %}
-{% url 'module:completion_message' %}
-{% else %}
- {{sequence_item.activity.url}}  
-{% endif %} 
-" height='80%', width='100%'></iframe>
+  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+  src="{% if module_complete %}{% url 'module:completion_message' %}{% else %}{{sequence_item.activity.url}}{% endif %}"
+  height='80%'
+  width='100%'>
+</iframe>
 
 {# bottom toolbar #}
 <div class="container-fluid toolbar">

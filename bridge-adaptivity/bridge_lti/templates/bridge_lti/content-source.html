@@ -1,0 +1,30 @@
+<html>
+<head>
+  <title>Content source</title>
+</head>
+<body>
+
+<form action="{{ launch_url }}"
+    name="ltiLaunchForm"
+    id="ltiLaunchForm"
+    method="POST"
+    encType="application/x-www-form-urlencoded"
+    style=" display:none;"
+>
+  {% for key, value in launch_data.items %}
+    <input type="hidden" name="{{ key }}" value="{{ value }}"/>
+  {% endfor %}
+  <button type="submit">Launch the tool</button>
+</form>
+
+<script type="text/javascript">
+    (function (d) {
+        var element = d.getElementById("ltiLaunchForm");
+        if (element) {
+            element.submit();
+        }
+    }(document));
+</script>
+
+</body>
+</html>

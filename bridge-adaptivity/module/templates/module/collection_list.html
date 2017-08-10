@@ -1,0 +1,34 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Collections{% endblock title %}
+
+<hr>
+
+{% block content %}
+<table class="table table-hover">
+  <tr>
+    <th>name</th>
+    <th>metadata</th>
+    <th>strict forward</th>
+  </tr>
+  {% for collection in collections %}
+  <tr>
+    <td><a href="{% url 'module:collection-detail' collection.id %}">{{ collection.name }}</a></td>
+    <td>{{ collection.metadata }}</td>
+    <td>{% if collection.strict_forward %}
+      <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+      {% else %}
+      <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+<hr>
+<a href="{% url 'module:collection-add' %}">
+  {% bootstrap_button 'Add Collection' size='lg' icon='plus' %}
+</a>
+
+{% endblock content %}

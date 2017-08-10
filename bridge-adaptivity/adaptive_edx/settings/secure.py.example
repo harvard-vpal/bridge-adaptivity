@@ -10,7 +10,10 @@ SECRET_KEY = 'your_generated_django_secret-key'
 HOST = {}
 
 # django-auth-lti - https://github.com/Harvard-University-iCommons/django-auth-lti
-LTI_OAUTH_CREDENTIALS = {}
+LTI_OAUTH_CREDENTIALS = {
+    "consumer1_key": "consumer1_secret",
+    "consumer2_key": "consumer2_secret"
+}
 
 ACTIVITY_SERVICE = {'local': ''}
 

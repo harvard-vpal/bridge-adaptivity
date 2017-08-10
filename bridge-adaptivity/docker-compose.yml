@@ -1,0 +1,38 @@
+version: '2'
+services:
+  postgres:
+    container_name: postgresql_BFA
+    image: postgres
+    env_file: ./envs/pg.env
+    volumes:
+      - pgs:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  bridge:
+    container_name: BFA
+    build:
+      context: .
+      dockerfile: Dockerfile_local
+    command: bash -c "sleep 5 && /usr/local/bin/gunicorn adaptive_edx.wsgi:application -w 2 -b :8000"
+    volumes:
+      - .:/bridge-adaptivity
+    ports:
+      - "8000:8000"
+    links:
+      - postgres
+      
+  nginx:
+    container_name: nginx_BFA
+    build: ./nginx
+    ports:
+      - "80:80"
+    volumes:
+      - /www/static
+    volumes_from:
+      - bridge
+    links:
+      - bridge
+
+volumes:
+  pgs:
