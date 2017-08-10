@@ -17,22 +17,16 @@ Content Source:
 
 <h4>{{ lti_source.launch_url }}</h4>
 
-rendered LTI source here
-
-
 <iframe
-    style="width:100%;height:600px;%;display:block;border:0px;"
-    title="${display_name}"
-    class="ltiLaunchFrame"
-    name="ltiFrame-{{ lti_source.id }}"
-    src="google.com"
-    allowfullscreen="true"
-    webkitallowfullscreen="true"
-    mozallowfullscreen="true"
-></iframe>
-<hr>
-
-
+  style="width:100%;height:640px;%;display:block;border:0px;"
+  title="{{ lti_source.id }}"
+  name="ltiFrame-{{ lti_source.id }}"
+  src="{% url 'lti:content-source' lti_source.id %}"
+  allowfullscreen="true"
+  webkitallowfullscreen="true"
+  mozallowfullscreen="true"
+>
+</iframe>
 
 
 {% endblock content %}
