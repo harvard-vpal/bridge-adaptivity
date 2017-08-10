@@ -3,7 +3,7 @@
 
 {% block title %}
   Collection: {{ collection.name }}
-  <a href="{% url 'module:collection-list' %}">
+  <a class="pull-right"  href="{% url 'module:collection-list' %}">
     {% bootstrap_button 'back to Collections' size='lg' icon='menu-up' %}
   </a>
 {% endblock title %}

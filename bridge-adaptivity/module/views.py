@@ -1,6 +1,5 @@
 from django.urls import reverse
-from django.views.generic import ListView, CreateView, DetailView
-from django.views.generic import UpdateView
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 
 from .models import Collection, Activity
 
@@ -38,7 +37,7 @@ class CollectionDetail(DetailView):
 
 class ActivityCreate(CreateView):
     model = Activity
-    fields = ['name', 'tag', 'difficulty', 'points', 'launch_url']
+    fields = ['name', 'tag', 'difficulty', 'points', 'source']
 
     def form_valid(self, form):
         activity = form.save(commit=False)
@@ -59,7 +58,7 @@ class ActivityCreate(CreateView):
 class ActivityUpdate(UpdateView):
     model = Activity
     context_object_name = 'activity'
-    fields = ['name', 'tag', 'difficulty', 'points', 'launch_url']
+    fields = ['name', 'tag', 'difficulty', 'points', 'source']
 
     def get_context_data(self, **kwargs):
         context = super(ActivityUpdate, self).get_context_data(**kwargs)

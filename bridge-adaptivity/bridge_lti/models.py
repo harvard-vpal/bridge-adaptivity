@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractUser, Permission, Group, User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
@@ -12,8 +12,7 @@ class LtiProvider(models.Model):
     """
     Model to manage LTI consumers.
 
-    This model stores the consumer specific settings, such as the OAuth key/secret pair and any LTI fields
-    that must be persisted.
+    LMS connections.
     Automatically generates key and secret for consumers.
     """
     consumer_name = models.CharField(max_length=255, unique=True)
@@ -34,19 +33,20 @@ class LtiProvider(models.Model):
 class LtiConsumer(models.Model):
     """
     Model to manage LTI source providers.
+
+    Content source connections.
     """
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
-    source_url = fields.URLField()
 
     class Meta:
         verbose_name = "LTI Consumer"
         verbose_name_plural = "LTI Consumers"
 
     def __str__(self):
-        return '<LtiConsumer: {}>'.format(self.name if self.name else self.provider_key)
+        return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
 
 
 @python_2_unicode_compatible
@@ -74,7 +74,13 @@ class BridgeUser(AbstractUser):
     """
     Bridge user based on the top of Django User.
     """
-    roles = fields.CharField(max_length=255)
+    roles = fields.CharField(
+        max_length=255,
+        help_text=_(
+            'User <a target="_blank" href="https://www.imsglobal.org/specs/ltiv1p1p1/implementation-guide#toc-22">'
+            'LTI roles</a> (comma separated).'
+        )
+    )
 
     class Meta:
         verbose_name = _('bridge user')
@@ -82,3 +88,21 @@ class BridgeUser(AbstractUser):
 
     def __str__(self):
         return '<BridgeUser: {}>'.format(self.username)
+
+
+@python_2_unicode_compatible
+class LtiSource(models.Model):
+    """
+    Model to manage LTI content (materials).
+    """
+    lti_consumer = models.ForeignKey('LtiConsumer')
+    launch_url = models.URLField(max_length=255, unique=True, null=True)
+    name = fields.CharField(max_length=255, blank=True, null=True)
+    course_id = fields.CharField(max_length=255, blank=True, null=True)
+
+    class Meta(object):
+        verbose_name = "LTI Source"
+        verbose_name_plural = "LTI Sources"
+
+    def __str__(self):
+        return '<LtiSource : {} : {}>'.format(self.lti_consumer.name, self.name or self.id)
