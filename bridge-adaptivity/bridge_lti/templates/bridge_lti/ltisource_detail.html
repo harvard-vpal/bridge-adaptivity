@@ -4,7 +4,7 @@
 {% block title %}
 Content Source:
 <a class="pull-right" href="{% url 'lti:source-list' %}">
-  {% bootstrap_button 'back to LTI Content Sources' size='lg' icon='menu-up' %}
+  {% bootstrap_button 'back to LTI Content Sources' size='sm' icon='menu-up' %}
 </a>
 <h2>
   {{ lti_source.name }} from {{ lti_source.lti_consumer.name }}
