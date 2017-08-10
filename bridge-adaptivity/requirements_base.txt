@@ -8,5 +8,9 @@ ims-lti-py
 git+git://github.com/harvard-dce/django-auth-lti.git@dce-lti-py
 # dce-lti-py is installed by django-auth-lti, but need upgrade to 0.7.4
 dce-lti-py
-
 shortuuid==0.5.0  # https://github.com/skorokithakis/shortuuid
+
+# CI and tests requirements
+flake8
+tox
+pbr
