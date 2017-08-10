@@ -1,13 +1,9 @@
-from django.shortcuts import redirect, get_object_or_404
-from django.views.decorators.http import require_http_methods
-from django.contrib.auth.decorators import login_required
 import json
 import logging
-# using dce_lti_py instad of ims_lti_py for grade passback
-from dce_lti_py import OutcomeRequest
 
-from module.models import UserModule, Module
-from bridge_lti.models import LtiParameters
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, get_object_or_404
+from django.views.decorators.http import require_http_methods
 
 logger = logging.getLogger(__name__)
 

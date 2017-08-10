@@ -1,0 +1,16 @@
+<nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="{% url 'index' %}">the BRIDGE</a>
+    </div>
+    <div>
+      {% if user.is_authenticated %}
+      <div
+        class="navbar-text navbar-right"><a href="{% url 'logout' %}" class="navbar-link">{{ user.username }}</a></div>
+      {% else %}
+      <a href="{% url 'login' %}" class="btn btn-default navbar-btn navbar-right" role="button">Sign in</a>
+      {% endif %}
+
+    </div>
+  </div>
+</nav>

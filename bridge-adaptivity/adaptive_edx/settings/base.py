@@ -50,16 +50,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    ## external apps
-    'storages',
+    # external apps
     'bootstrap3',
     'corsheaders',
+    'storages',
 
-    ## core functions
+    # core functions
     'bridge_lti',
     'module',
     'api',
-
 )
 
 MIDDLEWARE_CLASSES = (
@@ -76,6 +75,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     #'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
 AUTHENTICATION_BACKENDS = (
     'django_auth_lti.backends.LTIAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -90,9 +90,7 @@ TEMPLATES = [{
         'context_processors': [
             # django auth
             'django.contrib.auth.context_processors.auth',
-
-            # access the request inside django template
-            'django.template.context_processors.request',
+            'django.template.context_processors.request',  # adds `request` object to templates context
             # 'django.template.context_processors.debug',
 
             # enable django messages
@@ -142,7 +140,7 @@ STATICFILES_DIRS = (
 
 #### django-bootstrap ####
 BOOTSTRAP3 = {
-    'include_jquery':True,
+    'include_jquery': True,
 }
 
 # allow post requests from edx
@@ -166,4 +164,7 @@ TUTORGEN_COURSE_ID = secure.TUTORGEN_COURSE_ID
 # switch for activity service
 ACTIVITY_SERVICE = secure.ACTIVITY_SERVICE[os.environ['ENV_TYPE']]
 
+AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'module:collection-list'
