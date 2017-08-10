@@ -1,0 +1,28 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}LTI Content Sources{% endblock title %}
+
+<hr>
+
+{% block content %}
+<table class="table table-hover">
+  <tr>
+    <th>name</th>
+    <th>LTI consumer</th>
+    <th>launch url</th>
+    <th>course ID</th>
+  </tr>
+  {% for lti_source in lti_sources %}
+  <tr>
+    <td>{{ lti_source.name }}</td>
+    <td>{{ lti_source.lti_consumer.name }}</td>
+    <td><a href="{% url 'lti:source-detail' lti_source.pk %}">{{ lti_source.launch_url }}</a></td>
+    <td>{{ lti_source.coulaunch_urlrse_id }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<hr>
+
+{% endblock content %}

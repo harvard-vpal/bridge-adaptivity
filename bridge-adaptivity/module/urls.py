@@ -1,11 +1,16 @@
-from django.conf.urls import url, include
-from . import views
+from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
+
+from .views import CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate
 
 urlpatterns = [
-	url(r'^launch/(?P<user_module_id>[0-9]+)$', views.launch, name='launch'),
-    url(r'^(?P<user_module_id>[0-9]+)/(?P<position>[0-9]+)$', views.sequence_item, name='sequence_item'),
-	url(r'^(?P<user_module_id>[0-9]+)/(?P<position>[0-9]+)/next_activity$', views.next_activity, name='next_activity'),
-	url(r'^sequence_complete/(?P<user_module_id>[0-9]+)$', views.sequence_complete, name='sequence_complete'),
-	url(r'^completion_message$', views.completion_message, name='completion_message'),
+    url(r'^collection/$', login_required(CollectionList.as_view()), name='collection-list'),
+    url(r'^collection/add/$', login_required(CollectionCreate.as_view()), name='collection-add'),
+    url(r'^collection/(?P<pk>\d+)/$', login_required(CollectionDetail.as_view()), name='collection-detail'),
+    url(r'^activity/(?P<collection_id>\d+)/add/$', login_required(ActivityCreate.as_view()), name='activity-add'),
+    url(
+        r'^activity/(?P<pk>\d+)/(?P<collection_id>\d+)/change/$',
+        login_required(ActivityUpdate.as_view()),
+        name='activity-change'
+    ),
 ]
-
