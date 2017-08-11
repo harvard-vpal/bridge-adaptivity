@@ -67,7 +67,7 @@ class Activity(models.Model):
     tag = fields.CharField(max_length=255, blank=True, null=True)
     difficulty = models.FloatField(verbose_name="max_points", blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
-    source = models.ForeignKey(LtiSource, blank=True, null=True)
+    source = models.ForeignKey(LtiSource)
 
     class Meta:
         verbose_name_plural = 'Activities'
