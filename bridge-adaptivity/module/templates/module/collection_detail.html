@@ -2,10 +2,10 @@
 {% load bootstrap3 %}
 
 {% block title %}
-  Collection: {{ collection.name }}
-  <a class="pull-right"  href="{% url 'module:collection-list' %}">
-    {% bootstrap_button 'back to Collections' size='lg' icon='menu-up' %}
-  </a>
+Collection: {{ collection.name }}
+<a class="pull-right" href="{% url 'module:collection-list' %}">
+  {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
+</a>
 {% endblock title %}
 
 <hr>
@@ -14,7 +14,7 @@
 <table class="table table-hover">
   <tr>
     {% for field in model_fields %}
-      <th>{{ field }}</th>
+    <th>{{ field }}</th>
     {% endfor %}
   </tr>
   {% for activity in activities %}
@@ -23,7 +23,11 @@
     <td>{{ activity.tag }}</td>
     <td>{{ activity.difficulty }}</td>
     <td>{{ activity.points }}</td>
-    <td>{{ activity.launch_url }}</td>
+    <td>
+      <a href="{% url 'lti:source-detail' activity.source.pk %}">
+        {% bootstrap_button activity.source.name size='md' icon='eye-open' %}
+      </a>
+    </td>
   </tr>
   {% endfor %}
 </table>

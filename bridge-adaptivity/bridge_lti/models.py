@@ -16,7 +16,7 @@ class LtiProvider(models.Model):
     Automatically generates key and secret for consumers.
     """
     consumer_name = models.CharField(max_length=255, unique=True)
-    consumer_key = models.CharField(max_length=32, unique=True, default=short_token)
+    consumer_key = models.CharField(max_length=32, unique=True, default=short_token)  # index
     consumer_secret = models.CharField(max_length=32, unique=True, default=short_token)
     expiration_date = models.DateField(verbose_name='Consumer key expiration date', null=True, blank=True)
     lms_metadata = fields.CharField(max_length=255, null=True, blank=True)
