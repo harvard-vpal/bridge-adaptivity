@@ -14,7 +14,13 @@ class SequenceItemAdmin(admin.ModelAdmin):
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'name', 'owner_name', 'strict_forward']
+    list_display_links = ['id', 'name']
+
+    def owner_name(self, obj):
+        return obj.owner.username
+
+    owner_name.empty_value_display = '---'
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
