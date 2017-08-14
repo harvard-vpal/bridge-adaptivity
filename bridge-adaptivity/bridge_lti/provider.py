@@ -2,11 +2,13 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import LtiProvider
 from .utils import get_required_params, get_optional_params
 
 
+@csrf_exempt
 def lti_launch(request):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
