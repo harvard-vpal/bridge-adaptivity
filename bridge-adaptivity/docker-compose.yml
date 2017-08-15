@@ -13,10 +13,11 @@ services:
     container_name: BFA
     build:
       context: .
-      dockerfile: Dockerfile_local
-    command: bash -c "sleep 5 && /usr/local/bin/gunicorn adaptive_edx.wsgi:application -w 2 -b :8000"
+      dockerfile: Dockerfile
+    command: bash -c "./prod_run.sh"
     volumes:
       - .:/bridge-adaptivity
+      - static:/www/static
     ports:
       - "8000:8000"
     links:
@@ -27,8 +28,6 @@ services:
     build: ./nginx
     ports:
       - "80:80"
-    volumes:
-      - /www/static
     volumes_from:
       - bridge
     links:
@@ -36,3 +35,4 @@ services:
 
 volumes:
   pgs:
+  static: {}

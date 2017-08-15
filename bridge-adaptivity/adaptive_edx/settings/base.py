@@ -39,8 +39,7 @@ path.append(SITE_ROOT)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = secure.SECRET_KEY
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -65,7 +64,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'cached_auth.Middleware',
     'django_auth_lti.middleware.LTIAuthMiddleware',
@@ -137,6 +136,8 @@ STATICFILES_DIRS = (
     normpath(join(SITE_ROOT, 'static')),
 )
 
+STATIC_URL = '/static/'
+STATIC_ROOT = secure.STATIC_ROOT
 
 #### django-bootstrap ####
 BOOTSTRAP3 = {
@@ -162,9 +163,12 @@ TUTORGEN_PASS = secure.TUTORGEN_PASS
 TUTORGEN_COURSE_ID = secure.TUTORGEN_COURSE_ID
 
 # switch for activity service
-ACTIVITY_SERVICE = secure.ACTIVITY_SERVICE[os.environ['ENV_TYPE']]
+ACTIVITY_SERVICE = secure.ACTIVITY_SERVICE[os.environ.get('ENV_TYPE', 'mock')]
 
 AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'module:collection-list'
+ALLOWED_HOSTS = secure.ALLOWED_HOSTS
+
+DATABASES = secure.DATABASES
