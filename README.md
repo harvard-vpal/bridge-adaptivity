@@ -36,7 +36,7 @@ Local deployment contains two containers:
 
   Volume "pgs" is added to the the database container.
 
-  Note: Development server available on `localhost:8888`
+  Note: Development server available on `localhost:8000`
 
 ### Production deployment
 
