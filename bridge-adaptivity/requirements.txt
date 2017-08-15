@@ -2,11 +2,6 @@
 -r requirements_base.txt
 
 # additional deployment requirements
-psycopg2
-django-storages
 boto
-
-# temporary for debugging
-# django-debug-toolbar
-
+django-storages
 gunicorn

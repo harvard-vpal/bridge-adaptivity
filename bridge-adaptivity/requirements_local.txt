@@ -1,8 +1,6 @@
 # local environment requirements
+-r requirements_base.txt  # includes the base.txt requirements
 
-#includes the base.txt requirements needed in all environments
--r requirements_base.txt
-
-# below are requirements specific to the local environment
+# requirements for local environment:
 django-sslserver
 django-debug-toolbar
