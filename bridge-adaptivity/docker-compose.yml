@@ -19,7 +19,7 @@ services:
       - .:/bridge-adaptivity
       - static:/www/static
     ports:
-      - "8888:8888"
+      - "8000:8000"
     links:
       - postgres
       

@@ -14,11 +14,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_local
-    command: bash -c "sleep 5 && python manage.py runserver 0.0.0.0:8888"
+    command: bash -c "sleep 5 && python manage.py runserver 0.0.0.0:8008"
     volumes:
       - .:/bridge-adaptivity
     ports:
-      - "8888:8888"
+      - "8008:8008"
     links:
       - postgres
 
