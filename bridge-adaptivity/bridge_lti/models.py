@@ -40,6 +40,8 @@ class LtiConsumer(models.Model):
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
+    host_url = models.URLField(max_length=255, null=True)
+    is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
 
     class Meta:
         verbose_name = "LTI Consumer"
