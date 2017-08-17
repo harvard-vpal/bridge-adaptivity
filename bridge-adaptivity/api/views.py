@@ -1,104 +1,74 @@
+import logging
+
+from django.http import HttpResponseBadRequest
+from django.http import HttpResponseNotFound
 from django.http import JsonResponse
-from module.models import *
-from module import utils
-from bridge_lti.utils import grade_passback
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from slumber.exceptions import HttpClientError, HttpNotFoundError
 
-## choose the recommendation service here
-if settings.ACTIVITY_SERVICE is 'tutorgen':
-    from module import tutorgen_api as activity_service
-else:
-    import activity_service.utils as activity_service
+from api.backends.openedx import OpenEdxApiClient
+from bridge_lti.models import LtiConsumer
+
+log = logging.getLogger(__name__)
 
 
-def problem_attempt(request):
-    '''
-    when students make a problem submission in edx, 
-    embedded javascript sends the answer data to this API endpoint    
-    '''
-    # identify problem based on usage id
-    try: 
-        activity = Activity.objects.get(usage_id = request.POST['problem'])
-    except ObjectDoesNotExist:
-        return JsonResponse({
-            'success':False,
-            'message': 'problem not found for given usage id'
-        })
+def apply_data_filter(data, filters=None):
+    """
+    Filter for `blocks` OpenEdx Course API response.
 
-    # get or create the user by the edx username
-    username = request.POST.get('user','')
-    if not username:
-        return JsonResponse({
-            'success':False,
-            'message': 'username not given',
-        })
-    user, created = User.objects.get_or_create(username=request.POST['user'])
+    Picks data which is listed in `filters` only.
+    :param data: (dict)
+    :param filters:
+    :return:
+    """
+    if filters is None:
+        return data
 
-    # max_points may not be passed if question is ungraded, in which case it is set to 0
-    # have also seen instance where non-number string was passed
+    filtered_data = {}
+    for block_name, block_value in data.items():
+        filtered_block_value = {k: v for k, v in block_value.items() if k in filters}
+        filtered_data[block_name] = filtered_block_value
+
+    return filtered_data
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_sources(request):
+    """
+    Content Source API requester.
+
+    Uses OpenEdx Course API v.1.0
+    :param request:
+    :param course_id:
+    :return: (JSON) blocks
+    """
+    course_id = request.POST.get('course_id')
+    if not course_id:
+        return HttpResponseBadRequest(content={"error": "`course_id` is a mandatory parameter."})
+
+    log.debug('course_ID{}'.format(course_id))
     try:
-        max_points = float(request.POST['max_points'])
-    except:
-        max_points = 0
-    
-    # create and save the attempt
-    attempt = Attempt.objects.create(
-        activity = activity,
-        user = user,
-        points = float(request.POST['points']),
-        max_points = max_points, 
-    )
+        # TODO: multiple ContentSources processing - one, for now.
+        content_source = LtiConsumer.objects.filter(is_active=True).first()
+        log.debug('Picked content Source: {}'.format(content_source.name))
+    except LtiConsumer.DoesNotExist:
+        return HttpResponseBadRequest(content={"error": "There are no Content Sources for now."})
 
-    # ACTIVITY SERVICE: TRANSACTION
-    # submit problem grade info to activity service
-    transaction = activity_service.Transaction(attempt)
+    # Get API client instance:
+    api = OpenEdxApiClient(content_source=content_source)
 
-    # everything below this point is only relevant for problems that could be served in adaptive modules
-    if not activity.visible:
-        return JsonResponse({
-            'success': True,
-            'message': 'attempt recorded, non-adaptive problem'
-        })
-
-    # try to identify a user module for the activity
     try:
-        user_module = UserModule.objects.get(user=user,module=activity.module)
-    # if user_module doesn't exist, user hasn't seen the activity yet
-    except ObjectDoesNotExist:
-        return JsonResponse({
-            'success':True,
-            'message': 'attempt recorded, outside of adaptive module context',
-        })
+        # TODO: multiple Courses processing - one, for now.
+        blocks = api.get_course_blocks(course_id)
+        filtered_blocks = apply_data_filter(blocks, filters=['id', 'block_id', 'display_name', 'lti_url'])
+    except HttpNotFoundError:
+        return HttpResponseNotFound(content={"error": "Requested course not found. Check `course_id` url encoding."})
+    except HttpClientError:
+        return HttpResponseBadRequest(content={"error": "Not valid query."})
 
-    # if user_module found, try to find a sequence item within module
-    try:
-        sequence_item = user_module.sequenceitem_set.get(activity=activity)
-    # if activity could have been served in user_module but not served yet, add to user_module
-    except ObjectDoesNotExist:
-        sequence_length = user_module.sequenceitem_set.count()
-        sequence_item = SequenceItem.objects.create(
-            user_module = user_module,
-            activity = activity,
-            position = sequence_length+1,
-            method = "problem seen outside of module context added to existing user module",
-        )
-    # shouldn't be true, but just in case there are duplicate activities in sequence
-    except MultipleObjectsReturned:
-        sequence_item = SequenceItem.objects.filter(user=user,activity=activity).last()
-        print "WARNING: Multiple sequence items returned for user={} and activity={}".format(user, activity)
+    data = filtered_blocks or {}
+    return JsonResponse(data=data)
 
-    # at this point, both user_module and sequence item are identified
-    
-    # update the attempt object with the sequence item
-    attempt.sequence_item = sequence_item
-    attempt.save(update_fields=['sequence_item'])
-
-    # recompute user_module.grade state and do grade passback
-    user_module.recompute_grade()
-    user_module.grade_passback()
-    return JsonResponse({
-        'success':True,
-        'message':'attempt recorded and module grade updated',
-    })
 
