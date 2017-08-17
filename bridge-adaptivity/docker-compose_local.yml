@@ -7,7 +7,7 @@ services:
     volumes:
       - pgs:/var/lib/postgresql/data/
     ports:
-      - "5432:5432"
+      - "5430:5430"
 
   bridge:
     container_name: BFA_local
