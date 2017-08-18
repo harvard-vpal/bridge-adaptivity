@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from edx_rest_api_client.client import EdxRestApiClient
