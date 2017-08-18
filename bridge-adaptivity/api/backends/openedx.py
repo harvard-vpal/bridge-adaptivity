@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
+from requests import RequestException
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
 from bridge_lti.models import LtiConsumer
@@ -52,13 +53,27 @@ class OpenEdxApiClient(EdxRestApiClient):
             host_url=self.content_source.host_url,
             token_url=self.API_URLS['get_token']
         )
-
-        access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
-            url=url,
-            client_id=settings.API_OAUTH_CLIENT_ID,
-            client_secret=settings.API_OAUTH_CLIENT_SECRET,
-            token_type='jwt',
-        )
+        try:
+            access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
+                url=url,
+                client_id=settings.API_OAUTH_CLIENT_ID,
+                client_secret=settings.API_OAUTH_CLIENT_SECRET,
+                token_type='jwt',
+            )
+        except ValueError as exc:
+            log.exception(
+                'OAuth2 token request to the OpenEdx LTI Provider failed: {}'.format(exc.message)
+            )
+            raise HttpClientError(
+                "OAuth token request failure. You may want to check your OAuth registration on LTI Provider."
+            )
+        except RequestException as exc:
+            log.exception(
+                'OAuth2 token request to the OpenEdx LTI Provider failed: {}'.format(exc.message)
+            )
+            raise HttpClientError(
+                "OAuth token request failure. You may want to check your LTI Provider's HOST_URL(https)."
+            )
         return access_token, expires_at
 
     def get_course_blocks(self, course_id,  all_blocks=True, depth='all', type_filter=None):
