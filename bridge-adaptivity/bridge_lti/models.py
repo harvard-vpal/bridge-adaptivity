@@ -50,6 +50,10 @@ class LtiConsumer(models.Model):
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
 
+    def save(self, *args, **kwargs):
+        if self.is_active:
+            LtiConsumer.objects.filter(is_active=True).update(is_active=False)
+        super(LtiConsumer, self).save(*args, **kwargs)
 
 @python_2_unicode_compatible
 class LtiUser(models.Model):

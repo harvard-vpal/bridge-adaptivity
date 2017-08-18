@@ -25,7 +25,7 @@ class OpenEdxApiClient(EdxRestApiClient):
     API client to interact with OpenEdx Course API.
     """
     API_URLS = {
-        "get_token": "/oauth2/access_token/",
+        "get_token": "/oauth2/access_token",
         "base_url": "/api/courses/v1/",
     }
 
@@ -175,7 +175,7 @@ def get_content_provider():
     """
     try:
         # TODO: multiple ContentSources processing - one, for now.
-        content_source = LtiConsumer.objects.filter(is_active=True).first()
+        content_source = LtiConsumer.objects.get(is_active=True)
         log.debug('Picked content Source: {}'.format(content_source.name))
         return content_source
     except LtiConsumer.DoesNotExist:

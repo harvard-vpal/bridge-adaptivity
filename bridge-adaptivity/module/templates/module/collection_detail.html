@@ -49,6 +49,11 @@ Collection: {{ collection.name }}
       <h3 class="text-center">Available content courses</h3>
     </div>
     <div class="row">
+      {% if not source_courses %}
+      <div class="alert alert-warning text-center" role="alert">
+        There are no active content sources
+      </div>
+      {% endif %}
       <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
         {% for source_course in source_courses %}
 
