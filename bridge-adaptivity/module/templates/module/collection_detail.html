@@ -94,7 +94,6 @@ Collection: {{ collection.name }}
 
                 var sourcesList = $('<ul/>').addClass('content-sources');
                 $.each(data, function(i, item) {
-                    console.log(item['display_name']);
                     var li = $('<li/>').appendTo(sourcesList);
                     var ref = $('<a/>')
                         .addClass('ui-all')

@@ -72,7 +72,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         - block_counts=['video', 'problem'...]
         see: http://edx.readthedocs.io/projects/edx-platform-api/en/latest/courses/blocks.html#query-parameters
 
-        :return: (dict)
+        :return: (list)
         """
         resource = self.blocks.get(
             course_id=course_id,
@@ -108,7 +108,7 @@ def get_available_blocks(course_id):
     Fetches all source blocks from the course with given ID.
     Blocks data is filtered by `apply_data_filter`.
     :param course_id:
-    :return: (dict) blocks data
+    :return: (list) blocks data
     """
     content_source = get_content_provider()
 
