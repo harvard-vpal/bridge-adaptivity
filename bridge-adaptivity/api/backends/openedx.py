@@ -1,8 +1,14 @@
 import logging
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
+from slumber.exceptions import HttpClientError, HttpNotFoundError
+
+from bridge_lti.models import LtiConsumer
+
+log = logging.getLogger(__name__)
 
 API_OAUTH_CLIENT_ID = getattr(settings, 'API_OAUTH_CLIENT_ID', None)
 API_OAUTH_CLIENT_SECRET = getattr(settings, 'API_OAUTH_CLIENT_SECRET', None)
@@ -60,6 +66,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         Provide API GET request to OpenEdx Course Blocks endpoint.
 
         Optional block type filtering available.
+        Endpoint: /api/courses/v1/blocks/?course_id
         API query parameters:
         - block_types_filter=['sequential', 'vertical', 'html', 'problem', 'video', 'discussion']
         - block_counts=['video', 'problem'...]
@@ -72,10 +79,104 @@ class OpenEdxApiClient(EdxRestApiClient):
             all_blocks=all_blocks,
             depth=depth,
             requested_fields='lti_url',
-            return_type='dict',
+            return_type='list',
             block_types_filter=type_filter or []
         )
-        blocks = resource.get('blocks')
-        return blocks
+        return resource
+
+    def get_provider_courses(self, username=None,  org=None, mobile=None):
+        """
+        Provide API GET request to OpenEdx Courses Resource endpoint.
+
+        Gets a List of Courses.
+        Endpoint: /api/courses/v1/courses/
+        see: http://edx.readthedocs.io/projects/edx-platform-api/en/latest/courses/courses.html#query-parameters
+        :return: (dict)
+        """
+        resource = self.courses.get(
+            username=username,
+            org=org,
+            mobile=mobile
+        )
+        return resource.get('results')
 
 
+def get_available_blocks(course_id):
+    """
+    Content Source API requester.
+
+    Fetches all source blocks from the course with given ID.
+    Blocks data is filtered by `apply_data_filter`.
+    :param course_id:
+    :return: (dict) blocks data
+    """
+    content_source = get_content_provider()
+
+    # Get API client instance:
+    api = OpenEdxApiClient(content_source=content_source)
+
+    try:
+        blocks = api.get_course_blocks(course_id)
+        filtered_blocks = apply_data_filter(blocks, filters=['id', 'block_id', 'display_name', 'lti_url'])
+    except HttpNotFoundError:
+        raise HttpClientError(_("Requested course not found. Check `course_id` url encoding."))
+    except HttpClientError:
+        raise HttpClientError(_("Not valid query."))
+
+    return filtered_blocks
+
+
+def get_available_courses():
+    """
+    Fetch all available courses.
+    :param content_provider: LtiConsumer instance
+    :return: (list) course_ids
+    """
+    content_source = get_content_provider()
+
+    # Get API client instance:
+    api = OpenEdxApiClient(content_source=content_source)
+
+    try:
+        courses_list = api.get_provider_courses()
+        filtered_courses = apply_data_filter(courses_list, filters=['id', 'course_id', 'name', 'org'])
+    except HttpClientError:
+        raise HttpClientError(_("Not valid query."))
+
+    return filtered_courses
+
+
+def apply_data_filter(data, filters=None):
+    """
+    Filter for `blocks` OpenEdx Course API response.
+
+    Picks data which is listed in `filters` only.
+    :param data: (list)
+    :param filters: list of desired resource keys
+    :return: list of resources which keys were filtered
+    """
+    if filters is None:
+        return data
+
+    filtered_data = []
+    for resource in data:
+        filtered_resource = {k: v for k, v in resource.items() if k in filters}
+        filtered_data.append(filtered_resource)
+
+    return filtered_data
+
+
+def get_content_provider():
+    """
+    Pick active (enabled) content Sources (aka Providers).
+
+    LTI Providers which expose courses content blocks to use in adaptive collections.
+    :return: content_source
+    """
+    try:
+        # TODO: multiple ContentSources processing - one, for now.
+        content_source = LtiConsumer.objects.filter(is_active=True).first()
+        log.debug('Picked content Source: {}'.format(content_source.name))
+        return content_source
+    except LtiConsumer.DoesNotExist:
+        raise ObjectDoesNotExist(_("There are no active content Sources(Providers) for now."))
