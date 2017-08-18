@@ -1,0 +1,27 @@
+{% extends "module/base.html" %}
+{% load staticfiles %}
+
+{% block bootstrap3_extra_head %}
+<link rel="stylesheet" href="{% static 'module/css/module.css' %}" />
+{% endblock %}
+
+{% block bootstrap3_content %}
+<div class="container-fluid toolbar">
+  <div class="row">
+    {# sequential problem navigation #}
+    <div class="col-xs-8 toolbar-item">
+      <div class="btn-group {% if sequence.sequenceitem_set.count >= 10 %} btn-group-sm{% endif %}" role="group">
+      {% for item in sequence.sequenceitem_set.all %}
+        <a class="btn btn-secondary"
+           href="{% url 'module:sequence-item' item.id %}"
+           role="button">
+            {{ forloop.counter }}
+        </a>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<p>You've reached the end of this homework! Use the numbered navigation bar above to go back to the previous problems.</p>
+{% endblock bootstrap3_content %}
