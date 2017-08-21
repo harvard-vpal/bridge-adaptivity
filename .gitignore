@@ -4,6 +4,7 @@ __pycache__/
 
 # local Django logs:
 *.log
+dev.log.*
 
 # local database
 *.sqlite3
