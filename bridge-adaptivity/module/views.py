@@ -1,12 +1,13 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses
-from .models import Collection, Activity
+from .models import (Collection, Activity, SequenceItem, Log, Sequence)
 
 log = logging.getLogger(__name__)
 
@@ -86,3 +87,51 @@ class ActivityUpdate(UpdateView):
         context = super(ActivityUpdate, self).get_context_data(**kwargs)
         context['current_collection_id'] = self.kwargs.get('collection_id')
         return context
+
+
+
+class SequenceItemDetail(DetailView):
+    model = SequenceItem
+    context_object_name = 'sequence_item'
+    template_name = 'module/sequence_item.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SequenceItemDetail, self).get_context_data(**kwargs)
+        context['sequence_items'] = SequenceItem.objects.filter(sequence=self.object.sequence)
+
+        Log.objects.create(
+            sequence_item=self.object,
+            log_type=Log.OPENED
+        )
+
+        return context
+
+
+def sequence_item_next(request, pk):
+    sequence_item = get_object_or_404(SequenceItem, pk=pk)
+
+    sequence_item_next = SequenceItem.objects.filter(
+        sequence=sequence_item.sequence,
+        position=sequence_item.position+1
+    ).first()
+
+    if sequence_item_next is None:
+        try:
+            activity = sequence_item.sequence.collection.activity_set.all()[sequence_item.position]
+        except IndexError:
+            sequence_item.sequence.completed = True
+            sequence_item.sequence.save()
+            return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
+
+        sequence_item_next = SequenceItem.objects.create(
+            sequence=sequence_item.sequence,
+            activity=activity,
+            position=sequence_item.position+1
+        )
+
+    return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_next.id}))
+
+
+class SequenceComplete(DetailView):
+    model = Sequence
+    template_name = 'module/sequence_complete.html'
