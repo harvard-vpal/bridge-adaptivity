@@ -84,6 +84,8 @@ Collection: {{ collection.name }}
   </div>
 </div>
 
+{% include "module/source_modal.html" %}
+
 
 {% endblock content %}
 
@@ -102,22 +104,39 @@ Collection: {{ collection.name }}
 
                 var sourcesList = $('<div/>').addClass('list-group');
                 $.each(data, function (i, item) {
+                    var modalContentFrame = $('#modal-source-preview');
+
                     var ref = $('<button/>')
                         .addClass('list-group-item')
                         .attr('type', 'button')
                         .text(item['display_name'])
                         .appendTo(sourcesList);
 
-                    var preview = $('<span/>')
+                    var previewButton = $('<span/>')
                         .addClass("glyphicon glyphicon-eye-open pull-right")
+                        .attr('data-toggle', 'modal')
+                        .attr('data-target', '#sourceModal')
+                        .attr('data-display-name', item['display_name'])
+                        .attr('data-lti-url', item['lti_url'])
                         .appendTo(ref);
-                    preview.on('click', function() {
-                        alert(item['lti_url']);
+                    previewButton.on('click', function () {
+                        $('#sourceModalLabel').text(item['display_name'])
+                        configurePreview(modalContentFrame, item);
                     })
                 });
                 content_panel.append(sourcesList);
             });
         })
+        function configurePreview(frame, source) {
+            var idParam = "source_id=" + source['id'] + "&";
+            var displayNameParam = "source_name=" + source['display_name'] + "&";
+            var ltiUrlParam = "source_lti_url=" + source['lti_url'] + "&";
+            var previewUrl = "{% url 'lti:source-preview' %}?" + idParam + displayNameParam + ltiUrlParam;
+            frame
+                .attr('src', previewUrl)
+                .attr('title', item['display_name'])
+                .attr('name', item['id']);
+        }
     }(jQuery));
 </script>
 
