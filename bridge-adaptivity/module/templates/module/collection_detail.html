@@ -72,6 +72,7 @@ Collection: {{ collection.name }}
           <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse"
                role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
             <div class="panel-body">
+
             </div>
           </div>
         </div>
@@ -95,16 +96,24 @@ Collection: {{ collection.name }}
             var data = {course_id: target.data("course-id")};
             $.post("{% url 'api:sources' %}", data, function (data) {
                 var content_panel = target.closest(".panel.panel-default").find(".panel-body").first();
-                if (content_panel.find('ul.content-sources').length) {return}
+                if (content_panel.find('ul.content-sources').length) {
+                    return
+                }
 
-                var sourcesList = $('<ul/>').addClass('content-sources');
-                $.each(data, function(i, item) {
-                    var li = $('<li/>').appendTo(sourcesList);
-                    var ref = $('<a/>')
-                        .addClass('ui-all')
-                        .attr('href', item['lti_url'])
+                var sourcesList = $('<div/>').addClass('list-group');
+                $.each(data, function (i, item) {
+                    var ref = $('<button/>')
+                        .addClass('list-group-item')
+                        .attr('type', 'button')
                         .text(item['display_name'])
-                        .appendTo(li);
+                        .appendTo(sourcesList);
+
+                    var preview = $('<span/>')
+                        .addClass("glyphicon glyphicon-eye-open pull-right")
+                        .appendTo(ref);
+                    preview.on('click', function() {
+                        alert(item['lti_url']);
+                    })
                 });
                 content_panel.append(sourcesList);
             });
