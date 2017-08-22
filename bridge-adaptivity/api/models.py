@@ -27,7 +27,7 @@ class OAuthClient(models.Model):
     client_id = models.CharField(max_length=255)
     client_secret = models.CharField(max_length=255)
     grant_type = fields.CharField(choices=GRANT_TYPES, max_length=255, null=True, blank=True)
-    content_provider = models.ForeignKey(LtiConsumer, null=True)
+    content_provider = models.ForeignKey(LtiConsumer, null=True, related_name="oauth_clients")
 
     class Meta:
         verbose_name = "OAuth Client"

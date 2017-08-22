@@ -1,24 +1,16 @@
 import logging
 
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
 from requests import RequestException
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
+from api.models import OAuthClient
 from bridge_lti.models import LtiConsumer
 
 log = logging.getLogger(__name__)
-
-API_OAUTH_CLIENT_ID = getattr(settings, 'API_OAUTH_CLIENT_ID', None)
-API_OAUTH_CLIENT_SECRET = getattr(settings, 'API_OAUTH_CLIENT_SECRET', None)
-# TODO: implement OAuth client model (LtiConsumer related)?
-
-if API_OAUTH_CLIENT_ID is None or API_OAUTH_CLIENT_SECRET is None:
-    raise ImproperlyConfigured(
-        "`API_OAUTH_CLIENT_ID` and `API_OAUTH_CLIENT_SECRET` should be provided in order to use Content Source API."
-    )
 
 
 class OpenEdxApiClient(EdxRestApiClient):
@@ -54,10 +46,11 @@ class OpenEdxApiClient(EdxRestApiClient):
             token_url=self.API_URLS['get_token']
         )
         try:
+            oauth_client = get_oauth_client()
             access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
                 url=url,
-                client_id=settings.API_OAUTH_CLIENT_ID,
-                client_secret=settings.API_OAUTH_CLIENT_SECRET,
+                client_id=oauth_client.client_id,
+                client_secret=oauth_client.client_secret,
                 token_type='jwt',
             )
         except ValueError as exc:
@@ -202,3 +195,16 @@ def get_content_provider():
         return content_source
     except LtiConsumer.DoesNotExist:
         raise ObjectDoesNotExist(_("There are no active content Sources(Providers) for now."))
+
+
+def get_oauth_client():
+    """
+    Pick OAuth client for active (enabled) content Source.
+    """
+    try:
+        content_provider = get_content_provider()
+        client = OAuthClient.objects.get(content_provider=content_provider)
+        log.debug('Picked OAuth client: {}'.format(client.name))
+        return client
+    except OAuthClient.DoesNotExist:
+        raise ObjectDoesNotExist(_("There are no configured OAuth clients for active content provider yet."))

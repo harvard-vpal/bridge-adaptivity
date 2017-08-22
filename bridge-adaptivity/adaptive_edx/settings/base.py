@@ -67,7 +67,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'cached_auth.Middleware',
-    'django_auth_lti.middleware.LTIAuthMiddleware',
+    # 'django_auth_lti.middleware.LTIAuthMiddleware',
     ## from new version of icommons django-auth-lti
     # 'django_auth_lti.middleware_patched.MultiLTILaunchAuthMiddleware',
     # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
@@ -76,7 +76,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'django_auth_lti.backends.LTIAuthBackend',
+    # 'django_auth_lti.backends.LTIAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -147,7 +147,7 @@ BOOTSTRAP3 = {
 # allow post requests from edx
 CORS_ORIGIN_ALLOW_ALL = True
 
-LTI_OAUTH_CREDENTIALS = secure.LTI_OAUTH_CREDENTIALS
+# LTI_OAUTH_CREDENTIALS = secure.LTI_OAUTH_CREDENTIALS
 
 ## for dce version of django-auth-lti
 from oauthlib.oauth1 import RequestValidator
@@ -172,6 +172,3 @@ LOGIN_REDIRECT_URL = 'module:collection-list'
 ALLOWED_HOSTS = secure.ALLOWED_HOSTS
 
 DATABASES = secure.DATABASES
-
-API_OAUTH_CLIENT_ID = secure.API_OAUTH_CLIENT_ID
-API_OAUTH_CLIENT_SECRET = secure.API_OAUTH_CLIENT_SECRET
