@@ -4,7 +4,7 @@ from django.urls import reverse
 from lti import ToolConfig, ToolConsumer
 
 from api.backends.openedx import get_content_provider
-from bridge_lti.models import LtiSource
+from module.models import Activity
 
 
 def tool_config(request):
@@ -26,39 +26,18 @@ def tool_config(request):
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
 
-def content_source(request, pk):
-    """
-    Simple view to render Source's component shared through LTI.
-    """
-    lti_source = LtiSource.objects.get(id=pk)
-    consumer = ToolConsumer(
-        consumer_key=lti_source.lti_consumer.provider_key,
-        consumer_secret=lti_source.lti_consumer.provider_secret,
-        launch_url=lti_source.launch_url,
-
-        params={
-            'roles': 'Student',                                 # required
-            # STAGE: hardcoded values
-            'context_id': 'course-v1:Harvard+VPAL-101+2017',    # required
-            'user_id': 'spy1d1f8e0c19c2491fda39df7168b09',      # required
-            'resource_link_id': 'resource_id',
-
-            'lti_version': 'LTI - 1p0',
-            'lti_message_type': 'basic-lti-launch-request',
-            'oauth_callback': 'about:blank',
-        }
-    )
-
-    return render(request, 'bridge_lti/content-source.html', {
-        'launch_data': consumer.generate_launch_data(),
-        'launch_url': consumer.launch_url
-    })
-
-
 def source_preview(request):
-    source_name = request.GET.get('source_name')
-    source_id = request.GET.get('source_id').replace(u' ', u'+')  # Django strips plus sign
-    source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')
+    """
+    Simple view to render content Source's block shared through LTI.
+    """
+    activity_id = request.GET.get('activity_id')
+    if activity_id:
+        activity = Activity.objects.get(id=activity_id)
+        source_name = activity.source_name
+        source_lti_url = activity.source_launch_url
+    else:
+        source_name = request.GET.get('source_name')
+        source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')  # Django strips plus sign
 
     content_provider = get_content_provider()
     consumer = ToolConsumer(
@@ -80,6 +59,5 @@ def source_preview(request):
     return render(request, 'bridge_lti/content-source.html', {
         'launch_data': consumer.generate_launch_data(),
         'launch_url': consumer.launch_url,
-        'source_id': source_id,
         'source_name': source_name,
     })

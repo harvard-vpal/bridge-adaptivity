@@ -1,5 +1,4 @@
-from django.http import HttpResponseBadRequest
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -29,7 +28,6 @@ def lti_launch(request, collection_id):
     except LtiProvider.DoesNotExist:
         return HttpResponseForbidden()
 
-    # Check the OAuth signature on the message
     if not SignatureValidator(lti_consumer).verify(request):
         return HttpResponseForbidden()
 
