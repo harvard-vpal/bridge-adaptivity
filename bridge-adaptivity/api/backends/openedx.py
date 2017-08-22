@@ -76,7 +76,7 @@ class OpenEdxApiClient(EdxRestApiClient):
             )
         return access_token, expires_at
 
-    def get_course_blocks(self, course_id,  all_blocks=True, depth='all', type_filter=None):
+    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
         """
         Provide API GET request to OpenEdx Course Blocks endpoint.
 
@@ -99,7 +99,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         )
         return resource
 
-    def get_provider_courses(self, username=None,  org=None, mobile=None):
+    def get_provider_courses(self, username=None, org=None, mobile=None):
         """
         Provide API GET request to OpenEdx Courses Resource endpoint.
 
@@ -132,7 +132,11 @@ def get_available_blocks(course_id):
 
     try:
         blocks = api.get_course_blocks(course_id)
-        filtered_blocks = apply_data_filter(blocks, filters=['id', 'block_id', 'display_name', 'lti_url'])
+        filtered_blocks = apply_data_filter(
+            blocks,
+            filters=['id', 'block_id', 'display_name', 'lti_url'],
+            context_id=course_id
+        )
     except HttpNotFoundError:
         raise HttpClientError(_("Requested course not found. Check `course_id` url encoding."))
     except HttpClientError:
@@ -161,13 +165,14 @@ def get_available_courses():
     return filtered_courses
 
 
-def apply_data_filter(data, filters=None):
+def apply_data_filter(data, filters=None, context_id=None):
     """
     Filter for `blocks` OpenEdx Course API response.
 
     Picks data which is listed in `filters` only.
     :param data: (list)
     :param filters: list of desired resource keys
+    :param context_id: if provided will be appended to every data item
     :return: list of resources which keys were filtered
     """
     if filters is None:
@@ -176,6 +181,8 @@ def apply_data_filter(data, filters=None):
     filtered_data = []
     for resource in data:
         filtered_resource = {k: v for k, v in resource.items() if k in filters}
+        if context_id is not None:
+            filtered_resource['context_id'] = context_id
         filtered_data.append(filtered_resource)
 
     return filtered_data
