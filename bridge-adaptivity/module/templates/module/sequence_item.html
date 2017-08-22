@@ -1,0 +1,54 @@
+{% extends "module/base.html" %}
+{% load staticfiles %}
+
+{% block bootstrap3_extra_head %}
+<link rel="stylesheet" href="{% static 'module/css/module.css' %}" />
+{% endblock %}
+
+{% block bootstrap3_content %}
+
+<div class="container-fluid toolbar">
+  <div class="row">
+    {# sequential problem navigation #}
+    <div class="col-xs-8 toolbar-item">
+      <div class="btn-group {% if sequence_items.count >= 10 %} btn-group-sm{% endif %}" role="group">
+      {% for item in sequence_items %}
+        <a class="btn btn-secondary {% if item == sequence_item %} active {% endif %}"
+           href="{% url 'module:sequence-item' item.id %}"
+           role="button">
+            {{ forloop.counter }}
+        </a>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<iframe
+  style="width:100%;height:640px;%;display:block;border:0px;"
+  title="{{ sequence_item.activity.source_id }}"
+  name="ltiFrame-{{ sequence_item.activity.source_id }}"
+  src="{% url 'lti:content-source' sequence_item.activity.source_id %}"
+  allowfullscreen="true"
+  webkitallowfullscreen="true"
+  mozallowfullscreen="true"
+>
+</iframe>
+
+{# next question button #}
+<div class="container-fluid toolbar">
+  <div class="row">
+    <div class="col-xs-6 toolbar-item">
+      <span class="pull-right">
+      <a class="btn btn-primary"
+         href="{% url 'module:sequence-item-next' sequence_item.id %}"
+         role="button">
+          Next Activity
+          <span aria-hidden="true">&rarr;</span>
+      </a>
+      </span>
+    </div>
+  </div>
+</div>
+
+{% endblock bootstrap3_content %}

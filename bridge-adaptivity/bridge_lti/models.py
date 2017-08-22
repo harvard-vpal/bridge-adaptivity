@@ -64,7 +64,7 @@ class LtiUser(models.Model):
     course_id = fields.CharField(max_length=255, blank=True, null=True)
     email = fields.CharField(max_length=255, blank=True, null=True)
     lti_consumer = models.ForeignKey('LtiProvider')
-    bridge_user = models.ForeignKey('BridgeUser')
+    bridge_user = models.ForeignKey('BridgeUser', blank=True, null=True)
 
     class Meta(object):
         verbose_name = "LTI User"

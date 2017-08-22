@@ -48,7 +48,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-  
+
     # external apps
     'bootstrap3',
     'corsheaders',

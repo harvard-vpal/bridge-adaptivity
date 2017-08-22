@@ -36,7 +36,7 @@ def content_source(request, pk):
         launch_url=lti_source.launch_url,
 
         params={
-            'roles': request.user.roles,                        # required
+            'roles': 'Student',                                 # required
             # STAGE: hardcoded values
             'context_id': 'course-v1:Harvard+VPAL-101+2017',    # required
             'user_id': 'spy1d1f8e0c19c2491fda39df7168b09',      # required

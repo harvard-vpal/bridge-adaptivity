@@ -11,10 +11,13 @@ class Sequence(models.Model):
     """
     Represents User's problem solving track.
     """
-    lti_user = models.OneToOneField(LtiUser)
-    collection = models.OneToOneField('Collection')
+    lti_user = models.ForeignKey(LtiUser)
+    collection = models.ForeignKey('Collection')
     completed = fields.BooleanField(default=False)
     total_points = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('lti_user', 'collection')
 
     def __str__(self):
         return '<Sequence: {}>'.format(self.lti_user)
@@ -32,6 +35,7 @@ class SequenceItem(models.Model):
     class Meta:
         verbose_name = "Sequence Item"
         verbose_name_plural = "Sequence Items"
+        ordering = ['position']
 
     def __str__(self):
         return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
@@ -95,7 +99,7 @@ class Log(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     log_type = fields.CharField(choices=LOG_TYPES, max_length=32)
     answer = models.BooleanField(verbose_name='Is answer correct?', default=False)
-    attempt = models.PositiveIntegerField()
+    attempt = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         if self.log_type == self.OPENED:
