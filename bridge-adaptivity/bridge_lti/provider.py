@@ -4,12 +4,14 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import LtiProvider
+from bridge_lti.validator import SignatureValidator
+from module.models import (Collection, Sequence, SequenceItem)
+from .models import LtiProvider, LtiUser
 from .utils import get_required_params, get_optional_params
 
 
 @csrf_exempt
-def lti_launch(request):
+def lti_launch(request, collection_id):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -20,17 +22,47 @@ def lti_launch(request):
     params = get_required_params(request.POST)
     if not params:
         return HttpResponseBadRequest()
+    params.update(get_optional_params(request.POST))
 
     try:
-        lti_provider = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
+        lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
         return HttpResponseForbidden()
 
-    params.update(get_optional_params(request.POST))
+    # Check the OAuth signature on the message
+    if not SignatureValidator(lti_consumer).verify(request):
+        return HttpResponseForbidden()
 
-    # TODO: Check the OAuth signature on the message.
-    # TODO: Add the course and usage keys to the parameters array.
-    # TODO: Create an Bridge LtiUser if the user identified by the LTI launch doesn't have one already.
-    # TODO: Create an BridgeUser if the user identified by the LTI launch as Instructor and doesn't have one already.
+    if params['roles'] in ['Student', 'Learner']:
 
-    return redirect(reverse('index'))
+        try:
+            collection = Collection.objects.get(id=collection_id)
+        except Collection.DoesNotExist:
+            return HttpResponseBadRequest()
+
+        lti_user, created = LtiUser.objects.get_or_create(
+            user_id=params['user_id'],
+            lti_consumer=lti_consumer,
+            defaults={'course_id': params['context_id']}
+        )
+        sequence, created = Sequence.objects.get_or_create(
+            lti_user=lti_user,
+            collection=collection
+        )
+
+        if sequence.completed:
+            return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
+
+        if created:
+            sequence_item = SequenceItem.objects.create(
+                sequence=sequence,
+                activity=collection.activity_set.first(),
+                position=1
+            )
+        else:
+            sequence_item = sequence.sequenceitem_set.last()
+
+        return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item.id}))
+
+    else:
+        return redirect(reverse('module:collection-list'))
