@@ -1,10 +1,7 @@
-from django.conf.urls import include, url
-# from django.contrib import admin
+from django.conf.urls import url
 
-from . import views
-
+from api.views import sources
 
 urlpatterns = [
-	url(r'^problem_attempt$', views.problem_attempt, name='problem_attempt'),
+    url(r'^sources/$', sources, name='sources'),
 ]
-

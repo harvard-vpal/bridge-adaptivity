@@ -40,6 +40,8 @@ class LtiConsumer(models.Model):
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
+    host_url = models.URLField(max_length=255, null=True)
+    is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
 
     class Meta:
         verbose_name = "LTI Consumer"
@@ -48,6 +50,10 @@ class LtiConsumer(models.Model):
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
 
+    def save(self, *args, **kwargs):
+        if self.is_active:
+            LtiConsumer.objects.filter(is_active=True).update(is_active=False)
+        super(LtiConsumer, self).save(*args, **kwargs)
 
 @python_2_unicode_compatible
 class LtiUser(models.Model):

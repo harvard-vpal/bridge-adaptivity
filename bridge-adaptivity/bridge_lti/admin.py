@@ -11,7 +11,8 @@ class LtiProviderAdmin(admin.ModelAdmin):
 
 @admin.register(LtiConsumer)
 class LtiConsumerAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'host_url', 'is_active')
+    list_editable = ('is_active',)
 
 
 @admin.register(LtiUser)

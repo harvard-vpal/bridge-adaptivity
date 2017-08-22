@@ -11,34 +11,114 @@ Collection: {{ collection.name }}
 <hr>
 
 {% block content %}
-<table class="table table-hover">
-  <tr>
-    {% for field in model_fields %}
-    <th>{{ field }}</th>
-    {% endfor %}
-  </tr>
-  {% for activity in activities %}
-  <tr>
-    <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
-    <td>{{ activity.tag }}</td>
-    <td>{{ activity.difficulty }}</td>
-    <td>{{ activity.points }}</td>
-    <td>
-      {% if activity.source.name %}
-        <a href="{% url 'lti:source-detail' activity.source.pk %}">
-          {% bootstrap_button activity.source.name size='md' icon='eye-open' %}
-        </a>
-      {% else %}
-        <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-      {% endif %}
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="row">
+  <div class="col-md-8">
+    <table class="table table-hover">
+      <tr>
+        {% for field in model_fields %}
+        <th>{{ field }}</th>
+        {% endfor %}
+      </tr>
+      {% for activity in activities %}
+      <tr>
+        <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
+        <td>{{ activity.tag }}</td>
+        <td>{{ activity.difficulty }}</td>
+        <td>{{ activity.points }}</td>
+        <td>
+          {% if activity.source.name %}
+          <a href="{% url 'lti:source-detail' activity.source.pk %}">
+            {% bootstrap_button activity.source.name size='md' icon='eye-open' %}
+          </a>
+          {% else %}
+          <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    <hr>
 
-<hr>
-<a href="{% url 'module:activity-add' collection.pk %}">
-  {% bootstrap_button 'Add Activity' size='lg' icon='plus' %}
-</a>
+    <a href="{% url 'module:activity-add' collection.pk %}">
+      {% bootstrap_button 'Add Activity' size='lg' icon='plus' %}
+    </a>
+
+  </div>
+  <div class="col-md-4">
+    <div class="row">
+      <h3 class="text-center">Available content courses</h3>
+    </div>
+    <div class="row">
+      {% if not source_courses %}
+      <div class="alert alert-warning text-center" role="alert">
+        There are no active content sources
+      </div>
+      {% endif %}
+      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        {% for source_course in source_courses %}
+
+        <div class="panel panel-default">
+          <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+            <h4 class="panel-title">
+              <a {% if not forloop.first %}class="collapsed" {% endif %} role="button" data-toggle="collapse"
+                 data-parent="#accordion" href="#collapse{{ forloop.counter }}"
+                 data-course-id="{{ source_course.course_id }}"
+                 aria-expanded="false"
+                 aria-controls="collapse{{ forloop.counter }}">
+                {{ source_course.name }} <span class="label label-default pull-right">{{ source_course.org }}</span>
+              </a>
+            </h4>
+          </div>
+          <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse"
+               role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
+            <div class="panel-body">
+
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
 
 {% endblock content %}
+
+{% block bootstrap3_extra_script %}
+{{ block.super }}
+<script type="text/javascript">
+    (function ($) {
+        $("#accordion").find("a[data-course-id]").on('click', function () {
+            var target = $(this);
+            var data = {course_id: target.data("course-id")};
+            $.post("{% url 'api:sources' %}", data, function (data) {
+                var content_panel = target.closest(".panel.panel-default").find(".panel-body").first();
+                if (content_panel.find('ul.content-sources').length) {
+                    return
+                }
+
+                var sourcesList = $('<div/>').addClass('list-group');
+                $.each(data, function (i, item) {
+                    var ref = $('<button/>')
+                        .addClass('list-group-item')
+                        .attr('type', 'button')
+                        .text(item['display_name'])
+                        .appendTo(sourcesList);
+
+                    var preview = $('<span/>')
+                        .addClass("glyphicon glyphicon-eye-open pull-right")
+                        .appendTo(ref);
+                    preview.on('click', function() {
+                        alert(item['lti_url']);
+                    })
+                });
+                content_panel.append(sourcesList);
+            });
+        })
+    }(jQuery));
+</script>
+
+{% endblock %}

@@ -1,8 +1,15 @@
+import logging
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from slumber.exceptions import HttpClientError
 
+from api.backends.openedx import get_available_courses
 from .models import (Collection, Activity, SequenceItem, Log, Sequence)
+
+log = logging.getLogger(__name__)
 
 
 class CollectionList(ListView):
@@ -33,7 +40,22 @@ class CollectionDetail(DetailView):
         context = super(CollectionDetail, self).get_context_data(**kwargs)
         context['model_fields'] = ActivityCreate.fields
         context['activities'] = Activity.objects.filter(collection=self.object)
+        context['source_courses'] = self.get_content_courses()
         return context
+
+    @staticmethod
+    def get_content_courses():
+        try:
+            return get_available_courses()
+        except ObjectDoesNotExist as exc:
+            log.error(
+                "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
+                "LtiConsumer.is_active=True. {}".format(exc.message)
+            )
+            return []
+        except HttpClientError as exc:
+            log.error("Course fetching has failed. {}".format(exc.message))
+            return []
 
 
 class ActivityCreate(CreateView):
