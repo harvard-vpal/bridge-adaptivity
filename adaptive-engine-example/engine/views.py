@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework.response import Response
+from rest_framework.decorators import detail_route
 
 from .serializers import *
 from .models import *
@@ -32,7 +33,10 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
+class CreateViewSet(mixins.CreateModelMixin):
+    pass
+
 # "create transaction" endpoint
-class ScoreViewSet(mixins.CreateModelMixin):
-    queryset = Tag.objects.all()
+class ScoreViewSet(CreateViewSet):
+    queryset = Score.objects.all()
     serializer_class = ScoreSerializer
