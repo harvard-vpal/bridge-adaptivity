@@ -40,6 +40,9 @@ def source_preview(request):
         source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')  # Django strips plus sign
 
     content_provider = get_content_provider()
+    if not content_provider:
+        return render(request, 'bridge_lti/stub.html')
+
     consumer = ToolConsumer(
         consumer_key=content_provider.provider_key,
         consumer_secret=content_provider.provider_secret,

@@ -119,6 +119,8 @@ def get_available_blocks(course_id):
     :return: (list) blocks data
     """
     content_source = get_content_provider()
+    if not content_source:
+        raise HttpClientError(_("No active Content Provider"))
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
@@ -145,6 +147,8 @@ def get_available_courses():
     :return: (list) course_ids
     """
     content_source = get_content_provider()
+    if not content_source:
+        raise HttpClientError(_("No active Content Provider"))
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
@@ -194,7 +198,9 @@ def get_content_provider():
         log.debug('Picked content Source: {}'.format(content_source.name))
         return content_source
     except LtiConsumer.DoesNotExist:
-        raise ObjectDoesNotExist(_("There are no active content Sources(Providers) for now."))
+        log.error("There are no active content Sources(Providers) for now. Make active one from Bridge Django admin "
+                  "site: bridge_lti app > LtiCosumers > is_active=True")
+        return
 
 
 def get_oauth_client():
