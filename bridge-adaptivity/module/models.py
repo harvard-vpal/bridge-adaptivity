@@ -72,12 +72,13 @@ class Activity(models.Model):
     difficulty = models.FloatField(verbose_name="max_points", blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
-    source_launch_url = models.URLField(max_length=255, unique=True, null=True)
+    source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     source_context_id = fields.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Activities'
+        unique_together = ("source_launch_url", "collection")
 
     def __str__(self):
         return '<Activity: {}>'.format(self.name)
