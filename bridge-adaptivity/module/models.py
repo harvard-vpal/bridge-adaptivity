@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.translation import ugettext_lazy as _
 
 from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer
 
@@ -48,6 +49,7 @@ class Collection(models.Model):
     """
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
+    threshold = models.FloatField(blank=True, null=True)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
 
@@ -66,10 +68,16 @@ class Activity(models.Model):
     """
     General entity which represents problem/text/video material.
     """
+    LEVELS = (
+        ('l', _('low')),
+        ('m', _('medium')),
+        ('h', _('high')),
+    )
+
     name = models.CharField(max_length=255)
     collection = models.ForeignKey('Collection', null=True)
-    tag = fields.CharField(max_length=255, blank=True, null=True)
-    difficulty = models.FloatField(verbose_name="max_points", blank=True, null=True)
+    tags = fields.CharField(max_length=255, blank=True, null=True)
+    difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
     points = models.FloatField(blank=True, null=True)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
@@ -85,6 +93,7 @@ class Activity(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
+
 
 @python_2_unicode_compatible
 class Log(models.Model):
