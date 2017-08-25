@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 
 from bridge_lti.models import LtiConsumer
 

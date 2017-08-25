@@ -28,7 +28,7 @@ def tool_config(request):
 
 def source_preview(request):
     """
-    Simple view to render content Source's block shared through LTI.
+    Simple view to render Source content block shared through LTI.
     """
     activity_id = request.GET.get('activity_id')
     if activity_id:
