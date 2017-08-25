@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
@@ -52,6 +51,10 @@ class OpenEdxApiClient(EdxRestApiClient):
                 client_id=oauth_client.client_id,
                 client_secret=oauth_client.client_secret,
                 token_type='jwt',
+            )
+        except ObjectDoesNotExist:
+            raise HttpClientError(
+                "OAuth token request failure. Please, configure OAuth client in order to be able make API requests."
             )
         except ValueError as exc:
             log.exception(
@@ -119,6 +122,8 @@ def get_available_blocks(course_id):
     :return: (list) blocks data
     """
     content_source = get_content_provider()
+    if not content_source:
+        raise HttpClientError(_("No active Content Provider"))
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
@@ -145,6 +150,8 @@ def get_available_courses():
     :return: (list) course_ids
     """
     content_source = get_content_provider()
+    if not content_source:
+        raise HttpClientError(_("No active Content Provider"))
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
@@ -194,7 +201,9 @@ def get_content_provider():
         log.debug('Picked content Source: {}'.format(content_source.name))
         return content_source
     except LtiConsumer.DoesNotExist:
-        raise ObjectDoesNotExist(_("There are no active content Sources(Providers) for now."))
+        log.error("There are no active content Sources(Providers) for now. Make active one from Bridge Django admin "
+                  "site: bridge_lti app > LtiCosumers > is_active=True")
+        return
 
 
 def get_oauth_client():
@@ -206,5 +215,9 @@ def get_oauth_client():
         client = OAuthClient.objects.get(content_provider=content_provider)
         log.debug('Picked OAuth client: {}'.format(client.name))
         return client
-    except OAuthClient.DoesNotExist:
+    except OAuthClient.DoesNotExist as exc:
+        log.exception(
+            'Bridge oauth does not exist! Please, create and configure one (Bridge admin > api app > add OAuth '
+            'Client: {}'.format(exc.message)
+        )
         raise ObjectDoesNotExist(_("There are no configured OAuth clients for active content provider yet."))

@@ -1,5 +1,5 @@
 from django.http import HttpResponseBadRequest, HttpResponseForbidden
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -10,7 +10,7 @@ from .utils import get_required_params, get_optional_params
 
 
 @csrf_exempt
-def lti_launch(request, collection_id):
+def lti_launch(request, collection_id=None):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -32,7 +32,8 @@ def lti_launch(request, collection_id):
         return HttpResponseForbidden()
 
     if params['roles'] in ['Student', 'Learner']:
-
+        if not collection_id:
+            return render(request, template_name="bridge_lti/announcement.html")
         try:
             collection = Collection.objects.get(id=collection_id)
         except Collection.DoesNotExist:

@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
-from django.utils.translation import ugettext_lazy as _
 
 from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer
 
@@ -80,18 +79,20 @@ class Activity(models.Model):
     difficulty = fields.CharField(choices=LEVELS, default='medium', max_length=32)
     points = models.FloatField(blank=True, null=True)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
-    source_launch_url = models.URLField(max_length=255, unique=True, null=True)
+    source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     source_context_id = fields.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Activities'
+        unique_together = ("source_launch_url", "collection")
 
     def __str__(self):
         return '<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
+
 
 @python_2_unicode_compatible
 class Log(models.Model):
