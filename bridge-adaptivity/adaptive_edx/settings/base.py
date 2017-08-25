@@ -144,7 +144,7 @@ LOGGING = {
         },
         'logfile': {
             'level':'WARNING',
-            'class':'logging.RotatingFileHandler',
+            'class':'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + "/../bridge-error.log",
         },
     },
