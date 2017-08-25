@@ -69,15 +69,15 @@ class Activity(models.Model):
     General entity which represents problem/text/video material.
     """
     LEVELS = (
-        ('low', _('low')),
-        ('medium', _('medium')),
-        ('high', _('high')),
+        ('l', _('low')),
+        ('m', _('medium')),
+        ('h', _('high')),
     )
 
     name = models.CharField(max_length=255)
     collection = models.ForeignKey('Collection', null=True)
     tags = fields.CharField(max_length=255, blank=True, null=True)
-    difficulty = fields.CharField(choices=LEVELS, default='medium', max_length=32)
+    difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
     points = models.FloatField(blank=True, null=True)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
