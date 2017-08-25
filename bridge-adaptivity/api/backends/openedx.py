@@ -52,11 +52,7 @@ class OpenEdxApiClient(EdxRestApiClient):
                 client_secret=oauth_client.client_secret,
                 token_type='jwt',
             )
-        except ObjectDoesNotExist as exc:
-            log.exception(
-                'Bridge oauth does not exist! Please, create and configure one (Bridge admin > api app > add OAuth '
-                'Client: {}'.format(exc.message)
-            )
+        except ObjectDoesNotExist:
             raise HttpClientError(
                 "OAuth token request failure. Please, configure OAuth client in order to be able make API requests."
             )
@@ -219,5 +215,9 @@ def get_oauth_client():
         client = OAuthClient.objects.get(content_provider=content_provider)
         log.debug('Picked OAuth client: {}'.format(client.name))
         return client
-    except OAuthClient.DoesNotExist:
+    except OAuthClient.DoesNotExist as exc:
+        log.exception(
+            'Bridge oauth does not exist! Please, create and configure one (Bridge admin > api app > add OAuth '
+            'Client: {}'.format(exc.message)
+        )
         raise ObjectDoesNotExist(_("There are no configured OAuth clients for active content provider yet."))
