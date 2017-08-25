@@ -7,7 +7,7 @@ from .models import *
 
 @admin.register(LtiProvider)
 class LtiProviderAdmin(admin.ModelAdmin):
-    pass
+    exclude = ['expiration_date', 'lms_metadata']
 
 
 @admin.register(LtiConsumer)
