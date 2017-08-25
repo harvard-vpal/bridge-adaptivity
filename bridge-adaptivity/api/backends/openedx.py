@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
@@ -52,6 +51,14 @@ class OpenEdxApiClient(EdxRestApiClient):
                 client_id=oauth_client.client_id,
                 client_secret=oauth_client.client_secret,
                 token_type='jwt',
+            )
+        except ObjectDoesNotExist as exc:
+            log.exception(
+                'Bridge oauth does not exist! Please, create and configure one (Bridge admin > api app > add OAuth '
+                'Client: {}'.format(exc.message)
+            )
+            raise HttpClientError(
+                "OAuth token request failure. Please, configure OAuth client in order to be able make API requests."
             )
         except ValueError as exc:
             log.exception(
