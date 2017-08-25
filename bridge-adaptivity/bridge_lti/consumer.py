@@ -3,7 +3,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from lti import ToolConfig, ToolConsumer
 
-from bridge_lti.models import LtiSource
+from api.backends.openedx import get_content_provider
+from module.models import Activity
 
 
 def tool_config(request):
@@ -25,21 +26,32 @@ def tool_config(request):
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
 
-def content_source(request, pk):
+def source_preview(request):
     """
-    Simple view to render Source's component shared through LTI.
+    Simple view to render Source content block shared through LTI.
     """
-    lti_source = LtiSource.objects.get(id=pk)
+    activity_id = request.GET.get('activity_id')
+    if activity_id:
+        activity = Activity.objects.get(id=activity_id)
+        source_name = activity.source_name
+        source_lti_url = activity.source_launch_url
+    else:
+        source_name = request.GET.get('source_name')
+        source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')  # Django converts plus sign to space
+
+    content_provider = get_content_provider()
+    if not content_provider:
+        return render(request, 'bridge_lti/stub.html')
+
     consumer = ToolConsumer(
-        consumer_key=lti_source.lti_consumer.provider_key,
-        consumer_secret=lti_source.lti_consumer.provider_secret,
-        launch_url=lti_source.launch_url,
+        consumer_key=content_provider.provider_key,
+        consumer_secret=content_provider.provider_secret,
+        launch_url=source_lti_url,
 
         params={
-            'roles': 'Student',                                 # required
-            # STAGE: hardcoded values
-            'context_id': 'course-v1:Harvard+VPAL-101+2017',    # required
-            'user_id': 'spy1d1f8e0c19c2491fda39df7168b09',      # required
+            'roles': 'Instructor',  # required
+            'context_id': 'bridge_collection_editor',  # required
+            'user_id': 'bridge-for-adaptivity',  # required
             'resource_link_id': 'resource_id',
 
             'lti_version': 'LTI - 1p0',
@@ -47,8 +59,8 @@ def content_source(request, pk):
             'oauth_callback': 'about:blank',
         }
     )
-
     return render(request, 'bridge_lti/content-source.html', {
         'launch_data': consumer.generate_launch_data(),
-        'launch_url': consumer.launch_url
+        'launch_url': consumer.launch_url,
+        'source_name': source_name,
     })

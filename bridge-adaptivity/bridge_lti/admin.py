@@ -1,7 +1,8 @@
-from .models import *
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
+
+from .models import LtiProvider, LtiConsumer, LtiUser, BridgeUser
 
 
 @admin.register(LtiProvider)
@@ -17,11 +18,6 @@ class LtiConsumerAdmin(admin.ModelAdmin):
 
 @admin.register(LtiUser)
 class LtiUserAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(LtiSource)
-class LtiSourceAdmin(admin.ModelAdmin):
     pass
 
 

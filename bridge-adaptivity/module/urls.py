@@ -1,8 +1,10 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
-from .views import (CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate,
-                    SequenceItemDetail, sequence_item_next, SequenceComplete)
+from .views import (
+    CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate,
+    SequenceItemDetail, sequence_item_next, SequenceComplete
+)
 
 urlpatterns = [
     url(r'^collection/$', login_required(CollectionList.as_view()), name='collection-list'),

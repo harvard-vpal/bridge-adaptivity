@@ -1,24 +1,15 @@
 import logging
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
 from requests import RequestException
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
+from api.models import OAuthClient
 from bridge_lti.models import LtiConsumer
 
 log = logging.getLogger(__name__)
-
-API_OAUTH_CLIENT_ID = getattr(settings, 'API_OAUTH_CLIENT_ID', None)
-API_OAUTH_CLIENT_SECRET = getattr(settings, 'API_OAUTH_CLIENT_SECRET', None)
-# TODO: implement OAuth client model (LtiConsumer related)?
-
-if API_OAUTH_CLIENT_ID is None or API_OAUTH_CLIENT_SECRET is None:
-    raise ImproperlyConfigured(
-        "`API_OAUTH_CLIENT_ID` and `API_OAUTH_CLIENT_SECRET` should be provided in order to use Content Source API."
-    )
 
 
 class OpenEdxApiClient(EdxRestApiClient):
@@ -54,11 +45,16 @@ class OpenEdxApiClient(EdxRestApiClient):
             token_url=self.API_URLS['get_token']
         )
         try:
+            oauth_client = get_oauth_client()
             access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
                 url=url,
-                client_id=settings.API_OAUTH_CLIENT_ID,
-                client_secret=settings.API_OAUTH_CLIENT_SECRET,
+                client_id=oauth_client.client_id,
+                client_secret=oauth_client.client_secret,
                 token_type='jwt',
+            )
+        except ObjectDoesNotExist:
+            raise HttpClientError(
+                "OAuth token request failure. Please, configure OAuth client in order to be able make API requests."
             )
         except ValueError as exc:
             log.exception(
@@ -76,7 +72,7 @@ class OpenEdxApiClient(EdxRestApiClient):
             )
         return access_token, expires_at
 
-    def get_course_blocks(self, course_id,  all_blocks=True, depth='all', type_filter=None):
+    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
         """
         Provide API GET request to OpenEdx Course Blocks endpoint.
 
@@ -99,7 +95,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         )
         return resource
 
-    def get_provider_courses(self, username=None,  org=None, mobile=None):
+    def get_provider_courses(self, username=None, org=None, mobile=None):
         """
         Provide API GET request to OpenEdx Courses Resource endpoint.
 
@@ -126,13 +122,19 @@ def get_available_blocks(course_id):
     :return: (list) blocks data
     """
     content_source = get_content_provider()
+    if not content_source:
+        raise HttpClientError(_("No active Content Provider"))
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
 
     try:
         blocks = api.get_course_blocks(course_id)
-        filtered_blocks = apply_data_filter(blocks, filters=['id', 'block_id', 'display_name', 'lti_url'])
+        filtered_blocks = apply_data_filter(
+            blocks,
+            filters=['id', 'block_id', 'display_name', 'lti_url'],
+            context_id=course_id
+        )
     except HttpNotFoundError:
         raise HttpClientError(_("Requested course not found. Check `course_id` url encoding."))
     except HttpClientError:
@@ -148,6 +150,8 @@ def get_available_courses():
     :return: (list) course_ids
     """
     content_source = get_content_provider()
+    if not content_source:
+        raise HttpClientError(_("No active Content Provider"))
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
@@ -161,13 +165,14 @@ def get_available_courses():
     return filtered_courses
 
 
-def apply_data_filter(data, filters=None):
+def apply_data_filter(data, filters=None, context_id=None):
     """
     Filter for `blocks` OpenEdx Course API response.
 
     Picks data which is listed in `filters` only.
     :param data: (list)
     :param filters: list of desired resource keys
+    :param context_id: if provided will be appended to every data item
     :return: list of resources which keys were filtered
     """
     if filters is None:
@@ -176,6 +181,8 @@ def apply_data_filter(data, filters=None):
     filtered_data = []
     for resource in data:
         filtered_resource = {k: v for k, v in resource.items() if k in filters}
+        if context_id is not None:
+            filtered_resource['context_id'] = context_id
         filtered_data.append(filtered_resource)
 
     return filtered_data
@@ -194,4 +201,23 @@ def get_content_provider():
         log.debug('Picked content Source: {}'.format(content_source.name))
         return content_source
     except LtiConsumer.DoesNotExist:
-        raise ObjectDoesNotExist(_("There are no active content Sources(Providers) for now."))
+        log.error("There are no active content Sources(Providers) for now. Make active one from Bridge Django admin "
+                  "site: bridge_lti app > LtiCosumers > is_active=True")
+        return
+
+
+def get_oauth_client():
+    """
+    Pick OAuth client for active (enabled) content Source.
+    """
+    try:
+        content_provider = get_content_provider()
+        client = OAuthClient.objects.get(content_provider=content_provider)
+        log.debug('Picked OAuth client: {}'.format(client.name))
+        return client
+    except OAuthClient.DoesNotExist as exc:
+        log.exception(
+            'Bridge oauth does not exist! Please, create and configure one (Bridge admin > api app > add OAuth '
+            'Client: {}'.format(exc.message)
+        )
+        raise ObjectDoesNotExist(_("There are no configured OAuth clients for active content provider yet."))

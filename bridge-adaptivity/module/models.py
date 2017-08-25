@@ -3,7 +3,7 @@ from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 
-from bridge_lti.models import LtiUser, BridgeUser, LtiSource
+from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer
 
 
 @python_2_unicode_compatible
@@ -71,10 +71,14 @@ class Activity(models.Model):
     tag = fields.CharField(max_length=255, blank=True, null=True)
     difficulty = models.FloatField(verbose_name="max_points", blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
-    source = models.ForeignKey(LtiSource, null=True)
+    lti_consumer = models.ForeignKey(LtiConsumer, null=True)
+    source_launch_url = models.URLField(max_length=255, null=True)
+    source_name = fields.CharField(max_length=255, blank=True, null=True)
+    source_context_id = fields.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Activities'
+        unique_together = ("source_launch_url", "collection")
 
     def __str__(self):
         return '<Activity: {}>'.format(self.name)

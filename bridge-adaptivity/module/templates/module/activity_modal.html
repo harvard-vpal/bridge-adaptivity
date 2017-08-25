@@ -1,0 +1,24 @@
+{% load bootstrap3 %}
+
+<!-- Modal -->
+<div class="modal fade" id="activityModal" tabindex="-1" role="dialog" aria-labelledby="activityModalLabel">
+  <div class="modal-dialog" style="width:60%;" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="activityModalLabel">Activity configuration</h4>
+      </div>
+      <div class="modal-body">
+        <form role="form" method="post" action="{% url 'module:activity-add' collection.id %}">
+          {% csrf_token %}
+          {% bootstrap_form activity_form %}
+          <button class="btn btn-default" type="submit">{% if activity %}Change{% else %}Create{% endif %}</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>

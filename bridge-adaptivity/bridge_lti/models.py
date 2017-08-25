@@ -94,21 +94,3 @@ class BridgeUser(AbstractUser):
 
     def __str__(self):
         return '<BridgeUser: {}>'.format(self.username)
-
-
-@python_2_unicode_compatible
-class LtiSource(models.Model):
-    """
-    Model to manage LTI content (materials).
-    """
-    lti_consumer = models.ForeignKey('LtiConsumer')
-    launch_url = models.URLField(max_length=255, unique=True, null=True)
-    name = fields.CharField(max_length=255, blank=True, null=True)
-    course_id = fields.CharField(max_length=255, blank=True, null=True)
-
-    class Meta(object):
-        verbose_name = "LTI Source"
-        verbose_name_plural = "LTI Sources"
-
-    def __str__(self):
-        return '<LtiSource : {} : {}>'.format(self.lti_consumer.name, self.name or self.id)

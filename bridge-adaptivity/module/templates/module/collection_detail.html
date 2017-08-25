@@ -15,33 +15,21 @@ Collection: {{ collection.name }}
   <div class="col-md-8">
     <table class="table table-hover">
       <tr>
-        {% for field in model_fields %}
+        {% for field in render_fields %}
         <th>{{ field }}</th>
         {% endfor %}
       </tr>
       {% for activity in activities %}
       <tr>
         <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
-        <td>{{ activity.tag }}</td>
-        <td>{{ activity.difficulty }}</td>
-        <td>{{ activity.points }}</td>
-        <td>
-          {% if activity.source.name %}
-          <a href="{% url 'lti:source-detail' activity.source.pk %}">
-            {% bootstrap_button activity.source.name size='md' icon='eye-open' %}
-          </a>
-          {% else %}
-          <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-          {% endif %}
-        </td>
+        <td>{{ activity.tag|default:"-" }}</td>
+        <td>{{ activity.difficulty|default:"-" }}</td>
+        <td>{{ activity.points|default:"-" }}</td>
+        <td>{{ activity.source_name|default:"-" }}</td>
       </tr>
       {% endfor %}
     </table>
     <hr>
-
-    <a href="{% url 'module:activity-add' collection.pk %}">
-      {% bootstrap_button 'Add Activity' size='lg' icon='plus' %}
-    </a>
 
   </div>
   <div class="col-md-4">
@@ -84,6 +72,9 @@ Collection: {{ collection.name }}
   </div>
 </div>
 
+{% include "module/source_modal.html" %}
+
+{% include "module/activity_modal.html" %}
 
 {% endblock content %}
 
@@ -102,22 +93,53 @@ Collection: {{ collection.name }}
 
                 var sourcesList = $('<div/>').addClass('list-group');
                 $.each(data, function (i, item) {
-                    var ref = $('<button/>')
+                    var modalContentFrame = $('#modal-source-preview');
+
+                    var listItem = $('<button/>')
                         .addClass('list-group-item')
                         .attr('type', 'button')
-                        .text(item['display_name'])
                         .appendTo(sourcesList);
 
-                    var preview = $('<span/>')
+                    var sourceButton = $('<span/>')
+                        .attr('data-toggle', 'modal')
+                        .attr('data-target', '#activityModal')
+                        .text(item['display_name'])
+                        .appendTo(listItem);
+                    sourceButton.on('click', function () {
+                        setInitialActivityData(item);
+                    });
+
+                    var previewButton = $('<span/>')
                         .addClass("glyphicon glyphicon-eye-open pull-right")
-                        .appendTo(ref);
-                    preview.on('click', function() {
-                        alert(item['lti_url']);
+                        .attr('data-toggle', 'modal')
+                        .attr('data-target', '#sourceModal')
+                        .attr('data-display-name', item['display_name'])
+                        .attr('data-lti-url', item['lti_url'])
+                        .appendTo(listItem);
+                    previewButton.on('click', function () {
+                        $('#sourceModalLabel').text(item['display_name']);
+                        configurePreview(modalContentFrame, item);
                     })
                 });
                 content_panel.append(sourcesList);
             });
-        })
+        });
+        function configurePreview(frame, source) {
+            var idParam = "source_id=" + source['id'] + "&";
+            var displayNameParam = "source_name=" + source['display_name'] + "&";
+            var ltiUrlParam = "source_lti_url=" + source['lti_url'] + "&";
+            var previewUrl = "{% url 'lti:source-preview' %}?" + idParam + displayNameParam + ltiUrlParam;
+            frame
+                .attr('src', previewUrl)
+                .attr('title', item['display_name'])
+                .attr('name', item['id']);
+        }
+        function setInitialActivityData(source) {
+            $('#id_source_launch_url').val(source['lti_url']);
+            $('#id_source_name').val(source['display_name']);
+            console.log(source)
+            $('#id_source_context_id').val(source['context_id']);
+        }
     }(jQuery));
 </script>
 

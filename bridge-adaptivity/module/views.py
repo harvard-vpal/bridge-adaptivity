@@ -6,7 +6,8 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from slumber.exceptions import HttpClientError
 
-from api.backends.openedx import get_available_courses
+from api.backends.openedx import get_available_courses, get_content_provider
+from module.forms import ActivityForm
 from .models import (Collection, Activity, SequenceItem, Log, Sequence)
 
 log = logging.getLogger(__name__)
@@ -38,9 +39,13 @@ class CollectionDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CollectionDetail, self).get_context_data(**kwargs)
-        context['model_fields'] = ActivityCreate.fields
+        context['render_fields'] = ['name', 'tag', 'difficulty', 'points', 'source_name']
         context['activities'] = Activity.objects.filter(collection=self.object)
         context['source_courses'] = self.get_content_courses()
+        context['activity_form'] = ActivityForm(initial={
+            'collection': self.object,
+            'lti_consumer': get_content_provider(),
+        })
         return context
 
     @staticmethod
@@ -60,12 +65,13 @@ class CollectionDetail(DetailView):
 
 class ActivityCreate(CreateView):
     model = Activity
-    fields = ['name', 'tag', 'difficulty', 'points', 'source']
+    fields = ['name', 'tag', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
     def form_valid(self, form):
         activity = form.save(commit=False)
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
+        activity.lti_consumer = get_content_provider()
         activity.save()
         return super(ActivityCreate, self).form_valid(form)
 
@@ -81,13 +87,12 @@ class ActivityCreate(CreateView):
 class ActivityUpdate(UpdateView):
     model = Activity
     context_object_name = 'activity'
-    fields = ['name', 'tag', 'difficulty', 'points', 'source']
+    fields = ActivityCreate.fields
 
     def get_context_data(self, **kwargs):
         context = super(ActivityUpdate, self).get_context_data(**kwargs)
         context['current_collection_id'] = self.kwargs.get('collection_id')
         return context
-
 
 
 class SequenceItemDetail(DetailView):

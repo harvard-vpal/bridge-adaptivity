@@ -6,9 +6,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from slumber.exceptions import HttpClientError
 
-from api.backends.openedx import get_available_blocks, get_available_courses
+from api.backends.openedx import get_available_blocks
 
 log = logging.getLogger(__name__)
+
 
 @csrf_exempt
 @require_http_methods(["POST"])
