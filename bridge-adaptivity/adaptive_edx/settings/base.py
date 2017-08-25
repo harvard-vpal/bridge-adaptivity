@@ -143,13 +143,13 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
         'logfile': {
-            'level':'DEBUG',
-            'class':'logging.FileHandler',
-            'filename': BASE_DIR + "/../logfile",
+            'level':'WARNING',
+            'class':'logging.RotatingFileHandler',
+            'filename': BASE_DIR + "/../bridge-error.log",
         },
     },
     'root': {
         'level': 'INFO',
-        'handlers': ['console']
+        'handlers': ['console', 'logfile']
     },
 }
