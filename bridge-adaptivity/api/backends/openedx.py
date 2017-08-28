@@ -22,6 +22,7 @@ class OpenEdxApiClient(EdxRestApiClient):
     }
 
     def __init__(self, content_source, url=None, jwt=None, **kwargs):
+        log.debug("Creating new OpenEdx API client...")
         self.content_source = content_source
         self.access_token = jwt
         self.expires_at = None  # TODO: token caching
@@ -44,6 +45,7 @@ class OpenEdxApiClient(EdxRestApiClient):
             host_url=self.content_source.host_url,
             token_url=self.API_URLS['get_token']
         )
+        log.debug("Requesting oauth token: (url={})".format(url))
         try:
             oauth_client = get_oauth_client()
             access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
@@ -60,8 +62,11 @@ class OpenEdxApiClient(EdxRestApiClient):
             log.exception(
                 'OAuth2 token request to the OpenEdx LTI Provider failed: {}'.format(exc.message)
             )
+            log.warn("You may want to check your OAuth registration on LTI Provider."
+                     "LTI Provider may be disabled (to enable: LMS config > FEATURES > ENABLE_OAUTH2_PROVIDER: true)")
             raise HttpClientError(
-                "OAuth token request failure. You may want to check your OAuth registration on LTI Provider."
+                "OAuth token request failure. You may want to check your OAuth registration on LTI Provider or"
+                "enable OAuth Provider."
             )
         except RequestException as exc:
             log.exception(
@@ -137,8 +142,8 @@ def get_available_blocks(course_id):
         )
     except HttpNotFoundError:
         raise HttpClientError(_("Requested course not found. Check `course_id` url encoding."))
-    except HttpClientError:
-        raise HttpClientError(_("Not valid query."))
+    except HttpClientError as exc:
+        raise HttpClientError(_("Not valid query: {original}").format(original=exc.message))
 
     return filtered_blocks
 
@@ -159,8 +164,8 @@ def get_available_courses():
     try:
         courses_list = api.get_provider_courses()
         filtered_courses = apply_data_filter(courses_list, filters=['id', 'course_id', 'name', 'org'])
-    except HttpClientError:
-        raise HttpClientError(_("Not valid query."))
+    except HttpClientError as exc:
+        raise HttpClientError(_("Not valid query: {original}").format(original=exc.message))
 
     return filtered_courses
 
