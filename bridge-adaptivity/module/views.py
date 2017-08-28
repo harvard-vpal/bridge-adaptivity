@@ -3,6 +3,8 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.urls import reverse_lazy
+from django.views.generic import DeleteView
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from slumber.exceptions import HttpClientError
 
@@ -93,6 +95,13 @@ class ActivityUpdate(UpdateView):
         context = super(ActivityUpdate, self).get_context_data(**kwargs)
         context['current_collection_id'] = self.kwargs.get('collection_id')
         return context
+
+
+class ActivityDelete(DeleteView):
+    model = Activity
+
+    def get_success_url(self):
+        return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
 
 
 class SequenceItemDetail(DetailView):

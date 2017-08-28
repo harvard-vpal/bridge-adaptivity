@@ -1,8 +1,10 @@
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.views.generic import RedirectView
 
 from .views import (
-    CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate,
+    CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate, ActivityDelete,
     SequenceItemDetail, sequence_item_next, SequenceComplete
 )
 
@@ -16,7 +18,13 @@ urlpatterns = [
         login_required(ActivityUpdate.as_view()),
         name='activity-change'
     ),
+    url(
+        r'^activity/(?P<pk>\d+)/delete/$',
+        login_required(ActivityDelete.as_view()),
+        name='activity-delete'
+    ),
     url(r'^sequence_item/(?P<pk>\d+)/$', SequenceItemDetail.as_view(), name='sequence-item'),
     url(r'^sequence_item/(?P<pk>\d+)/next/$', sequence_item_next, name='sequence-item-next'),
     url(r'^sequence_complete/(?P<pk>\d+)/$', SequenceComplete.as_view(), name='sequence-complete'),
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('module:collection-list'))),
 ]
