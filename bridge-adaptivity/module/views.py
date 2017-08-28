@@ -39,7 +39,7 @@ class CollectionDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CollectionDetail, self).get_context_data(**kwargs)
-        context['render_fields'] = ['name', 'tag', 'difficulty', 'points', 'source_name']
+        context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source_name']
         context['activities'] = Activity.objects.filter(collection=self.object)
         context['source_courses'] = self.get_content_courses()
         context['activity_form'] = ActivityForm(initial={
@@ -62,7 +62,7 @@ class CollectionDetail(DetailView):
 
 class ActivityCreate(CreateView):
     model = Activity
-    fields = ['name', 'tag', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
+    fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
     def form_valid(self, form):
         activity = form.save(commit=False)
