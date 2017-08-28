@@ -52,10 +52,10 @@ class CollectionDetail(DetailView):
     def get_content_courses():
         try:
             return get_available_courses()
-        except HttpClientError as exc:
-            log.error(
+        except HttpClientError:
+            log.exception(
                 "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
-                "LtiConsumer.is_active=True. {}".format(exc.message)
+                "LtiConsumer.is_active=True."
             )
             return []
 

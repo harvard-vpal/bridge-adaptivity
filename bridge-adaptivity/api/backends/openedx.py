@@ -58,20 +58,17 @@ class OpenEdxApiClient(EdxRestApiClient):
             raise HttpClientError(
                 "OAuth token request failure. Please, configure OAuth client in order to be able make API requests."
             )
-        except ValueError as exc:
+        except ValueError:
             log.exception(
-                'OAuth2 token request to the OpenEdx LTI Provider failed: {}'.format(exc.message)
+                "You may want to check your OAuth registration on LTI Provider."
+                "LTI Provider may be disabled (to enable: LMS config > FEATURES > ENABLE_OAUTH2_PROVIDER: true"
             )
-            log.warn("You may want to check your OAuth registration on LTI Provider."
-                     "LTI Provider may be disabled (to enable: LMS config > FEATURES > ENABLE_OAUTH2_PROVIDER: true)")
             raise HttpClientError(
                 "OAuth token request failure. You may want to check your OAuth registration on LTI Provider or"
                 "enable OAuth Provider."
             )
-        except RequestException as exc:
-            log.exception(
-                'OAuth2 token request to the OpenEdx LTI Provider failed: {}'.format(exc.message)
-            )
+        except RequestException:
+            log.exception('OAuth2 token request to the OpenEdx LTI Provider failed.')
             raise HttpClientError(
                 "OAuth token request failure. You may want to check your LTI Provider's HOST_URL(https)."
             )
@@ -143,7 +140,7 @@ def get_available_blocks(course_id):
     except HttpNotFoundError:
         raise HttpClientError(_("Requested course not found. Check `course_id` url encoding."))
     except HttpClientError as exc:
-        raise HttpClientError(_("Not valid query: {original}").format(original=exc.message))
+        raise HttpClientError(_("Not valid query: {}").format(exc.message))
 
     return filtered_blocks
 
@@ -165,7 +162,7 @@ def get_available_courses():
         courses_list = api.get_provider_courses()
         filtered_courses = apply_data_filter(courses_list, filters=['id', 'course_id', 'name', 'org'])
     except HttpClientError as exc:
-        raise HttpClientError(_("Not valid query: {original}").format(original=exc.message))
+        raise HttpClientError(_("Not valid query: {}").format(exc.message))
 
     return filtered_courses
 
@@ -206,8 +203,10 @@ def get_content_provider():
         log.debug('Picked content Source: {}'.format(content_source.name))
         return content_source
     except LtiConsumer.DoesNotExist:
-        log.error("There are no active content Sources(Providers) for now. Make active one from Bridge Django admin "
-                  "site: bridge_lti app > LtiCosumers > is_active=True")
+        log.exception(
+            "There are no active content Sources(Providers) for now. Make active one from Bridge Django admin "
+            "site: bridge_lti app > LtiCosumers > is_active=True"
+        )
         return
 
 
@@ -220,9 +219,9 @@ def get_oauth_client():
         client = OAuthClient.objects.get(content_provider=content_provider)
         log.debug('Picked OAuth client: {}'.format(client.name))
         return client
-    except OAuthClient.DoesNotExist as exc:
+    except OAuthClient.DoesNotExist:
         log.exception(
-            'Bridge oauth does not exist! Please, create and configure one (Bridge admin > api app > add OAuth '
-            'Client: {}'.format(exc.message)
+            'Bridge oauth does not exist! '
+            'Please, create and configure one (Bridge admin > api app > add OAuth Client.'
         )
         raise ObjectDoesNotExist(_("There are no configured OAuth clients for active content provider yet."))
