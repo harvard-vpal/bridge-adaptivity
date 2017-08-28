@@ -2,145 +2,170 @@
 {% load bootstrap3 %}
 
 {% block title %}
-Collection: {{ collection.name }}
-<a class="pull-right" href="{% url 'module:collection-list' %}">
-  {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
-</a>
+  <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
+  <a class="pull-right" href="{% url 'module:collection-list' %}">
+    {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
+  </a>
 {% endblock title %}
 
 <hr>
 
 {% block content %}
-<div class="row">
-  <div class="col-md-8">
-    <table class="table table-hover">
-      <tr>
-        {% for field in render_fields %}
-        <th>{{ field }}</th>
-        {% endfor %}
-      </tr>
-      {% for activity in activities %}
-      <tr>
-        <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
-        <td>{{ activity.tag|default:"-" }}</td>
-        <td>{{ activity.difficulty|default:"-" }}</td>
-        <td>{{ activity.points|default:"-" }}</td>
-        <td>{{ activity.source_name|default:"-" }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    <hr>
-
-  </div>
-  <div class="col-md-4">
-    <div class="row">
-      <h3 class="text-center">Available content courses</h3>
-    </div>
-    <div class="row">
-      {% if not source_courses %}
-      <div class="alert alert-warning text-center" role="alert">
-        There are no active content sources
-      </div>
-      {% endif %}
-      <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        {% for source_course in source_courses %}
-
-        <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
-            <h4 class="panel-title">
-              <a {% if not forloop.first %}class="collapsed" {% endif %} role="button" data-toggle="collapse"
-                 data-parent="#accordion" href="#collapse{{ forloop.counter }}"
-                 data-course-id="{{ source_course.course_id }}"
-                 aria-expanded="false"
-                 aria-controls="collapse{{ forloop.counter }}">
-                {{ source_course.name }} <span class="label label-default pull-right">{{ source_course.org }}</span>
-              </a>
-            </h4>
-          </div>
-          <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse"
-               role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
-            <div class="panel-body">
-
-            </div>
-          </div>
+  <div class="row">
+    <div class="col-md-8">
+      {% if activities %}
+        <table class="table table-hover">
+          <tr>
+            {% for field in render_fields %}
+              <th>{{ field }}</th>
+            {% endfor %}
+          </tr>
+          {% for activity in activities %}
+            <tr>
+              <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
+              <td>{{ activity.tag|default:"-" }}</td>
+              <td>{{ activity.difficulty|default:"-" }}</td>
+              <td>{{ activity.points|default:"-" }}</td>
+              <td>{{ activity.source_name|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <div class="alert alert-info" role="alert">Your collection has no activities for now. Take a look at the right
+          panel.
         </div>
-        {% endfor %}
+      {% endif %}
+      <hr>
+      <h3>
+        <small>Tips:</small>
+      </h3>
+      <ul>
+        <li class="text-muted">to see the list of available LTI components click on course title</li>
+        <li class="text-muted">to preview LTI component click on its `eye` icon</li>
+        <li class="text-muted">to create new Activity based on certain LTI component click on its title</li>
+      </ul>
 
-      </div>
+      {# Right accordion panel #}
     </div>
+    <div class="col-md-4">
+      <div class="row">
+        <h3 class="text-center">Available content courses</h3>
+      </div>
+      <div class="row">
+        {% if not source_courses %}
+          <div class="alert alert-warning text-center" role="alert">
+            There are no active content sources.
+            You may ask Bridge administrator to activate one.
+          </div>
+          <h3>
+            <small>Possible reasons:</small>
+          </h3>
+          <ul>
+            <li class="text-muted">all content providers are deactivated</li>
+            <li class="text-muted">API connection problem</li>
+          </ul>
+        {% endif %}
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          {% for source_course in source_courses %}
 
+            <div class="panel panel-default">
+              <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+                <h4 class="panel-title">
+                  <a {% if not forloop.first %}class="collapsed" {% endif %} role="button" data-toggle="collapse"
+                     data-parent="#accordion" href="#collapse{{ forloop.counter }}"
+                     data-course-id="{{ source_course.course_id }}"
+                     aria-expanded="false"
+                     aria-controls="collapse{{ forloop.counter }}">
+                    {{ source_course.name }} <span
+                    class="label label-default pull-right">{{ source_course.org }}</span>
+                  </a>
+                </h4>
+              </div>
+              <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse"
+                   role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
+                <div class="panel-body">
+
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+
+        </div>
+      </div>
+
+    </div>
   </div>
-</div>
 
-{% include "module/source_modal.html" %}
+  {% include "module/source_modal.html" %}
 
-{% include "module/activity_modal.html" %}
+  {% include "module/activity_modal.html" %}
 
 {% endblock content %}
 
 {% block bootstrap3_extra_script %}
-{{ block.super }}
-<script type="text/javascript">
-    (function ($) {
-        $("#accordion").find("a[data-course-id]").on('click', function () {
-            var target = $(this);
-            var data = {course_id: target.data("course-id")};
-            $.post("{% url 'api:sources' %}", data, function (data) {
-                var content_panel = target.closest(".panel.panel-default").find(".panel-body").first();
-                if (content_panel.find('ul.content-sources').length) {
-                    return
-                }
+  {{ block.super }}
+  <script type="text/javascript">
+      (function ($) {
+          $("#accordion").find("a[data-course-id]").on('click', function () {
+              var target = $(this);
+              var data = {course_id: target.data("course-id")};
+              $.post("{% url 'api:sources' %}", data, function (data) {
+                  var content_panel = target.closest(".panel.panel-default").find(".panel-body").first();
+                  if (content_panel.find('ul.content-sources').length) {
+                      return
+                  }
 
-                var sourcesList = $('<div/>').addClass('list-group');
-                $.each(data, function (i, item) {
-                    var modalContentFrame = $('#modal-source-preview');
+                  var sourcesList = $('<div/>').addClass('list-group');
+                  $.each(data, function (i, item) {
+                      var modalContentFrame = $('#modal-source-preview');
 
-                    var listItem = $('<button/>')
-                        .addClass('list-group-item')
-                        .attr('type', 'button')
-                        .appendTo(sourcesList);
+                      var listItem = $('<button/>')
+                          .addClass('list-group-item')
+                          .attr('type', 'button')
+                          .appendTo(sourcesList);
 
-                    var sourceButton = $('<span/>')
-                        .attr('data-toggle', 'modal')
-                        .attr('data-target', '#activityModal')
-                        .text(item['display_name'])
-                        .appendTo(listItem);
-                    sourceButton.on('click', function () {
-                        setInitialActivityData(item);
-                    });
+                      var sourceButton = $('<span/>')
+                          .attr('data-toggle', 'modal')
+                          .attr('data-target', '#activityModal')
+                          .text(item['display_name'])
+                          .appendTo(listItem);
+                      sourceButton.on('click', function () {
+                          setInitialActivityData(item);
+                      });
 
-                    var previewButton = $('<span/>')
-                        .addClass("glyphicon glyphicon-eye-open pull-right")
-                        .attr('data-toggle', 'modal')
-                        .attr('data-target', '#sourceModal')
-                        .attr('data-display-name', item['display_name'])
-                        .attr('data-lti-url', item['lti_url'])
-                        .appendTo(listItem);
-                    previewButton.on('click', function () {
-                        $('#sourceModalLabel').text(item['display_name']);
-                        configurePreview(modalContentFrame, item);
-                    })
-                });
-                content_panel.append(sourcesList);
-            });
-        });
-        function configurePreview(frame, source) {
-            var idParam = "source_id=" + source['id'] + "&";
-            var displayNameParam = "source_name=" + source['display_name'] + "&";
-            var ltiUrlParam = "source_lti_url=" + source['lti_url'] + "&";
-            var previewUrl = "{% url 'lti:source-preview' %}?" + idParam + displayNameParam + ltiUrlParam;
-            frame
-                .attr('src', previewUrl)
-                .attr('title', item['display_name'])
-                .attr('name', item['id']);
-        }
-        function setInitialActivityData(source) {
-            $('#id_source_launch_url').val(source['lti_url']);
-            $('#id_source_name').val(source['display_name']);
-            console.log(source)
-            $('#id_source_context_id').val(source['context_id']);
-        }
-    }(jQuery));
-</script>
+                      var previewButton = $('<span/>')
+                          .addClass("glyphicon glyphicon-eye-open pull-right")
+                          .attr('data-toggle', 'modal')
+                          .attr('data-target', '#sourceModal')
+                          .attr('data-display-name', item['display_name'])
+                          .attr('data-lti-url', item['lti_url'])
+                          .appendTo(listItem);
+                      previewButton.on('click', function () {
+                          $('#sourceModalLabel').text(item['display_name']);
+                          configurePreview(modalContentFrame, item);
+                      })
+                  });
+                  content_panel.append(sourcesList);
+              });
+          });
+          function configurePreview(frame, source) {
+              var idParam = "source_id=" + source['id'] + "&";
+              var displayNameParam = "source_name=" + source['display_name'] + "&";
+              var ltiUrlParam = "source_lti_url=" + source['lti_url'] + "&";
+              var previewUrl = "{% url 'lti:source-preview' %}?" + idParam + displayNameParam + ltiUrlParam;
+              frame
+                  .attr('src', previewUrl)
+                  .attr('title', item['display_name'])
+                  .attr('name', item['id']);
+          }
+
+          function setInitialActivityData(source) {
+              $('#id_source_launch_url').val(source['lti_url']);
+              $('#id_source_name').val(source['display_name']);
+              console.log(source)
+              $('#id_source_context_id').val(source['context_id']);
+          }
+      }(jQuery));
+  </script>
 
 {% endblock %}
