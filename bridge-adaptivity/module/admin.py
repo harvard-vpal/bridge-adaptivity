@@ -22,6 +22,7 @@ class CollectionAdmin(admin.ModelAdmin):
 
     owner_name.empty_value_display = '---'
 
+
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
     pass

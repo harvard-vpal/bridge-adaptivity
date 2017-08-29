@@ -55,6 +55,7 @@ class LtiConsumer(models.Model):
             LtiConsumer.objects.filter(is_active=True).update(is_active=False)
         super(LtiConsumer, self).save(*args, **kwargs)
 
+
 @python_2_unicode_compatible
 class LtiUser(models.Model):
     """
