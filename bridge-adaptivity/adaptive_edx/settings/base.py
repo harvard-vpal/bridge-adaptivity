@@ -118,7 +118,7 @@ STATICFILES_DIRS = (
 STATIC_URL = '/static/'
 STATIC_ROOT = secure.STATIC_ROOT
 
-#### django-bootstrap ####
+# django-bootstrap:
 BOOTSTRAP3 = {
     'include_jquery': True,
 }
