@@ -1,5 +1,6 @@
-from .models import *
 from django.contrib import admin
+
+from .models import Sequence, SequenceItem, Collection, Activity, Log
 
 
 @admin.register(Sequence)

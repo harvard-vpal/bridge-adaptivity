@@ -1,6 +1,6 @@
 import os
 
-from .base import *
+from .base import *  # noqa: F403
 import secure
 
 os.environ.setdefault('ENV_TYPE', 'local')
