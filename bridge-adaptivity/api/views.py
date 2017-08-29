@@ -36,5 +36,3 @@ def sources(request):
         return HttpResponseNotFound(reason={"error": exc.message})
 
     return JsonResponse(data=sources_list, safe=False)
-
-

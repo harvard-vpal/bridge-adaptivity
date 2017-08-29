@@ -1,5 +1,6 @@
-from .models import *
 from django.contrib import admin
+
+from .models import Sequence, SequenceItem, Collection, Activity, Log
 
 
 @admin.register(Sequence)
@@ -21,6 +22,7 @@ class CollectionAdmin(admin.ModelAdmin):
         return obj.owner.username
 
     owner_name.empty_value_display = '---'
+
 
 @admin.register(Activity)
 class ActivityAdmin(admin.ModelAdmin):
