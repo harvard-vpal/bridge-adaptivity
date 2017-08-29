@@ -7,4 +7,6 @@ Should be ignored by VCS (Git).
 # Standard Django secret key (can be generated via http://www.miniwebtool.com/django-secret-key-generator/)
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = 'your_generated_django_secret-key'
-HOST = {}
+STATIC_ROOT = ''
+ALLOWED_HOSTS = ['localhost']
+DATABASES = {}
