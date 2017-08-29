@@ -1,7 +1,6 @@
 import hashlib
 
 import shortuuid
-from dce_lti_py import OutcomeRequest
 from django.conf import settings
 
 REQUIRED_PARAMETERS = [
