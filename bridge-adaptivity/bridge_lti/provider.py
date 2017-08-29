@@ -68,4 +68,3 @@ def lti_launch(request, collection_id=None):
         sequence_item = sequence.sequenceitem_set.last()
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item.id}))
-
