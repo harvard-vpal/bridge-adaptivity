@@ -2,7 +2,6 @@ import logging
 
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from slumber.exceptions import HttpClientError
