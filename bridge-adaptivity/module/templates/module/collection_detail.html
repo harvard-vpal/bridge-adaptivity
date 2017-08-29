@@ -2,7 +2,7 @@
 {% load bootstrap3 %}
 
 {% block title %}
-  Collection: {{ collection.name }}
+  <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
   <a class="pull-right" href="{% url 'module:collection-list' %}">
     {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
   </a>
@@ -13,30 +13,39 @@
 {% block content %}
   <div class="row">
     <div class="col-md-8">
-      <table class="table table-hover">
-        <tr>
-          {% for field in render_fields %}
-            <th>{{ field }}</th>
-          {% endfor %}
-          <th>options</th>
-        </tr>
-        {% for activity in activities %}
+      {% if activities %}
+        <table class="table table-hover">
           <tr>
-            <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
-            <td>{{ activity.tag|default:"-" }}</td>
-            <td>{{ activity.get_difficulty_display|default:"-" }}</td>
-            <td>{{ activity.points|default:"-" }}</td>
-            <td>{{ activity.source_name|default:"-" }}</td>
-            <td>
-              <a class="pull-right" href="{% url 'module:activity-delete' activity.pk %}">
-                {% bootstrap_button "" size='sm' icon='trash' %}
-              </a>
-            </td>
+            {% for field in render_fields %}
+              <th>{{ field }}</th>
+            {% endfor %}
           </tr>
-        {% endfor %}
-      </table>
+          {% for activity in activities %}
+            <tr>
+              <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
+              <td>{{ activity.tag|default:"-" }}</td>
+              <td>{{ activity.difficulty|default:"-" }}</td>
+              <td>{{ activity.points|default:"-" }}</td>
+              <td>{{ activity.source_name|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <div class="alert alert-info" role="alert">Your collection has no activities for now. Take a look at the right
+          panel.
+        </div>
+      {% endif %}
       <hr>
+      <h3>
+        <small>Tips:</small>
+      </h3>
+      <ul>
+        <li class="text-muted">to see the list of available LTI components click on course title</li>
+        <li class="text-muted">to preview LTI component click on its `eye` icon</li>
+        <li class="text-muted">to create new Activity based on certain LTI component click on its title</li>
+      </ul>
 
+      {# Right accordion panel #}
     </div>
     <div class="col-md-4">
       <div class="row">
@@ -45,8 +54,16 @@
       <div class="row">
         {% if not source_courses %}
           <div class="alert alert-warning text-center" role="alert">
-            There are no active content sources
+            There are no active content sources.
+            You may ask Bridge administrator to activate one.
           </div>
+          <h3>
+            <small>Possible reasons:</small>
+          </h3>
+          <ul>
+            <li class="text-muted">all content providers are deactivated</li>
+            <li class="text-muted">API connection problem</li>
+          </ul>
         {% endif %}
         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
           {% for source_course in source_courses %}
@@ -75,6 +92,7 @@
 
         </div>
       </div>
+
     </div>
   </div>
 
@@ -144,6 +162,7 @@
           function setInitialActivityData(source) {
               $('#id_source_launch_url').val(source['lti_url']);
               $('#id_source_name').val(source['display_name']);
+              console.log(source)
               $('#id_source_context_id').val(source['context_id']);
           }
       }(jQuery));

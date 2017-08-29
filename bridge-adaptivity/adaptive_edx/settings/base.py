@@ -68,7 +68,7 @@ AUTHENTICATION_BACKENDS = (
 
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS':[
+    'DIRS': [
         normpath(join(SITE_ROOT, 'templates')),
     ],
     'OPTIONS':{
@@ -118,7 +118,7 @@ STATICFILES_DIRS = (
 STATIC_URL = '/static/'
 STATIC_ROOT = secure.STATIC_ROOT
 
-#### django-bootstrap ####
+# django-bootstrap:
 BOOTSTRAP3 = {
     'include_jquery': True,
 }
@@ -143,8 +143,8 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
         'logfile': {
-            'level':'WARNING',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + "/../bridge-error.log",
         },
     },

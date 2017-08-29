@@ -1,6 +1,5 @@
 import logging
 
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -41,7 +40,7 @@ class CollectionDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(CollectionDetail, self).get_context_data(**kwargs)
-        context['render_fields'] = ['name', 'tag', 'difficulty', 'points', 'source_name']
+        context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source_name']
         context['activities'] = Activity.objects.filter(collection=self.object)
         context['source_courses'] = self.get_content_courses()
         context['activity_form'] = ActivityForm(initial={
@@ -54,20 +53,17 @@ class CollectionDetail(DetailView):
     def get_content_courses():
         try:
             return get_available_courses()
-        except ObjectDoesNotExist as exc:
-            log.error(
+        except HttpClientError:
+            log.exception(
                 "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
-                "LtiConsumer.is_active=True. {}".format(exc.message)
+                "LtiConsumer.is_active=True."
             )
-            return []
-        except HttpClientError as exc:
-            log.error("Course fetching has failed. {}".format(exc.message))
             return []
 
 
 class ActivityCreate(CreateView):
     model = Activity
-    fields = ['name', 'tag', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
+    fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
     def form_valid(self, form):
         activity = form.save(commit=False)
@@ -126,7 +122,7 @@ def sequence_item_next(request, pk):
 
     sequence_item_next = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
-        position=sequence_item.position+1
+        position=sequence_item.position + 1
     ).first()
 
     if sequence_item_next is None:
@@ -140,7 +136,7 @@ def sequence_item_next(request, pk):
         sequence_item_next = SequenceItem.objects.create(
             sequence=sequence_item.sequence,
             activity=activity,
-            position=sequence_item.position+1
+            position=sequence_item.position + 1
         )
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_next.id}))
