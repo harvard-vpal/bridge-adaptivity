@@ -68,7 +68,7 @@ AUTHENTICATION_BACKENDS = (
 
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS':[
+    'DIRS': [
         normpath(join(SITE_ROOT, 'templates')),
     ],
     'OPTIONS':{
@@ -143,8 +143,8 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
         'logfile': {
-            'level':'WARNING',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + "/../bridge-error.log",
         },
     },
