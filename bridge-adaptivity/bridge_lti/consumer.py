@@ -37,7 +37,10 @@ def source_preview(request):
         source_lti_url = activity.source_launch_url
     else:
         source_name = request.GET.get('source_name')
-        source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')  # Django converts plus sign to space
+        source_lti_url = request.GET.get('source_lti_url')
+        if source_lti_url is not None:
+            # Django converts plus sign to space
+            source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')
 
     content_provider = get_content_provider()
     if not content_provider:
