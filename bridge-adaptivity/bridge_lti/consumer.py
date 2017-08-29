@@ -10,6 +10,7 @@ from module.models import Activity
 def tool_config(request):
     app_title = 'Bridge'
     app_description = 'Bridge for Adaptivity'
+    launch_view_name = 'lti_launch'  # noqa: F841
     launch_url = request.build_absolute_uri(reverse('lti_launch'))
 
     extensions = {}
