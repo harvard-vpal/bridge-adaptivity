@@ -113,7 +113,7 @@ def sequence_item_next(request, pk):
 
     sequence_item_next = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
-        position=sequence_item.position+1
+        position=sequence_item.position + 1
     ).first()
 
     if sequence_item_next is None:
@@ -127,7 +127,7 @@ def sequence_item_next(request, pk):
         sequence_item_next = SequenceItem.objects.create(
             sequence=sequence_item.sequence,
             activity=activity,
-            position=sequence_item.position+1
+            position=sequence_item.position + 1
         )
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_next.id}))
