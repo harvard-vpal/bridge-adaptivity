@@ -1,8 +1,9 @@
 import os
 
-os.environ.setdefault('ENV_TYPE', 'local')
 from .base import *
 import secure
+
+os.environ.setdefault('ENV_TYPE', 'local')
 
 DEBUG = True
 
