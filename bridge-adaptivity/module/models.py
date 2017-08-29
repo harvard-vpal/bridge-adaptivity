@@ -119,5 +119,3 @@ class Log(models.Model):
             return '<Log: {}>'.format(self.sequence_item)
         else:
             return '<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)
-
-
