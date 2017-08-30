@@ -29,7 +29,7 @@ def lti_launch(request, collection_id=None):
     try:
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
-        # wrong 'consumer_key':
+        # NOTE(wowkalucky): wrong 'consumer_key':
         log.exception('LTI: provided wrong consumer key.')
         return render(
             request,
@@ -42,7 +42,7 @@ def lti_launch(request, collection_id=None):
         )
 
     if not SignatureValidator(lti_consumer).verify(request):
-        # wrong 'consumer_secret':
+        # NOTE(wowkalucky): wrong 'consumer_secret':
         log.warn('LTI: provided wrong consumer secret.')
         return render(
             request,
