@@ -1,3 +1,4 @@
+import logging
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -7,6 +8,8 @@ from bridge_lti.validator import SignatureValidator
 from module.models import (Collection, Sequence, SequenceItem)
 from .models import LtiProvider, LtiUser
 from .utils import get_required_params, get_optional_params
+
+log = logging.getLogger(__name__)
 
 
 @csrf_exempt
@@ -27,6 +30,7 @@ def lti_launch(request, collection_id=None):
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
         # wrong 'consumer_key':
+        log.exception('LTI: provided wrong consumer key.')
         return render(
             request,
             template_name="bridge_lti/announcement.html",
@@ -39,6 +43,7 @@ def lti_launch(request, collection_id=None):
 
     if not SignatureValidator(lti_consumer).verify(request):
         # wrong 'consumer_secret':
+        log.warn('LTI: provided wrong consumer secret.')
         return render(
             request,
             template_name="bridge_lti/announcement.html",
