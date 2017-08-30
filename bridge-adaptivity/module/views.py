@@ -6,7 +6,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
-from module.forms import ActivityForm
+from module.forms import ActivityForm, CollectionForm
 from .models import (Collection, Activity, SequenceItem, Log, Sequence)
 
 log = logging.getLogger(__name__)
@@ -16,6 +16,7 @@ class CollectionList(ListView):
     model = Collection
     context_object_name = 'collections'
     paginate_by = 10
+    ordering = ['id']
 
     def get_queryset(self):
         return Collection.objects.filter(owner=self.request.user)
@@ -23,13 +24,12 @@ class CollectionList(ListView):
 
 class CollectionCreate(CreateView):
     model = Collection
-    fields = ['name', 'metadata', 'strict_forward']
+    form_class = CollectionForm
 
-    def form_valid(self, form):
-        collection = form.save(commit=False)
-        collection.owner = self.request.user
-        collection.save()
-        return super(CollectionCreate, self).form_valid(form)
+    def get_form_kwargs(self):
+        kwargs = super(CreateView, self).get_form_kwargs()
+        kwargs['instance'] = Collection(owner=self.request.user)
+        return kwargs
 
 
 class CollectionDetail(DetailView):
