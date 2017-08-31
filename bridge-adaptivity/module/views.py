@@ -1,12 +1,13 @@
 import logging
 
+from django import forms
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
-from module.forms import ActivityForm, CollectionForm
+from module.forms import ActivityForm
 from .models import (Collection, Activity, SequenceItem, Log, Sequence)
 
 log = logging.getLogger(__name__)
@@ -24,12 +25,13 @@ class CollectionList(ListView):
 
 class CollectionCreate(CreateView):
     model = Collection
-    form_class = CollectionForm
+    fields = ['name', 'owner', 'threshold', 'metadata', 'strict_forward']
 
-    def get_form_kwargs(self):
-        kwargs = super(CreateView, self).get_form_kwargs()
-        kwargs['instance'] = Collection(owner=self.request.user)
-        return kwargs
+    def get_form(self):
+        form = super(CollectionCreate, self).get_form()
+        form.fields['owner'].initial = self.request.user
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': 'readonly'})
+        return form
 
 
 class CollectionDetail(DetailView):
