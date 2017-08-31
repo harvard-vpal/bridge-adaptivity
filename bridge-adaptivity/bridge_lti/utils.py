@@ -1,5 +1,4 @@
 import hashlib
-import string
 
 import shortuuid
 from django.conf import settings
@@ -14,53 +13,6 @@ OPTIONAL_PARAMETERS = [
     'lis_outcome_service_url',
     'tool_consumer_instance_guid'
 ]
-
-
-class LtiRole(object):
-    """
-    Constant for LTI roles.
-
-    Reference: https://www.imsglobal.org/specs/ltiv1p1p1/implementation-guide#toc-11
-    """
-    LTI_ROLES = {
-        "Learner": {"learner", "student"},
-        "Instructor": {"instructor"},
-        "Administrator": {"administrator"},
-        "TeachingAssistant": {"teachingassistant"},
-        "ContentDeveloper": {"contentdeveloper"},
-        "Mentor": {"mentor"}
-    }
-
-    def __init__(self, roles_param):
-        self.roles = map(string.lower, roles_param.split(",")) if roles_param else []
-
-    @property
-    def is_undefined(self):
-        return not bool(self.roles)
-
-    @property
-    def is_learner(self):
-        return self.LTI_ROLES["Learner"].intersection(self.roles)
-
-    @property
-    def is_instructor(self):
-        return self.LTI_ROLES["Instructor"].intersection(self.roles)
-
-    @property
-    def is_administrator(self):
-        return self.LTI_ROLES["Administrator"].intersection(self.roles)
-
-    @property
-    def is_assistant(self):
-        return self.LTI_ROLES["TeachingAssistant"].intersection(self.roles)
-
-    @property
-    def is_content_developer(self):
-        return self.LTI_ROLES["ContentDeveloper"].intersection(self.roles)
-
-    @property
-    def is_mentor(self):
-        return self.LTI_ROLES["Mentor"].intersection(self.roles)
 
 
 def short_token():
