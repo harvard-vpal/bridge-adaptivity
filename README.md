@@ -19,7 +19,8 @@ the deploying.
 Clone project.
 
 Before running deployment configure `secure.py` settings in the
-`bridge-adaptivity/adaptive_edx/settings/` directory (see `secure.py.example`).
+`bridge_adaptivity/config/settings/` directory (see
+`secure.py.example`).
 
 ### Local deployment
 

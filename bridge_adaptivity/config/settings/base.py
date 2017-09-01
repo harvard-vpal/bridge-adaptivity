@@ -45,7 +45,6 @@ INSTALLED_APPS = (
     # external apps
     'bootstrap3',
     'corsheaders',
-    'storages',
 
     # core functions
     'bridge_lti',
@@ -87,9 +86,9 @@ TEMPLATES = [{
 
 LOGIN_URL = reverse_lazy('lti_auth_error')
 
-ROOT_URLCONF = 'adaptive_edx.urls'
+ROOT_URLCONF = 'config.urls'
 
-WSGI_APPLICATION = 'adaptive_edx.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Internationalization

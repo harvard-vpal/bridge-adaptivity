@@ -1,0 +1,16 @@
+# local environment requirements
+-r requirements_base.txt  # includes the base.txt requirements
+
+# Debug tools for Django:
+django-debug-toolbar  # debug toolbar
+
+django-developer-panel
+# debug panel requires Chrome browser extension:
+# https://chrome.google.com/webstore/detail/django-developer-panel/joeiapdjinonjadfbdabogjimfffpfph
+
+django-sslserver
+
+# CI and tests requirements
+flake8==3.4.1
+tox==2.7.0
+pbr==3.1.1
