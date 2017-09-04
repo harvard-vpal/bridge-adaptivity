@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from os.path import abspath, basename, dirname, join, normpath
-from django.core.urlresolvers import reverse_lazy
 from sys import path
+
 import secure
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -71,7 +71,7 @@ TEMPLATES = [{
     'DIRS': [
         normpath(join(SITE_ROOT, 'templates')),
     ],
-    'OPTIONS':{
+    'OPTIONS': {
         'context_processors': [
             'django.contrib.auth.context_processors.auth',
             'django.template.context_processors.request',  # adds `request` object to templates context
@@ -81,16 +81,13 @@ TEMPLATES = [{
             'django.template.loaders.filesystem.Loader',
             'django.template.loaders.app_directories.Loader',
         ],
-        'debug':True,
+        'debug': True,
     },
 }]
-
-LOGIN_URL = reverse_lazy('lti_auth_error')
 
 ROOT_URLCONF = 'adaptive_edx.urls'
 
 WSGI_APPLICATION = 'adaptive_edx.wsgi.application'
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -131,6 +128,8 @@ AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'module:collection-list'
 ALLOWED_HOSTS = secure.ALLOWED_HOSTS
+
+APPEND_SLASH = False
 
 DATABASES = secure.DATABASES
 
