@@ -7,6 +7,7 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from module.forms import ActivityForm
+from module.mixins import CollectionIdToContext
 from .models import (Collection, Activity, SequenceItem, Log, Sequence)
 
 log = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ class CollectionDetail(DetailView):
             return []
 
 
-class ActivityCreate(CreateView):
+class ActivityCreate(CollectionIdToContext, CreateView):
     model = Activity
     fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
@@ -71,24 +72,14 @@ class ActivityCreate(CreateView):
         activity.save()
         return super(ActivityCreate, self).form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super(ActivityCreate, self).get_context_data(**kwargs)
-        context['current_collection_id'] = self.kwargs.get('collection_id')
-        return context
-
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
 
 
-class ActivityUpdate(UpdateView):
+class ActivityUpdate(CollectionIdToContext, UpdateView):
     model = Activity
     context_object_name = 'activity'
     fields = ActivityCreate.fields
-
-    def get_context_data(self, **kwargs):
-        context = super(ActivityUpdate, self).get_context_data(**kwargs)
-        context['current_collection_id'] = self.kwargs.get('collection_id')
-        return context
 
 
 class SequenceItemDetail(DetailView):
