@@ -53,15 +53,29 @@ def lti_launch(request, collection_id=None):
                 'tip': 'have a look at `consumer secret`',
             }
         )
-
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if params.get('roles') and set(params['roles'].split(",")).intersection(['Instructor', 'Administrator']):
-        if not collection_id:
-            return redirect(reverse('module:collection-list'))
-
-        return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
+        return instructor_flow(request, collection_id=collection_id)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
+    else:
+        return learner_flow(request, lti_consumer, params, collection_id=collection_id)
+
+
+def instructor_flow(request, collection_id=None):
+    """
+    Define logic flow for Learner.
+    """
+    if not collection_id:
+        return redirect(reverse('module:collection-list'))
+
+    return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
+
+
+def learner_flow(request, lti_consumer, params, collection_id=None):
+    """
+    Define logic flow for Instructor.
+    """
     if not collection_id:
         return render(
             request,
@@ -93,9 +107,22 @@ def lti_launch(request, collection_id=None):
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
+        # NOTE(wowkalucky): empty Collection validation
+        start_activity = collection.activity_set.first()
+        if not start_activity:
+            log.warn('Instructor configured empty Collection.')
+            return render(
+                request,
+                template_name="bridge_lti/announcement.html",
+                context={
+                    'title': 'announcement',
+                    'message': 'coming soon!',
+                    'tip': 'this adaptivity sequence is about to start.',
+                }
+            )
         sequence_item = SequenceItem.objects.create(
             sequence=sequence,
-            activity=collection.activity_set.first(),
+            activity=start_activity,
             position=1
         )
     else:
