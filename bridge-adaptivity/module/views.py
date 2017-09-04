@@ -32,9 +32,10 @@ class CollectionCreate(CreateView):
     fields = ['name', 'owner', 'threshold', 'metadata', 'strict_forward']
 
     def get_form(self):
+        # FIXME(wowkalucky): improve 'unique_together' default validation message
         form = super(CollectionCreate, self).get_form()
         form.fields['owner'].initial = self.request.user
-        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': 'readonly'})
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         return form
 
 
