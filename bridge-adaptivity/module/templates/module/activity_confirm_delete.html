@@ -1,0 +1,23 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}
+  Activity deletion: {{ object.name }}
+  <a class="pull-right" href="{% url 'module:collection-detail' object.collection.pk %}">
+    {% bootstrap_button 'back to Collection' size='sm' icon='menu-up' %}
+  </a>
+{% endblock title %}
+
+<hr>
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-8">
+      <form action="" method="post">{% csrf_token %}
+        <p>You are about to destroy activity {{ object.name }}. Are you sure?"</p>
+        <input type="submit" value="Confirm"/>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}
