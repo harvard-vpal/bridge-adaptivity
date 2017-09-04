@@ -12,6 +12,10 @@ from .utils import get_required_params, get_optional_params
 log = logging.getLogger(__name__)
 
 
+def _error_msg(s):
+    return "LTI: provided wrong consumer {}.".format(s)
+
+
 @csrf_exempt
 def lti_launch(request, collection_id=None):
     """
@@ -21,6 +25,7 @@ def lti_launch(request, collection_id=None):
     - The launch contains all the required parameters
     - The launch data is correctly signed using a known client key/secret pair
     """
+    # FIME(idegtiarov) improve lti_launch with using lti library
     params = get_required_params(request.POST)
     if not params:
         return HttpResponseBadRequest()
@@ -30,7 +35,7 @@ def lti_launch(request, collection_id=None):
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
         # NOTE(wowkalucky): wrong 'consumer_key':
-        log.exception('LTI: provided wrong consumer key.')
+        log.exception(_error_msg('key'))
         return render(
             request,
             template_name="bridge_lti/announcement.html",
@@ -40,10 +45,9 @@ def lti_launch(request, collection_id=None):
                 'tip': 'have a look at `consumer key`',
             }
         )
-
     if not SignatureValidator(lti_consumer).verify(request):
         # NOTE(wowkalucky): wrong 'consumer_secret':
-        log.warn('LTI: provided wrong consumer secret.')
+        log.warn(_error_msg('secret'))
         return render(
             request,
             template_name="bridge_lti/announcement.html",
