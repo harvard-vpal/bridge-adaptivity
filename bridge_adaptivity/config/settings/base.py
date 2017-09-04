@@ -45,7 +45,6 @@ INSTALLED_APPS = (
     # external apps
     'bootstrap3',
     'corsheaders',
-    'storages',
 
     # core functions
     'bridge_lti',
@@ -85,9 +84,9 @@ TEMPLATES = [{
     },
 }]
 
-ROOT_URLCONF = 'adaptive_edx.urls'
+ROOT_URLCONF = 'config.urls'
 
-WSGI_APPLICATION = 'adaptive_edx.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -128,8 +127,6 @@ AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'module:collection-list'
 ALLOWED_HOSTS = secure.ALLOWED_HOSTS
-
-APPEND_SLASH = False
 
 DATABASES = secure.DATABASES
 

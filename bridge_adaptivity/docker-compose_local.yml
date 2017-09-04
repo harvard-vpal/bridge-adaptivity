@@ -14,9 +14,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_local
-    command: bash -c "sleep 5 && python manage.py runserver 0.0.0.0:8008"
+    command: bash -c "sleep 5 && python manage.py runserver 0.0.0.0:8008 --settings=config.settings.local"
     volumes:
-      - .:/bridge-adaptivity
+      - .:/bridge_adaptivity
     ports:
       - "8008:8008"
     links:

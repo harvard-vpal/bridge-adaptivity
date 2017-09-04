@@ -3,14 +3,13 @@ ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && apt-get install -y vim
 
-RUN mkdir /bridge-adaptivity
-WORKDIR /bridge-adaptivity
-ADD . /bridge-adaptivity/
+RUN mkdir /bridge_adaptivity
+WORKDIR /bridge_adaptivity
+ADD . /bridge_adaptivity/
 
 # Install requirements:
 RUN pip install -U pip
 RUN pip install -Ur requirements.txt
-RUN pip install -Ur requirements_local.txt
 
 # Collect static media:
 RUN mkdir -p /www/static

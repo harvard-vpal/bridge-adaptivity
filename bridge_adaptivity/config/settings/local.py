@@ -9,21 +9,19 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+MIDDLEWARE_CLASSES += (
+    'djdev_panel.middleware.DebugMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+)
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 # For Django Debug Toolbar:
-INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
+# NOTE(idegtiarov) In order to make dgango-debug-toolbar works with docker add here docker machine ip address.
+# Docker container's ip address could be found in the output of the command: > docker inspect <container_id>
+INTERNAL_IPS = ('127.0.0.1', '172.19.0.1')
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
