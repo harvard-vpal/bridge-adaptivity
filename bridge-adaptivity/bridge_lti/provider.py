@@ -76,7 +76,8 @@ def lti_launch(request, collection_id=None):
     try:
         collection = Collection.objects.get(id=collection_id)
     except Collection.DoesNotExist:
-        return HttpResponseBadRequest()
+        log.exception("Collection with provided ID does not exist. Check configured launch url.")
+        return HttpResponseBadRequest(reason='Bad launch_url collection ID.')
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=params['user_id'],
