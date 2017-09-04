@@ -1,8 +1,10 @@
 import logging
 
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.views.generic import ListView, CreateView, DetailView, UpdateView
+from django.utils.decorators import method_decorator
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
@@ -12,6 +14,7 @@ from .models import (Collection, Activity, SequenceItem, Log, Sequence)
 log = logging.getLogger(__name__)
 
 
+@method_decorator(login_required, name='dispatch')
 class CollectionList(ListView):
     model = Collection
     context_object_name = 'collections'
@@ -21,6 +24,7 @@ class CollectionList(ListView):
         return Collection.objects.filter(owner=self.request.user)
 
 
+@method_decorator(login_required, name='dispatch')
 class CollectionCreate(CreateView):
     model = Collection
     fields = ['name', 'metadata', 'strict_forward']
@@ -32,6 +36,7 @@ class CollectionCreate(CreateView):
         return super(CollectionCreate, self).form_valid(form)
 
 
+@method_decorator(login_required, name='dispatch')
 class CollectionDetail(DetailView):
     model = Collection
     context_object_name = 'collection'
@@ -59,6 +64,7 @@ class CollectionDetail(DetailView):
             return []
 
 
+@method_decorator(login_required, name='dispatch')
 class ActivityCreate(CreateView):
     model = Activity
     fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
@@ -80,6 +86,7 @@ class ActivityCreate(CreateView):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
 
 
+@method_decorator(login_required, name='dispatch')
 class ActivityUpdate(UpdateView):
     model = Activity
     context_object_name = 'activity'
@@ -89,6 +96,14 @@ class ActivityUpdate(UpdateView):
         context = super(ActivityUpdate, self).get_context_data(**kwargs)
         context['current_collection_id'] = self.kwargs.get('collection_id')
         return context
+
+
+@method_decorator(login_required, name='dispatch')
+class ActivityDelete(DeleteView):
+    model = Activity
+
+    def get_success_url(self):
+        return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
 
 
 class SequenceItemDetail(DetailView):
