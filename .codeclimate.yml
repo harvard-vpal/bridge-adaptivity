@@ -9,10 +9,8 @@ engines:
     enabled: true
     config:
       strings:
+        - BUG
         - FIXME
-        - NOTE
-        - TODO
-        - WARNING
   duplication:
     enabled: true
     config:
@@ -30,4 +28,7 @@ ratings:
    - "**.js"
    - "**.py"
    - "**.md"
+
+exclude_paths:
+- "**/migrations/"
 

@@ -1,0 +1,6 @@
+FROM python:2.7
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /bridge_adaptivity
+WORKDIR /bridge_adaptivity
+ADD . /bridge_adaptivity/
+RUN pip install -r requirements_local.txt
