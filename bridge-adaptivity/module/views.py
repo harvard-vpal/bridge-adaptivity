@@ -1,6 +1,7 @@
 import logging
 
 from django.contrib.auth.decorators import login_required
+from django import forms
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -19,6 +20,7 @@ class CollectionList(ListView):
     model = Collection
     context_object_name = 'collections'
     paginate_by = 10
+    ordering = ['id']
 
     def get_queryset(self):
         return Collection.objects.filter(owner=self.request.user)
@@ -27,13 +29,14 @@ class CollectionList(ListView):
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(CreateView):
     model = Collection
-    fields = ['name', 'metadata', 'strict_forward']
+    fields = ['name', 'owner', 'threshold', 'metadata', 'strict_forward']
 
-    def form_valid(self, form):
-        collection = form.save(commit=False)
-        collection.owner = self.request.user
-        collection.save()
-        return super(CollectionCreate, self).form_valid(form)
+    def get_form(self):
+        # FIXME(wowkalucky): improve 'unique_together' default validation message
+        form = super(CollectionCreate, self).get_form()
+        form.fields['owner'].initial = self.request.user
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        return form
 
 
 @method_decorator(login_required, name='dispatch')
