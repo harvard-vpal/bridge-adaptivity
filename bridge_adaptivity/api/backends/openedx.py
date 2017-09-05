@@ -204,8 +204,8 @@ def get_content_provider():
         return content_source
     except LtiConsumer.DoesNotExist:
         log.exception(
-            "There are no active content Sources(Providers) for now. Make active one from Bridge Django admin "
-            "site: bridge_lti app > LtiCosumers > is_active=True"
+            "There are no active content Providers for now. Make active one from Bridge Django admin "
+            "site: bridge_lti app > LtiConsumers> is_active=True"
         )
         return
 

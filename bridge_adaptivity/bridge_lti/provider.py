@@ -25,12 +25,12 @@ def lti_launch(request, collection_id=None):
     - The launch contains all the required parameters
     - The launch data is correctly signed using a known client key/secret pair
     """
-    # FIME(idegtiarov) improve lti_launch with using lti library
+    # FIXME(idegtiarov) improve lti_launch with using lti library
     params = get_required_params(request.POST)
     if not params:
         return HttpResponseBadRequest()
     params.update(get_optional_params(request.POST))
-
+    log.debug('Got: {}'.format(params))
     try:
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
@@ -102,6 +102,11 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
         lti_consumer=lti_consumer,
         defaults={'course_id': params['context_id']}
     )
+    if created:
+        log.debug("LTI user created: user_id='{}'".format(lti_user.user_id))
+    else:
+        log.debug("LTI user picked: user_id='{}'".format(lti_user.user_id))
+
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
         collection=collection
