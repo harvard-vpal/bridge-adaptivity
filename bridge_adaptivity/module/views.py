@@ -9,9 +9,10 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
+from bridge_lti import outcomes
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContext
-from .models import (Collection, Activity, SequenceItem, Log, Sequence)
+from .models import Collection, Activity, SequenceItem, Log, Sequence
 
 log = logging.getLogger(__name__)
 
@@ -131,6 +132,8 @@ def sequence_item_next(request, pk):
         except IndexError:
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
+            # NOTE(wowkalucky): send Sequence outcome if completed
+            send_composite_outcome(sequence_item.sequence)
             return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
 
         sequence_item_next = SequenceItem.objects.create(
@@ -145,3 +148,13 @@ def sequence_item_next(request, pk):
 class SequenceComplete(DetailView):
     model = Sequence
     template_name = 'module/sequence_complete.html'
+
+
+def send_composite_outcome(sequence):
+    """
+    Calculate and transmit the score for sequence.
+    """
+    # NOTE(wowkalucky): some advanced score calculation may be placed here
+    score = sequence.total_points
+
+    outcomes.send_score_update(sequence, score)

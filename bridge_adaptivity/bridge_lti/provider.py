@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
+from bridge_lti.outcomes import store_outcome_parameters
 from bridge_lti.validator import SignatureValidator
 from module.models import (Collection, Sequence, SequenceItem)
 from .models import LtiProvider, LtiUser
@@ -129,6 +130,8 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
                     'tip': 'this adaptivity sequence is about to start.',
                 }
             )
+        # NOTE(wowkalucky): save outcome service parameters when Sequence is created
+        store_outcome_parameters(params, sequence, lti_consumer)
         sequence_item = SequenceItem.objects.create(
             sequence=sequence,
             activity=start_activity,
