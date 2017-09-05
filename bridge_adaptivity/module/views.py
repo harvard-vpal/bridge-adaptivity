@@ -9,6 +9,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
+from module import ENGINE
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContext
 from .models import (Collection, Activity, SequenceItem, Log, Sequence)
@@ -119,15 +120,17 @@ class SequenceItemDetail(DetailView):
 
 def sequence_item_next(request, pk):
     sequence_item = get_object_or_404(SequenceItem, pk=pk)
+    sequence = sequence_item.sequence
 
     sequence_item_next = SequenceItem.objects.filter(
-        sequence=sequence_item.sequence,
+        sequence=sequence,
         position=sequence_item.position + 1
     ).first()
 
     if sequence_item_next is None:
         try:
-            activity = sequence_item.sequence.collection.activity_set.all()[sequence_item.position]
+            activity_id = ENGINE.select_activity(sequence)
+            activity = get_object_or_404(Activity, pk=activity_id)
         except IndexError:
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
