@@ -3,9 +3,11 @@
 
 {% block title %}
   <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
+
   <a class="pull-right" href="{% url 'module:collection-list' %}">
     {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
   </a>
+  <h3><small>threshold: {{ collection.threshold|default:"not set" }}</small></h3>
 {% endblock title %}
 
 <hr>
@@ -23,8 +25,8 @@
           {% for activity in activities %}
             <tr>
               <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
-              <td>{{ activity.tag|default:"-" }}</td>
-              <td>{{ activity.difficulty|default:"-" }}</td>
+              <td>{{ activity.tags|default:"-" }}</td>
+              <td>{{ activity.get_difficulty_display|default:"-" }}</td>
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
             </tr>
