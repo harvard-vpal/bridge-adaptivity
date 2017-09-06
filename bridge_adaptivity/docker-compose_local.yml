@@ -21,6 +21,8 @@ services:
       - "8008:8008"
     links:
       - postgres
+    stdin_open: true
+    tty: true
 
 volumes:
   pgs:
