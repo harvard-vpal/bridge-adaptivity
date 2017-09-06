@@ -31,7 +31,7 @@ def lti_launch(request, collection_id=None):
     if not params:
         return HttpResponseBadRequest()
     params.update(get_optional_params(request.POST))
-    log.debug('Got: {}'.format(params))
+    log.debug('Got LTI params: {}'.format(params))
     try:
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
@@ -97,6 +97,11 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
     except Collection.DoesNotExist:
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
         return HttpResponseBadRequest(reason='Bad launch_url collection ID.')
+
+    # NOTE(wowkalucky): Store user-related LTI parameters to proxy them to the ContentSource later.
+    request.session['lti:user_id'] = params['user_id']
+    request.session['lti:context_id'] = params['context_id']
+    request.session['lti:lis_result_sourcedid'] = params['lis_result_sourcedid']
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=params['user_id'],
