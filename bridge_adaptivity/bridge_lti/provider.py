@@ -103,10 +103,7 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
         lti_consumer=lti_consumer,
         defaults={'course_id': params['context_id']}
     )
-    if created:
-        log.debug("LTI user created: user_id='{}'".format(lti_user.user_id))
-    else:
-        log.debug("LTI user picked: user_id='{}'".format(lti_user.user_id))
+    log.debug("LTI user {}: user_id='{}'".format('created' if created else 'picked', lti_user.user_id))
 
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,

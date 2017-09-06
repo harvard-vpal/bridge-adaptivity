@@ -19,9 +19,6 @@ services:
       - .:/bridge_adaptivity
     ports:
       - "8008:8008"
-    extra_hosts:
-      # NOTE(wowkalucky): host_machine_localhost_alias_record:docker-compose_service_gateway
-      - "devstack.lms:172.18.0.1"
     links:
       - postgres
 

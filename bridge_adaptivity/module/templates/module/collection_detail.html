@@ -104,6 +104,7 @@
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
+  {# FIXME(wowkalucky): move script to separate file #}
   <script type="text/javascript">
       (function ($) {
           $("#accordion").find("a[data-course-id]").on('click', function () {
