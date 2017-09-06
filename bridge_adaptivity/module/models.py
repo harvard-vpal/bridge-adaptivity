@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer
+from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer, OutcomeService
 
 
 @python_2_unicode_compatible
@@ -15,10 +15,12 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     completed = fields.BooleanField(default=False)
-    total_points = models.FloatField(blank=True, null=True)
+    total_points = models.FloatField(blank=True, default=0)
+    lis_result_sourcedid = models.CharField(max_length=255, null=True)
+    outcome_service = models.ForeignKey(OutcomeService, null=True)
 
     class Meta:
-        unique_together = ('lti_user', 'collection')
+        unique_together = (('lti_user', 'collection'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
         return '<Sequence: {}>'.format(self.lti_user)
