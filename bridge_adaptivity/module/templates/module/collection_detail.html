@@ -26,7 +26,7 @@
             <th>options</th>
           </tr>
           {% for activity in activities %}
-            <tr>
+            <tr id="activity-row-{{ forloop.counter0 }}">
               <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
               <td>{{ activity.tags|default:"-" }}</td>
               <td>{{ activity.get_difficulty_display|default:"-" }}</td>
@@ -37,7 +37,6 @@
                   {% bootstrap_button "" size='sm' icon='trash' %}
                 </a>
               </td>
-
             </tr>
           {% endfor %}
         </table>
@@ -115,9 +114,23 @@
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
+  {# FIXME(wowkalucky): move script to separate file #}
   <script type="text/javascript">
       (function ($) {
           var modalContentFrame = $('#modal-source-preview');
+
+          // activity source preview:
+          var activitiesData = {{ activities_data|safe }};
+          $.each(activitiesData, function (i, activity) {
+              createPreviewButton(
+                  activity['name'],
+                  activity['source_launch_url'],
+                  activity['id'],
+                  $('#activity-row-' + i + ' td').last(),
+                  modalContentFrame
+              )
+          });
+
           $("#accordion").find("a[data-course-id]").on('click', function () {
               var target = $(this);
               var data = {course_id: target.data("course-id")};
@@ -155,13 +168,18 @@
           });
 
           function createPreviewButton(title, ltiUrl, sourceId, parent, modalFrame) {
-              var previewButton = $('<span/>')
-                  .addClass("glyphicon glyphicon-eye-open pull-right")
+              var preview = $('<a/>')
+                  .addClass("pull-right")
+                  .appendTo(parent);
+              var previewButton = $('<button/>', {'class': 'btn btn-default btn-sm'})
+                  .appendTo(preview);
+              var previewButtonBody = $('<span/>')
+                  .addClass("glyphicon glyphicon-eye-open")
                   .attr('data-toggle', 'modal')
                   .attr('data-target', '#sourceModal')
                   .attr('data-display-name', title)
                   .attr('data-lti-url', ltiUrl)
-                  .appendTo(parent);
+                  .appendTo(previewButton);
               previewButton.on('click', function () {
                   $('#sourceModalLabel').text(title);
                   configurePreview(modalFrame, title, ltiUrl, sourceId);
