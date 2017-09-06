@@ -28,8 +28,7 @@ def store_outcome_parameters(request_params, sequence, lti_consumer):
     result_id = request_params.get('lis_result_sourcedid', None)
 
     # NOTE(wowkalucky): We're only interested in requests that include a lis_result_sourcedid parameter.
-    # NOTE(wowkalucky): An LTI consumer that doesn't send that parameter does not expect scoring updates
-    # for that particular request.
+    # An LTI consumer that doesn't send that parameter does not expect scoring updates for that particular request.
     log.debug("OutcomeService: storing outcome parameters...")
     if result_id:
         log.debug("result_id: %s", result_id)
