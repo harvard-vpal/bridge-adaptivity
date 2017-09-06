@@ -118,6 +118,12 @@
   <script type="text/javascript">
       (function ($) {
           var modalContentFrame = $('#modal-source-preview');
+          var typeToIcon = {
+              html: "glyphicon-list-alt",
+              problem: "glyphicon-question-sign",
+              video: "glyphicon-facetime-video",
+              other: "glyphicon-option-horizontal"
+          };
 
           // activity source preview:
           var activitiesData = {{ activities_data|safe }};
@@ -146,7 +152,13 @@
                           .addClass('list-group-item')
                           .attr('type', 'button')
                           .appendTo(sourcesList);
-
+                      var sourceIcon = $('<span/>')
+                          .data('toggle', 'tooltip')
+                          .attr('title', item.type)
+                          .addClass("badge pull-left glyphicon " + typeToIcon[item.type])
+                          .text(" ")
+                          .css('margin-right', '5px')
+                          .appendTo(listItem);
                       var sourceButton = $('<span/>')
                           .attr('data-toggle', 'modal')
                           .attr('data-target', '#activityModal')
