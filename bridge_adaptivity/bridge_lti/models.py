@@ -95,3 +95,22 @@ class BridgeUser(AbstractUser):
 
     def __str__(self):
         return '<BridgeUser: {}>'.format(self.username)
+
+
+@python_2_unicode_compatible
+class OutcomeService(models.Model):
+    """
+    Model for a single outcome service associated with an LTI consumer.
+
+    Note that a given consumer may have more than one outcome service URL over its
+    lifetime, so we need to store the outcome service separately from the SourceLtiConnection model.
+    """
+    lis_outcome_service_url = models.CharField(max_length=255)
+    lms_lti_connection = models.ForeignKey('LtiProvider', null=True)
+
+    class Meta:
+        verbose_name = _('outcome service')
+        verbose_name_plural = _('outcome services')
+
+    def __str__(self):
+        return '<OutcomeService: {}>'.format(self.lis_outcome_service_url)

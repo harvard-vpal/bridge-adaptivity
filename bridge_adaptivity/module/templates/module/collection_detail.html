@@ -104,6 +104,7 @@
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
+  {# FIXME(wowkalucky): move script to separate file #}
   <script type="text/javascript">
       (function ($) {
           $("#accordion").find("a[data-course-id]").on('click', function () {
@@ -160,9 +161,9 @@
           }
 
           function setInitialActivityData(source) {
-              $('#id_source_launch_url').val(source['lti_url']);
+              $('#id_name').val(source['display_name']);
               $('#id_source_name').val(source['display_name']);
-              console.log(source)
+              $('#id_source_launch_url').val(source['lti_url']);
               $('#id_source_context_id').val(source['context_id']);
           }
       }(jQuery));

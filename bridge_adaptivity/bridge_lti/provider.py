@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
+from bridge_lti.outcomes import store_outcome_parameters
 from bridge_lti.validator import SignatureValidator
 from module.models import (Collection, Sequence, SequenceItem)
 from .models import LtiProvider, LtiUser
@@ -25,12 +26,12 @@ def lti_launch(request, collection_id=None):
     - The launch contains all the required parameters
     - The launch data is correctly signed using a known client key/secret pair
     """
-    # FIME(idegtiarov) improve lti_launch with using lti library
+    # FIXME(idegtiarov) improve lti_launch with using lti library
     params = get_required_params(request.POST)
     if not params:
         return HttpResponseBadRequest()
     params.update(get_optional_params(request.POST))
-
+    log.debug('Got: {}'.format(params))
     try:
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:
@@ -102,6 +103,8 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
         lti_consumer=lti_consumer,
         defaults={'course_id': params['context_id']}
     )
+    log.debug("LTI user {}: user_id='{}'".format('created' if created else 'picked', lti_user.user_id))
+
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
         collection=collection
@@ -124,6 +127,8 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
                     'tip': 'this adaptivity sequence is about to start.',
                 }
             )
+        # NOTE(wowkalucky): save outcome service parameters when Sequence is created
+        store_outcome_parameters(params, sequence, lti_consumer)
         sequence_item = SequenceItem.objects.create(
             sequence=sequence,
             activity=start_activity,
