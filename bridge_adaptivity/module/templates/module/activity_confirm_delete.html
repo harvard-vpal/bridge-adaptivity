@@ -14,8 +14,10 @@
   <div class="row">
     <div class="col-md-8">
       <form action="" method="post">{% csrf_token %}
-        <p>You are about to destroy activity {{ object.name }}. Are you sure?"</p>
-        <input type="submit" value="Confirm"/>
+        <div class="alert alert-danger" role="alert">
+          <p>You are about to destroy activity <strong>{{ object.name }}</strong>. Are you sure?"</p>
+        </div>
+        {% bootstrap_button 'Delete activity' button_type="submit" button_class="btn-primary" size='lg' icon='trash' %}
       </form>
     </div>
   </div>

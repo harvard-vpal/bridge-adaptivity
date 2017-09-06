@@ -7,7 +7,9 @@
   <a class="pull-right" href="{% url 'module:collection-list' %}">
     {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
   </a>
-  <h3><small>threshold: {{ collection.threshold|default:"not set" }}</small></h3>
+  <h3>
+    <small>threshold: {{ collection.threshold|default:"not set" }}</small>
+  </h3>
 {% endblock title %}
 
 <hr>
@@ -21,6 +23,7 @@
             {% for field in render_fields %}
               <th>{{ field }}</th>
             {% endfor %}
+            <th>options</th>
           </tr>
           {% for activity in activities %}
             <tr>
@@ -29,6 +32,12 @@
               <td>{{ activity.get_difficulty_display|default:"-" }}</td>
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
+              <td>
+                <a class="pull-right" href="{% url 'module:activity-delete' activity.pk %}">
+                  {% bootstrap_button "" size='sm' icon='trash' %}
+                </a>
+              </td>
+
             </tr>
           {% endfor %}
         </table>
