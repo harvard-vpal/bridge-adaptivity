@@ -36,7 +36,6 @@ def source_preview(request):
     """
     Simple view to render Source content block shared through LTI.
     """
-    log.debug("Got request.POST: %s", request.POST)
     log.debug("Got request.GET: %s", request.GET)
 
     activity_id = request.GET.get('activity_id')
