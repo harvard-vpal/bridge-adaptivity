@@ -2,9 +2,9 @@ from django.conf.urls import url
 from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
-from .views import (
+from module.views import (
     CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate, ActivityDelete,
-    SequenceItemDetail, sequence_item_next, SequenceComplete
+    SequenceItemDetail, sequence_item_next, SequenceComplete, sequence_item_grade
 )
 
 urlpatterns = [
@@ -26,4 +26,7 @@ urlpatterns = [
     url(r'^sequence_item/(?P<pk>\d+)/next/$', sequence_item_next, name='sequence-item-next'),
     url(r'^sequence_complete/(?P<pk>\d+)/$', SequenceComplete.as_view(), name='sequence-complete'),
     url(r'^$', RedirectView.as_view(url=reverse_lazy('module:collection-list'))),
+
+    # Source outcome service endpoint
+    url(r'^activity_grade/$', sequence_item_grade, name='sequence-item-grade')
 ]

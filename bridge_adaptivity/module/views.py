@@ -1,10 +1,12 @@
 import logging
+from lxml import etree
 
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from slumber.exceptions import HttpClientError
 
@@ -128,6 +130,7 @@ def sequence_item_next(request, pk):
 
     if sequence_item_next is None:
         try:
+            log.warning("Sequence position is: {}".format(sequence_item.position))
             activity = sequence_item.sequence.collection.activity_set.all()[sequence_item.position]
         except IndexError:
             sequence_item.sequence.completed = True
@@ -158,3 +161,74 @@ def send_composite_outcome(sequence):
     score = sequence.total_points
 
     outcomes.send_score_update(sequence, score)
+
+
+class LtiError(Exception):
+    pass
+
+
+def parse_grade_xml_body(body):
+    """
+    Parses values from the Outcome Service XML.
+
+    XML body should contain nsmap with namespace, that is specified in LTI specs.
+
+    Arguments:
+        body (str): XML Outcome Service request body
+
+    Returns:
+        tuple: imsx_messageIdentifier, sourcedId, score, action
+
+    Raises:
+        LtiError
+            if submitted score is outside the permitted range
+            if the XML is missing required entities
+            if there was a problem parsing the XML body
+    """
+    lti_spec_namespace = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0"
+    namespaces = {'def': lti_spec_namespace}
+    data = body.strip().encode('utf-8')
+
+    try:
+        parser = etree.XMLParser(ns_clean=True, recover=True, encoding='utf-8')  # pylint: disable=no-member
+        root = etree.fromstring(data, parser=parser)  # pylint: disable=no-member
+    except etree.XMLSyntaxError as ex:
+        raise (ex.message or 'Body is not valid XML')
+
+    try:
+        imsx_message_identifier = root.xpath("//def:imsx_messageIdentifier", namespaces=namespaces)[0].text or ''
+    except IndexError:
+        raise LtiError('Failed to parse imsx_messageIdentifier from XML request body')
+
+    try:
+        body = root.xpath("//def:imsx_POXBody", namespaces=namespaces)[0]
+    except IndexError:
+        raise LtiError('Failed to parse imsx_POXBody from XML request body')
+
+    try:
+        action = body.getchildren()[0].tag.replace('{' + lti_spec_namespace + '}', '')
+    except IndexError:
+        raise LtiError('Failed to parse action from XML request body')
+
+    try:
+        sourced_id = root.xpath("//def:sourcedId", namespaces=namespaces)[0].text
+    except IndexError:
+        raise LtiError('Failed to parse sourcedId from XML request body')
+
+    try:
+        score = root.xpath("//def:textString", namespaces=namespaces)[0].text
+    except IndexError:
+        raise LtiError('Failed to parse score textString from XML request body')
+
+    # Raise exception if score is not float or not in range 0.0-1.0 regarding spec.
+    score = float(score)
+    if not 0.0 <= score <= 1.0:
+        raise LtiError('score value outside the permitted range of 0.0-1.0')
+
+    return imsx_message_identifier, sourced_id, score, action
+
+
+@csrf_exempt
+def sequence_item_grade(request):
+    imsx_message_identifier, sourced_id, score, action = parse_grade_xml_body(request.body)
+    log.warning("msg identifier: {}, scourced_id: {}, score: {}, action: {}".format(imsx_message_identifier, sourced_id, score, action))

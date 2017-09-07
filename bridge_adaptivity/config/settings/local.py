@@ -7,12 +7,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-INSTALLED_APPS += ('debug_toolbar', 'sslserver')
-
-MIDDLEWARE_CLASSES += (
-    'djdev_panel.middleware.DebugMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+INSTALLED_APPS += ('sslserver',)
+# INSTALLED_APPS += ('debug_toolbar', 'sslserver')
+#
+# MIDDLEWARE_CLASSES += (
+#     'djdev_panel.middleware.DebugMiddleware',
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+# )
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
@@ -26,6 +27,9 @@ INTERNAL_IPS = ('127.0.0.1', '172.19.0.1')
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+
+# for testing
+BRIDGE_HOST = 'http://4937c359.ngrok.io'
 
 LOGGING = {
     'version': 1,
