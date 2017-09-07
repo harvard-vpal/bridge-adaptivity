@@ -5,6 +5,11 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer, OutcomeService
+from module import ENGINE
+
+import logging
+
+log = logging.getLogger(__name__)
 
 
 @python_2_unicode_compatible
@@ -34,6 +39,7 @@ class SequenceItem(models.Model):
     sequence = models.ForeignKey('Sequence', null=True)
     activity = models.ForeignKey('Activity', null=True)
     position = models.PositiveIntegerField()
+    score = models.FloatField(null=True, blank=True)
 
     class Meta:
         verbose_name = "Sequence Item"
@@ -95,6 +101,23 @@ class Activity(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
+
+    def save(self, *args, **kwargs):
+        """
+        Extend save() method with sending notification to the Adaptive engine that Activity is created/updated
+        """
+        if Activity.objects.filter(id=self.id):
+            ENGINE.update_activity(self)
+        else:
+            ENGINE.add_activity(self)
+        super(Activity, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """
+        Extend delete() method with sending notification to the Adaptive engine that Activity is deleted
+        """
+        ENGINE.delete_activity(self)
+        super(Activity, self).delete(*args, **kwargs)
 
 
 @python_2_unicode_compatible

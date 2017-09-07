@@ -1,5 +1,6 @@
 import logging
-from lxml import etree
+
+from django.http import HttpResponseNotFound, HttpResponse
 
 from django.contrib.auth.decorators import login_required
 from django import forms
@@ -12,9 +13,11 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti import outcomes
+from module import ENGINE
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContext
-from .models import Collection, Activity, SequenceItem, Log, Sequence
+from module.models import Collection, Activity, SequenceItem, Log, Sequence
+from module import utils
 
 log = logging.getLogger(__name__)
 
@@ -122,16 +125,17 @@ class SequenceItemDetail(DetailView):
 
 def sequence_item_next(request, pk):
     sequence_item = get_object_or_404(SequenceItem, pk=pk)
+    sequence = sequence_item.sequence
 
     sequence_item_next = SequenceItem.objects.filter(
-        sequence=sequence_item.sequence,
+        sequence=sequence,
         position=sequence_item.position + 1
     ).first()
 
     if sequence_item_next is None:
         try:
-            log.warning("Sequence position is: {}".format(sequence_item.position))
-            activity = sequence_item.sequence.collection.activity_set.all()[sequence_item.position]
+            activity_id = ENGINE.select_activity(sequence)
+            activity = get_object_or_404(Activity, pk=activity_id)
         except IndexError:
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
@@ -163,72 +167,29 @@ def send_composite_outcome(sequence):
     outcomes.send_score_update(sequence, score)
 
 
-class LtiError(Exception):
-    pass
-
-
-def parse_grade_xml_body(body):
-    """
-    Parses values from the Outcome Service XML.
-
-    XML body should contain nsmap with namespace, that is specified in LTI specs.
-
-    Arguments:
-        body (str): XML Outcome Service request body
-
-    Returns:
-        tuple: imsx_messageIdentifier, sourcedId, score, action
-
-    Raises:
-        LtiError
-            if submitted score is outside the permitted range
-            if the XML is missing required entities
-            if there was a problem parsing the XML body
-    """
-    lti_spec_namespace = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0"
-    namespaces = {'def': lti_spec_namespace}
-    data = body.strip().encode('utf-8')
-
-    try:
-        parser = etree.XMLParser(ns_clean=True, recover=True, encoding='utf-8')  # pylint: disable=no-member
-        root = etree.fromstring(data, parser=parser)  # pylint: disable=no-member
-    except etree.XMLSyntaxError as ex:
-        raise (ex.message or 'Body is not valid XML')
-
-    try:
-        imsx_message_identifier = root.xpath("//def:imsx_messageIdentifier", namespaces=namespaces)[0].text or ''
-    except IndexError:
-        raise LtiError('Failed to parse imsx_messageIdentifier from XML request body')
-
-    try:
-        body = root.xpath("//def:imsx_POXBody", namespaces=namespaces)[0]
-    except IndexError:
-        raise LtiError('Failed to parse imsx_POXBody from XML request body')
-
-    try:
-        action = body.getchildren()[0].tag.replace('{' + lti_spec_namespace + '}', '')
-    except IndexError:
-        raise LtiError('Failed to parse action from XML request body')
-
-    try:
-        sourced_id = root.xpath("//def:sourcedId", namespaces=namespaces)[0].text
-    except IndexError:
-        raise LtiError('Failed to parse sourcedId from XML request body')
-
-    try:
-        score = root.xpath("//def:textString", namespaces=namespaces)[0].text
-    except IndexError:
-        raise LtiError('Failed to parse score textString from XML request body')
-
-    # Raise exception if score is not float or not in range 0.0-1.0 regarding spec.
-    score = float(score)
-    if not 0.0 <= score <= 1.0:
-        raise LtiError('score value outside the permitted range of 0.0-1.0')
-
-    return imsx_message_identifier, sourced_id, score, action
-
-
 @csrf_exempt
-def sequence_item_grade(request):
-    imsx_message_identifier, sourced_id, score, action = parse_grade_xml_body(request.body)
-    log.warning("msg identifier: {}, scourced_id: {}, score: {}, action: {}".format(imsx_message_identifier, sourced_id, score, action))
+def callback_sequence_item_grade(request):
+    sourced_id, score = utils.parse_grade_xml_body(request.body)
+    sequence_item_id, user_id = sourced_id.split(':')
+    log.debug("Received CallBack with the submitted answer for sequence item {}.".format(sequence_item_id))
+    try:
+        sequence_item = SequenceItem.objects.get(id=sequence_item_id)
+    except SequenceItem.DoesNotExist:
+        return HttpResponseNotFound("Sequence Item with the ID={} was not found".format(sequence_item_id))
+    sequence_item.score = float(score)
+    sequence_item.save()
+    log.debug("Sequence item {} grade is updated".format(sequence_item))
+    last_log_submit = Log.objects.filter(sequence_item=sequence_item, log_type='S').last()
+    attempt = (last_log_submit.attempt if last_log_submit else 0) + 1
+    correct = bool(score)
+    Log.objects.create(
+        sequence_item=sequence_item,
+        log_type=Log.SUBMITTED,
+        answer=correct,
+        attempt=attempt,
+    )
+    log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}".format(attempt, correct))
+    ENGINE.submit_activity_answer(sequence_item)
+    log.debug("Adaptive engine is updated with the student {} answer on the activity {}".format(user_id, sequence_item.activity.name))
+    # TODO(idegtiarov) Add synch/asynch grade backcall to the LMS
+    return HttpResponse("Activity Grade is got and updated on the bridge.")
