@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.contrib.auth.decorators import login_required
@@ -48,14 +49,19 @@ class CollectionDetail(DetailView):
     context_object_name = 'collection'
 
     def get_context_data(self, **kwargs):
+        activities = Activity.objects.filter(collection=self.object)
         context = super(CollectionDetail, self).get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source_name']
-        context['activities'] = Activity.objects.filter(collection=self.object)
+        context['activities'] = activities
         context['source_courses'] = self.get_content_courses()
         context['activity_form'] = ActivityForm(initial={
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['activities_data'] = json.dumps([{
+            'name': activity.name,
+            'source_launch_url': activity.source_launch_url,
+        } for activity in activities])
         return context
 
     @staticmethod

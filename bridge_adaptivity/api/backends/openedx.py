@@ -131,10 +131,10 @@ def get_available_blocks(course_id):
     api = OpenEdxApiClient(content_source=content_source)
 
     try:
-        blocks = api.get_course_blocks(course_id)
+        blocks = api.get_course_blocks(course_id, type_filter=['html', 'problem', 'video'])
         filtered_blocks = apply_data_filter(
             blocks,
-            filters=['id', 'block_id', 'display_name', 'lti_url'],
+            filters=['id', 'block_id', 'display_name', 'lti_url', 'type'],
             context_id=course_id
         )
     except HttpNotFoundError:

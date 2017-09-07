@@ -3,9 +3,13 @@
 
 {% block title %}
   <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
+
   <a class="pull-right" href="{% url 'module:collection-list' %}">
     {% bootstrap_button 'back to Collections' size='sm' icon='menu-up' %}
   </a>
+  <h3>
+    <small>threshold: {{ collection.threshold|default:"not set" }}</small>
+  </h3>
 {% endblock title %}
 
 <hr>
@@ -19,14 +23,20 @@
             {% for field in render_fields %}
               <th>{{ field }}</th>
             {% endfor %}
+            <th>options</th>
           </tr>
           {% for activity in activities %}
-            <tr>
+            <tr id="activity-row-{{ forloop.counter0 }}">
               <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
-              <td>{{ activity.tag|default:"-" }}</td>
-              <td>{{ activity.difficulty|default:"-" }}</td>
+              <td>{{ activity.tags|default:"-" }}</td>
+              <td>{{ activity.get_difficulty_display|default:"-" }}</td>
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
+              <td>
+                <a class="pull-right" href="{% url 'module:activity-delete' activity.pk %}">
+                  {% bootstrap_button "" size='sm' icon='trash' %}
+                </a>
+              </td>
             </tr>
           {% endfor %}
         </table>
@@ -107,6 +117,26 @@
   {# FIXME(wowkalucky): move script to separate file #}
   <script type="text/javascript">
       (function ($) {
+          var modalContentFrame = $('#modal-source-preview');
+          var typeToIcon = {
+              html: "glyphicon-list-alt",
+              problem: "glyphicon-question-sign",
+              video: "glyphicon-facetime-video",
+              other: "glyphicon-option-horizontal"
+          };
+
+          // activity source preview:
+          var activitiesData = {{ activities_data|safe }};
+          $.each(activitiesData, function (i, activity) {
+              createPreviewButton(
+                  activity['name'],
+                  activity['source_launch_url'],
+                  activity['id'],
+                  $('#activity-row-' + i + ' td').last(),
+                  modalContentFrame
+              )
+          });
+
           $("#accordion").find("a[data-course-id]").on('click', function () {
               var target = $(this);
               var data = {course_id: target.data("course-id")};
@@ -118,13 +148,17 @@
 
                   var sourcesList = $('<div/>').addClass('list-group');
                   $.each(data, function (i, item) {
-                      var modalContentFrame = $('#modal-source-preview');
-
                       var listItem = $('<button/>')
                           .addClass('list-group-item')
                           .attr('type', 'button')
                           .appendTo(sourcesList);
-
+                      var sourceIcon = $('<span/>')
+                          .data('toggle', 'tooltip')
+                          .attr('title', item.type)
+                          .addClass("badge pull-left glyphicon " + typeToIcon[item.type])
+                          .text(" ")
+                          .css('margin-right', '5px')
+                          .appendTo(listItem);
                       var sourceButton = $('<span/>')
                           .attr('data-toggle', 'modal')
                           .attr('data-target', '#activityModal')
@@ -133,31 +167,46 @@
                       sourceButton.on('click', function () {
                           setInitialActivityData(item);
                       });
-
-                      var previewButton = $('<span/>')
-                          .addClass("glyphicon glyphicon-eye-open pull-right")
-                          .attr('data-toggle', 'modal')
-                          .attr('data-target', '#sourceModal')
-                          .attr('data-display-name', item['display_name'])
-                          .attr('data-lti-url', item['lti_url'])
-                          .appendTo(listItem);
-                      previewButton.on('click', function () {
-                          $('#sourceModalLabel').text(item['display_name']);
-                          configurePreview(modalContentFrame, item);
-                      })
+                      createPreviewButton(
+                          item['display_name'],
+                          item['lti_url'],
+                          item['id'],
+                          listItem,
+                          modalContentFrame
+                      )
                   });
                   content_panel.append(sourcesList);
               });
           });
-          function configurePreview(frame, source) {
-              var idParam = "source_id=" + source['id'] + "&";
-              var displayNameParam = "source_name=" + source['display_name'] + "&";
-              var ltiUrlParam = "source_lti_url=" + source['lti_url'] + "&";
+
+          function createPreviewButton(title, ltiUrl, sourceId, parent, modalFrame) {
+              var preview = $('<a/>')
+                  .addClass("pull-right")
+                  .appendTo(parent);
+              var previewButton = $('<button/>', {'class': 'btn btn-default btn-sm'})
+                  .appendTo(preview);
+              var previewButtonBody = $('<span/>')
+                  .addClass("glyphicon glyphicon-eye-open")
+                  .attr('data-toggle', 'modal')
+                  .attr('data-target', '#sourceModal')
+                  .attr('data-display-name', title)
+                  .attr('data-lti-url', ltiUrl)
+                  .appendTo(previewButton);
+              previewButton.on('click', function () {
+                  $('#sourceModalLabel').text(title);
+                  configurePreview(modalFrame, title, ltiUrl, sourceId);
+              })
+          }
+
+          function configurePreview(frame, title, ltiUrl, sourceId) {
+              var idParam = "source_id=" + sourceId + "&";
+              var displayNameParam = "source_name=" + title + "&";
+              var ltiUrlParam = "source_lti_url=" + ltiUrl + "&";
               var previewUrl = "{% url 'lti:source-preview' %}?" + idParam + displayNameParam + ltiUrlParam;
               frame
                   .attr('src', previewUrl)
-                  .attr('title', item['display_name'])
-                  .attr('name', item['id']);
+                  .attr('title', title)
+                  .attr('name', sourceId);
           }
 
           function setInitialActivityData(source) {

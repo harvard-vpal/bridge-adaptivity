@@ -1,3 +1,5 @@
+import logging
+
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -5,6 +7,8 @@ from lti import ToolConfig, ToolConsumer
 
 from api.backends.openedx import get_content_provider
 from module.models import Activity
+
+log = logging.getLogger(__name__)
 
 
 def tool_config(request):
@@ -30,6 +34,8 @@ def source_preview(request):
     """
     Simple view to render Source content block shared through LTI.
     """
+    log.debug("Got request.GET: %s", request.GET)
+
     activity_id = request.GET.get('activity_id')
     if activity_id:
         activity = Activity.objects.get(id=activity_id)
@@ -62,6 +68,7 @@ def source_preview(request):
             'oauth_callback': 'about:blank',
         }
     )
+    log.debug('Sent LTI params: {}'.format(consumer.to_params()))
     return render(request, 'bridge_lti/content-source.html', {
         'launch_data': consumer.generate_launch_data(),
         'launch_url': consumer.launch_url,
