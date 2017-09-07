@@ -15,7 +15,8 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     completed = fields.BooleanField(default=False)
-    total_points = models.FloatField(blank=True, default=0)
+    total_points = models.FloatField(blank=True, default=0, help_text="Grade policy: 'P'")
+    trials = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'N'")
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
 
@@ -51,7 +52,7 @@ class Collection(models.Model):
     """
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
-    threshold = models.FloatField(blank=True, null=True)
+    threshold = models.FloatField(blank=True, null=True, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
 
@@ -63,6 +64,12 @@ class Collection(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
+
+    def __len__(self):
+        """
+        Grade policy: 'X'.
+        """
+        return self.activity_set.count()
 
 
 @python_2_unicode_compatible

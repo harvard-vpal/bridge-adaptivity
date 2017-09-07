@@ -201,3 +201,23 @@ def check_replace_result_response(response):
 
     log.debug("...score successfully updated!")
     return True
+
+
+def calculate_grade(trials_count, threshold, points_earned, rounding_precision=2):
+    """
+    Grade calculation using current grade policy ("Grade Policy 1a", for now).
+
+    :param (int) trials_count: grade policy 'N' argument
+    :param (float) threshold: grade policy 'Q' argument
+    :param (float) points_earned: grade policy 'P' argument
+    :param (int) rounding_precision: n-digits grade to be rounded to
+    :return: (float) grade
+    """
+    log.debug("N={%s}, Q={%s}, P={%s}, ndigits={%s}", trials_count, threshold, points_earned, rounding_precision)
+    N = trials_count
+    Q = threshold
+    P = points_earned
+
+    grade = round(P/Q, rounding_precision) if N < Q else round(P/N, rounding_precision)
+
+    return grade
