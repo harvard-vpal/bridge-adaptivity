@@ -1,6 +1,5 @@
 import logging
 
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -31,7 +30,6 @@ def tool_config(request):
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
 
-@login_required
 def source_preview(request):
     """
     Simple view to render Source content block shared through LTI.
