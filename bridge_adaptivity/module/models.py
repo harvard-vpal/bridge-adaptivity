@@ -52,7 +52,7 @@ class Collection(models.Model):
     """
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
-    threshold = models.FloatField(blank=True, null=True, help_text="Grade policy: 'Q'")
+    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
 
