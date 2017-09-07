@@ -155,6 +155,6 @@ def send_composite_outcome(sequence):
     Calculate and transmit the score for sequence.
     """
     # NOTE(wowkalucky): some advanced score calculation may be placed here
-    score = sequence.total_points
+    score = 100.0  # FIXME(wowkalucky): must be updated to real grade calculation
 
     outcomes.send_score_update(sequence, score)
