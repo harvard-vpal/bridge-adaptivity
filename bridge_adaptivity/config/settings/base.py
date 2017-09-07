@@ -130,6 +130,17 @@ ALLOWED_HOSTS = secure.ALLOWED_HOSTS
 
 DATABASES = secure.DATABASES
 
+# Engine for Adaptivity configuration block
+# ENGINE_MODULE is a string with the path to the engine module
+ENGINE_MODULE = 'module.engines.engine_mock'
+
+# ENGINE_DRIVER is a string with the name of driver class in the engine module
+ENGINE_DRIVER = 'EngineMock'
+
+# ENGINE_SETTINGS is a dict, with the initial params for driver initialization
+ENGINE_SETTINGS = {}
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
