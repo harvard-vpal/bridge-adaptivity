@@ -5,6 +5,21 @@ class BridgeError(Exception):
     pass
 
 
+def _find_param_from_xml(root, param, namespaces):
+    """
+    Auxiliary function
+
+    :param root: etree created from the xml
+    :param param: required parameter
+    :param namespaces: namespace is specified in the LTI spec
+    :return: string value of the param witch is found in root
+    """
+    try:
+        return root.xpath("//def:{}".format(param), namespaces=namespaces)[0].text
+    except IndexError:
+        raise BridgeError('Failed to parse {} from the XML request body'.format(param))
+
+
 def parse_callback_grade_xml(body):
     """
     Parses values from the Source Outcome Service XML.
@@ -35,15 +50,8 @@ def parse_callback_grade_xml(body):
     except etree.XMLSyntaxError as ex:
         raise (ex.message or 'Body is not the valid XML')
 
-    try:
-        sourced_id = root.xpath("//def:sourcedId", namespaces=namespaces)[0].text
-    except IndexError:
-        raise BridgeError('Failed to parse sourcedId from the XML request body')
-
-    try:
-        score = root.xpath("//def:textString", namespaces=namespaces)[0].text
-    except IndexError:
-        raise BridgeError('Failed to parse score textString from the XML request body')
+    sourced_id = _find_param_from_xml(root, 'sourcedId', namespaces)
+    score = _find_param_from_xml(root, 'textString', namespaces)
 
     # Raise exception if score is not float or not in range 0.0-1.0 regarding documentation
     # SEE http://www.imsglobal.org/specs/ltiv1p1p1/implementation-guide

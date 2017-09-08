@@ -1,22 +1,23 @@
-import urllib
+import logging
 import urlparse
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from lti import ToolConfig, ToolConsumer
 
 from api.backends.openedx import get_content_provider
-from module.models import Activity, SequenceItem
+from module.models import SequenceItem
+
+log = logging.getLogger(__name__)
 
 
 def tool_config(request):
     app_title = 'Bridge'
     app_description = 'Bridge for Adaptivity'
-    launch_view_name = 'lti_launch'  # noqa: F841
-    launch_url = request.build_absolute_uri(reverse('lti_launch'))
+    launch_view_name = 'lti_launch'
+    launch_url = request.build_absolute_uri(reverse(launch_view_name))
 
     extensions = {}
 
@@ -31,11 +32,12 @@ def tool_config(request):
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
 
-# @login_required
 def source_preview(request):
     """
     Simple view to render Source content block shared through LTI.
     """
+    log.debug("Got request.GET: %s", request.GET)
+
     content_provider = get_content_provider()
     if not content_provider:
         return render(request, 'bridge_lti/stub.html')
@@ -54,7 +56,6 @@ def source_preview(request):
             'context_id': 'bridge_collection'
         },
     }
-    import logging; log = logging.getLogger(__name__)
     # Default impersonal consumer parameters are used for getting problem's preview from the Source via LTI
     sequence_item_id = request.GET.get('sequence_item_id')
     if sequence_item_id:
@@ -73,7 +74,6 @@ def source_preview(request):
             ),
             'lis_outcome_service_url': lis_outcome_service_url,
         })
-        log.warning("Sequence Item is found lis_outcome_service_url is {}/tUser_id is {}".format(lis_outcome_service_url, sequence_item.sequence.lti_user))
     else:
         source_name = request.GET.get('source_name')
         source_lti_url = request.GET.get('source_lti_url')
@@ -82,7 +82,6 @@ def source_preview(request):
             source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')
     consumer_prams.update({'launch_url': source_lti_url})
     log.debug("Sending parameters are: {}".format(consumer_prams))
-
     consumer = ToolConsumer(**consumer_prams)
     return render(request, 'bridge_lti/content-source.html', {
         'launch_data': consumer.generate_launch_data(),

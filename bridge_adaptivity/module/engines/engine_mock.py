@@ -43,4 +43,6 @@ class EngineMock(EngineInterface):
         """
         Mock engine works with data stored on the Bridge and do not need to implement method
         """
-        log.debug("Student has submitted answer for the activity {} and got {} scores.".format(sequence_item.activity.name, sequence_item.score))
+        log.debug("Student has submitted answer for the activity {} and got {} scores.".format(
+            sequence_item.activity.name, sequence_item.score
+        ))

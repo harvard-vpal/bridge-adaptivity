@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.http import HttpResponseNotFound, HttpResponse
@@ -52,14 +53,19 @@ class CollectionDetail(DetailView):
     context_object_name = 'collection'
 
     def get_context_data(self, **kwargs):
+        activities = Activity.objects.filter(collection=self.object)
         context = super(CollectionDetail, self).get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source_name']
-        context['activities'] = Activity.objects.filter(collection=self.object)
+        context['activities'] = activities
         context['source_courses'] = self.get_content_courses()
         context['activity_form'] = ActivityForm(initial={
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['activities_data'] = json.dumps([{
+            'name': activity.name,
+            'source_launch_url': activity.source_launch_url,
+        } for activity in activities])
         return context
 
     @staticmethod
@@ -169,7 +175,7 @@ def send_composite_outcome(sequence):
 
 @csrf_exempt
 def callback_sequence_item_grade(request):
-    sourced_id, score = utils.parse_grade_xml_body(request.body)
+    sourced_id, score = utils.parse_callback_grade_xml(request.body)
     sequence_item_id, user_id = sourced_id.split(':')
     log.debug("Received CallBack with the submitted answer for sequence item {}.".format(sequence_item_id))
     try:
@@ -190,6 +196,8 @@ def callback_sequence_item_grade(request):
     )
     log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}".format(attempt, correct))
     ENGINE.submit_activity_answer(sequence_item)
-    log.debug("Adaptive engine is updated with the student {} answer on the activity {}".format(user_id, sequence_item.activity.name))
+    log.debug("Adaptive engine is updated with the student {} answer on the activity {}".format(
+        user_id, sequence_item.activity.name
+    ))
     # TODO(idegtiarov) Add synch/asynch grade backcall to the LMS
     return HttpResponse("Activity Grade is got and updated on the bridge.")
