@@ -5,7 +5,9 @@ from django.http import HttpResponseNotFound, HttpResponse
 
 from django.contrib.auth.decorators import login_required
 from django import forms
-from django.shortcuts import get_object_or_404, redirect
+from django.db.models import Sum
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +16,7 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti import outcomes
+from bridge_lti.outcomes import calculate_grade
 from module import ENGINE
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContext
@@ -130,32 +133,45 @@ class SequenceItemDetail(DetailView):
 
 
 def sequence_item_next(request, pk):
-    sequence_item = get_object_or_404(SequenceItem, pk=pk)
+    try:
+        sequence_item = SequenceItem.objects.get(pk=pk)
+    except SequenceItem.DoesNotExist:
+        log.exception("SequenceItem which supposed to exist can't be found!")
+        return render(
+            request,
+            template_name="bridge_lti/announcement.html",
+            context={
+                'title': 'Something went wrong...',
+                'message': 'Internal problem was occurred, please, inform course personal about your experience.',
+                'tip': "ERROR: next sequence item can't be proposed",
+            }
+        )
     sequence = sequence_item.sequence
 
-    sequence_item_next = SequenceItem.objects.filter(
+    next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence,
         position=sequence_item.position + 1
     ).first()
+    log.debug("Picked next sequence item is: {%s}", next_sequence_item)
 
-    if sequence_item_next is None:
+    if next_sequence_item is None:
         try:
             activity_id = ENGINE.select_activity(sequence)
             activity = get_object_or_404(Activity, pk=activity_id)
-        except IndexError:
+        except (IndexError, Http404):
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
-            # NOTE(wowkalucky): send Sequence outcome if completed
+            # FIXME(wowkalucky): outcome sending should be proceeded every time Source sends submitted score
             send_composite_outcome(sequence_item.sequence)
             return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
 
-        sequence_item_next = SequenceItem.objects.create(
+        next_sequence_item = SequenceItem.objects.create(
             sequence=sequence_item.sequence,
             activity=activity,
             position=sequence_item.position + 1
         )
 
-    return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_next.id}))
+    return redirect(reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id}))
 
 
 class SequenceComplete(DetailView):
@@ -167,8 +183,11 @@ def send_composite_outcome(sequence):
     """
     Calculate and transmit the score for sequence.
     """
-    # NOTE(wowkalucky): some advanced score calculation may be placed here
-    score = sequence.total_points
+    trials_count = sequence.trials
+    threshold = sequence.collection.threshold
+    points_earned = sequence.items.aggregate(Sum('points'))['points__sum']
+
+    score = calculate_grade(trials_count, threshold, points_earned)
 
     outcomes.send_score_update(sequence, score)
 

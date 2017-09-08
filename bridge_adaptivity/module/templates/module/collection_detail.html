@@ -106,9 +106,8 @@
     </div>
   </div>
 
-  {% include "module/source_modal.html" %}
-
-  {% include "module/activity_modal.html" %}
+    {% include "module/source_modal.html" %}
+    {% include "module/activity_modal.html" with collection=object %}
 
 {% endblock content %}
 

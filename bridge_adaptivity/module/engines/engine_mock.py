@@ -17,7 +17,7 @@ class EngineMock(EngineInterface):
         :param sequence: sequence
         :return: selected activity_id
         """
-        s_activities_list = list(sequence.sequenceitem_set.values_list('activity_id', flat=True))
+        s_activities_list = list(sequence.items.values_list('activity_id', flat=True))
         available_activities = sequence.collection.activity_set.exclude(id__in=s_activities_list)
         return random.choice(available_activities).id if available_activities else None
 
