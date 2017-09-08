@@ -67,9 +67,9 @@ def lti_launch(request, collection_id=None):
         return learner_flow(request, lti_consumer, params, collection_id=collection_id)
 
 
-def instructor_flow(request, collection_id=None):
+def instructor_flow(_request, collection_id=None):
     """
-    Define logic flow for Learner.
+    Define logic flow for Instructor.
     """
     if not collection_id:
         return redirect(reverse('module:collection-list'))
@@ -79,7 +79,7 @@ def instructor_flow(request, collection_id=None):
 
 def learner_flow(request, lti_consumer, params, collection_id=None):
     """
-    Define logic flow for Instructor.
+    Define logic flow for Learner.
     """
     if not collection_id:
         return render(
