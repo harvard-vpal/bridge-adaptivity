@@ -201,3 +201,21 @@ def check_replace_result_response(response):
 
     log.debug("...score successfully updated!")
     return True
+
+
+def calculate_grade(trials_count, threshold, points_earned):
+    """
+    Grade calculation using current grade policy ("Grade Policy 1a", for now).
+
+    Grade must be in {0.0 ... 1.0}
+
+    :param (int) trials_count: grade policy 'N' argument
+    :param (float) threshold: grade policy 'Q' argument
+    :param (float) points_earned: grade policy 'P' argument
+    :return: (float) grade
+    """
+    log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}", trials_count, threshold, points_earned)
+    grade = points_earned/threshold if trials_count < threshold else points_earned/trials_count
+    log.debug("Calculated grade: {%s}", grade)
+
+    return grade

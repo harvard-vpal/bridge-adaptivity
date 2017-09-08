@@ -20,7 +20,7 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     completed = fields.BooleanField(default=False)
-    total_points = models.FloatField(blank=True, default=0)
+    trials = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'N'")
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
 
@@ -36,9 +36,10 @@ class SequenceItem(models.Model):
     """
     Represents one User's step in problem solving track.
     """
-    sequence = models.ForeignKey('Sequence', null=True)
+    sequence = models.ForeignKey('Sequence', related_name='items', null=True)
     activity = models.ForeignKey('Activity', null=True)
     position = models.PositiveIntegerField()
+    points = models.FloatField(blank=True, default=0, help_text="Grade policy: 'p' (problem's current score).")
 
     class Meta:
         verbose_name = "Sequence Item"
@@ -56,7 +57,7 @@ class Collection(models.Model):
     """
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
-    threshold = models.FloatField(blank=True, null=True)
+    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
 
@@ -68,6 +69,12 @@ class Collection(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
+
+    def __len__(self):
+        """
+        Grade policy: 'X'.
+        """
+        return self.activity_set.count()
 
 
 @python_2_unicode_compatible
