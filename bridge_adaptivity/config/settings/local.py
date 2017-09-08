@@ -1,11 +1,9 @@
 # flake8: noqa: F405
-from .base import *  # noqa: F403
+from config.settings.base import *  # noqa: F403
 
 os.environ.setdefault('ENV_TYPE', 'local')
 
 DEBUG = True
-
-ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 

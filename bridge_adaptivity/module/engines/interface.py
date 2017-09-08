@@ -40,3 +40,12 @@ class EngineInterface(object):
         :param activity: Activity instance
         """
         raise NotImplementedError("Adaptive Engine driver must implement this method.")
+
+    @abstractmethod
+    def submit_activity_answer(self, sequence_item):
+        """
+        Send student's answer to the adaptive engine.
+
+        :param sequence_item: SequenceItem instance
+        """
+        raise NotImplementedError("Adaptive Engine driver must implement this method.")

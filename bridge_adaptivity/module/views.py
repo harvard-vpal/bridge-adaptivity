@@ -1,13 +1,16 @@
 import json
 import logging
 
+from django.http import HttpResponseNotFound, HttpResponse
+
 from django.contrib.auth.decorators import login_required
 from django import forms
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from slumber.exceptions import HttpClientError
 
@@ -18,6 +21,7 @@ from module import ENGINE
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContext
 from module.models import Collection, Activity, SequenceItem, Log, Sequence
+from module import utils
 
 log = logging.getLogger(__name__)
 
@@ -157,8 +161,6 @@ def sequence_item_next(request, pk):
         except (IndexError, Http404):
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
-            # FIXME(wowkalucky): outcome sending should be proceeded every time Source sends submitted score
-            send_composite_outcome(sequence_item.sequence)
             return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
 
         next_sequence_item = SequenceItem.objects.create(
@@ -179,10 +181,43 @@ def send_composite_outcome(sequence):
     """
     Calculate and transmit the score for sequence.
     """
-    trials_count = sequence.trials
     threshold = sequence.collection.threshold
-    points_earned = sequence.items.aggregate(Sum('points'))['points__sum']
+    items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
 
-    score = calculate_grade(trials_count, threshold, points_earned)
+    score = calculate_grade(items_result['trials_count'], threshold, items_result['points_earned'])
 
     outcomes.send_score_update(sequence, score)
+    return score
+
+
+@csrf_exempt
+def callback_sequence_item_grade(request):
+    sourced_id, score = utils.parse_callback_grade_xml(request.body)
+    sequence_item_id, user_id = sourced_id.split(':')
+    log.debug("Received CallBack with the submitted answer for sequence item {}.".format(sequence_item_id))
+    try:
+        sequence_item = SequenceItem.objects.get(id=sequence_item_id)
+    except SequenceItem.DoesNotExist:
+        return HttpResponseNotFound("Sequence Item with the ID={} was not found".format(sequence_item_id))
+    sequence_item.score = float(score)
+    sequence_item.save()
+    log.debug("Sequence item {} grade is updated".format(sequence_item))
+    last_log_submit = Log.objects.filter(sequence_item=sequence_item, log_type='S').last()
+    attempt = (last_log_submit.attempt if last_log_submit else 0) + 1
+    correct = bool(score)
+    Log.objects.create(
+        sequence_item=sequence_item,
+        log_type=Log.SUBMITTED,
+        answer=correct,
+        attempt=attempt,
+    )
+    log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}".format(attempt, correct))
+    ENGINE.submit_activity_answer(sequence_item)
+    log.debug("Adaptive engine is updated with the student {} answer on the activity {}".format(
+        user_id, sequence_item.activity.name
+    ))
+    sequence = sequence_item.sequence
+    if sequence.lis_result_sourcedid:
+        grade = send_composite_outcome(sequence)
+        log.debug("Send updated grade {} to the LMS, for the student {}".format(grade, user_id))
+    return HttpResponse("Activity Grade is got and updated on the bridge.")

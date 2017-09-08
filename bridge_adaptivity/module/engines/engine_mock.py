@@ -38,3 +38,11 @@ class EngineMock(EngineInterface):
         Mock engine works with data stored on the Bridge and do not need to implement method
         """
         log.debug("New activity {} is deleted from the Mock Engine.".format(activity))
+
+    def submit_activity_answer(self, sequence_item):
+        """
+        Mock engine works with data stored on the Bridge and do not need to implement method
+        """
+        log.debug("Student has submitted answer for the activity {} and got {} scores.".format(
+            sequence_item.activity.name, sequence_item.score
+        ))
