@@ -125,10 +125,16 @@ CORS_ORIGIN_ALLOW_ALL = True
 AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 
 LOGIN_URL = 'login'
+
 LOGIN_REDIRECT_URL = 'module:collection-list'
+
 ALLOWED_HOSTS = secure.ALLOWED_HOSTS
 
 DATABASES = secure.DATABASES
+
+# Configure Bridge host with is used for lis_outcome_service_url composition
+BRIDGE_HOST = secure.BRIDGE_HOST
+
 
 # Engine for Adaptivity configuration block
 # ENGINE_MODULE is a string with the path to the engine module
