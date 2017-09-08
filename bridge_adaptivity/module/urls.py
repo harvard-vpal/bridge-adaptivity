@@ -4,7 +4,8 @@ from django.views.generic import RedirectView
 
 from module.views import (
     CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate, ActivityDelete,
-    SequenceItemDetail, sequence_item_next, SequenceComplete, callback_sequence_item_grade)
+    SequenceItemDetail, sequence_item_next, SequenceComplete, callback_sequence_item_grade
+)
 
 urlpatterns = [
     url(r'^collection/$', CollectionList.as_view(), name='collection-list'),

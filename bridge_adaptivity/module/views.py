@@ -5,7 +5,7 @@ from django.http import HttpResponseNotFound, HttpResponse
 
 from django.contrib.auth.decorators import login_required
 from django import forms
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -161,8 +161,6 @@ def sequence_item_next(request, pk):
         except (IndexError, Http404):
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
-            # FIXME(wowkalucky): outcome sending should be proceeded every time Source sends submitted score
-            send_composite_outcome(sequence_item.sequence)
             return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
 
         next_sequence_item = SequenceItem.objects.create(
@@ -183,13 +181,13 @@ def send_composite_outcome(sequence):
     """
     Calculate and transmit the score for sequence.
     """
-    trials_count = sequence.trials
     threshold = sequence.collection.threshold
-    points_earned = sequence.items.aggregate(Sum('points'))['points__sum']
+    items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
 
-    score = calculate_grade(trials_count, threshold, points_earned)
+    score = calculate_grade(items_result['trials_count'], threshold, items_result['points_earned'])
 
     outcomes.send_score_update(sequence, score)
+    return score
 
 
 @csrf_exempt
@@ -218,5 +216,8 @@ def callback_sequence_item_grade(request):
     log.debug("Adaptive engine is updated with the student {} answer on the activity {}".format(
         user_id, sequence_item.activity.name
     ))
-    # TODO(idegtiarov) Add synch/asynch grade backcall to the LMS
+    sequence = sequence_item.sequence
+    if sequence.lis_result_sourcedid:
+        grade = send_composite_outcome(sequence)
+        log.debug("Send updated grade {} to the LMS, for the student {}".format(grade, user_id))
     return HttpResponse("Activity Grade is got and updated on the bridge.")

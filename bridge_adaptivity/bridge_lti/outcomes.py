@@ -25,14 +25,14 @@ def store_outcome_parameters(request_params, sequence, lti_consumer):
     Create a new OutcomeService record if none exists for the tool consumer, and update any
     incomplete record with additional data if it is available.
     """
-    result_id = request_params.get('lis_result_sourcedid', None)
+    result_id = request_params.get('lis_result_sourcedid')
 
     # NOTE(wowkalucky): We're only interested in requests that include a lis_result_sourcedid parameter.
     # An LTI consumer that doesn't send that parameter does not expect scoring updates for that particular request.
     log.debug("OutcomeService: storing outcome parameters...")
     if result_id:
         log.debug("result_id: %s", result_id)
-        result_service = request_params.get('lis_outcome_service_url', None)
+        result_service = request_params.get('lis_outcome_service_url')
         if not result_service:
             log.warn(
                 "OutcomeService: `lis_outcome_service_url` parameter missing from scored assignment;"
@@ -216,6 +216,6 @@ def calculate_grade(trials_count, threshold, points_earned):
     """
     log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}", trials_count, threshold, points_earned)
     grade = points_earned/threshold if trials_count < threshold else points_earned/trials_count
-    log.debug("Calculated grade: {%s}", grade)
+    log.debug("Calculated grade: %s", grade)
 
     return grade
