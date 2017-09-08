@@ -13,7 +13,7 @@
         <form role="form" method="post" action="{% url 'module:activity-add' collection.id %}">
           {% csrf_token %}
           {% bootstrap_form activity_form %}
-          <button class="btn btn-default" type="submit">{% if activity %}Change{% else %}Create{% endif %}</button>
+          <button class="btn btn-primary" type="submit">{% if activity %}Change{% else %}Create{% endif %}</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </form>
       </div>

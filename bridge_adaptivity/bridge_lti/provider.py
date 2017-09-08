@@ -31,7 +31,7 @@ def lti_launch(request, collection_id=None):
     if not params:
         return HttpResponseBadRequest()
     params.update(get_optional_params(request.POST))
-    log.debug('Got: {}'.format(params))
+    log.debug('Got LTI params: {}'.format(params))
     try:
         lti_consumer = LtiProvider.objects.get(consumer_key=params['oauth_consumer_key'])
     except LtiProvider.DoesNotExist:

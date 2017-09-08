@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.contrib.auth.decorators import login_required
@@ -10,9 +11,10 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti import outcomes
+from module import ENGINE
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContext
-from .models import Collection, Activity, SequenceItem, Log, Sequence
+from module.models import Collection, Activity, SequenceItem, Log, Sequence
 
 log = logging.getLogger(__name__)
 
@@ -47,14 +49,19 @@ class CollectionDetail(DetailView):
     context_object_name = 'collection'
 
     def get_context_data(self, **kwargs):
+        activities = Activity.objects.filter(collection=self.object)
         context = super(CollectionDetail, self).get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source_name']
-        context['activities'] = Activity.objects.filter(collection=self.object)
+        context['activities'] = activities
         context['source_courses'] = self.get_content_courses()
         context['activity_form'] = ActivityForm(initial={
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['activities_data'] = json.dumps([{
+            'name': activity.name,
+            'source_launch_url': activity.source_launch_url,
+        } for activity in activities])
         return context
 
     @staticmethod
@@ -120,15 +127,17 @@ class SequenceItemDetail(DetailView):
 
 def sequence_item_next(request, pk):
     sequence_item = get_object_or_404(SequenceItem, pk=pk)
+    sequence = sequence_item.sequence
 
     sequence_item_next = SequenceItem.objects.filter(
-        sequence=sequence_item.sequence,
+        sequence=sequence,
         position=sequence_item.position + 1
     ).first()
 
     if sequence_item_next is None:
         try:
-            activity = sequence_item.sequence.collection.activity_set.all()[sequence_item.position]
+            activity_id = ENGINE.select_activity(sequence)
+            activity = get_object_or_404(Activity, pk=activity_id)
         except IndexError:
             sequence_item.sequence.completed = True
             sequence_item.sequence.save()
