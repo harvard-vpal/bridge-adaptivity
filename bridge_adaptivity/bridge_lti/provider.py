@@ -60,14 +60,14 @@ def lti_launch(request, collection_id=None):
         )
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if params.get('roles') and set(params['roles'].split(",")).intersection(['Instructor', 'Administrator']):
-        return instructor_flow(request, collection_id=collection_id)
+        return instructor_flow(collection_id=collection_id)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
         return learner_flow(request, lti_consumer, params, collection_id=collection_id)
 
 
-def instructor_flow(_request, collection_id=None):
+def instructor_flow(collection_id=None):
     """
     Define logic flow for Instructor.
     """
@@ -135,6 +135,10 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
             position=1
         )
     else:
-        sequence_item = sequence.sequenceitem_set.last()
+        sequence_item = sequence.items.last()
 
-    return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item.id}))
+    sequence_item_id = sequence_item.id if sequence_item else None
+    if not sequence_item_id:
+        return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
+
+    return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_id}))

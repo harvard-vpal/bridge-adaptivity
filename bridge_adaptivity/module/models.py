@@ -36,7 +36,7 @@ class SequenceItem(models.Model):
     """
     Represents one User's step in problem solving track.
     """
-    sequence = models.ForeignKey('Sequence', null=True)
+    sequence = models.ForeignKey('Sequence', related_name='items', null=True)
     activity = models.ForeignKey('Activity', null=True)
     position = models.PositiveIntegerField()
     points = models.FloatField(blank=True, default=0, help_text="Grade policy: 'p' (problem's current score).")
