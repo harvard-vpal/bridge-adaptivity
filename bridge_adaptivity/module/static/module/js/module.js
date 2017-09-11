@@ -64,13 +64,13 @@
         function createPreviewButton(title, ltiUrl, sourceId, parent, modalFrame) {
             var preview = $('<a/>')
                 .addClass("pull-right")
+                .attr('data-toggle', 'modal')
+                .attr('data-target', '#sourceModal')
                 .appendTo(parent);
             var previewButton = $('<button/>', {'class': 'btn btn-default btn-sm'})
                 .appendTo(preview);
             var previewButtonBody = $('<span/>')
                 .addClass("glyphicon glyphicon-eye-open")
-                .attr('data-toggle', 'modal')
-                .attr('data-target', '#sourceModal')
                 .attr('data-display-name', title)
                 .attr('data-lti-url', ltiUrl)
                 .appendTo(previewButton);
@@ -92,6 +92,7 @@
         }
 
         function setInitialActivityData(source) {
+            // prepopulate Activity creation modal form:
             $('#id_name').val(source['display_name']);
             $('#id_source_name').val(source['display_name']);
             $('#id_source_launch_url').val(source['lti_url']);
