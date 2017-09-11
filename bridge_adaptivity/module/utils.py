@@ -1,4 +1,10 @@
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from lxml import etree
+
+from module import ENGINE
+from module.models import Activity
 
 
 class BridgeError(Exception):
@@ -60,3 +66,18 @@ def parse_callback_grade_xml(body):
         raise BridgeError('score value outside the permitted range of 0.0-1.0')
 
     return sourced_id, score
+
+
+def chose_activity(sequence_item, sequence=None):
+    if sequence_item is None:
+        sequence = sequence
+    else:
+        sequence = sequence_item.sequence
+
+    try:
+        activity_id = ENGINE.select_activity(sequence)
+        return get_object_or_404(Activity, pk=activity_id)
+    except (IndexError, Http404):
+        sequence_item.sequence.completed = True
+        sequence_item.sequence.save()
+        return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))

@@ -5,12 +5,12 @@ os.environ.setdefault('ENV_TYPE', 'local')
 
 DEBUG = True
 
-INSTALLED_APPS += ('debug_toolbar', 'sslserver')
-
-MIDDLEWARE_CLASSES += (
-    'djdev_panel.middleware.DebugMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+# INSTALLED_APPS += ('debug_toolbar', 'sslserver')
+#
+# MIDDLEWARE_CLASSES += (
+#     'djdev_panel.middleware.DebugMiddleware',
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+# )
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'

@@ -19,6 +19,7 @@ class EngineMock(EngineInterface):
         """
         s_activities_list = list(sequence.items.values_list('activity_id', flat=True))
         available_activities = sequence.collection.activity_set.exclude(id__in=s_activities_list)
+        log.debug("New activity is chosen from the list: {}".format(available_activities))
         return random.choice(available_activities).id if available_activities else None
 
     def add_activity(self, activity):

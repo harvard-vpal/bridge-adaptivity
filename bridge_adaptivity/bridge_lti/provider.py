@@ -4,11 +4,12 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
+from bridge_lti.models import LtiProvider, LtiUser
 from bridge_lti.outcomes import store_outcome_parameters
 from bridge_lti.validator import SignatureValidator
+from bridge_lti.utils import get_required_params, get_optional_params
 from module.models import (Collection, Sequence, SequenceItem)
-from .models import LtiProvider, LtiUser
-from .utils import get_required_params, get_optional_params
+from module import utils as module_utils
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +59,7 @@ def lti_launch(request, collection_id=None):
                 'tip': 'have a look at `consumer secret`',
             }
         )
+    request.session['Lti_session'] = params['oauth_nonce']
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if params.get('roles') and set(params['roles'].split(",")).intersection(['Instructor', 'Administrator']):
         return instructor_flow(collection_id=collection_id)
@@ -115,7 +117,8 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
 
     if created:
         # NOTE(wowkalucky): empty Collection validation
-        start_activity = collection.activity_set.first()
+        log.debug("Sequence {} was created".format(sequence))
+        start_activity = module_utils.chose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warn('Instructor configured empty Collection.')
             return render(
@@ -134,8 +137,9 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
             activity=start_activity,
             position=1
         )
+        log.error("sequence_item dict: {}".format(sequence_item.__dict__))
     else:
-        sequence_item = sequence.items.last()
+        sequence_item = sequence.items.filter(score__isnull=False).last()
 
     sequence_item_id = sequence_item.id if sequence_item else None
     if not sequence_item_id:

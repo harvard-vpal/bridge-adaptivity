@@ -6,8 +6,7 @@ from django.http import HttpResponseNotFound, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django import forms
 from django.db.models import Sum, Count
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -19,7 +18,7 @@ from bridge_lti import outcomes
 from bridge_lti.outcomes import calculate_grade
 from module import ENGINE
 from module.forms import ActivityForm
-from module.mixins import CollectionIdToContext
+from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
 from module.models import Collection, Activity, SequenceItem, Log, Sequence
 from module import utils
 
@@ -84,7 +83,7 @@ class CollectionDetail(DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(CollectionIdToContext, CreateView):
+class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
     fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
@@ -101,7 +100,7 @@ class ActivityCreate(CollectionIdToContext, CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityUpdate(CollectionIdToContext, UpdateView):
+class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
     model = Activity
     context_object_name = 'activity'
     fields = ActivityCreate.fields
@@ -115,14 +114,18 @@ class ActivityDelete(DeleteView):
         return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
 
 
-class SequenceItemDetail(DetailView):
+class SequenceItemDetail(LtiSessionMixin, DetailView):
     model = SequenceItem
     context_object_name = 'sequence_item'
     template_name = 'module/sequence_item.html'
 
     def get_context_data(self, **kwargs):
         context = super(SequenceItemDetail, self).get_context_data(**kwargs)
-        context['sequence_items'] = SequenceItem.objects.filter(sequence=self.object.sequence)
+        item_filter = {'sequence': self.object.sequence}
+        if self.request.session.pop('Lti_update_activity', None):
+            item_filter.update({'score__isnull': False})
+        context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
+        log.error("Displayed {} sequence items".format(context['sequence_items'].count()))
 
         Log.objects.create(
             sequence_item=self.object,
@@ -146,33 +149,31 @@ def sequence_item_next(request, pk):
                 'tip': "ERROR: next sequence item can't be proposed",
             }
         )
-    sequence = sequence_item.sequence
 
     next_sequence_item = SequenceItem.objects.filter(
-        sequence=sequence,
+        sequence=sequence_item.sequence,
         position=sequence_item.position + 1
     ).first()
     log.debug("Picked next sequence item is: {%s}", next_sequence_item)
 
     if next_sequence_item is None:
-        try:
-            activity_id = ENGINE.select_activity(sequence)
-            activity = get_object_or_404(Activity, pk=activity_id)
-        except (IndexError, Http404):
-            sequence_item.sequence.completed = True
-            sequence_item.sequence.save()
-            return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
+        activity = utils.chose_activity(sequence_item)
 
         next_sequence_item = SequenceItem.objects.create(
             sequence=sequence_item.sequence,
             activity=activity,
             position=sequence_item.position + 1
         )
+    elif request.session.get('Lti_update_activity'):
+        log.error('Lti update activity is True')
+        activity = utils.chose_activity(sequence_item)
+        next_sequence_item.activity = activity
+        next_sequence_item.save()
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id}))
 
 
-class SequenceComplete(DetailView):
+class SequenceComplete(LtiSessionMixin, DetailView):
     model = Sequence
     template_name = 'module/sequence_complete.html'
 
@@ -193,7 +194,8 @@ def send_composite_outcome(sequence):
 @csrf_exempt
 def callback_sequence_item_grade(request):
     sourced_id, score = utils.parse_callback_grade_xml(request.body)
-    sequence_item_id, user_id = sourced_id.split(':')
+    log.warn("SourcedID: {}".format(sourced_id))
+    sequence_item_id, user_id, _ = sourced_id.split(':')
     log.debug("Received CallBack with the submitted answer for sequence item {}.".format(sequence_item_id))
     try:
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)

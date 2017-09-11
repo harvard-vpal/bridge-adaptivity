@@ -10,7 +10,7 @@ class SequenceAdmin(admin.ModelAdmin):
 
 @admin.register(SequenceItem)
 class SequenceItemAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'sequence', 'activity', 'position', 'score']
 
 
 @admin.register(Collection)

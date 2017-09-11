@@ -146,6 +146,12 @@ ENGINE_DRIVER = 'EngineMock'
 # ENGINE_SETTINGS is a dict, with the initial params for driver initialization
 ENGINE_SETTINGS = {}
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
+    },
+}
 
 LOGGING = {
     'version': 1,
