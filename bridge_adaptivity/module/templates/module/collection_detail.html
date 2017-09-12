@@ -78,12 +78,13 @@
         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
           {% for source_course in source_courses %}
 
-            <div class="panel panel-default">
+            <div id="content-panel-{{ forloop.counter0 }}" class="panel panel-default">
               <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
                 <h4 class="panel-title">
                   <a {% if not forloop.first %}class="collapsed" {% endif %} role="button" data-toggle="collapse"
                      data-parent="#accordion" href="#collapse{{ forloop.counter }}"
                      data-course-id="{{ source_course.course_id }}"
+                     data-course-index="{{ forloop.counter0 }}"
                      aria-expanded="false"
                      aria-controls="collapse{{ forloop.counter }}">
                     {{ source_course.name }} <span
