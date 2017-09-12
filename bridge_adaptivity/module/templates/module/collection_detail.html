@@ -79,22 +79,22 @@
           {% for source_course in source_courses %}
 
             <div id="content-panel-{{ forloop.counter0 }}" class="panel panel-default">
-              <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+              <div class="panel-heading" role="tab" id="heading{{ forloop.counter0 }}">
                 <h4 class="panel-title">
                   <a {% if not forloop.first %}class="collapsed" {% endif %} role="button" data-toggle="collapse"
-                     data-parent="#accordion" href="#collapse{{ forloop.counter }}"
+                     data-parent="#accordion" href="#collapse{{ forloop.counter0 }}"
                      data-course-id="{{ source_course.course_id }}"
                      data-course-index="{{ forloop.counter0 }}"
                      aria-expanded="false"
-                     aria-controls="collapse{{ forloop.counter }}">
+                     aria-controls="collapse{{ forloop.counter0 }}">
                     {{ source_course.name }} <span
                     class="label label-default pull-right">{{ source_course.org }}</span>
                   </a>
                 </h4>
               </div>
-              <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse"
-                   role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
-                <div class="panel-body">
+              <div id="collapse{{ forloop.counter0 }}" class="panel-collapse collapse"
+                   role="tabpanel" aria-labelledby="heading{{ forloop.counter0 }}">
+                <div id="panel-body-{{ forloop.counter0 }}" class="panel-body">
 
                 </div>
               </div>
