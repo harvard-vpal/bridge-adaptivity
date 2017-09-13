@@ -95,7 +95,7 @@
                     .addClass('list-group-item')
                     .attr('type', 'button')
                     .appendTo(sourcesList);
-                var sourceIcon = $('<span/>')
+                $('<span/>')
                     .data('toggle', 'tooltip')
                     .attr('title', item.type)
                     .addClass("badge pull-left glyphicon " + typeToIcon[item.type])
@@ -132,7 +132,7 @@
                     modalContentFrame
                 )
             });
-            container.append(sourcesList);
+            container.html(sourcesList);
         }
 
         function createPreviewButton(title, ltiUrl, sourceId, parent, modalFrame) {
@@ -143,7 +143,7 @@
                 .appendTo(parent);
             var previewButton = $('<button/>', {'class': 'btn btn-default btn-sm'})
                 .appendTo(preview);
-            var previewButtonBody = $('<span/>')
+            $('<span/>')
                 .addClass("glyphicon glyphicon-eye-open")
                 .attr('data-display-name', title)
                 .attr('data-lti-url', ltiUrl)

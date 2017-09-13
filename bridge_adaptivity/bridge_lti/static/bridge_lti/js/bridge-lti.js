@@ -2,7 +2,7 @@
     $(function () {
         // LTI launch form auto-submission:
         var $element = $("#ltiLaunchForm");
-        if ($element.length) {
+        if ($element) {
             $element.submit();
         } else {
             console.error("Launch form element for content preview can't be found!");

@@ -65,7 +65,7 @@ class CollectionDetail(DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
-        context['activities_data'] = json.dumps([{
+        context['data'] = json.dumps([{
             'name': activity.name,
             'source_launch_url': activity.source_launch_url,
         } for activity in activities])

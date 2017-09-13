@@ -115,7 +115,7 @@
 {% block bootstrap3_extra_script %}
   {{ block.super }}
   <script type="application/javascript">
-      var activitiesData = {{activities_data | safe}};
+      var activitiesData = {{data | safe}};
       var internalUrls = {
           apiSources: "{% url 'api:sources' %}",
           ltiSourcePreview: "{% url 'lti:source-preview' %}"
