@@ -1,5 +1,6 @@
 import logging
 
+from django.core.cache import cache
 from django.http import HttpResponseBadRequest, Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -12,6 +13,7 @@ from bridge_lti.models import LtiProvider, LtiUser
 from bridge_lti.outcomes import store_outcome_parameters
 from bridge_lti.validator import SignatureValidator
 from module.models import (Collection, Sequence, SequenceItem)
+from module import utils as module_utils
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +31,7 @@ def lti_launch(request, collection_id=None):
     - The launch contains all the required parameters
     - The launch data is correctly signed using a known client key/secret pair
     """
+    request.session.clear()
     request_post = request.POST
     try:
         tool_provider = DjangoToolProvider.from_django_request(request=request)
@@ -39,6 +42,7 @@ def lti_launch(request, collection_id=None):
         log.error('Error happened while LTI request: {}'.format(err.__str__()))
     if not ok:
         raise Http404('LTI request is not valid')
+    request.session['Lti_session'] = request_post['oauth_nonce']
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     lti_consumer = LtiProvider.objects.get(consumer_key=request_post['oauth_consumer_key'])
     roles = request_post.get('roles')
@@ -96,9 +100,12 @@ def learner_flow(request, lti_consumer, collection_id=None):
     if sequence.completed:
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
+    request.session['Lti_sequence'] = sequence.id
+
     if created:
         # NOTE(wowkalucky): empty Collection validation
-        start_activity = collection.activity_set.first()
+        log.debug("Sequence {} was created".format(sequence))
+        start_activity = module_utils.chose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warn('Instructor configured empty Collection.')
             return render(
@@ -110,6 +117,7 @@ def learner_flow(request, lti_consumer, collection_id=None):
                     'tip': 'this adaptivity sequence is about to start.',
                 }
             )
+        cache.set(str(sequence.id), request.session['Lti_session'])
         # NOTE(wowkalucky): save outcome service parameters when Sequence is created
         store_outcome_parameters(request.POST, sequence, lti_consumer)
         sequence_item = SequenceItem.objects.create(
@@ -118,7 +126,7 @@ def learner_flow(request, lti_consumer, collection_id=None):
             position=1
         )
     else:
-        sequence_item = sequence.items.last()
+        sequence_item = sequence.items.filter(score__isnull=False).last()
 
     sequence_item_id = sequence_item.id if sequence_item else None
     if not sequence_item_id:

@@ -1,13 +1,13 @@
 import json
 import logging
+from xml.sax.saxutils import escape
 
 from django.http import HttpResponseNotFound, HttpResponse
 
 from django.contrib.auth.decorators import login_required
 from django import forms
-from django.db.models import Sum, Count
-from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import Sum, Count, Max
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -19,9 +19,10 @@ from bridge_lti import outcomes
 from bridge_lti.outcomes import calculate_grade
 from module import ENGINE
 from module.forms import ActivityForm
-from module.mixins import CollectionIdToContext
+from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
 from module.models import Collection, Activity, SequenceItem, Log, Sequence
 from module import utils
+from module.utils import BridgeError
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +85,7 @@ class CollectionDetail(DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(CollectionIdToContext, CreateView):
+class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
     fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
@@ -101,7 +102,7 @@ class ActivityCreate(CollectionIdToContext, CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityUpdate(CollectionIdToContext, UpdateView):
+class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
     model = Activity
     context_object_name = 'activity'
     fields = ActivityCreate.fields
@@ -115,14 +116,17 @@ class ActivityDelete(DeleteView):
         return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
 
 
-class SequenceItemDetail(DetailView):
+class SequenceItemDetail(LtiSessionMixin, DetailView):
     model = SequenceItem
     context_object_name = 'sequence_item'
     template_name = 'module/sequence_item.html'
 
     def get_context_data(self, **kwargs):
         context = super(SequenceItemDetail, self).get_context_data(**kwargs)
-        context['sequence_items'] = SequenceItem.objects.filter(sequence=self.object.sequence)
+        item_filter = {'sequence': self.object.sequence}
+        if self.request.session.get('Lti_update_activity'):
+            item_filter.update({'score__isnull': False})
+        context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
 
         Log.objects.create(
             sequence_item=self.object,
@@ -146,33 +150,34 @@ def sequence_item_next(request, pk):
                 'tip': "ERROR: next sequence item can't be proposed",
             }
         )
-    sequence = sequence_item.sequence
-
+    last_item = SequenceItem.objects.filter(
+        sequence=sequence_item.sequence
+    ).aggregate(last_item=Max('position'))['last_item']
     next_sequence_item = SequenceItem.objects.filter(
-        sequence=sequence,
+        sequence=sequence_item.sequence,
         position=sequence_item.position + 1
     ).first()
-    log.debug("Picked next sequence item is: {%s}", next_sequence_item)
+    log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
-    if next_sequence_item is None:
-        try:
-            activity_id = ENGINE.select_activity(sequence)
-            activity = get_object_or_404(Activity, pk=activity_id)
-        except (IndexError, Http404):
-            sequence_item.sequence.completed = True
-            sequence_item.sequence.save()
-            return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
-
-        next_sequence_item = SequenceItem.objects.create(
-            sequence=sequence_item.sequence,
-            activity=activity,
-            position=sequence_item.position + 1
-        )
-
+    if not next_sequence_item or next_sequence_item.position == last_item:
+        activity = utils.chose_activity(sequence_item)
+        if next_sequence_item is None:
+            if not activity:
+                return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
+            next_sequence_item = SequenceItem.objects.create(
+                sequence=sequence_item.sequence,
+                activity=activity,
+                position=sequence_item.position + 1
+            )
+        elif request.session.pop('Lti_update_activity', None):
+            log.debug('Bridge updates activity in the un-submitted SequenceItem')
+            if activity:
+                next_sequence_item.activity = activity
+                next_sequence_item.save()
     return redirect(reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id}))
 
 
-class SequenceComplete(DetailView):
+class SequenceComplete(LtiSessionMixin, DetailView):
     model = Sequence
     template_name = 'module/sequence_complete.html'
 
@@ -192,13 +197,37 @@ def send_composite_outcome(sequence):
 
 @csrf_exempt
 def callback_sequence_item_grade(request):
-    sourced_id, score = utils.parse_callback_grade_xml(request.body)
-    sequence_item_id, user_id = sourced_id.split(':')
+    failure = {
+        'imsx_codeMajor': 'failure',
+        'imsx_messageIdentifier': 'unknown',
+        'response': ''
+    }
+    try:
+        imsx_message_identifier, sourced_id, score, action = utils.parse_callback_grade_xml(request.body)
+    except BridgeError as err:
+        body = escape(request.body) if request.body else ''
+        error_message = "Request body XML parsing error: {} {}".format(err.message, body)
+        log.debug("Failure to archive grade from the source: %s" + error_message)
+        failure.update({'imsx_description': error_message})
+        return HttpResponse(utils.XML.format(**failure), content_type='application/xml')
+    sequence_item_id, user_id, _ = sourced_id.split(':')
+    if action == 'replaceResultRequest':
+        success = {
+            'imsx_codeMajor': 'success',
+            'imsx_description': 'Score for {sourced_id} is now {score}'.format(sourced_id=sourced_id, score=score),
+            'imsx_messageIdentifier': escape(imsx_message_identifier),
+            'response': '<replaceResultResponse/>'
+        }
+        log.debug("[LTI]: Grade is saved.")
+        xml = utils.XML.format(**success)
     log.debug("Received CallBack with the submitted answer for sequence item {}.".format(sequence_item_id))
     try:
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
     except SequenceItem.DoesNotExist:
-        return HttpResponseNotFound("Sequence Item with the ID={} was not found".format(sequence_item_id))
+        error_message = "Sequence Item with the ID={} was not found".format(sequence_item_id)
+        failure.update({'imsx_description': error_message})
+        log.debug("Grade cannot be updated: SequenceItem is not found.")
+        return HttpResponseNotFound(utils.XML.format(**failure), content_type='application/xml')
     sequence_item.score = float(score)
     sequence_item.save()
     log.debug("Sequence item {} grade is updated".format(sequence_item))
@@ -220,4 +249,4 @@ def callback_sequence_item_grade(request):
     if sequence.lis_result_sourcedid:
         grade = send_composite_outcome(sequence)
         log.debug("Send updated grade {} to the LMS, for the student {}".format(grade, user_id))
-    return HttpResponse("Activity Grade is got and updated on the bridge.")
+    return HttpResponse(xml, content_type="application/xml")

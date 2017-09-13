@@ -69,8 +69,10 @@ def source_preview(request):
             'context_id': sequence_item.sequence.collection.name,
             'resource_link_id': sequence_item.id,
             # Grading required parameters:
-            'lis_result_sourcedid': '{sequence_item_id}:{user_id}'.format(
-                sequence_item_id=sequence_item.id, user_id=sequence_item.sequence.lti_user.user_id
+            'lis_result_sourcedid': '{sequence_item_id}:{user_id}:{activity}'.format(
+                sequence_item_id=sequence_item.id,
+                user_id=sequence_item.sequence.lti_user.user_id,
+                activity=sequence_item.activity.id,
             ),
             'lis_outcome_service_url': lis_outcome_service_url,
         })

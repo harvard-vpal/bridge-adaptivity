@@ -60,11 +60,12 @@ class SignatureValidator(RequestValidator):
         log.debug('Timestamp validating is started.')
         ts = int(timestamp)
         ts_key = '{}_ts'.format(client_key)
-        cache_ts = self.cache.get(ts_key, timestamp)
+        cache_ts = self.cache.get(ts_key, ts)
+        log.error("cache ts: {}; ts: {}; valid: {}".format(type(cache_ts), type(ts), cache_ts < ts))
         if cache_ts > ts:
             log.debug(msg.format('timestamp'))
             return False
-        self.cache.set(ts_key, timestamp)
+        self.cache.set(ts_key, ts, 10)
         log.debug('Timestamp is valid.')
 
         log.debug('Nonce validating is started.')
