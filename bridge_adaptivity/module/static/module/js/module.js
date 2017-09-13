@@ -1,5 +1,6 @@
 (function ($) {
     $(document).ready(function () {
+        var defaultSourceItemTitle = "No Title";
         var typeToIcon = {
             html: "glyphicon-list-alt",
             problem: "glyphicon-question-sign",
@@ -103,6 +104,8 @@
                     .css('margin-right', '5px')
                     .appendTo(listItem);
                 var sourceButton = $('<span/>');
+
+                // if item already is used by some Activity => block and highlight:
                 if (usedLtiUrls.indexOf(item['lti_url']) !== -1) {
                     sourceButton
                         .addClass('bg-info');
@@ -110,6 +113,10 @@
                     sourceButton
                         .attr('data-toggle', 'modal')
                         .attr('data-target', '#activityModal');
+                }
+                // if title is empty => set default title:
+                if (!item['display_name'].length) {
+                    item['display_name'] = defaultSourceItemTitle;
                 }
                 sourceButton
                     .text(item['display_name'])
