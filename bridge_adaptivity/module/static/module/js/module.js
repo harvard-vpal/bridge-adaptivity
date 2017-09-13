@@ -6,7 +6,7 @@
             var $activityRow = $(activityRow);
             return {
                 name: $activityRow.data("activity-name"),
-                source_launch_url: $activityRow.data("activity-source-launch-url")
+                launch_url: $activityRow.data("activity-source-launch-url")
             }
         });
         var typeToIcon = {
@@ -50,7 +50,7 @@
         $.each(activitiesData, function (i, activity) {
             createPreviewButton(
                 activity["name"],
-                activity["source_launch_url"],
+                activity["launch_url"],
                 activity["id"],
                 $("#activity-row-" + i + " td").last(),
                 modalContentFrame
@@ -93,7 +93,7 @@
 
         function renderCourseBlocks(courseData, container) {
             console.log("Rendering course...");
-            var usedLtiUrls = $(".activity").data("activity-source-launch-url");
+            var usedLtiUrls = $.map(activitiesData, function(data) { return data.launch_url });
             var sourcesList = $("<div/>").addClass("list-group");
             $.each(courseData, function (i, item) {
                 var listItem = $("<button/>")
