@@ -26,7 +26,9 @@
             <th>options</th>
           </tr>
           {% for activity in activities %}
-            <tr id="activity-row-{{ forloop.counter0 }}">
+            <tr id="activity-row-{{ forloop.counter0 }}" class="activity"
+                data-activity-name="{{ activity.name }}"
+                data-activity-source-launch-url="{{ activity.source_launch_url }}">
               <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
               <td>{{ activity.tags|default:"-" }}</td>
               <td>{{ activity.get_difficulty_display|default:"-" }}</td>
@@ -115,7 +117,6 @@
 {% block bootstrap3_extra_script %}
   {{ block.super }}
   <script type="application/javascript">
-      var activitiesData = {{data | safe}};
       var internalUrls = {
           apiSources: "{% url 'api:sources' %}",
           ltiSourcePreview: "{% url 'lti:source-preview' %}"

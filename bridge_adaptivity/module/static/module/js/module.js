@@ -2,6 +2,13 @@
     $(function () {
         var defaultSourceItemTitle = "No Title";
         var modalContentFrame = $('#modal-source-preview');
+        var activitiesData = $.map($(".activity"), function(activityRow) {
+            var $activityRow = $(activityRow);
+            return {
+                name: $activityRow.data("activity-name"),
+                source_launch_url: $activityRow.data("activity-source-launch-url")
+            }
+        });
         var typeToIcon = {
             html: "glyphicon-list-alt",
             problem: "glyphicon-question-sign",
@@ -86,9 +93,7 @@
 
         function renderCourseBlocks(courseData, container) {
             console.log("Rendering course...");
-            var usedLtiUrls = activitiesData.map(function(currentValue) {
-                return currentValue['source_launch_url']
-            });
+            var usedLtiUrls = $(".activity").data("activity-source-launch-url");
             var sourcesList = $('<div/>').addClass('list-group');
             $.each(courseData, function (i, item) {
                 var listItem = $('<button/>')
