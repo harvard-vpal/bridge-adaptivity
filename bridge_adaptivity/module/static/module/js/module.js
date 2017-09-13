@@ -86,6 +86,9 @@
 
         function renderCourseBlocks(courseData, container) {
             console.log("Rendering course...");
+            var usedLtiUrls = activitiesData.map(function(currentValue) {
+                return currentValue['source_launch_url']
+            });
             var sourcesList = $('<div/>').addClass('list-group');
             $.each(courseData, function (i, item) {
                 var listItem = $('<button/>')
@@ -99,14 +102,21 @@
                     .text(" ")
                     .css('margin-right', '5px')
                     .appendTo(listItem);
-                var sourceButton = $('<span/>')
-                    .attr('data-toggle', 'modal')
-                    .attr('data-target', '#activityModal')
+                var sourceButton = $('<span/>');
+                if (usedLtiUrls.indexOf(item['lti_url']) !== -1) {
+                    sourceButton
+                        .addClass('bg-info');
+                } else {
+                    sourceButton
+                        .attr('data-toggle', 'modal')
+                        .attr('data-target', '#activityModal');
+                }
+                sourceButton
                     .text(item['display_name'])
-                    .appendTo(listItem);
-                sourceButton.on('click', function () {
-                    setInitialActivityData(item);
-                });
+                    .appendTo(listItem)
+                    .on('click', function () {
+                        setInitialActivityData(item);
+                    });
                 createPreviewButton(
                     item['display_name'],
                     item['lti_url'],
