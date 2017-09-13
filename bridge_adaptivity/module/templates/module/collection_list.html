@@ -11,12 +11,14 @@
       <tr>
         <th>name</th>
         <th>metadata</th>
+        <th>threshold</th>
         <th>strict forward</th>
       </tr>
       {% for collection in collections %}
         <tr>
           <td><a href="{% url 'module:collection-detail' collection.id %}">{{ collection.name }}</a></td>
           <td>{{ collection.metadata|default:"-" }}</td>
+          <td>{{ collection.threshold|default:"-" }}</td>
           <td>{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}
