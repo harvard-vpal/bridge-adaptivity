@@ -4,6 +4,7 @@ from config.settings.base import *  # noqa: F403
 os.environ.setdefault('ENV_TYPE', 'local')
 
 DEBUG = True
+LTI_SSL = False
 
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 

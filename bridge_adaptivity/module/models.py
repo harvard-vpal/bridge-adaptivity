@@ -37,13 +37,13 @@ class SequenceItem(models.Model):
     """
     sequence = models.ForeignKey('Sequence', related_name='items', null=True)
     activity = models.ForeignKey('Activity', null=True)
-    position = models.PositiveIntegerField()
+    position = models.PositiveIntegerField(default=1)
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
 
     class Meta:
         verbose_name = "Sequence Item"
         verbose_name_plural = "Sequence Items"
-        ordering = ['position']
+        ordering = ['sequence', 'position']
 
     def __str__(self):
         return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)

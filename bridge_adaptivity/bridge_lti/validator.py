@@ -2,9 +2,16 @@
 From the openEDX app -> lti_provider
 Subclass of oauthlib's RequestValidator that checks an OAuth signature.
 """
+import logging
 
+from django.conf import settings
+from django.core.cache import cache
 from oauthlib.oauth1 import SignatureOnlyEndpoint
 from oauthlib.oauth1 import RequestValidator
+
+from bridge_lti.models import LtiProvider
+
+log = logging.getLogger(__name__)
 
 
 class SignatureValidator(RequestValidator):
@@ -17,10 +24,11 @@ class SignatureValidator(RequestValidator):
     application-specific requirements.
     """
 
-    def __init__(self, lti_consumer):
+    def __init__(self):
         super(SignatureValidator, self).__init__()
         self.endpoint = SignatureOnlyEndpoint(self)
-        self.lti_consumer = lti_consumer
+        self.lti_consumer = None
+        self.cache = cache
 
     # The OAuth signature uses the endpoint URL as part of the request to be
     # hashed. By default, the oauthlib library rejects any URLs that do not
@@ -29,11 +37,15 @@ class SignatureValidator(RequestValidator):
     # SSL enabled, the URL passed to the signature verifier must start with
     # 'https', otherwise the message signature would not match the one generated
     # on the platform.
-    enforce_ssl = False
+    @property
+    def enforce_ssl(self):
+        try:
+            ssl = settings.LTI_SSL
+        except AttributeError:
+            ssl = True
+        return ssl
 
-    def validate_timestamp_and_nonce(self, client_key, timestamp, nonce,
-                                     request, request_token=None,
-                                     access_token=None):
+    def validate_timestamp_and_nonce(self, client_key, timestamp, nonce, request):
         """
         Verify that the request is not too old (according to the timestamp), and
         that the nonce value has not been used already within the period of time
@@ -43,6 +55,25 @@ class SignatureValidator(RequestValidator):
         :return: True if the OAuth nonce and timestamp are valid, False if they
         are not.
         """
+        msg = "LTI request's {} is not valid."
+
+        log.debug('Timestamp validating is started.')
+        ts = int(timestamp)
+        ts_key = '{}_ts'.format(client_key)
+        cache_ts = self.cache.get(ts_key, ts)
+        log.error("cache ts: {}; ts: {}; valid: {}".format(type(cache_ts), type(ts), cache_ts < ts))
+        if cache_ts > ts:
+            log.debug(msg.format('timestamp'))
+            return False
+        self.cache.set(ts_key, ts, 10)
+        log.debug('Timestamp is valid.')
+
+        log.debug('Nonce validating is started.')
+        if self.cache.get(nonce):
+            log.debug(msg.format('nonce'))
+            return False
+        self.cache.set(nonce, 1)
+        log.debug('Nonce is valid.')
         return True
 
     def validate_client_key(self, client_key, request):
@@ -53,7 +84,12 @@ class SignatureValidator(RequestValidator):
 
         :return: True if the key is valid, False if it is not.
         """
-        return self.lti_consumer.consumer_key == client_key
+        try:
+            self.lti_consumer = LtiProvider.objects.get(consumer_key=client_key)
+        except LtiProvider.DoesNotExist:
+            log.exception('Consumer with the key {} is not found.'.format(client_key))
+            return False
+        return True
 
     def get_client_secret(self, client_key, request):
         """
@@ -63,26 +99,5 @@ class SignatureValidator(RequestValidator):
         :return: the client secret that corresponds to the supplied key if
         present, or None if the key does not exist in the database.
         """
+        log.debug('Getting client secret')
         return self.lti_consumer.consumer_secret
-
-    def verify(self, request):
-        """
-        Check the OAuth signature on a request. This method uses the
-        SignatureEndpoint class in the oauthlib library that in turn calls back
-        to the other methods in this class.
-
-        :param request: the HttpRequest object to be verified
-        :return: True if the signature matches, False if it does not.
-        """
-
-        method = unicode(request.method)
-        url = request.build_absolute_uri()
-        body = request.body
-
-        # The oauthlib library assumes that headers are passed directly from the
-        # request, but Django mangles them into its own format. The only header
-        # that the library requires (for now) is 'Content-Type', so we
-        # reconstruct just that one.
-        headers = {"Content-Type": request.META['CONTENT_TYPE']}
-        result, __ = self.endpoint.validate_request(url, method, body, headers)
-        return result
