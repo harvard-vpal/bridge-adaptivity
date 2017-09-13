@@ -1,5 +1,5 @@
 (function ($) {
-    $(document).ready(function () {
+    $(function () {
         var defaultSourceItemTitle = "No Title";
         var modalContentFrame = $('#modal-source-preview');
         var typeToIcon = {

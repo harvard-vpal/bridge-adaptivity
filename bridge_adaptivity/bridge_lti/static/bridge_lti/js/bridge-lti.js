@@ -1,5 +1,5 @@
 (function ($) {
-    $(document).ready(function () {
+    $(function () {
         // LTI launch form auto-submission:
         var $element = $("#ltiLaunchForm");
         if ($element.length) {
