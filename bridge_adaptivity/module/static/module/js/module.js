@@ -1,6 +1,7 @@
 (function ($) {
     $(document).ready(function () {
         var defaultSourceItemTitle = "No Title";
+        var modalContentFrame = $('#modal-source-preview');
         var typeToIcon = {
             html: "glyphicon-list-alt",
             problem: "glyphicon-question-sign",
@@ -37,8 +38,6 @@
         }());
 
         bridgeState.load();
-
-        var modalContentFrame = $('#modal-source-preview');
 
         // activity source preview:
         $.each(activitiesData, function (i, activity) {
@@ -103,27 +102,28 @@
                     .text(" ")
                     .css('margin-right', '5px')
                     .appendTo(listItem);
-                var sourceButton = $('<span/>');
 
+                var sourceButton = $('<span/>');
                 // if item already is used by some Activity => block and highlight:
                 if (usedLtiUrls.indexOf(item['lti_url']) !== -1) {
                     sourceButton
                         .addClass('bg-info');
                 } else {
-                    sourceButton
+                    listItem
                         .attr('data-toggle', 'modal')
-                        .attr('data-target', '#activityModal');
+                        .attr('data-target', '#activityModal')
+                        .on('click', function (e) {
+                            setInitialActivityData(item);
+                        });
                 }
                 // if title is empty => set default title:
                 if (!item['display_name'].length) {
-                    item['display_name'] = defaultSourceItemTitle;
+                    sourceButton.text(defaultSourceItemTitle);
+                } else {
+                    sourceButton.text(item['display_name']);
                 }
                 sourceButton
-                    .text(item['display_name'])
-                    .appendTo(listItem)
-                    .on('click', function () {
-                        setInitialActivityData(item);
-                    });
+                    .appendTo(listItem);
                 createPreviewButton(
                     item['display_name'],
                     item['lti_url'],
@@ -148,18 +148,20 @@
                 .attr('data-display-name', title)
                 .attr('data-lti-url', ltiUrl)
                 .appendTo(previewButton);
-            previewButton.on('click', function () {
+            previewButton.on('click', function (e) {
+                e.stopImmediatePropagation();
+                $('#sourceModal').modal('show');
                 $('#sourceModalLabel').text(title);
-                configurePreview(modalFrame, title, ltiUrl, sourceId);
+                configurePreview(title, ltiUrl, sourceId, modalFrame);
             })
         }
 
-        function configurePreview(frame, title, ltiUrl, sourceId) {
+        function configurePreview(title, ltiUrl, sourceId, modalFrame) {
             var idParam = "source_id=" + sourceId + "&";
             var displayNameParam = "source_name=" + title + "&";
             var ltiUrlParam = "source_lti_url=" + ltiUrl + "&";
             var previewUrl = internalUrls.ltiSourcePreview + "?" + idParam + displayNameParam + ltiUrlParam;
-            frame
+            modalFrame
                 .attr('src', previewUrl)
                 .attr('title', title)
                 .attr('name', sourceId);
