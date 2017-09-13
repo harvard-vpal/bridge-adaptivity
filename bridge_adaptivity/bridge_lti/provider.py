@@ -1,4 +1,6 @@
 import logging
+
+from django.core.cache import cache
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -28,6 +30,7 @@ def lti_launch(request, collection_id=None):
     - The launch data is correctly signed using a known client key/secret pair
     """
     # FIXME(idegtiarov) improve lti_launch with using lti library
+    request.session.clear()
     params = get_required_params(request.POST)
     if not params:
         return HttpResponseBadRequest()
@@ -115,6 +118,8 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
     if sequence.completed:
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
+    request.session['Lti_sequence'] = sequence.id
+
     if created:
         # NOTE(wowkalucky): empty Collection validation
         log.debug("Sequence {} was created".format(sequence))
@@ -130,6 +135,7 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
                     'tip': 'this adaptivity sequence is about to start.',
                 }
             )
+        cache.set(str(sequence.id), request.session['Lti_session'])
         # NOTE(wowkalucky): save outcome service parameters when Sequence is created
         store_outcome_parameters(params, sequence, lti_consumer)
         sequence_item = SequenceItem.objects.create(
@@ -137,7 +143,6 @@ def learner_flow(request, lti_consumer, params, collection_id=None):
             activity=start_activity,
             position=1
         )
-        log.error("sequence_item dict: {}".format(sequence_item.__dict__))
     else:
         sequence_item = sequence.items.filter(score__isnull=False).last()
 

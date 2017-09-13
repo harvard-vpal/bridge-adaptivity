@@ -1,6 +1,5 @@
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from lxml import etree
 
 from module import ENGINE
@@ -11,17 +10,39 @@ class BridgeError(Exception):
     pass
 
 
-def _find_param_from_xml(root, param, namespaces):
+XML = u"""<?xml version="1.0" encoding="UTF-8"?>
+          <imsx_POXEnvelopeResponse xmlns = "http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">
+              <imsx_POXHeader>
+                  <imsx_POXResponseHeaderInfo>
+                      <imsx_version>V1.0</imsx_version>
+                      <imsx_messageIdentifier>{imsx_messageIdentifier}</imsx_messageIdentifier>
+                      <imsx_statusInfo>
+                          <imsx_codeMajor>{imsx_codeMajor}</imsx_codeMajor>
+                          <imsx_severity>status</imsx_severity>
+                          <imsx_description>{imsx_description}</imsx_description>
+                          <imsx_messageRefIdentifier>
+                          </imsx_messageRefIdentifier>
+                      </imsx_statusInfo>
+                  </imsx_POXResponseHeaderInfo>
+              </imsx_POXHeader>
+              <imsx_POXBody>{response}</imsx_POXBody>
+          </imsx_POXEnvelopeResponse>
+"""
+
+
+def _find_param_from_xml(root, param, namespaces, text=True):
     """
     Auxiliary function
 
     :param root: etree created from the xml
     :param param: required parameter
     :param namespaces: namespace is specified in the LTI spec
+    :param text: boolean flag for text part from searching xml param
     :return: string value of the param witch is found in root
     """
     try:
-        return root.xpath("//def:{}".format(param), namespaces=namespaces)[0].text
+        result = root.xpath("//def:{}".format(param), namespaces=namespaces)[0]
+        return result.text if text else result
     except IndexError:
         raise BridgeError('Failed to parse {} from the XML request body'.format(param))
 
@@ -38,7 +59,7 @@ def parse_callback_grade_xml(body):
         body (str): XML Outcome Service request body
 
     Returns:
-        tuple: sourcedId, score
+        tuple: imsx_message_identifier, sourced_id, score, action
 
     Raises:
         BribgeError
@@ -55,7 +76,13 @@ def parse_callback_grade_xml(body):
         root = etree.fromstring(data, parser=parser)
     except etree.XMLSyntaxError as ex:
         raise (ex.message or 'Body is not the valid XML')
+    body = _find_param_from_xml(root, 'imsx_POXBody', namespaces, text=False)
+    try:
+        action = body.getchildren()[0].tag.replace('{' + lti_spec_namespace + '}', '')
+    except IndexError:
+        raise BridgeError('Failed to parse action from XML request body')
 
+    imsx_message_identifier = _find_param_from_xml(root, 'imsx_messageIdentifier', namespaces)
     sourced_id = _find_param_from_xml(root, 'sourcedId', namespaces)
     score = _find_param_from_xml(root, 'textString', namespaces)
 
@@ -65,7 +92,7 @@ def parse_callback_grade_xml(body):
     if not 0.0 <= score <= 1.0:
         raise BridgeError('score value outside the permitted range of 0.0-1.0')
 
-    return sourced_id, score
+    return imsx_message_identifier, sourced_id, score, action
 
 
 def chose_activity(sequence_item, sequence=None):
@@ -80,4 +107,4 @@ def chose_activity(sequence_item, sequence=None):
     except (IndexError, Http404):
         sequence_item.sequence.completed = True
         sequence_item.sequence.save()
-        return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
+        return None

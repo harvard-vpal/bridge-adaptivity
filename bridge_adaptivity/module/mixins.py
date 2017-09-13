@@ -19,10 +19,14 @@ class LtiSessionMixin(object):
 
     def dispatch(self, request, *args, **kwargs):
         lti_session = request.session.get('Lti_session')
+        sequence_id = request.session.get('Lti_sequence')
         if not lti_session:
             log.error('Lti session is not found, Request cannot be processed')
             return HttpResponseForbidden("Cource content is available only through LTI protocol.")
-        elif lti_session != cache.get('lti_session'):
-            cache.set('lti_session', lti_session)
+        elif lti_session != cache.get(sequence_id):
+            cache.set(sequence_id, lti_session)
             request.session['Lti_update_activity'] = True
+            log.debug("Session is changed, activity update could be required: {}".format(
+                request.session['Lti_update_activity'])
+            )
         return super(LtiSessionMixin, self).dispatch(request, *args, **kwargs)
