@@ -3,14 +3,19 @@ from django.contrib import admin
 from .models import Sequence, SequenceItem, Collection, Activity, Log
 
 
+class SequenceItemStackedInline(admin.StackedInline):
+    model = SequenceItem
+
+
 @admin.register(Sequence)
 class SequenceAdmin(admin.ModelAdmin):
-    pass
+    inlines = [
+        SequenceItemStackedInline,
+    ]
 
 
-@admin.register(SequenceItem)
-class SequenceItemAdmin(admin.ModelAdmin):
-    list_display = ['id', 'sequence', 'activity', 'position', 'score']
+class ActivityStackedInline(admin.StackedInline):
+    model = Activity
 
 
 @admin.register(Collection)
@@ -23,10 +28,9 @@ class CollectionAdmin(admin.ModelAdmin):
 
     owner_name.empty_value_display = '---'
 
-
-@admin.register(Activity)
-class ActivityAdmin(admin.ModelAdmin):
-    pass
+    inlines = [
+        ActivityStackedInline,
+    ]
 
 
 @admin.register(Log)
