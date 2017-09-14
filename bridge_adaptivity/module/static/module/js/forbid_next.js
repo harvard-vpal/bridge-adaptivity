@@ -3,5 +3,5 @@
     if (forbidNext){
         console.log("Current Activity is not answered, NEXT is forbidden!");
         $("#forbidNextModal").modal("show");
-    };
+    }
 }());

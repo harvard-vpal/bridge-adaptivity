@@ -144,9 +144,33 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         return context
 
 
+def _check_next_forbidden(pk):
+    """
+    Check if next sequence item is forbidden to be shown to the student
+    :param pk: currently opened SequenseItem's pk
+    :return: tuple of the parameters next_forbidden, last_item, sequence_item
+             Where next_forbidden is boolean flag to forbid show next sequence item to the student,
+             last_item (integer) is index of the last SequenceItem,
+             sequence_item (SequenceItem inctance) of the currently open sequence item
+    """
+    sequence_item = SequenceItem.objects.get(pk=pk)
+
+    last_item = SequenceItem.objects.filter(
+        sequence=sequence_item.sequence
+    ).aggregate(last_item=Max('position'))['last_item']
+    next_forbidden = False
+    if (
+            sequence_item.position == last_item and
+            sequence_item.sequence.collection.strict_forward and
+            not sequence_item.score
+    ):
+        next_forbidden = True
+    return next_forbidden, last_item, sequence_item
+
+
 def sequence_item_next(request, pk):
     try:
-        sequence_item = SequenceItem.objects.get(pk=pk)
+        next_forbidden, last_item, sequence_item = _check_next_forbidden(pk)
     except SequenceItem.DoesNotExist:
         log.exception("SequenceItem which supposed to exist can't be found!")
         return render(
@@ -158,14 +182,7 @@ def sequence_item_next(request, pk):
                 'tip': "ERROR: next sequence item can't be proposed",
             }
         )
-    last_item = SequenceItem.objects.filter(
-        sequence=sequence_item.sequence
-    ).aggregate(last_item=Max('position'))['last_item']
-    if (
-            sequence_item.position == last_item and
-            sequence_item.sequence.collection.strict_forward and
-            not sequence_item.score
-    ):
+    if next_forbidden:
         return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
