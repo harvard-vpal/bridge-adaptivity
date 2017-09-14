@@ -1,4 +1,5 @@
 from django.contrib import admin
+from ordered_model.admin import OrderedTabularInline
 
 from .models import Sequence, SequenceItem, Collection, Activity, Log
 
@@ -9,18 +10,22 @@ class SequenceItemStackedInline(admin.StackedInline):
 
 @admin.register(Sequence)
 class SequenceAdmin(admin.ModelAdmin):
-    inlines = [
-        SequenceItemStackedInline,
-    ]
+    inlines = (SequenceItemStackedInline,)
 
 
-class ActivityStackedInline(admin.StackedInline):
+class ActivityStackedInline(OrderedTabularInline):
     model = Activity
+    fields = [
+        'order', 'move_up_down_links', 'name', 'atype', 'difficulty', 'points', 'source_launch_url',
+        'source_name', 'source_context_id'
+    ]
+    readonly_fields = ('order', 'move_up_down_links',)
+    extra = 0
 
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'owner_name', 'strict_forward']
+    list_display = ['id', 'name', 'threshold', 'owner_name', 'strict_forward']
     list_display_links = ['id', 'name']
 
     def owner_name(self, obj):
@@ -28,9 +33,14 @@ class CollectionAdmin(admin.ModelAdmin):
 
     owner_name.empty_value_display = '---'
 
-    inlines = [
-        ActivityStackedInline,
-    ]
+    inlines = (ActivityStackedInline,)
+
+    def get_urls(self):
+        urls = super(CollectionAdmin, self).get_urls()
+        for inline in self.inlines:
+            if hasattr(inline, 'get_urls'):
+                urls = inline.get_urls(self) + urls
+        return urls
 
 
 @admin.register(Log)

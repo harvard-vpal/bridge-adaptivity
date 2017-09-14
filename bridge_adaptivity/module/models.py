@@ -1,13 +1,15 @@
+import logging
+
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from ordered_model.models import OrderedModel
 
 from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer, OutcomeService
 from module import ENGINE
 
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -71,7 +73,7 @@ class Collection(models.Model):
 
 
 @python_2_unicode_compatible
-class Activity(models.Model):
+class Activity(OrderedModel):
     """
     General entity which represents problem/text/video material.
     """
@@ -81,9 +83,18 @@ class Activity(models.Model):
         ('h', _('high')),
     )
 
+    TYPES = (
+        ('G', _('generic')),
+        ('A', _('pre-assessment')),
+        ('Z', _('post-assessment')),
+    )
+
+    order_with_respect_to = 'atype', 'collection'
+
     name = models.CharField(max_length=255)
     collection = models.ForeignKey('Collection', null=True)
     tags = fields.CharField(max_length=255, blank=True, null=True)
+    atype = fields.CharField(verbose_name="type", choices=TYPES, default='G', max_length=1)
     difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
     points = models.FloatField(blank=True, default=1)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
@@ -94,6 +105,7 @@ class Activity(models.Model):
     class Meta:
         verbose_name_plural = 'Activities'
         unique_together = ("source_launch_url", "collection")
+        ordering = 'atype', 'order'
 
     def __str__(self):
         return '<Activity: {}>'.format(self.name)
