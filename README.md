@@ -1,5 +1,8 @@
 # Bridge for Adaptivity
 
+[![Travis](https://img.shields.io/travis/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://travis-ci.org/harvard-vpal/bridge-adaptivity)
+[![Code Climate](https://img.shields.io/codeclimate/github/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://codeclimate.com/github/harvard-vpal/bridge-adaptivity)
+
 A tool that interfaces with an adaptive engine to dynamically serve
 content in MOOCs based on real time student activity.
 

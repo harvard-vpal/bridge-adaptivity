@@ -61,10 +61,10 @@ class SignatureValidator(RequestValidator):
         ts = int(timestamp)
         ts_key = '{}_ts'.format(client_key)
         cache_ts = self.cache.get(ts_key, ts)
-        log.error("cache ts: {}; ts: {}; valid: {}".format(type(cache_ts), type(ts), cache_ts < ts))
         if cache_ts > ts:
             log.debug(msg.format('timestamp'))
             return False
+        # NOTE(idegtiarov) cache data with timestamp and nonce lives for 10 seconds
         self.cache.set(ts_key, ts, 10)
         log.debug('Timestamp is valid.')
 
@@ -72,7 +72,7 @@ class SignatureValidator(RequestValidator):
         if self.cache.get(nonce):
             log.debug(msg.format('nonce'))
             return False
-        self.cache.set(nonce, 1)
+        self.cache.set(nonce, 1, 10)
         log.debug('Nonce is valid.')
         return True
 

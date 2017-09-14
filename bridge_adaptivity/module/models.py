@@ -40,6 +40,12 @@ class SequenceItem(models.Model):
     position = models.PositiveIntegerField(default=1)
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
 
+    __origin_score = None
+
+    def __init__(self, *args, **kwargs):
+        super(SequenceItem, self).__init__(*args, **kwargs)
+        self.__origin_score = self.score
+
     class Meta:
         verbose_name = "Sequence Item"
         verbose_name_plural = "Sequence Items"
@@ -47,6 +53,17 @@ class SequenceItem(models.Model):
 
     def __str__(self):
         return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
+
+    def save(self, *args, **kwargs):
+        """
+        Extend save() method with sending notification to the Adaptive engine that score is changed
+        """
+        if self.score != self.__origin_score:
+            ENGINE.submit_activity_answer(self)
+            log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
+                self.activity.name, self.id
+            ))
+        super(SequenceItem, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
