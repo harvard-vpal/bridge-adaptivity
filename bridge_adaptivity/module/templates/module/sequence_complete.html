@@ -11,7 +11,7 @@
   <div class="row">
     <div class="col-md-6">
       <div class="btn-group" role="group">
-        {% for item in sequence.sequenceitem_set.all %}
+        {% for item in sequence.items.all %}
         <a href="{% url 'module:sequence-item' item.id %}">
           <button class="btn btn-default {% if item == sequence_item %} active {% endif %}">
             {{ forloop.counter }}
