@@ -85,7 +85,7 @@ class Activity(models.Model):
     collection = models.ForeignKey('Collection', null=True)
     tags = fields.CharField(max_length=255, blank=True, null=True)
     difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
-    points = models.FloatField(blank=True, null=True)
+    points = models.FloatField(blank=True, default=1)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
