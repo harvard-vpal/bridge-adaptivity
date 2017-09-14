@@ -18,6 +18,11 @@ urlpatterns = [
         name='activity-change'
     ),
     url(
+        r'^activity/(?P<pk>\d+)/move/(?P<direction>(up|down))/$',
+        ActivityUpdate.as_view(),
+        name='activity-move'
+    ),
+    url(
         r'^activity/(?P<pk>\d+)/delete/$',
         ActivityDelete.as_view(),
         name='activity-delete'

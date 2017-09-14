@@ -107,6 +107,18 @@ class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
     context_object_name = 'activity'
     fields = ActivityCreate.fields
 
+    def get(self, request, *args, **kwargs):
+        activity = self.get_object()
+        if 'direction' in kwargs:
+            try:
+                # NOTE(wowkalucky): expects 'up', 'down' (also possible: 'top', 'bottom')
+                getattr(activity, kwargs['direction'])()
+            except AttributeError:
+                log.exception("Unknown ordering method!")
+            return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
+
+        return super(ActivityUpdate, self).get(request, *args, **kwargs)
+
 
 @method_decorator(login_required, name='dispatch')
 class ActivityDelete(DeleteView):

@@ -23,16 +23,25 @@
             {% for field in render_fields %}
               <th>{{ field }}</th>
             {% endfor %}
-            <th>options</th>
+            <th class="text-center">options</th>
           </tr>
           {% for activity in activities %}
-            <tr id="activity-row-{{ forloop.counter0 }}">
+            <tr id="activity-row-{{ forloop.counter0 }}"
+                {% if activity.atype == 'A' %}class="warning"{% elif activity.atype == 'Z' %}class="info"{% endif %}>
               <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
               <td>{{ activity.tags|default:"-" }}</td>
               <td>{{ activity.get_difficulty_display|default:"-" }}</td>
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
               <td>
+                {% ifnotequal activity.atype 'G' %}
+                <a href="{% url 'module:activity-move' pk=activity.pk direction='up' %}">
+                  {% bootstrap_button "" size='sm' icon='chevron-up' %}
+                </a>
+                <a href="{% url 'module:activity-move' pk=activity.pk direction='down' %}">
+                  {% bootstrap_button "" size='sm' icon='chevron-down' %}
+                </a>
+                {% endifnotequal %}
                 <a class="pull-right" href="{% url 'module:activity-delete' activity.pk %}">
                   {% bootstrap_button "" size='sm' icon='trash' %}
                 </a>
@@ -53,6 +62,10 @@
         <li class="text-muted">to see the list of available LTI components click on course title</li>
         <li class="text-muted">to preview LTI component click on its `eye` icon</li>
         <li class="text-muted">to create new Activity based on certain LTI component click on its title</li>
+        <li class="text-muted">
+          <span class="bg-warning">pre-assessments</span> and
+          <span class="bg-info">post-assessment</span> activities are marked respectively
+        </li>
       </ul>
 
       {# Right accordion panel #}
