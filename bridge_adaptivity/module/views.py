@@ -132,6 +132,8 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         item_filter = {'sequence': self.object.sequence}
         if self.request.session.get('Lti_update_activity'):
             item_filter.update({'score__isnull': False})
+        if self.request.GET.get('forbidden'):
+            context['forbidden'] = True
         context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
 
         Log.objects.create(
@@ -159,6 +161,12 @@ def sequence_item_next(request, pk):
     last_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence
     ).aggregate(last_item=Max('position'))['last_item']
+    if (
+            sequence_item.position == last_item and
+            sequence_item.sequence.collection.strict_forward and
+            not sequence_item.score
+    ):
+        return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
         position=sequence_item.position + 1
