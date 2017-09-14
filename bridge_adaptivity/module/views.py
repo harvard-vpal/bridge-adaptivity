@@ -17,7 +17,6 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti import outcomes
 from bridge_lti.outcomes import calculate_grade
-from module import ENGINE
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
 from module.models import Collection, Activity, SequenceItem, Log, Sequence
@@ -241,10 +240,6 @@ def callback_sequence_item_grade(request):
         attempt=attempt,
     )
     log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}".format(attempt, correct))
-    ENGINE.submit_activity_answer(sequence_item)
-    log.debug("Adaptive engine is updated with the student {} answer on the activity {}".format(
-        user_id, sequence_item.activity.name
-    ))
     sequence = sequence_item.sequence
     if sequence.lis_result_sourcedid:
         grade = send_composite_outcome(sequence)
