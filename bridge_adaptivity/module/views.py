@@ -132,7 +132,6 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         item_filter = {'sequence': self.object.sequence}
         if self.request.session.get('Lti_update_activity'):
             item_filter.update({'score__isnull': False})
-        # FIXME(wowkalucky): if page reloaded => empty qs returned (upper item links not rendered)
         context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
 
         Log.objects.create(
