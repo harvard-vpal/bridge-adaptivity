@@ -277,6 +277,4 @@ def callback_sequence_item_grade(request):
     if sequence.lis_result_sourcedid:
         grade = send_composite_outcome(sequence)
         log.debug("Send updated grade {} to the LMS, for the student {}".format(grade, user_id))
-    response = HttpResponse(xml, content_type="application/xml")
-    log.error("Status: {}".format(response.status_code))
-    return response
+    return HttpResponse(xml, content_type="application/xml")
