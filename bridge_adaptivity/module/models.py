@@ -48,7 +48,7 @@ class SequenceItem(models.Model):
         ordering = ['sequence', 'position']
 
     def __str__(self):
-        return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
+        return u'<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
 
 
 @python_2_unicode_compatible
@@ -66,7 +66,7 @@ class Collection(models.Model):
         unique_together = ('owner', 'name')
 
     def __str__(self):
-        return '<Collection: {}>'.format(self.name)
+        return u'<Collection: {}>'.format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
@@ -108,7 +108,7 @@ class Activity(OrderedModel):
         ordering = 'atype', 'order'
 
     def __str__(self):
-        return '<Activity: {}>'.format(self.name)
+        return u'<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
@@ -152,6 +152,6 @@ class Log(models.Model):
 
     def __str__(self):
         if self.log_type == self.OPENED:
-            return '<Log: {}>'.format(self.sequence_item)
+            return u'<Log: {}>'.format(self.sequence_item)
         else:
-            return '<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)
+            return u'<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)
