@@ -161,9 +161,9 @@ def _check_next_forbidden(pk):
     ).aggregate(last_item=Max('position'))['last_item']
     next_forbidden = False
     if (
-            sequence_item.position == last_item and
-            sequence_item.sequence.collection.strict_forward and
-            not sequence_item.score
+        sequence_item.position == last_item and
+        sequence_item.sequence.collection.strict_forward and
+        not sequence_item.score
     ):
         next_forbidden = True
     return next_forbidden, last_item, sequence_item
@@ -240,7 +240,7 @@ def callback_sequence_item_grade(request):
         body = escape(request.body) if request.body else ''
         error_message = "Request body XML parsing error: {} {}".format(err.message, body)
         log.debug("Failure to archive grade from the source: %s" + error_message)
-        failure.update({'imsx_description': error_message})
+        failure.update({'imsx_description': escape(error_message)})
         return HttpResponse(utils.XML.format(**failure), content_type='application/xml')
     sequence_item_id, user_id, _ = sourced_id.split(':')
     if action == 'replaceResultRequest':
@@ -257,7 +257,7 @@ def callback_sequence_item_grade(request):
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
     except SequenceItem.DoesNotExist:
         error_message = "Sequence Item with the ID={} was not found".format(sequence_item_id)
-        failure.update({'imsx_description': error_message})
+        failure.update({'imsx_description': escape(error_message)})
         log.debug("Grade cannot be updated: SequenceItem is not found.")
         return HttpResponseNotFound(utils.XML.format(**failure), content_type='application/xml')
     sequence_item.score = float(score)
@@ -277,4 +277,6 @@ def callback_sequence_item_grade(request):
     if sequence.lis_result_sourcedid:
         grade = send_composite_outcome(sequence)
         log.debug("Send updated grade {} to the LMS, for the student {}".format(grade, user_id))
-    return HttpResponse(xml, content_type="application/xml")
+    response = HttpResponse(xml, content_type="application/xml")
+    log.error("Status: {}".format(response.status_code))
+    return response
