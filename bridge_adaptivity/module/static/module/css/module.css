@@ -17,3 +17,11 @@ iframe#vpal-activity {
 	border: none;
 	resize: vertical;
 }
+
+a.trash {
+	float: right;
+}
+
+div.options {
+	min-width: 140px;
+}

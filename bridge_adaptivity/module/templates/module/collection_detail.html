@@ -52,18 +52,20 @@
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
               <td>
-                <div style="min-width:70px;">
+                <div class="options">
+                  <a class="trash pull-right" href="{% url 'module:activity-delete' activity.pk %}">
+                    {% bootstrap_button "" size='sm' icon='trash' %}
+                  </a>
                   {% ifnotequal activity.atype 'G' %}
-                    <a href="{% url 'module:activity-move' pk=activity.pk direction='up' %}">
+                    <a class="move-up pull-right"
+                       href="{% url 'module:activity-move' pk=activity.pk direction='up' %}">
                       {% bootstrap_button "" size='sm' icon='chevron-up' %}
                     </a>
-                    <a href="{% url 'module:activity-move' pk=activity.pk direction='down' %}">
+                    <a class="move-down pull-right"
+                       href="{% url 'module:activity-move' pk=activity.pk direction='down' %}">
                       {% bootstrap_button "" size='sm' icon='chevron-down' %}
                     </a>
                   {% endifnotequal %}
-                  <a class="pull-right" href="{% url 'module:activity-delete' activity.pk %}">
-                    {% bootstrap_button "" size='sm' icon='trash' %}
-                  </a>
                 </div>
               </td>
             </tr>
