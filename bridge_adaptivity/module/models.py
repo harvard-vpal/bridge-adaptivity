@@ -92,7 +92,7 @@ class Activity(OrderedModel):
     order_with_respect_to = 'atype', 'collection'
 
     name = models.CharField(max_length=255)
-    collection = models.ForeignKey('Collection', null=True)
+    collection = models.ForeignKey('Collection', related_name='activities', null=True)
     tags = fields.CharField(max_length=255, blank=True, null=True)
     atype = fields.CharField(verbose_name="type", choices=TYPES, default='G', max_length=1)
     difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
