@@ -99,8 +99,9 @@ def learner_flow(request, lti_consumer, collection_id=None):
 
     if sequence.completed:
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
-
+    strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id
+    request.session['Lti_strict_forward'] = strict_forward
 
     if created:
         # NOTE(wowkalucky): empty Collection validation
@@ -126,8 +127,10 @@ def learner_flow(request, lti_consumer, collection_id=None):
             position=1
         )
     else:
-        sequence_item = sequence.items.filter(score__isnull=False).last()
-
+        sequence_items = sequence.items.all()
+        if strict_forward and sequence_items.count() > 1:
+            sequence_items = sequence_items.filter(score__isnull=False)
+        sequence_item = sequence_items.last()
     sequence_item_id = sequence_item.id if sequence_item else None
     if not sequence_item_id:
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))

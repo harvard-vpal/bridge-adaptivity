@@ -130,7 +130,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(SequenceItemDetail, self).get_context_data(**kwargs)
         item_filter = {'sequence': self.object.sequence}
-        if self.request.session.get('Lti_update_activity'):
+        if self.request.session.get('Lti_update_activity') and self.object.sequence.items.all().count() > 1:
             item_filter.update({'score__isnull': False})
         if self.request.GET.get('forbidden'):
             context['forbidden'] = True

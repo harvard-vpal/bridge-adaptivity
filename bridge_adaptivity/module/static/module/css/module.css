@@ -17,3 +17,7 @@ iframe#vpal-activity {
 	border: none;
 	resize: vertical;
 }
+
+.modal-body>p {
+    color: royalblue;
+}
