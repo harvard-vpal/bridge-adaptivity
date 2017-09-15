@@ -105,7 +105,7 @@ def learner_flow(request, lti_consumer, collection_id=None):
     if created:
         # NOTE(wowkalucky): empty Collection validation
         log.debug("Sequence {} was created".format(sequence))
-        start_activity = module_utils.chose_activity(sequence_item=None, sequence=sequence)
+        start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warn('Instructor configured empty Collection.')
             return render(

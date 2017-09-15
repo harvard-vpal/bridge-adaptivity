@@ -173,7 +173,7 @@ def sequence_item_next(request, pk):
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:
-        activity = utils.chose_activity(sequence_item)
+        activity = utils.choose_activity(sequence_item)
         if next_sequence_item is None:
             if not activity:
                 return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))

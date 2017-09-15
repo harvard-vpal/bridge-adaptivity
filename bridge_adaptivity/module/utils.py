@@ -95,7 +95,7 @@ def parse_callback_grade_xml(body):
     return imsx_message_identifier, sourced_id, score, action
 
 
-def chose_activity(sequence_item=None, sequence=None):
+def choose_activity(sequence_item=None, sequence=None):
     sequence = sequence or sequence_item.sequence
 
     try:
