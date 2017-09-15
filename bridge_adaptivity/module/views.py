@@ -1,4 +1,3 @@
-import json
 import logging
 from xml.sax.saxutils import escape
 
@@ -65,10 +64,6 @@ class CollectionDetail(DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
-        context['activities_data'] = json.dumps([{
-            'name': activity.name,
-            'source_launch_url': activity.source_launch_url,
-        } for activity in activities])
         return context
 
     @staticmethod
