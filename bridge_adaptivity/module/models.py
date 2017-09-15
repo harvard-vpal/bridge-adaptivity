@@ -1,13 +1,15 @@
+import logging
+
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from ordered_model.models import OrderedModel
 
 from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer, OutcomeService
 from module import ENGINE
 
-import logging
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +54,7 @@ class SequenceItem(models.Model):
         ordering = ['sequence', 'position']
 
     def __str__(self):
-        return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
+        return u'<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
 
     def save(self, *args, **kwargs):
         """
@@ -81,14 +83,14 @@ class Collection(models.Model):
         unique_together = ('owner', 'name')
 
     def __str__(self):
-        return '<Collection: {}>'.format(self.name)
+        return u'<Collection: {}>'.format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
 
 
 @python_2_unicode_compatible
-class Activity(models.Model):
+class Activity(OrderedModel):
     """
     General entity which represents problem/text/video material.
     """
@@ -98,11 +100,20 @@ class Activity(models.Model):
         ('h', _('high')),
     )
 
+    TYPES = (
+        ('G', _('generic')),
+        ('A', _('pre-assessment')),
+        ('Z', _('post-assessment')),
+    )
+
+    order_with_respect_to = 'atype', 'collection'
+
     name = models.CharField(max_length=255)
-    collection = models.ForeignKey('Collection', null=True)
+    collection = models.ForeignKey('Collection', related_name='activities', null=True)
     tags = fields.CharField(max_length=255, blank=True, null=True)
+    atype = fields.CharField(verbose_name="type", choices=TYPES, default='G', max_length=1)
     difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
-    points = models.FloatField(blank=True, null=True)
+    points = models.FloatField(blank=True, default=1)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
@@ -111,9 +122,10 @@ class Activity(models.Model):
     class Meta:
         verbose_name_plural = 'Activities'
         unique_together = ("source_launch_url", "collection")
+        ordering = 'atype', 'order'
 
     def __str__(self):
-        return '<Activity: {}>'.format(self.name)
+        return u'<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
@@ -157,6 +169,6 @@ class Log(models.Model):
 
     def __str__(self):
         if self.log_type == self.OPENED:
-            return '<Log: {}>'.format(self.sequence_item)
+            return u'<Log: {}>'.format(self.sequence_item)
         else:
-            return '<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)
+            return u'<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)

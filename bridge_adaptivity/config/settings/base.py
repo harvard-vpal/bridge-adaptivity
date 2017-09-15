@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     # external apps
     'bootstrap3',
     'corsheaders',
+    'ordered_model',
 
     # core functions
     'bridge_lti',

@@ -57,7 +57,7 @@ class CollectionDetail(DetailView):
     def get_context_data(self, **kwargs):
         activities = Activity.objects.filter(collection=self.object)
         context = super(CollectionDetail, self).get_context_data(**kwargs)
-        context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source_name']
+        context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
         context['source_courses'] = self.get_content_courses()
         context['activity_form'] = ActivityForm(initial={
@@ -81,7 +81,7 @@ class CollectionDetail(DetailView):
 @method_decorator(login_required, name='dispatch')
 class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
-    fields = ['name', 'tags', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
+    fields = ['name', 'tags', 'atype', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
 
     def form_valid(self, form):
         activity = form.save(commit=False)
@@ -100,6 +100,18 @@ class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
     model = Activity
     context_object_name = 'activity'
     fields = ActivityCreate.fields
+
+    def get(self, request, *args, **kwargs):
+        activity = self.get_object()
+        if 'direction' in kwargs:
+            try:
+                # NOTE(wowkalucky): expects 'up', 'down' (also possible: 'top', 'bottom')
+                getattr(activity, kwargs['direction'])()
+            except AttributeError:
+                log.exception("Unknown ordering method!")
+            return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
+
+        return super(ActivityUpdate, self).get(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -154,7 +166,7 @@ def sequence_item_next(request, pk):
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:
-        activity = utils.chose_activity(sequence_item)
+        activity = utils.choose_activity(sequence_item)
         if next_sequence_item is None:
             if not activity:
                 return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
