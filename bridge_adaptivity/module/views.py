@@ -130,8 +130,10 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(SequenceItemDetail, self).get_context_data(**kwargs)
         item_filter = {'sequence': self.object.sequence}
-        if self.request.session.get('Lti_update_activity'):
+        if self.request.session.get('Lti_update_activity') and self.object.sequence.items.all().count() > 1:
             item_filter.update({'score__isnull': False})
+        if self.request.GET.get('forbidden'):
+            context['forbidden'] = True
         context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
 
         Log.objects.create(
@@ -142,9 +144,34 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         return context
 
 
+def _check_next_forbidden(pk):
+    """
+    Check if next sequence item is forbidden to be shown to the student
+
+    :param pk: currently opened SequenseItem's pk
+    :return: tuple of the parameters next_forbidden, last_item, sequence_item
+             Where next_forbidden is boolean flag to forbid show next sequence item to the student,
+             last_item (integer) is index of the last SequenceItem,
+             sequence_item (SequenceItem inctance) of the currently open sequence item
+    """
+    sequence_item = SequenceItem.objects.get(pk=pk)
+
+    last_item = SequenceItem.objects.filter(
+        sequence=sequence_item.sequence
+    ).aggregate(last_item=Max('position'))['last_item']
+    next_forbidden = False
+    if (
+        sequence_item.position == last_item and
+        sequence_item.sequence.collection.strict_forward and
+        not sequence_item.score
+    ):
+        next_forbidden = True
+    return next_forbidden, last_item, sequence_item
+
+
 def sequence_item_next(request, pk):
     try:
-        sequence_item = SequenceItem.objects.get(pk=pk)
+        next_forbidden, last_item, sequence_item = _check_next_forbidden(pk)
     except SequenceItem.DoesNotExist:
         log.exception("SequenceItem which supposed to exist can't be found!")
         return render(
@@ -156,9 +183,8 @@ def sequence_item_next(request, pk):
                 'tip': "ERROR: next sequence item can't be proposed",
             }
         )
-    last_item = SequenceItem.objects.filter(
-        sequence=sequence_item.sequence
-    ).aggregate(last_item=Max('position'))['last_item']
+    if next_forbidden:
+        return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
         position=sequence_item.position + 1
@@ -214,7 +240,7 @@ def callback_sequence_item_grade(request):
         body = escape(request.body) if request.body else ''
         error_message = "Request body XML parsing error: {} {}".format(err.message, body)
         log.debug("Failure to archive grade from the source: %s" + error_message)
-        failure.update({'imsx_description': error_message})
+        failure.update({'imsx_description': escape(error_message)})
         return HttpResponse(utils.XML.format(**failure), content_type='application/xml')
     sequence_item_id, user_id, _ = sourced_id.split(':')
     if action == 'replaceResultRequest':
@@ -231,7 +257,7 @@ def callback_sequence_item_grade(request):
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
     except SequenceItem.DoesNotExist:
         error_message = "Sequence Item with the ID={} was not found".format(sequence_item_id)
-        failure.update({'imsx_description': error_message})
+        failure.update({'imsx_description': escape(error_message)})
         log.debug("Grade cannot be updated: SequenceItem is not found.")
         return HttpResponseNotFound(utils.XML.format(**failure), content_type='application/xml')
     sequence_item.score = float(score)

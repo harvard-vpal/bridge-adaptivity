@@ -35,13 +35,15 @@
   </div>
   <div class="row">
     <div class="col-md-6"></div>
-    <div class="col-md-6">
+    <div id="next-button" data-forbidden="{{ forbidden }}" class="col-md-6">
       <a href="{% url 'module:sequence-item-next' sequence_item.id %}">
         {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
       </a>
     </div>
   </div>
 </div>
-
+{% include "module/forbid_next_modal.html" %}
+{% bootstrap_javascript jquery=True %}
+<script src="{% static 'module/js/forbid_next.js' %}"></script>
 
 {% endblock bootstrap3_content %}
