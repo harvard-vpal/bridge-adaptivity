@@ -25,8 +25,9 @@ class LtiSessionMixin(object):
             return HttpResponseForbidden("Cource content is available only through LTI protocol.")
         elif lti_session != cache.get(sequence_id):
             cache.set(sequence_id, lti_session)
-            request.session['Lti_update_activity'] = True
-            log.debug("Session is changed, activity update could be required: {}".format(
-                request.session['Lti_update_activity'])
-            )
+            if request.session['Lti_strict_forward']:
+                request.session['Lti_update_activity'] = True
+                log.debug("Session is changed, activity update could be required: {}".format(
+                    request.session['Lti_update_activity'])
+                )
         return super(LtiSessionMixin, self).dispatch(request, *args, **kwargs)

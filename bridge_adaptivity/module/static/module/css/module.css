@@ -25,3 +25,7 @@ a.trash {
 div.options {
 	min-width: 140px;
 }
+
+.modal-body>p {
+    color: royalblue;
+}
