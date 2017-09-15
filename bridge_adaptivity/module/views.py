@@ -147,6 +147,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 def _check_next_forbidden(pk):
     """
     Check if next sequence item is forbidden to be shown to the student
+
     :param pk: currently opened SequenseItem's pk
     :return: tuple of the parameters next_forbidden, last_item, sequence_item
              Where next_forbidden is boolean flag to forbid show next sequence item to the student,

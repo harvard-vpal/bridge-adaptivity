@@ -64,6 +64,13 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
+def find_last_sequence_item(sequence, strict_forward):
+    sequence_items = sequence.items.all()
+    if strict_forward and sequence_items.count() > 1:
+        sequence_items = sequence_items.filter(score__isnull=False)
+    return sequence_items.last()
+
+
 def learner_flow(request, lti_consumer, collection_id=None):
     """
     Define logic flow for Learner.
@@ -127,10 +134,7 @@ def learner_flow(request, lti_consumer, collection_id=None):
             position=1
         )
     else:
-        sequence_items = sequence.items.all()
-        if strict_forward and sequence_items.count() > 1:
-            sequence_items = sequence_items.filter(score__isnull=False)
-        sequence_item = sequence_items.last()
+        sequence_item = find_last_sequence_item(sequence, strict_forward)
     sequence_item_id = sequence_item.id if sequence_item else None
     if not sequence_item_id:
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
