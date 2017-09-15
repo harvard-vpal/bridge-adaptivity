@@ -112,6 +112,7 @@
                 // if item already is used by some Activity => block and highlight:
                 if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
                     sourceButton
+                        .css("text-decoration", "line-through")
                         .addClass("bg-info");
                 } else {
                     listItem
@@ -129,6 +130,7 @@
                 }
                 sourceButton
                     .appendTo(listItem);
+                // Cource block preview:
                 createPreviewButton(
                     item["display_name"],
                     item["lti_url"],
@@ -145,7 +147,7 @@
                 .addClass("pull-right")
                 .attr("data-toggle", "modal")
                 .attr("data-target", "#sourceModal")
-                .appendTo(parent);
+                .prependTo(parent);
             var previewButton = $("<button/>", {"class": "btn btn-default btn-sm"})
                 .appendTo(preview);
             $("<span/>")
