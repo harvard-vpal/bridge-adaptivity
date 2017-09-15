@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load bootstrap3 %}
+{% load staticfiles bootstrap3 %}
 
 {% block title %}
   <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
@@ -27,7 +27,10 @@
           </tr>
           {% for activity in activities %}
             <tr id="activity-row-{{ forloop.counter0 }}"
-                {% if activity.atype == 'A' %}class="warning"{% elif activity.atype == 'Z' %}class="info"{% endif %}>
+                class="activity{% if activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
+                data-activity-name="{{ activity.name }}"
+                data-activity-source-launch-url="{{ activity.source_launch_url }}"
+            >
               <td><a href="{% url 'module:activity-change' activity.pk collection.pk %}">{{ activity.name }}</a></td>
               <td>{{ activity.tags|default:"-" }}</td>
               <td>{{ activity.get_difficulty_display|default:"-" }}</td>
@@ -91,22 +94,23 @@
         <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
           {% for source_course in source_courses %}
 
-            <div class="panel panel-default">
-              <div class="panel-heading" role="tab" id="heading{{ forloop.counter }}">
+            <div id="content-panel-{{ forloop.counter0 }}" class="panel panel-default">
+              <div class="panel-heading" role="tab" id="heading{{ forloop.counter0 }}">
                 <h4 class="panel-title">
                   <a {% if not forloop.first %}class="collapsed" {% endif %} role="button" data-toggle="collapse"
-                     data-parent="#accordion" href="#collapse{{ forloop.counter }}"
+                     data-parent="#accordion" href="#collapse{{ forloop.counter0 }}"
                      data-course-id="{{ source_course.course_id }}"
+                     data-course-index="{{ forloop.counter0 }}"
                      aria-expanded="false"
-                     aria-controls="collapse{{ forloop.counter }}">
+                     aria-controls="collapse{{ forloop.counter0 }}">
                     {{ source_course.name }} <span
                     class="label label-default pull-right">{{ source_course.org }}</span>
                   </a>
                 </h4>
               </div>
-              <div id="collapse{{ forloop.counter }}" class="panel-collapse collapse"
-                   role="tabpanel" aria-labelledby="heading{{ forloop.counter }}">
-                <div class="panel-body">
+              <div id="collapse{{ forloop.counter0 }}" class="panel-collapse collapse"
+                   role="tabpanel" aria-labelledby="heading{{ forloop.counter0 }}">
+                <div id="panel-body-{{ forloop.counter0 }}" class="panel-body">
 
                 </div>
               </div>
@@ -119,115 +123,18 @@
     </div>
   </div>
 
-    {% include "module/source_modal.html" %}
-    {% include "module/activity_modal.html" with collection=object %}
+  {% include "module/source_modal.html" %}
+  {% include "module/activity_modal.html" with collection=object %}
 
 {% endblock content %}
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
-  {# FIXME(wowkalucky): move script to separate file #}
-  <script type="text/javascript">
-      (function ($) {
-          var modalContentFrame = $('#modal-source-preview');
-          var typeToIcon = {
-              html: "glyphicon-list-alt",
-              problem: "glyphicon-question-sign",
-              video: "glyphicon-facetime-video",
-              other: "glyphicon-option-horizontal"
-          };
-
-          // activity source preview:
-          var activitiesData = {{ activities_data|safe }};
-          $.each(activitiesData, function (i, activity) {
-              createPreviewButton(
-                  activity['name'],
-                  activity['source_launch_url'],
-                  activity['id'],
-                  $('#activity-row-' + i + ' td').last(),
-                  modalContentFrame
-              )
-          });
-
-          $("#accordion").find("a[data-course-id]").on('click', function () {
-              var target = $(this);
-              var data = {course_id: target.data("course-id")};
-              $.post("{% url 'api:sources' %}", data, function (data) {
-                  var content_panel = target.closest(".panel.panel-default").find(".panel-body").first();
-                  if (content_panel.find('ul.content-sources').length) {
-                      return
-                  }
-
-                  var sourcesList = $('<div/>').addClass('list-group');
-                  $.each(data, function (i, item) {
-                      var listItem = $('<button/>')
-                          .addClass('list-group-item')
-                          .attr('type', 'button')
-                          .appendTo(sourcesList);
-                      var sourceIcon = $('<span/>')
-                          .data('toggle', 'tooltip')
-                          .attr('title', item.type)
-                          .addClass("badge pull-left glyphicon " + typeToIcon[item.type])
-                          .text(" ")
-                          .css('margin-right', '5px')
-                          .appendTo(listItem);
-                      var sourceButton = $('<span/>')
-                          .attr('data-toggle', 'modal')
-                          .attr('data-target', '#activityModal')
-                          .text(item['display_name'])
-                          .appendTo(listItem);
-                      sourceButton.on('click', function () {
-                          setInitialActivityData(item);
-                      });
-                      createPreviewButton(
-                          item['display_name'],
-                          item['lti_url'],
-                          item['id'],
-                          listItem,
-                          modalContentFrame
-                      )
-                  });
-                  content_panel.append(sourcesList);
-              });
-          });
-
-          function createPreviewButton(title, ltiUrl, sourceId, parent, modalFrame) {
-              var preview = $('<a/>')
-                  .addClass("pull-right")
-                  .appendTo(parent);
-              var previewButton = $('<button/>', {'class': 'btn btn-default btn-sm'})
-                  .appendTo(preview);
-              var previewButtonBody = $('<span/>')
-                  .addClass("glyphicon glyphicon-eye-open")
-                  .attr('data-toggle', 'modal')
-                  .attr('data-target', '#sourceModal')
-                  .attr('data-display-name', title)
-                  .attr('data-lti-url', ltiUrl)
-                  .appendTo(previewButton);
-              previewButton.on('click', function () {
-                  $('#sourceModalLabel').text(title);
-                  configurePreview(modalFrame, title, ltiUrl, sourceId);
-              })
-          }
-
-          function configurePreview(frame, title, ltiUrl, sourceId) {
-              var idParam = "source_id=" + sourceId + "&";
-              var displayNameParam = "source_name=" + title + "&";
-              var ltiUrlParam = "source_lti_url=" + ltiUrl + "&";
-              var previewUrl = "{% url 'lti:source-preview' %}?" + idParam + displayNameParam + ltiUrlParam;
-              frame
-                  .attr('src', previewUrl)
-                  .attr('title', title)
-                  .attr('name', sourceId);
-          }
-
-          function setInitialActivityData(source) {
-              $('#id_name').val(source['display_name']);
-              $('#id_source_name').val(source['display_name']);
-              $('#id_source_launch_url').val(source['lti_url']);
-              $('#id_source_context_id').val(source['context_id']);
-          }
-      }(jQuery));
+  <script type="application/javascript">
+      var internalUrls = {
+          apiSources: "{% url 'api:sources' %}",
+          ltiSourcePreview: "{% url 'lti:source-preview' %}"
+      };
   </script>
-
-{% endblock %}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}

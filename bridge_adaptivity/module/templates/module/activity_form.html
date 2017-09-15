@@ -12,8 +12,10 @@
   <button class="btn btn-primary" type="submit">{% if activity %}Change{% else %}Create{% endif %}</button>
   <a href="{% url 'module:collection-detail' current_collection_id %}" class="btn btn-default" role="button"
      type="reset">Cancel</a>
+  {% if activity %}
   <a href="{% url 'module:activity-delete' object.id %}" class="btn btn-default" role="button"
      type="reset">Delete</a>
+  {% endif %}
 </form>
 
 {% endblock content %}

@@ -118,6 +118,7 @@ STATIC_ROOT = secure.STATIC_ROOT
 # django-bootstrap:
 BOOTSTRAP3 = {
     'include_jquery': True,
+    'jquery_url': '//code.jquery.com/jquery-3.2.1.min.js'
 }
 
 # allow post requests from edx

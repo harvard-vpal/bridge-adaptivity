@@ -1,3 +1,4 @@
+{% load staticfiles bootstrap3 %}
 <html>
 <head>
   <title>Content source</title>
@@ -17,14 +18,8 @@
   <button type="submit">Launch the tool</button>
 </form>
 
-<script type="text/javascript">
-    (function (d) {
-        var element = d.getElementById("ltiLaunchForm");
-        if (element) {
-            element.submit();
-        }
-    }(document));
-</script>
+{% bootstrap_javascript jquery=True %}
+<script src="{% static 'bridge_lti/js/bridge-lti.js' %}"></script>
 
 </body>
 </html>
