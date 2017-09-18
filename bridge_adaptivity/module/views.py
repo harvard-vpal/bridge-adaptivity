@@ -163,7 +163,7 @@ def _check_next_forbidden(pk):
     if (
         sequence_item.position == last_item and
         sequence_item.sequence.collection.strict_forward and
-        not sequence_item.score
+        sequence_item.score is None
     ):
         next_forbidden = True
     return next_forbidden, last_item, sequence_item
