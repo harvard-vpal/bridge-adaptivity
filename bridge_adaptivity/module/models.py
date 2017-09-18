@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
@@ -165,18 +166,47 @@ class Log(models.Model):
     """
     OPENED = 'O'
     SUBMITTED = 'S'
+    ADMIN = 'A'
     LOG_TYPES = (
         (OPENED, 'Opened'),
         (SUBMITTED, 'Submitted'),
+        (ADMIN, 'Admin'),
     )
+
+    ACTIVITY_CREATED = 'AC'
+    ACTIVITY_UPDATED = 'AU'
+    ACTIVITY_DELETED = 'AD'
+    COLLECTION_CREATED = 'CC'
+    COLLECTION_UPDATED = 'CU'
+    ACTIONS = (
+        (ACTIVITY_CREATED, 'Activity created'),
+        (ACTIVITY_UPDATED, 'Activity updated'),
+        (ACTIVITY_DELETED, 'Activity deleted'),
+        (COLLECTION_CREATED, 'Collection created'),
+        (COLLECTION_UPDATED, 'Collection updated'),
+    )
+
     sequence_item = models.ForeignKey('SequenceItem', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     log_type = fields.CharField(choices=LOG_TYPES, max_length=32)
     answer = models.BooleanField(verbose_name='Is answer correct?', default=False)
     attempt = models.PositiveIntegerField(default=0)
+    action = fields.CharField(choices=ACTIONS, max_length=2, null=True, blank=True)
+    data = JSONField(default={}, blank=True)
 
     def __str__(self):
         if self.log_type == self.OPENED:
-            return u'<Log: {}>'.format(self.sequence_item)
+            return u'<Log[{}]: {}>'.format(self.get_log_type_display(), self.sequence_item)
+        elif self.log_type == self.ADMIN:
+            return u'<Log[{}]: {} ({})>'.format(
+                self.get_log_type_display(),
+                self.get_action_display(),
+                self.data
+            )
         else:
-            return u'<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)
+            return u'<Log[{}]: {}-{}[{}]>'.format(
+                self.get_log_type_display(),
+                self.sequence_item,
+                self.answer,
+                self.attempt
+            )
