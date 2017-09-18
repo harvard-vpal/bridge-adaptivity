@@ -10,7 +10,7 @@
 <form role="form" method="post">
   {% csrf_token %}
   {% bootstrap_form form %}
-  <button class="btn btn-default" type="submit">Create</button>
+  <button class="btn btn-primary" type="submit">Create</button>
   <a href="{% url 'module:collection-list' %}" class="btn btn-default" role="button" type="reset">Cancel</a>
 </form>
 

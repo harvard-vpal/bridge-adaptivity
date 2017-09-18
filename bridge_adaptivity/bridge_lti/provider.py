@@ -31,7 +31,6 @@ def lti_launch(request, collection_id=None):
     - The launch contains all the required parameters
     - The launch data is correctly signed using a known client key/secret pair
     """
-    request.session.clear()
     request_post = request.POST
     try:
         tool_provider = DjangoToolProvider.from_django_request(request=request)
