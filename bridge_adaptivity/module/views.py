@@ -50,6 +50,12 @@ class CollectionCreate(CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
+class CollectionUpdate(UpdateView):
+    model = Collection
+    fields = ['name', 'threshold', 'metadata', 'strict_forward']
+
+
+@method_decorator(login_required, name='dispatch')
 class CollectionDetail(DetailView):
     model = Collection
     context_object_name = 'collection'
