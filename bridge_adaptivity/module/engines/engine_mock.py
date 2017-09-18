@@ -17,9 +17,18 @@ class EngineMock(EngineInterface):
         :param sequence: sequence
         :return: selected activity_id
         """
-        s_activities_list = list(sequence.items.values_list('activity_id', flat=True))
+        s_activities_list = list(sequence.items.exclude(score__isnull=True).values_list('activity_id', flat=True))
         available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
-        chosen_activity_id = random.choice(available_activities).id if available_activities else None
+        pre_assesment = available_activities.filter(atype='A')
+        generic = available_activities.filter(atype='G')
+        post_assessment = available_activities.filter(atype='Z')
+        chosen_activity_id = None
+        if pre_assesment:
+            chosen_activity_id = pre_assesment.first().id
+        elif generic:
+            chosen_activity_id = random.choice(generic).id
+        elif post_assessment:
+            chosen_activity_id = post_assessment.first().id
         log.debug("Chosen activity is: {}".format(chosen_activity_id))
         return chosen_activity_id
 
