@@ -155,6 +155,16 @@ class Activity(OrderedModel):
         ENGINE.delete_activity(self)
         super(Activity, self).delete(*args, **kwargs)
 
+    @property
+    def last_pre(self):
+        """
+        Has Activity last order number position in certain type subcollection?
+
+        :return: (bool)
+        """
+        last_pre = Activity.objects.filter(collection=self.collection, atype='A').last()
+        return self.id == last_pre.id
+
 
 @python_2_unicode_compatible
 class Log(models.Model):
