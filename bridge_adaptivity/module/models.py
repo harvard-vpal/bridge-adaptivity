@@ -110,14 +110,22 @@ class Activity(OrderedModel):
 
     name = models.CharField(max_length=255)
     collection = models.ForeignKey('Collection', related_name='activities', null=True)
-    tags = fields.CharField(max_length=255, blank=True, null=True)
-    atype = fields.CharField(verbose_name="type", choices=TYPES, default='G', max_length=1)
+    tags = fields.CharField(
+        max_length=255, blank=True, null=True,
+        help_text="Provide your tags separated by a comma."
+    )
+    atype = fields.CharField(
+        verbose_name="type", choices=TYPES, default='G', max_length=1,
+        help_text="Choose 'pre/post-assessment' activity type to pin Activity to the start or the end of "
+                  "the Collection."
+    )
     difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
     points = models.FloatField(blank=True, default=1)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     source_context_id = fields.CharField(max_length=255, blank=True, null=True)
+    # NOTE(wowkalucky): extra field 'order' is available (inherited from OrderedModel)
 
     class Meta:
         verbose_name_plural = 'Activities'

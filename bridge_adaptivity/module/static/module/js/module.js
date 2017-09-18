@@ -52,7 +52,7 @@
                 activity["name"],
                 activity["launch_url"],
                 activity["id"],
-                $("#activity-row-" + i + " td").last(),
+                $("#activity-row-" + i + " td div").last(),
                 modalContentFrame
             )
         });

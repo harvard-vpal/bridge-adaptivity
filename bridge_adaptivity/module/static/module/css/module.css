@@ -18,6 +18,14 @@ iframe#vpal-activity {
 	resize: vertical;
 }
 
+a.trash {
+	float: right;
+}
+
+div.options {
+	min-width: 140px;
+}
+
 .modal-body>p {
     color: royalblue;
 }
