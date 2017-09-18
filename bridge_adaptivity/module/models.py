@@ -30,7 +30,7 @@ class Sequence(models.Model):
         unique_together = (('lti_user', 'collection'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
-        return '<Sequence: {}>'.format(self.lti_user)
+        return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
 
 
 @python_2_unicode_compatible
@@ -187,6 +187,16 @@ class Activity(OrderedModel):
             data=self.get_research_data()
         )
         super(Activity, self).delete(*args, **kwargs)
+
+    @property
+    def last_pre(self):
+        """
+        Has Activity last order number position in certain type subcollection?
+
+        :return: (bool)
+        """
+        last_pre = Activity.objects.filter(collection=self.collection, atype='A').last()
+        return self.id == last_pre.id
 
     def get_research_data(self):
         return {'collection_id': self.collection_id, 'activity_id': self.id}
