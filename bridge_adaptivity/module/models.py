@@ -86,6 +86,24 @@ class Collection(models.Model):
     def __str__(self):
         return u'<Collection: {}>'.format(self.name)
 
+    def save(self, *args, **kwargs):
+        """
+        Extend save() method with logging.
+        """
+        initial_id = self.id
+        super(Collection, self).save(*args, **kwargs)
+
+        if initial_id:
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
+                data={'collection_id': self.id}
+            )
+        else:
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
+                data={'collection_id': self.id}
+            )
+
     def get_absolute_url(self):
         return reverse('module:collection-list')
 
@@ -143,17 +161,31 @@ class Activity(OrderedModel):
         """
         Extend save() method with sending notification to the Adaptive engine that Activity is created/updated
         """
-        if Activity.objects.filter(id=self.id):
+        initial_id = self.id
+        super(Activity, self).save(*args, **kwargs)
+
+        if initial_id:
             ENGINE.update_activity(self)
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
+                data={'collection_id': self.collection_id, 'activity_id': self.id}
+            )
         else:
             ENGINE.add_activity(self)
-        super(Activity, self).save(*args, **kwargs)
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
+                data={'collection_id': self.collection_id, 'activity_id': self.id}
+            )
 
     def delete(self, *args, **kwargs):
         """
         Extend delete() method with sending notification to the Adaptive engine that Activity is deleted
         """
         ENGINE.delete_activity(self)
+        Log.objects.create(
+            log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
+            data={'collection_id': self.collection_id, 'activity_id': self.id}
+        )
         super(Activity, self).delete(*args, **kwargs)
 
 
