@@ -191,6 +191,7 @@ class Activity(OrderedModel):
     def get_research_data(self):
         return {'collection_id': self.collection_id, 'activity_id': self.id}
 
+
 @python_2_unicode_compatible
 class Log(models.Model):
     """
