@@ -29,7 +29,7 @@ class Sequence(models.Model):
         unique_together = (('lti_user', 'collection'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
-        return '<Sequence: {}>'.format(self.lti_user)
+        return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
 
 
 @python_2_unicode_compatible
