@@ -63,13 +63,11 @@
                       {% bootstrap_button "" size='sm' icon='chevron-up' %}
                     </a>
                     {% endifnotequal %}
-                    {% if not forloop.last %}
-                      {% if not activity.last_pre  %}
+                    {% if not forloop.last and not activity.last_pre  %}
                       <a class="move-down pull-right"
                          href="{% url 'module:activity-move' pk=activity.pk direction='down' %}">
                         {% bootstrap_button "" size='sm' icon='chevron-down' %}
                       </a>
-                      {% endif %}
                     {% endif %}
                   {% endifnotequal %}
                 </div>
