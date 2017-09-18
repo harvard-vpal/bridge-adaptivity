@@ -13,6 +13,7 @@
         <th>metadata</th>
         <th>threshold</th>
         <th>strict forward</th>
+        <th class="text-center">options</th>
       </tr>
       {% for collection in collections %}
         <tr>
@@ -24,6 +25,14 @@
           {% else %}
             <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
           {% endif %}
+          </td>
+          <td>
+            <div>
+              <a class="move-down pull-right"
+                 href="{% url 'module:collection-change' collection.id %}">
+                {% bootstrap_button "" size='sm' icon='edit' %}
+              </a>
+            </div>
           </td>
         </tr>
       {% endfor %}
