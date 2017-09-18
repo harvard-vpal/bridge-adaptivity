@@ -6,6 +6,7 @@ from .models import Sequence, SequenceItem, Collection, Activity, Log
 
 class SequenceItemStackedInline(admin.StackedInline):
     model = SequenceItem
+    extra = 0
 
 
 @admin.register(Sequence)

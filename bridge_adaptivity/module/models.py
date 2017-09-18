@@ -1,5 +1,6 @@
 import logging
 
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
@@ -85,6 +86,24 @@ class Collection(models.Model):
     def __str__(self):
         return u'<Collection: {}>'.format(self.name)
 
+    def save(self, *args, **kwargs):
+        """
+        Extend save() method with logging.
+        """
+        initial_id = self.id
+        super(Collection, self).save(*args, **kwargs)
+
+        if initial_id:
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
+                data={'collection_id': self.id}
+            )
+        else:
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
+                data={'collection_id': self.id}
+            )
+
     def get_absolute_url(self):
         return reverse('module:collection-list')
 
@@ -142,18 +161,35 @@ class Activity(OrderedModel):
         """
         Extend save() method with sending notification to the Adaptive engine that Activity is created/updated
         """
-        if Activity.objects.filter(id=self.id):
+        initial_id = self.id
+        super(Activity, self).save(*args, **kwargs)
+
+        if initial_id:
             ENGINE.update_activity(self)
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
+                data=self.get_research_data()
+            )
         else:
             ENGINE.add_activity(self)
-        super(Activity, self).save(*args, **kwargs)
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
+                data=self.get_research_data()
+            )
 
     def delete(self, *args, **kwargs):
         """
         Extend delete() method with sending notification to the Adaptive engine that Activity is deleted
         """
         ENGINE.delete_activity(self)
+        Log.objects.create(
+            log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
+            data=self.get_research_data()
+        )
         super(Activity, self).delete(*args, **kwargs)
+
+    def get_research_data(self):
+        return {'collection_id': self.collection_id, 'activity_id': self.id}
 
 
 @python_2_unicode_compatible
@@ -165,18 +201,47 @@ class Log(models.Model):
     """
     OPENED = 'O'
     SUBMITTED = 'S'
+    ADMIN = 'A'
     LOG_TYPES = (
         (OPENED, 'Opened'),
         (SUBMITTED, 'Submitted'),
+        (ADMIN, 'Admin'),
     )
+
+    ACTIVITY_CREATED = 'AC'
+    ACTIVITY_UPDATED = 'AU'
+    ACTIVITY_DELETED = 'AD'
+    COLLECTION_CREATED = 'CC'
+    COLLECTION_UPDATED = 'CU'
+    ACTIONS = (
+        (ACTIVITY_CREATED, 'Activity created'),
+        (ACTIVITY_UPDATED, 'Activity updated'),
+        (ACTIVITY_DELETED, 'Activity deleted'),
+        (COLLECTION_CREATED, 'Collection created'),
+        (COLLECTION_UPDATED, 'Collection updated'),
+    )
+
     sequence_item = models.ForeignKey('SequenceItem', null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     log_type = fields.CharField(choices=LOG_TYPES, max_length=32)
     answer = models.BooleanField(verbose_name='Is answer correct?', default=False)
     attempt = models.PositiveIntegerField(default=0)
+    action = fields.CharField(choices=ACTIONS, max_length=2, null=True, blank=True)
+    data = JSONField(default={}, blank=True)
 
     def __str__(self):
         if self.log_type == self.OPENED:
-            return u'<Log: {}>'.format(self.sequence_item)
+            return u'<Log[{}]: {}>'.format(self.get_log_type_display(), self.sequence_item)
+        elif self.log_type == self.ADMIN:
+            return u'<Log[{}]: {} ({})>'.format(
+                self.get_log_type_display(),
+                self.get_action_display(),
+                self.data
+            )
         else:
-            return u'<Log: {}-{}[{}]>'.format(self.sequence_item, self.answer, self.attempt)
+            return u'<Log[{}]: {}-{}[{}]>'.format(
+                self.get_log_type_display(),
+                self.sequence_item,
+                self.answer,
+                self.attempt
+            )
