@@ -168,13 +168,13 @@ class Activity(OrderedModel):
             ENGINE.update_activity(self)
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
-                data={'collection_id': self.collection_id, 'activity_id': self.id}
+                data=self.get_research_data()
             )
         else:
             ENGINE.add_activity(self)
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
-                data={'collection_id': self.collection_id, 'activity_id': self.id}
+                data=self.get_research_data()
             )
 
     def delete(self, *args, **kwargs):
@@ -184,10 +184,12 @@ class Activity(OrderedModel):
         ENGINE.delete_activity(self)
         Log.objects.create(
             log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
-            data={'collection_id': self.collection_id, 'activity_id': self.id}
+            data=self.get_research_data()
         )
         super(Activity, self).delete(*args, **kwargs)
 
+    def get_research_data(self):
+        return {'collection_id': self.collection_id, 'activity_id': self.id}
 
 @python_2_unicode_compatible
 class Log(models.Model):
