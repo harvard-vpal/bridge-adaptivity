@@ -3,13 +3,15 @@ from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
-    CollectionList, CollectionCreate, CollectionDetail, ActivityCreate, ActivityUpdate, ActivityDelete,
-    SequenceItemDetail, sequence_item_next, SequenceComplete, callback_sequence_item_grade
+    CollectionList, CollectionCreate, CollectionDetail, CollectionUpdate,
+    ActivityCreate, ActivityUpdate, ActivityDelete,
+    SequenceItemDetail, sequence_item_next, SequenceComplete, callback_sequence_item_grade,
 )
 
 urlpatterns = [
     url(r'^collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^collection/add/$', CollectionCreate.as_view(), name='collection-add'),
+    url(r'^collection/(?P<pk>\d+)/change/$', CollectionUpdate.as_view(), name='collection-change'),
     url(r'^collection/(?P<pk>\d+)/$', CollectionDetail.as_view(), name='collection-detail'),
     url(r'^activity/(?P<collection_id>\d+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
