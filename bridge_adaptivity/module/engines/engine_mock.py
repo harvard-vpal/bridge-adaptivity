@@ -37,18 +37,21 @@ class EngineMock(EngineInterface):
         Mock engine works with data stored on the Bridge and do not need to implement method
         """
         log.debug("New activity {} is added to the Mock Engine.".format(activity))
+        return True
 
     def update_activity(self, activity):
         """
         Mock engine works with data stored on the Bridge and do not need to implement method
         """
         log.debug("New activity {} is updated in the Mock Engine.".format(activity))
+        return True
 
     def delete_activity(self, activity):
         """
         Mock engine works with data stored on the Bridge and do not need to implement method
         """
         log.debug("New activity {} is deleted from the Mock Engine.".format(activity))
+        return True
 
     def submit_activity_answer(self, sequence_item):
         """
@@ -57,3 +60,4 @@ class EngineMock(EngineInterface):
         log.debug("Student has submitted answer for the activity {} and got {} scores.".format(
             sequence_item.activity.name, sequence_item.score
         ))
+        return True

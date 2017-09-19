@@ -1,6 +1,8 @@
 import logging
 
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
@@ -113,12 +115,6 @@ class Activity(OrderedModel):
     """
     General entity which represents problem/text/video material.
     """
-    LEVELS = (
-        ('l', _('low')),
-        ('m', _('medium')),
-        ('h', _('high')),
-    )
-
     TYPES = (
         ('G', _('generic')),
         ('A', _('pre-assessment')),
@@ -130,15 +126,20 @@ class Activity(OrderedModel):
     name = models.CharField(max_length=255)
     collection = models.ForeignKey('Collection', related_name='activities', null=True)
     tags = fields.CharField(
-        max_length=255, blank=True, null=True,
-        help_text="Provide your tags separated by a comma."
+        max_length=255,
+        help_text="Provide your tags separated by a comma.",
+        default="Unknown"
     )
     atype = fields.CharField(
         verbose_name="type", choices=TYPES, default='G', max_length=1,
         help_text="Choose 'pre/post-assessment' activity type to pin Activity to the start or the end of "
                   "the Collection."
     )
-    difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
+    difficulty = fields.FloatField(
+        default='0.5',
+        help_text="Provide float number in the range 0.0 - 1.0",
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
     points = models.FloatField(blank=True, default=1)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
@@ -162,26 +163,29 @@ class Activity(OrderedModel):
         Extend save() method with sending notification to the Adaptive engine that Activity is created/updated
         """
         initial_id = self.id
-        super(Activity, self).save(*args, **kwargs)
-
         if initial_id:
-            ENGINE.update_activity(self)
+            if not ENGINE.update_activity(self):
+                raise ValidationError
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
                 data=self.get_research_data()
             )
         else:
-            ENGINE.add_activity(self)
+            if not ENGINE.add_activity(self):
+                raise ValidationError
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
                 data=self.get_research_data()
             )
+        super(Activity, self).save(*args, **kwargs)
+        log.warn("Activity save initiate")
 
     def delete(self, *args, **kwargs):
         """
         Extend delete() method with sending notification to the Adaptive engine that Activity is deleted
         """
-        ENGINE.delete_activity(self)
+        if not ENGINE.delete_activity(self):
+            raise ValidationError
         Log.objects.create(
             log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
             data=self.get_research_data()

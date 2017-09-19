@@ -3,6 +3,7 @@ from xml.sax.saxutils import escape
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db.models import Sum, Count, Max
 from django import forms
 from django.http import HttpResponseNotFound, HttpResponse
@@ -75,6 +76,9 @@ class CollectionDetail(DetailView):
             'lti_consumer': get_content_provider(),
         })
         context['launch_url'] = self.get_launch_url()
+        engine_failure = self.request.GET.get('engine')
+        if engine_failure:
+            context['engine'] = engine_failure
         return context
 
     @staticmethod
@@ -110,8 +114,10 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
         activity.lti_consumer = get_content_provider()
-        activity.save()
-        return super(ActivityCreate, self).form_valid(form)
+        try:
+            return super(ActivityCreate, self).form_valid(form)
+        except (ValidationError, TypeError):
+            return redirect("{}?engine=failure".format(self.get_success_url()))
 
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
@@ -135,6 +141,12 @@ class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
 
         return super(ActivityUpdate, self).get(request, *args, **kwargs)
 
+    def form_valid(self, form):
+        try:
+            return super(ActivityUpdate, self).form_valid(form)
+        except (ValidationError, TypeError):
+            return redirect("{}?engine=failure".format(self.get_success_url()))
+
 
 @method_decorator(login_required, name='dispatch')
 class ActivityDelete(DeleteView):
@@ -142,6 +154,12 @@ class ActivityDelete(DeleteView):
 
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            return super(ActivityDelete, self).delete(request, *args, **kwargs)
+        except (ValidationError, TypeError):
+            return redirect("{}?engine=failure".format(self.get_success_url()))
 
 
 class SequenceItemDetail(LtiSessionMixin, DetailView):
