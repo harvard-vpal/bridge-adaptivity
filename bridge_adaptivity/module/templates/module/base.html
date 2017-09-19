@@ -11,6 +11,7 @@
   <title>{% block bootstrap3_title %}Bridge DASHBOARD{% endblock %}</title>
   {% bootstrap_css %}
   <link rel="stylesheet" href="{% static 'module/css/module.css' %}"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js"></script>
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -20,20 +21,22 @@
   {% if 'javascript_in_head'|bootstrap_setting %}{% bootstrap_javascript jquery=True %}{% endif %}
   {% block bootstrap3_extra_head %}{% endblock %}
   <style>
-    body { padding-top: 70px; }
+    body {
+      padding-top: 70px;
+    }
   </style>
 </head>
 
 <body>
 {% block bootstrap3_content %}
-{%  include "module/navbar.html" %}
-<div class="container">
-  <h1>{% block title %}{% endblock %}</h1>
+  {% include "module/navbar.html" %}
+  <div class="container">
+    <h1>{% block title %}{% endblock %}</h1>
 
-  {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+    {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
 
-  {% block content %}(no content){% endblock %}
-</div>
+    {% block content %}(no content){% endblock %}
+  </div>
 {% endblock bootstrap3_content %}
 
 {% if not 'javascript_in_head'|bootstrap_setting %}{% bootstrap_javascript jquery=True %}{% endif %}

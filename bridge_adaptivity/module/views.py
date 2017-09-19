@@ -1,11 +1,11 @@
 import logging
 from xml.sax.saxutils import escape
 
-from django.http import HttpResponseNotFound, HttpResponse
-
-from django.contrib.auth.decorators import login_required
 from django import forms
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Max
+from django.http import HttpResponseNotFound, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -16,10 +16,10 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti import outcomes
 from bridge_lti.outcomes import calculate_grade
+from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
 from module.models import Collection, Activity, SequenceItem, Log, Sequence
-from module import utils
 from module.utils import BridgeError
 
 log = logging.getLogger(__name__)
@@ -73,6 +73,7 @@ class CollectionDetail(DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['launch_url'] = self.get_launch_url()
         return context
 
     @staticmethod
@@ -85,6 +86,17 @@ class CollectionDetail(DetailView):
                 "LtiConsumer.is_active=True."
             )
             return []
+
+    def get_launch_url(self):
+        """
+        Build LTI launch URL for the Collection to be used by LTI Tool.
+
+        Example: https://bridge.host/lti/launch/3
+        :return: launch URL
+        """
+        return '{bridge_host}/lti/launch/{collection_id}'.format(
+            bridge_host=settings.BRIDGE_HOST, collection_id=self.object.id
+        )
 
 
 @method_decorator(login_required, name='dispatch')

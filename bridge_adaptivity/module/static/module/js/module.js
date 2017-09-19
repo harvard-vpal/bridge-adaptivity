@@ -181,5 +181,16 @@
             $("#id_source_launch_url").val(source["lti_url"]);
             $("#id_source_context_id").val(source["context_id"]);
         }
+
+        // Launch URL fetching:
+        var launchUrlFetcher = new Clipboard('#launch-url-fetcher');
+        launchUrlFetcher.on("success", function (e) {
+            var button = $(e.trigger).find(".btn");
+            button.addClass("btn-success");
+            setTimeout(function() {
+                button.removeClass("btn-success")
+            }, 2000)
+        });
+
     });
 }(jQuery));
