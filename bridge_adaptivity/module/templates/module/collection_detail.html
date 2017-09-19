@@ -9,6 +9,12 @@
   </a>
   <h3>
     <small>threshold: {{ collection.threshold|default:"not set" }}</small>
+    <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
+      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+    </a>
+    <a id="launch-url-fetcher" class="pull-right" data-clipboard-text="{{ launch_url }}">
+      {% bootstrap_button 'copy Launch URL' size='sm' icon='link' %}
+    </a>
   </h3>
 {% endblock title %}
 

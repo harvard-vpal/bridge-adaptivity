@@ -1,7 +1,7 @@
 import logging
 from xml.sax.saxutils import escape
 
-
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, Max
 from django import forms
@@ -51,6 +51,15 @@ class CollectionCreate(CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
+class CollectionUpdate(UpdateView):
+    model = Collection
+    fields = ['name', 'threshold', 'metadata', 'strict_forward']
+
+    def get_success_url(self):
+        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+
+
+@method_decorator(login_required, name='dispatch')
 class CollectionDetail(DetailView):
     model = Collection
     context_object_name = 'collection'
@@ -65,6 +74,7 @@ class CollectionDetail(DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['launch_url'] = self.get_launch_url()
         return context
 
     @staticmethod
@@ -77,6 +87,17 @@ class CollectionDetail(DetailView):
                 "LtiConsumer.is_active=True."
             )
             return []
+
+    def get_launch_url(self):
+        """
+        Build LTI launch URL for the Collection to be used by LTI Tool.
+
+        Example: https://bridge.host/lti/launch/3
+        :return: launch URL
+        """
+        return '{bridge_host}/lti/launch/{collection_id}'.format(
+            bridge_host=settings.BRIDGE_HOST, collection_id=self.object.id
+        )
 
 
 @method_decorator(login_required, name='dispatch')
