@@ -54,6 +54,9 @@ class CollectionUpdate(UpdateView):
     model = Collection
     fields = ['name', 'threshold', 'metadata', 'strict_forward']
 
+    def get_success_url(self):
+        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+
 
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(DetailView):
