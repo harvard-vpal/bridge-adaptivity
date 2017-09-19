@@ -9,8 +9,7 @@ from lti import InvalidLTIRequestError
 from lti.contrib.django import DjangoToolProvider
 from oauthlib import oauth1
 
-from bridge_lti.models import LtiProvider, LtiUser
-from bridge_lti.outcomes import store_outcome_parameters
+from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from module.models import (Collection, Sequence, SequenceItem)
 from module import utils as module_utils
@@ -20,6 +19,13 @@ log = logging.getLogger(__name__)
 
 def _error_msg(s):
     return "LTI: provided wrong consumer {}.".format(s)
+
+
+def find_last_sequence_item(sequence, strict_forward):
+    sequence_items = sequence.items.all()
+    if strict_forward and sequence_items.count() > 1:
+        sequence_items = sequence_items.filter(score__isnull=False)
+    return sequence_items.last()
 
 
 @csrf_exempt
@@ -42,15 +48,15 @@ def lti_launch(request, collection_id=None):
     if not ok:
         raise Http404('LTI request is not valid')
     request.session['Lti_session'] = request_post['oauth_nonce']
-    # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     lti_consumer = LtiProvider.objects.get(consumer_key=request_post['oauth_consumer_key'])
     roles = request_post.get('roles')
+    # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
         return instructor_flow(collection_id=collection_id)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
-        return learner_flow(request, lti_consumer, collection_id=collection_id)
+        return learner_flow(request, lti_consumer, tool_provider, collection_id=collection_id)
 
 
 def instructor_flow(collection_id=None):
@@ -63,14 +69,7 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
-def find_last_sequence_item(sequence, strict_forward):
-    sequence_items = sequence.items.all()
-    if strict_forward and sequence_items.count() > 1:
-        sequence_items = sequence_items.filter(score__isnull=False)
-    return sequence_items.last()
-
-
-def learner_flow(request, lti_consumer, collection_id=None):
+def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
     """
     Define logic flow for Learner.
     """
@@ -125,8 +124,17 @@ def learner_flow(request, lti_consumer, collection_id=None):
                 }
             )
         cache.set(str(sequence.id), request.session['Lti_session'])
-        # NOTE(wowkalucky): save outcome service parameters when Sequence is created
-        store_outcome_parameters(request.POST, sequence, lti_consumer)
+
+        # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
+        if tool_provider.is_outcome_service():
+            outcomes, __ = OutcomeService.objects.get_or_create(
+                lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
+                lms_lti_connection=lti_consumer
+            )
+            sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
+            sequence.outcome_service = outcomes
+            sequence.save()
+
         sequence_item = SequenceItem.objects.create(
             sequence=sequence,
             activity=start_activity,
