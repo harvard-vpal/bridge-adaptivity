@@ -1,16 +1,18 @@
 import logging
 from xml.sax.saxutils import escape
 
-from django.http import HttpResponseNotFound, HttpResponse
 
 from django.contrib.auth.decorators import login_required
-from django import forms
 from django.db.models import Sum, Count, Max
+from django import forms
+from django.http import HttpResponseNotFound, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from lti import OutcomeRequest, InvalidLTIConfigError, OutcomeResponse
+from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
@@ -20,7 +22,6 @@ from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
 from module.models import Collection, Activity, SequenceItem, Log, Sequence
 from module import utils
-from module.utils import BridgeError
 
 log = logging.getLogger(__name__)
 
@@ -229,40 +230,45 @@ def send_composite_outcome(sequence):
 
 @csrf_exempt
 def callback_sequence_item_grade(request):
-    failure = {
-        'imsx_codeMajor': 'failure',
-        'imsx_messageIdentifier': 'unknown',
-        'response': ''
-    }
+    outcome_response = OutcomeResponse(
+        message_identifier='unknown', code_major=CODE_MAJOR_CODES[2], severity=SEVERITY_CODES[0]
+    )
+
     try:
-        imsx_message_identifier, sourced_id, score, action = utils.parse_callback_grade_xml(request.body)
-    except BridgeError as err:
+        outcome_request = OutcomeRequest().from_post_request(request)
+        score = float(outcome_request.score)
+        if not 0.0 <= score <= 1.0:
+            raise InvalidLTIConfigError('[LTI] score value is outside the permitted range of 0.0-1.0')
+        operation = outcome_request.operation
+        if not operation == 'replaceResult':
+            raise InvalidLTIConfigError('[LTI] request operation {} cannot be proceed'.format(operation))
+    except (InvalidLTIConfigError, ValueError) as err:
         body = escape(request.body) if request.body else ''
         error_message = "Request body XML parsing error: {} {}".format(err.message, body)
         log.debug("Failure to archive grade from the source: %s" + error_message)
-        failure.update({'imsx_description': escape(error_message)})
-        return HttpResponse(utils.XML.format(**failure), content_type='application/xml')
-    sequence_item_id, user_id, _ = sourced_id.split(':')
-    if action == 'replaceResultRequest':
-        success = {
-            'imsx_codeMajor': 'success',
-            'imsx_description': 'Score for {sourced_id} is now {score}'.format(sourced_id=sourced_id, score=score),
-            'imsx_messageIdentifier': escape(imsx_message_identifier),
-            'response': '<replaceResultResponse/>'
-        }
-        log.debug("[LTI]: Grade is saved.")
-        xml = utils.XML.format(**success)
+        outcome_response.description = escape(error_message)
+        return HttpResponse(outcome_response.generate_response_xml(), content_type='application/xml')
+    sequence_item_id, user_id, _ = outcome_request.lis_result_sourcedid.text.split(':')
+    outcome_response.code_major = CODE_MAJOR_CODES[0]
+    outcome_response.description = 'Score for {sourced_id} is now {score}'.format(
+        sourced_id=outcome_request.lis_result_sourcedid, score=score
+    )
+    outcome_response.message_identifier = outcome_request.message_identifier
+    outcome_response.operation = operation
+
+    xml = outcome_response.generate_response_xml()
     log.debug("Received CallBack with the submitted answer for sequence item {}.".format(sequence_item_id))
     try:
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
     except SequenceItem.DoesNotExist:
         error_message = "Sequence Item with the ID={} was not found".format(sequence_item_id)
-        failure.update({'imsx_description': escape(error_message)})
-        log.debug("Grade cannot be updated: SequenceItem is not found.")
-        return HttpResponseNotFound(utils.XML.format(**failure), content_type='application/xml')
-    sequence_item.score = float(score)
+        outcome_response.description = escape(error_message)
+        log.debug("[LTI] {}".format(error_message))
+        return HttpResponseNotFound(outcome_response.generate_response_xml(), content_type='application/xml')
+
+    sequence_item.score = score
     sequence_item.save()
-    log.debug("Sequence item {} grade is updated".format(sequence_item))
+    log.debug("[LTI] Sequence item {} grade is updated".format(sequence_item))
     last_log_submit = Log.objects.filter(sequence_item=sequence_item, log_type='S').last()
     attempt = (last_log_submit.attempt if last_log_submit else 0) + 1
     correct = bool(score)
