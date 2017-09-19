@@ -13,7 +13,7 @@
         <th>metadata</th>
         <th>threshold</th>
         <th>strict forward</th>
-        <th class="text-center">options</th>
+        <th>options</th>
       </tr>
       {% for collection in collections %}
         <tr>
@@ -28,7 +28,7 @@
           </td>
           <td>
             <div>
-              <a class="move-down pull-right"
+              <a class="move-down"
                  href="{% url 'module:collection-change' collection.id %}">
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
