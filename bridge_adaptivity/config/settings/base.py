@@ -140,13 +140,13 @@ BRIDGE_HOST = secure.BRIDGE_HOST
 
 # Engine for Adaptivity configuration block
 # ENGINE_MODULE is a string with the path to the engine module
-ENGINE_MODULE = 'module.engines.engine_mock'
+ENGINE_MODULE = secure.ENGINE_MODULE
 
 # ENGINE_DRIVER is a string with the name of driver class in the engine module
-ENGINE_DRIVER = 'EngineMock'
+ENGINE_DRIVER = secure.ENGINE_DRIVER
 
 # ENGINE_SETTINGS is a dict, with the initial params for driver initialization
-ENGINE_SETTINGS = {}
+ENGINE_SETTINGS = secure.ENGINE_SETTINGS
 
 CACHES = {
     'default': {
