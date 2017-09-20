@@ -7,7 +7,7 @@ from module.engines.interface import EngineInterface
 log = logging.getLogger(__name__)
 
 
-ACTIVITY_PARAMETERS = (
+ACTIVITY_PARAMS = (
     'collection',
     'name',
     'tags',
@@ -62,7 +62,7 @@ class EngineVPAL(EngineInterface):
     def fulfil_payload(payload={}, instance_to_parse=None):
         from module.models import Activity, SequenceItem
         if isinstance(instance_to_parse, Activity):
-            params = ACTIVITY_PARAMETERS
+            params = ACTIVITY_PARAMS
         elif isinstance(instance_to_parse, SequenceItem):
             params = SEQUENCE_ITEM_PARAMS
         else:
