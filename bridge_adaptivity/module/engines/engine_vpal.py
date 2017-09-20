@@ -41,6 +41,7 @@ class EngineVPAL(EngineInterface):
         # ENGINE_SETTINGS is a dict, with the initial params for driver initialization
         ENGINE_SETTINGS = {
             'BASE_URL': 'http://test.engine.vpal.io/engine/api',
+            'HOST': 'http://test.engine.vpal.io',
         }
     """
     def __init__(self, **kwargs):
