@@ -59,7 +59,7 @@ class EngineVPAL(EngineInterface):
             return False
 
     @staticmethod
-    def fulfil_payload(payload={}, instance_to_parse=None):
+    def fulfill_payload(payload={}, instance_to_parse=None):
         from module.models import Activity, SequenceItem
         if isinstance(instance_to_parse, Activity):
             params = ACTIVITY_PARAMS
@@ -103,7 +103,7 @@ class EngineVPAL(EngineInterface):
 
         :param activity: Activity instance
         """
-        payload = self.fulfil_payload({'id': activity.id}, activity)
+        payload = self.fulfill_payload({'id': activity.id}, activity)
         add_activity = requests.post(self.activity_url, json=payload)
         return self.check_engine_response(add_activity.status_code, 'added', activity.name, 201)
 
@@ -113,7 +113,7 @@ class EngineVPAL(EngineInterface):
 
         :param activity: Activity instance
         """
-        payload = self.fulfil_payload(instance_to_parse=activity)
+        payload = self.fulfill_payload(instance_to_parse=activity)
         update_activity = requests.patch(self.combine_activity_url(activity), json=payload)
         return self.check_engine_response(update_activity.status_code, 'updated', activity.name)
 
@@ -133,6 +133,6 @@ class EngineVPAL(EngineInterface):
         :param sequence_item: SequenceItem instance
         """
         submit_url = urlparse.urljoin(self.base_url, 'score')
-        payload = self.fulfil_payload(instance_to_parse=sequence_item)
+        payload = self.fulfill_payload(instance_to_parse=sequence_item)
         submit_activity_score = requests.post(submit_url, json=payload)
         return self.check_engine_response(submit_activity_score.status_code, 'graded', sequence_item.activity.name)
