@@ -53,8 +53,8 @@
                   </div>
                 </a>
               </td>
-              <td>{{ activity.tags|default:"-" }}</td>
-              <td>{{ activity.get_difficulty_display|default:"-" }}</td>
+              <td>{% ifequal activity.tags 'Unknown' %}-{% else %}{{ activity.tags }}{% endifequal%}</td>
+              <td>{{ activity.difficulty }}</td>
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
               <td>
