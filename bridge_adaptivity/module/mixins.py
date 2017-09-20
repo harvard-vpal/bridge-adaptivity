@@ -1,7 +1,9 @@
 import logging
 
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden
+from django.shortcuts import redirect
 
 log = logging.getLogger(__name__)
 
@@ -13,6 +15,12 @@ class CollectionIdToContextMixin(object):
         context = super(CollectionIdToContextMixin, self).get_context_data(**kwargs)
         context['current_collection_id'] = self.kwargs.get('collection_id')
         return context
+
+    def form_valid(self, form):
+        try:
+            return super(CollectionIdToContextMixin, self).form_valid(form)
+        except (ValidationError, TypeError):
+            return redirect("{}?engine=failure".format(self.get_success_url()))
 
 
 class LtiSessionMixin(object):

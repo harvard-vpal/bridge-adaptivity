@@ -114,10 +114,7 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
         activity.lti_consumer = get_content_provider()
-        try:
-            return super(ActivityCreate, self).form_valid(form)
-        except (ValidationError, TypeError):
-            return redirect("{}?engine=failure".format(self.get_success_url()))
+        return super(ActivityCreate, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
@@ -140,12 +137,6 @@ class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
             return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
 
         return super(ActivityUpdate, self).get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        try:
-            return super(ActivityUpdate, self).form_valid(form)
-        except (ValidationError, TypeError):
-            return redirect("{}?engine=failure".format(self.get_success_url()))
 
 
 @method_decorator(login_required, name='dispatch')
