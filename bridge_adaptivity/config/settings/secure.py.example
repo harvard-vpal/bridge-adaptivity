@@ -35,28 +35,10 @@ DATABASES = {
     }
 }
 
+# Comment Engine's parameters to use default Mock Adaptive Engine
 ENGINE_MODULE = 'module.engines.engine_vpal'
 ENGINE_DRIVER = 'EngineVPAL'
 ENGINE_SETTINGS = {
-    'BASE_URL': 'http://test.engine.vpal.io/engine/api',
-    'HOST': 'http://test.engine.vpal.io',
+    'HOST': 'https://example.com',
+    'TOKEN': 'very_secure_token',
 }
-
-# potential config Engine design:
-# ENGINES = {
-#     'default': {
-#         'ENGINE': 'module.engines.engine_vpal',
-#         'NAME': 'MOCK',
-#         'DRIVER': 'EngineVPAL',
-#         'SETTINGS': {}
-#     },
-#     'vpal': {
-#         'ENGINE': 'module.engines.engine_vpal',
-#         'NAME': 'VPAL',
-#         'DRIVER': 'EngineVPAL',
-#         'SETTINGS': {
-#             'BASE_URL': 'http://test.engine.vpal.io/engine/api',
-#             'HOST': 'http://test.engine.vpal.io'
-#         }
-#     }
-# }

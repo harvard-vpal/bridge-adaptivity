@@ -40,8 +40,8 @@ class EngineVPAL(EngineInterface):
 
         # ENGINE_SETTINGS is a dict, with the initial params for driver initialization
         ENGINE_SETTINGS = {
-            'BASE_URL': 'http://test.engine.vpal.io/engine/api',
-            'HOST': 'http://test.engine.vpal.io',
+            'HOST': 'https://example.com',
+            'TOKEN': 'very_secure_token',
         }
     """
     def __init__(self, **kwargs):
@@ -49,6 +49,8 @@ class EngineVPAL(EngineInterface):
         self.api_url = 'engine/api/'
         self.base_url = urlparse.urljoin(self.host, self.api_url)
         self.activity_url = urlparse.urljoin(self.base_url, "activity")
+        token = kwargs.get('TOKEN')
+        self.headers = {'Authorization': 'Token {}'.format(token)} if token else {}
 
     @staticmethod
     def check_engine_response(engine_status, action=None, activity_name=None, status=200):
@@ -92,7 +94,7 @@ class EngineVPAL(EngineInterface):
         reco_url = urlparse.urljoin(
             "{}/".format(self.activity_url), "recommend?learner={user_id}&collection={collection_id}"
         ).format(user_id=sequence.lti_user.id, collection_id=sequence.collection.id)
-        chosen_activity = requests.get(reco_url)
+        chosen_activity = requests.get(reco_url, headers=self.headers)
         if self.check_engine_response(chosen_activity.status_code, "chosen"):
             choose = chosen_activity.json()
             return choose.get('id')
@@ -105,7 +107,7 @@ class EngineVPAL(EngineInterface):
         :param activity: Activity instance
         """
         payload = self.fulfill_payload({'id': activity.id}, activity)
-        add_activity = requests.post(self.activity_url, json=payload)
+        add_activity = requests.post(self.activity_url, json=payload, headers=self.headers)
         return self.check_engine_response(add_activity.status_code, 'added', activity.name, 201)
 
     def update_activity(self, activity):
@@ -115,7 +117,7 @@ class EngineVPAL(EngineInterface):
         :param activity: Activity instance
         """
         payload = self.fulfill_payload(instance_to_parse=activity)
-        update_activity = requests.patch(self.combine_activity_url(activity), json=payload)
+        update_activity = requests.patch(self.combine_activity_url(activity), json=payload, headers=self.headers)
         return self.check_engine_response(update_activity.status_code, 'updated', activity.name)
 
     def delete_activity(self, activity):
@@ -124,7 +126,7 @@ class EngineVPAL(EngineInterface):
 
         :param activity: Activity instance
         """
-        delete_activity = requests.delete(self.combine_activity_url(activity))
+        delete_activity = requests.delete(self.combine_activity_url(activity), headers=self.headers)
         return self.check_engine_response(delete_activity.status_code, 'deleted', activity.name, 204)
 
     def submit_activity_answer(self, sequence_item):
@@ -135,5 +137,5 @@ class EngineVPAL(EngineInterface):
         """
         submit_url = urlparse.urljoin(self.base_url, 'score')
         payload = self.fulfill_payload(instance_to_parse=sequence_item)
-        submit_activity_score = requests.post(submit_url, json=payload)
+        submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
         return self.check_engine_response(submit_activity_score.status_code, 'graded', sequence_item.activity.name)

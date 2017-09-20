@@ -72,11 +72,3 @@ for app in APPS_TO_LOG:
         'propagate': True,
     }
 LOGGING['loggers'].update(APP_LOGGERS)
-
-ENGINE_MODULE = secure.ENGINE_MODULE
-
-# ENGINE_DRIVER is a string with the name of driver class in the engine module
-ENGINE_DRIVER = secure.ENGINE_DRIVER
-
-# ENGINE_SETTINGS is a dict, with the initial params for driver initialization
-ENGINE_SETTINGS = secure.ENGINE_SETTINGS

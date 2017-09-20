@@ -128,7 +128,6 @@ class Activity(OrderedModel):
     tags = fields.CharField(
         max_length=255,
         help_text="Provide your tags separated by a comma.",
-        default="Unknown"
     )
     atype = fields.CharField(
         verbose_name="type", choices=TYPES, default='G', max_length=1,
