@@ -31,6 +31,8 @@ services:
       - "443:443"
     volumes_from:
       - bridge
+    volumes:
+      - /etc/nginx/ssl/:/etc/nginx/ssl/
     links:
       - bridge
 

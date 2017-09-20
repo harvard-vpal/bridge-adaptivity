@@ -1,5 +1,6 @@
 # install base requirements
 -r requirements_base.txt
+-r requirements_local.txt  # FIXME(wowkalucky): should add it here to satisfy debug_toolbar module import (somewhere)
 
 # additional deployment requirements
 gunicorn
