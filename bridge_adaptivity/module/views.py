@@ -5,7 +5,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.db.models import Count, Max, Sum
+from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -17,8 +17,7 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
-from bridge_lti import outcomes
-from bridge_lti.outcomes import calculate_grade
+from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
@@ -247,17 +246,6 @@ class SequenceComplete(LtiSessionMixin, DetailView):
     template_name = 'module/sequence_complete.html'
 
 
-def send_composite_outcome(sequence):
-    """Calculate and transmit the score for sequence."""
-    threshold = sequence.collection.threshold
-    items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
-
-    score = calculate_grade(items_result['trials_count'], threshold, items_result['points_earned'])
-
-    outcomes.send_score_update(sequence, score)
-    return score
-
-
 @csrf_exempt
 def callback_sequence_item_grade(request):
     outcome_response = OutcomeResponse(
@@ -309,8 +297,9 @@ def callback_sequence_item_grade(request):
         attempt=attempt,
     )
     log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}".format(attempt, correct))
+
     sequence = sequence_item.sequence
     if sequence.lis_result_sourcedid:
-        grade = send_composite_outcome(sequence)
-        log.debug("Send updated grade {} to the LMS, for the student {}".format(grade, user_id))
+        update_lms_grades(request, sequence, user_id)
+
     return HttpResponse(xml, content_type="application/xml")
