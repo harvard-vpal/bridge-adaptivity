@@ -53,7 +53,7 @@ def calculate_grade(trials_count, threshold, points_earned):
     :return: (float) grade
     """
     log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}", trials_count, threshold, points_earned)
-    grade = points_earned/threshold if trials_count < threshold else points_earned/trials_count
+    grade = points_earned / threshold if trials_count < threshold else points_earned / trials_count
     log.debug("Calculated grade: %s", grade)
 
     return grade

@@ -11,8 +11,8 @@ from oauthlib import oauth1
 
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
-from module.models import (Collection, Sequence, SequenceItem)
 from module import utils as module_utils
+from module.models import (Collection, Sequence, SequenceItem)
 
 log = logging.getLogger(__name__)
 
@@ -103,6 +103,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
     )
 
     if sequence.completed:
+        log.debug("Sequence {} is already completed".format(sequence.id))
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
     strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id

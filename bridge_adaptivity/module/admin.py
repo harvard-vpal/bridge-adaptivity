@@ -1,7 +1,7 @@
 from django.contrib import admin
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Sequence, SequenceItem, Collection, Activity, Log
+from .models import Activity, Collection, Log, Sequence, SequenceItem
 
 
 class SequenceItemStackedInline(admin.StackedInline):

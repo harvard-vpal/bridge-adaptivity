@@ -12,6 +12,7 @@ class OAuthClient(models.Model):
 
     Content source API connections.
     """
+
     AUTH_CODE = "authorization code"
     IMPLICIT = "implicit"
     PASSWORD = "resource owner password-based"

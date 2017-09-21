@@ -74,6 +74,9 @@ class CollectionDetail(DetailView):
             'lti_consumer': get_content_provider(),
         })
         context['launch_url'] = self.get_launch_url()
+        engine_failure = self.request.GET.get('engine')
+        if engine_failure:
+            context['engine'] = engine_failure
         return context
 
     @staticmethod
@@ -109,7 +112,6 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
         activity.lti_consumer = get_content_provider()
-        activity.save()
         return super(ActivityCreate, self).form_valid(form)
 
     def get_success_url(self):
@@ -142,6 +144,12 @@ class ActivityDelete(DeleteView):
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
 
+    def delete(self, request, *args, **kwargs):
+        try:
+            return super(ActivityDelete, self).delete(request, *args, **kwargs)
+        except (ValidationError, TypeError):
+            return redirect("{}?engine=failure".format(self.get_success_url()))
+
 
 class SequenceItemDetail(LtiSessionMixin, DetailView):
     model = SequenceItem
@@ -156,6 +164,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         if self.request.GET.get('forbidden'):
             context['forbidden'] = True
         context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
+        log.debug("Sequence Items on the page: {}".format(context['sequence_items'].count()))
 
         Log.objects.create(
             sequence_item=self.object,
@@ -167,7 +176,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 
 def _check_next_forbidden(pk):
     """
-    Check if next sequence item is forbidden to be shown to the student
+    Check if next sequence item is forbidden to be shown to the student.
 
     :param pk: currently opened SequenseItem's pk
     :return: tuple of the parameters next_forbidden, last_item, sequence_item
@@ -187,6 +196,7 @@ def _check_next_forbidden(pk):
         sequence_item.score is None
     ):
         next_forbidden = True
+    log.debug("Next item is forbidden: {}".format(next_forbidden))
     return next_forbidden, last_item, sequence_item
 
 

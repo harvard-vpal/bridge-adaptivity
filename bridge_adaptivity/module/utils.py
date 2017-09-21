@@ -12,6 +12,6 @@ def choose_activity(sequence_item=None, sequence=None):
         activity_id = ENGINE.select_activity(sequence)
         return get_object_or_404(Activity, pk=activity_id)
     except (IndexError, Http404):
-        sequence_item.sequence.completed = True
-        sequence_item.sequence.save()
+        sequence.completed = True
+        sequence.save()
         return None
