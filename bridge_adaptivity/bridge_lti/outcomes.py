@@ -24,7 +24,7 @@ def update_lms_grades(request, sequence, user_id):
     outcome_request.post_replace_result(score)
     lms_response = outcome_request.outcome_response
     if lms_response.is_success:
-        log.debug("Successfully sent updated grade to LMS. Student:{}, grade:{}, comment:{}".format(
+        log.info("Successfully sent updated grade to LMS. Student:{}, grade:{}, comment:{}".format(
             user_id, score, lms_response.code_major.text
         ))
     elif lms_response.is_processing:
