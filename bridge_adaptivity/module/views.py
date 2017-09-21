@@ -166,6 +166,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         if self.request.GET.get('forbidden'):
             context['forbidden'] = True
         context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
+        log.debug("Sequence Items on the page: {}".format(context['sequence_items'].count()))
 
         Log.objects.create(
             sequence_item=self.object,
@@ -197,6 +198,7 @@ def _check_next_forbidden(pk):
         sequence_item.score is None
     ):
         next_forbidden = True
+    log.debug("Next item is forbidden: {}".format(next_forbidden))
     return next_forbidden, last_item, sequence_item
 
 

@@ -35,7 +35,7 @@ class LtiSessionMixin(object):
             cache.set(sequence_id, lti_session)
             if request.session['Lti_strict_forward']:
                 request.session['Lti_update_activity'] = True
-                log.debug("Session is changed, activity update could be required: {}".format(
+                log.debug("[StrictForward] Session is changed, activity update could be required: {}".format(
                     request.session['Lti_update_activity'])
                 )
         return super(LtiSessionMixin, self).dispatch(request, *args, **kwargs)
