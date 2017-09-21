@@ -192,6 +192,12 @@
             }, 2000)
         });
 
+        var engineFailure = $("#activities").data("engine");
+        if (engineFailure){
+            console.log("Adaptive Engine failure to proceed!");
+            $("#engineFailureModal").modal("show");
+        }
+
         // jQuery plugin to prevent double submission of forms
         jQuery.fn.preventDoubleSubmission = function () {
             $(this).on('submit', function (e) {

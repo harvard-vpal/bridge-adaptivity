@@ -3,9 +3,8 @@ from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
-    CollectionList, CollectionCreate, CollectionDetail, CollectionUpdate,
-    ActivityCreate, ActivityUpdate, ActivityDelete,
-    SequenceItemDetail, sequence_item_next, SequenceComplete, callback_sequence_item_grade,
+    ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
+    CollectionList, CollectionUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 
 urlpatterns = [

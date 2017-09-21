@@ -1,6 +1,8 @@
 import logging
 
 from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
@@ -8,7 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
-from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer, OutcomeService
+from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from module import ENGINE
 
 
@@ -17,9 +19,8 @@ log = logging.getLogger(__name__)
 
 @python_2_unicode_compatible
 class Sequence(models.Model):
-    """
-    Represents User's problem solving track.
-    """
+    """Represents User's problem solving track."""
+
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     completed = fields.BooleanField(default=False)
@@ -35,9 +36,8 @@ class Sequence(models.Model):
 
 @python_2_unicode_compatible
 class SequenceItem(models.Model):
-    """
-    Represents one User's step in problem solving track.
-    """
+    """Represents one User's step in problem solving track."""
+
     sequence = models.ForeignKey('Sequence', related_name='items', null=True)
     activity = models.ForeignKey('Activity', null=True)
     position = models.PositiveIntegerField(default=1)
@@ -58,9 +58,7 @@ class SequenceItem(models.Model):
         return u'<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
 
     def save(self, *args, **kwargs):
-        """
-        Extend save() method with sending notification to the Adaptive engine that score is changed
-        """
+        """Extension sending notification to the Adaptive engine that score is changed."""
         if self.score != self.__origin_score:
             ENGINE.submit_activity_answer(self)
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
@@ -71,9 +69,8 @@ class SequenceItem(models.Model):
 
 @python_2_unicode_compatible
 class Collection(models.Model):
-    """
-    Set of Activities (problems) for a module.
-    """
+    """Set of Activities (problems) for a module."""
+
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
@@ -87,9 +84,7 @@ class Collection(models.Model):
         return u'<Collection: {}>'.format(self.name)
 
     def save(self, *args, **kwargs):
-        """
-        Extend save() method with logging.
-        """
+        """Extension cover method with logging."""
         initial_id = self.id
         super(Collection, self).save(*args, **kwargs)
 
@@ -110,14 +105,7 @@ class Collection(models.Model):
 
 @python_2_unicode_compatible
 class Activity(OrderedModel):
-    """
-    General entity which represents problem/text/video material.
-    """
-    LEVELS = (
-        ('l', _('low')),
-        ('m', _('medium')),
-        ('h', _('high')),
-    )
+    """General entity which represents problem/text/video material."""
 
     TYPES = (
         ('G', _('generic')),
@@ -130,15 +118,19 @@ class Activity(OrderedModel):
     name = models.CharField(max_length=255)
     collection = models.ForeignKey('Collection', related_name='activities', null=True)
     tags = fields.CharField(
-        max_length=255, blank=True, null=True,
-        help_text="Provide your tags separated by a comma."
+        max_length=255,
+        help_text="Provide your tags separated by a comma.",
     )
     atype = fields.CharField(
         verbose_name="type", choices=TYPES, default='G', max_length=1,
         help_text="Choose 'pre/post-assessment' activity type to pin Activity to the start or the end of "
                   "the Collection."
     )
-    difficulty = fields.CharField(choices=LEVELS, default='m', max_length=1)
+    difficulty = fields.FloatField(
+        default='0.5',
+        help_text="Provide float number in the range 0.0 - 1.0",
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+    )
     points = models.FloatField(blank=True, default=1)
     lti_consumer = models.ForeignKey(LtiConsumer, null=True)
     source_launch_url = models.URLField(max_length=255, null=True)
@@ -158,30 +150,29 @@ class Activity(OrderedModel):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
 
     def save(self, *args, **kwargs):
-        """
-        Extend save() method with sending notification to the Adaptive engine that Activity is created/updated
-        """
+        """Extension which sends notification to the Adaptive engine that Activity is created/updated."""
         initial_id = self.id
-        super(Activity, self).save(*args, **kwargs)
-
         if initial_id:
-            ENGINE.update_activity(self)
+            if not ENGINE.update_activity(self):
+                raise ValidationError
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
                 data=self.get_research_data()
             )
         else:
-            ENGINE.add_activity(self)
+            if not ENGINE.add_activity(self):
+                raise ValidationError
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
                 data=self.get_research_data()
             )
+        super(Activity, self).save(*args, **kwargs)
+        log.warn("Activity save initiate")
 
     def delete(self, *args, **kwargs):
-        """
-        Extend delete() method with sending notification to the Adaptive engine that Activity is deleted
-        """
-        ENGINE.delete_activity(self)
+        """Extension which sends notification to the Adaptive engine that Activity is deleted."""
+        if not ENGINE.delete_activity(self):
+            raise ValidationError
         Log.objects.create(
             log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
             data=self.get_research_data()
@@ -191,7 +182,7 @@ class Activity(OrderedModel):
     @property
     def last_pre(self):
         """
-        Has Activity last order number position in certain type subcollection?
+        Has Activity last order number position in certain type sub-collection.
 
         :return: (bool)
         """
@@ -209,6 +200,7 @@ class Log(models.Model):
 
     Every time student opens/submits lti problem new Log created.
     """
+
     OPENED = 'O'
     SUBMITTED = 'S'
     ADMIN = 'A'

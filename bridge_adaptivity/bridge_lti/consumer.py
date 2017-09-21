@@ -33,9 +33,7 @@ def tool_config(request):
 
 
 def source_preview(request):
-    """
-    Simple view to render Source content block shared through LTI.
-    """
+    """View to render Source content block shared through LTI."""
     log.debug("Got request.GET: %s", request.GET)
 
     content_provider = get_content_provider()

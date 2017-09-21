@@ -22,7 +22,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-md-8">
+    <div id="activities" data-engine="{{ engine }}" class="col-md-8">
       {% if activities %}
         <table class="table table-hover">
           <tr>
@@ -53,8 +53,8 @@
                   </div>
                 </a>
               </td>
-              <td>{{ activity.tags|default:"-" }}</td>
-              <td>{{ activity.get_difficulty_display|default:"-" }}</td>
+              <td>{% ifequal activity.tags 'Unknown' %}-{% else %}{{ activity.tags }}{% endifequal%}</td>
+              <td>{{ activity.difficulty }}</td>
               <td>{{ activity.points|default:"-" }}</td>
               <td>{{ activity.source_name|default:"-" }}</td>
               <td>
@@ -154,6 +154,7 @@
 
   {% include "module/source_modal.html" %}
   {% include "module/activity_modal.html" with collection=object %}
+  {% include "module/engine_failure_modal.html" %}
 
 {% endblock content %}
 

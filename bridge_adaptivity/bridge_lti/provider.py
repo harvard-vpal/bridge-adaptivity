@@ -1,7 +1,7 @@
 import logging
 
 from django.core.cache import cache
-from django.http import HttpResponseBadRequest, Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -12,8 +12,8 @@ from oauthlib import oauth1
 from bridge_lti.models import LtiProvider, LtiUser
 from bridge_lti.outcomes import store_outcome_parameters
 from bridge_lti.validator import SignatureValidator
-from module.models import (Collection, Sequence, SequenceItem)
 from module import utils as module_utils
+from module.models import (Collection, Sequence, SequenceItem)
 
 log = logging.getLogger(__name__)
 
@@ -54,9 +54,7 @@ def lti_launch(request, collection_id=None):
 
 
 def instructor_flow(collection_id=None):
-    """
-    Define logic flow for Instructor.
-    """
+    """Define logic flow for Instructor."""
     if not collection_id:
         return redirect(reverse('module:collection-list'))
 
@@ -71,9 +69,7 @@ def find_last_sequence_item(sequence, strict_forward):
 
 
 def learner_flow(request, lti_consumer, collection_id=None):
-    """
-    Define logic flow for Learner.
-    """
+    """Define logic flow for Learner."""
     if not collection_id:
         return render(
             request,
@@ -104,6 +100,7 @@ def learner_flow(request, lti_consumer, collection_id=None):
     )
 
     if sequence.completed:
+        log.debug("Sequence {} is already completed".format(sequence.id))
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
     strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id

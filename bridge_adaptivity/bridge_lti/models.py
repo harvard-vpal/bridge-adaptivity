@@ -15,6 +15,7 @@ class LtiProvider(models.Model):
     LMS connections.
     Automatically generates key and secret for consumers.
     """
+
     consumer_name = models.CharField(max_length=255, unique=True)
     consumer_key = models.CharField(max_length=32, unique=True, default=short_token)  # index
     consumer_secret = models.CharField(max_length=32, unique=True, default=short_token)
@@ -36,6 +37,7 @@ class LtiConsumer(models.Model):
 
     Content source connections.
     """
+
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
@@ -58,9 +60,8 @@ class LtiConsumer(models.Model):
 
 @python_2_unicode_compatible
 class LtiUser(models.Model):
-    """
-    Model to manage LTI users.
-    """
+    """Model to manage LTI users."""
+
     user_id = fields.CharField(max_length=255)
     course_id = fields.CharField(max_length=255, blank=True, null=True)
     email = fields.CharField(max_length=255, blank=True, null=True)
@@ -78,9 +79,8 @@ class LtiUser(models.Model):
 
 @python_2_unicode_compatible
 class BridgeUser(AbstractUser):
-    """
-    Bridge user based on the top of Django User.
-    """
+    """Bridge user based on the top of Django User."""
+
     roles = fields.CharField(
         max_length=255,
         help_text=_(
@@ -105,6 +105,7 @@ class OutcomeService(models.Model):
     Note that a given consumer may have more than one outcome service URL over its
     lifetime, so we need to store the outcome service separately from the SourceLtiConnection model.
     """
+
     lis_outcome_service_url = models.CharField(max_length=255)
     lms_lti_connection = models.ForeignKey('LtiProvider', null=True)
 
