@@ -1,6 +1,7 @@
 import logging
-import requests
 import urlparse
+
+import requests
 
 from module.engines.interface import EngineInterface
 
@@ -44,6 +45,7 @@ class EngineVPAL(EngineInterface):
             'TOKEN': 'very_secure_token',
         }
     """
+
     def __init__(self, **kwargs):
         self.host = kwargs.get('HOST')
         self.api_url = 'engine/api/'

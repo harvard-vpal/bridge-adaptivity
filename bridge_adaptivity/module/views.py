@@ -1,28 +1,28 @@
 import logging
 from xml.sax.saxutils import escape
 
+from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
-from django.db.models import Sum, Count, Max
-from django import forms
-from django.http import HttpResponseNotFound, HttpResponse
+from django.db.models import Count, Max, Sum
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
-from lti import OutcomeRequest, InvalidLTIConfigError, OutcomeResponse
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti import outcomes
 from bridge_lti.outcomes import calculate_grade
+from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
-from module.models import Collection, Activity, SequenceItem, Log, Sequence
-from module import utils
+from module.models import Activity, Collection, Log, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 
@@ -178,7 +178,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 
 def _check_next_forbidden(pk):
     """
-    Check if next sequence item is forbidden to be shown to the student
+    Check if next sequence item is forbidden to be shown to the student.
 
     :param pk: currently opened SequenseItem's pk
     :return: tuple of the parameters next_forbidden, last_item, sequence_item
@@ -248,9 +248,7 @@ class SequenceComplete(LtiSessionMixin, DetailView):
 
 
 def send_composite_outcome(sequence):
-    """
-    Calculate and transmit the score for sequence.
-    """
+    """Calculate and transmit the score for sequence."""
     threshold = sequence.collection.threshold
     items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
 

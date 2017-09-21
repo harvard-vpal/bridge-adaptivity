@@ -7,12 +7,11 @@ log = logging.getLogger(__name__)
 
 
 class EngineMock(EngineInterface):
-    """
-    Mock adaptive engine which is used by default if no other engines were added.
-    """
+    """Mock adaptive engine which is used by default if no other engines were added."""
+
     def select_activity(self, sequence):
         """
-        Mock engine provides random choice for the activity from the collection on the Bridge
+        Mock engine provides random choice for the activity from the collection on the Bridge.
 
         :param sequence: sequence
         :return: selected activity_id
@@ -33,30 +32,22 @@ class EngineMock(EngineInterface):
         return chosen_activity_id
 
     def add_activity(self, activity):
-        """
-        Mock engine works with data stored on the Bridge and do not need to implement method
-        """
+        """Mock engine works with data stored on the Bridge and do not need to implement method."""
         log.debug("New activity {} is added to the Mock Engine.".format(activity))
         return True
 
     def update_activity(self, activity):
-        """
-        Mock engine works with data stored on the Bridge and do not need to implement method
-        """
+        """Mock engine works with data stored on the Bridge and do not need to implement method."""
         log.debug("New activity {} is updated in the Mock Engine.".format(activity))
         return True
 
     def delete_activity(self, activity):
-        """
-        Mock engine works with data stored on the Bridge and do not need to implement method
-        """
+        """Mock engine works with data stored on the Bridge and do not need to implement method."""
         log.debug("New activity {} is deleted from the Mock Engine.".format(activity))
         return True
 
     def submit_activity_answer(self, sequence_item):
-        """
-        Mock engine works with data stored on the Bridge and do not need to implement method
-        """
+        """Mock engine works with data stored on the Bridge and do not need to implement method."""
         log.debug("Student has submitted answer for the activity {} and got {} scores.".format(
             sequence_item.activity.name, sequence_item.score
         ))

@@ -13,9 +13,8 @@ log = logging.getLogger(__name__)
 
 
 class OpenEdxApiClient(EdxRestApiClient):
-    """
-    API client to interact with OpenEdx Course API.
-    """
+    """API client to interact with OpenEdx Course API."""
+
     API_URLS = {
         "get_token": "/oauth2/access_token",
         "base_url": "/api/courses/v1/",
@@ -148,6 +147,7 @@ def get_available_blocks(course_id):
 def get_available_courses():
     """
     Fetch all available courses.
+
     :param content_provider: LtiConsumer instance
     :return: (list) course_ids
     """
@@ -211,9 +211,7 @@ def get_content_provider():
 
 
 def get_oauth_client():
-    """
-    Pick OAuth client for active (enabled) content Source.
-    """
+    """Pick OAuth client for active (enabled) content Source."""
     try:
         content_provider = get_content_provider()
         client = OAuthClient.objects.get(content_provider=content_provider)
