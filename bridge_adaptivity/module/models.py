@@ -10,7 +10,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
-from bridge_lti.models import LtiUser, BridgeUser, LtiConsumer, OutcomeService
+from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from module import ENGINE
 
 
@@ -19,9 +19,8 @@ log = logging.getLogger(__name__)
 
 @python_2_unicode_compatible
 class Sequence(models.Model):
-    """
-    Represents User's problem solving track.
-    """
+    """Represents User's problem solving track."""
+
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     completed = fields.BooleanField(default=False)
@@ -37,9 +36,8 @@ class Sequence(models.Model):
 
 @python_2_unicode_compatible
 class SequenceItem(models.Model):
-    """
-    Represents one User's step in problem solving track.
-    """
+    """Represents one User's step in problem solving track."""
+
     sequence = models.ForeignKey('Sequence', related_name='items', null=True)
     activity = models.ForeignKey('Activity', null=True)
     position = models.PositiveIntegerField(default=1)
@@ -60,9 +58,7 @@ class SequenceItem(models.Model):
         return u'<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
 
     def save(self, *args, **kwargs):
-        """
-        Extend save() method with sending notification to the Adaptive engine that score is changed
-        """
+        """Extension sending notification to the Adaptive engine that score is changed."""
         if self.score != self.__origin_score:
             ENGINE.submit_activity_answer(self)
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
@@ -73,9 +69,8 @@ class SequenceItem(models.Model):
 
 @python_2_unicode_compatible
 class Collection(models.Model):
-    """
-    Set of Activities (problems) for a module.
-    """
+    """Set of Activities (problems) for a module."""
+
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
@@ -89,9 +84,7 @@ class Collection(models.Model):
         return u'<Collection: {}>'.format(self.name)
 
     def save(self, *args, **kwargs):
-        """
-        Extend save() method with logging.
-        """
+        """Extension cover method with logging."""
         initial_id = self.id
         super(Collection, self).save(*args, **kwargs)
 
@@ -112,9 +105,8 @@ class Collection(models.Model):
 
 @python_2_unicode_compatible
 class Activity(OrderedModel):
-    """
-    General entity which represents problem/text/video material.
-    """
+    """General entity which represents problem/text/video material."""
+
     TYPES = (
         ('G', _('generic')),
         ('A', _('pre-assessment')),
@@ -158,9 +150,7 @@ class Activity(OrderedModel):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
 
     def save(self, *args, **kwargs):
-        """
-        Extend save() method with sending notification to the Adaptive engine that Activity is created/updated
-        """
+        """Extension which sends notification to the Adaptive engine that Activity is created/updated."""
         initial_id = self.id
         if initial_id:
             if not ENGINE.update_activity(self):
@@ -180,9 +170,7 @@ class Activity(OrderedModel):
         log.warn("Activity save initiate")
 
     def delete(self, *args, **kwargs):
-        """
-        Extend delete() method with sending notification to the Adaptive engine that Activity is deleted
-        """
+        """Extension which sends notification to the Adaptive engine that Activity is deleted."""
         if not ENGINE.delete_activity(self):
             raise ValidationError
         Log.objects.create(
@@ -194,7 +182,7 @@ class Activity(OrderedModel):
     @property
     def last_pre(self):
         """
-        Has Activity last order number position in certain type subcollection?
+        Has Activity last order number position in certain type sub-collection.
 
         :return: (bool)
         """
@@ -212,6 +200,7 @@ class Log(models.Model):
 
     Every time student opens/submits lti problem new Log created.
     """
+
     OPENED = 'O'
     SUBMITTED = 'S'
     ADMIN = 'A'

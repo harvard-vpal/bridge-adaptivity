@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
-from .models import LtiConsumer, LtiProvider, LtiUser, BridgeUser, OutcomeService
+from .models import BridgeUser, LtiConsumer, LtiProvider, LtiUser, OutcomeService
 
 
 @admin.register(LtiProvider)

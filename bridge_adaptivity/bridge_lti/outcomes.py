@@ -1,16 +1,17 @@
 """
 Based on OpenEdx lti_provider application.
+
 Helper functions for managing interactions with the LTI outcomes service defined in LTI v1.1.
 """
 
 import logging
 import uuid
 
-import requests
-import requests_oauthlib
 from lxml import etree
 from lxml.builder import ElementMaker
+import requests
 from requests.exceptions import RequestException
+import requests_oauthlib
 
 from bridge_lti.models import OutcomeService
 
@@ -120,7 +121,7 @@ def generate_replace_result_xml(result_sourcedid, score):
 
 def sign_and_send_replace_result(sequence, xml):
     """
-    OAuth xml processing.
+    Process OAuth authorization for the xml result.
 
     Take the XML document generated in generate_replace_result_xml.
     Sign it with the consumer key and secret assigned to the consumer.
@@ -215,7 +216,7 @@ def calculate_grade(trials_count, threshold, points_earned):
     :return: (float) grade
     """
     log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}", trials_count, threshold, points_earned)
-    grade = points_earned/threshold if trials_count < threshold else points_earned/trials_count
+    grade = points_earned / threshold if trials_count < threshold else points_earned / trials_count
     log.debug("Calculated grade: %s", grade)
 
     return grade
