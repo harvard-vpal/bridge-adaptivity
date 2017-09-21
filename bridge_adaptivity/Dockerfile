@@ -11,6 +11,5 @@ ADD . /bridge_adaptivity/
 RUN pip install -U pip
 RUN pip install -Ur requirements.txt
 
-# Collect static media:
+# Make static media dir:
 RUN mkdir -p /www/static
-RUN python manage.py collectstatic --noinput --settings=config.settings.base
