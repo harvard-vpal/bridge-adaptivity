@@ -159,15 +159,15 @@ class Activity(OrderedModel):
                 log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
                 data=self.get_research_data()
             )
-        else:
+        super(Activity, self).save(*args, **kwargs)
+        if not initial_id:
             if not ENGINE.add_activity(self):
+                super(Activity, self).delete(*args, **kwargs)
                 raise ValidationError
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
                 data=self.get_research_data()
             )
-        super(Activity, self).save(*args, **kwargs)
-        log.warn("Activity save initiate")
 
     def delete(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is deleted."""
