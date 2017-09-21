@@ -104,6 +104,7 @@ def learner_flow(request, lti_consumer, collection_id=None):
     )
 
     if sequence.completed:
+        log.debug("Sequence {} is already completed".format(sequence.id))
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
     strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id

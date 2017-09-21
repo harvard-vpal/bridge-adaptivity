@@ -3,10 +3,42 @@ Example of secret module with secure settings.
 
 Should be ignored by VCS (Git).
 """
+from .base import *  # noqa: F401,F403
 
 # Standard Django secret key (can be generated via http://www.miniwebtool.com/django-secret-key-generator/)
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = 'your_generated_django_secret-key'
-STATIC_ROOT = ''
-ALLOWED_HOSTS = ['localhost']
-DATABASES = {}
+
+ALLOWED_HOSTS = [u'bridge.hostname', u'127.0.0.1']
+
+STATIC_ROOT = '/www/static/'
+BRIDGE_HOST = 'bridge.hostname'
+
+ACTIVITY_SERVICE = {
+    'local': '',
+    'mock': '',
+}
+
+# related to `bridge_adaptivity/envs/pg.env`
+POSTGRES_PASSWORD = 'db-password'
+POSTGRES_USER = 'db-user'
+POSTGRES_DB = 'db-name'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': POSTGRES_DB,
+        'USER': POSTGRES_USER,
+        'PASSWORD': POSTGRES_PASSWORD,
+        'HOST': 'postgres',
+        'PORT': 5432,
+    }
+}
+
+# Comment Engine's parameters to use default Mock Adaptive Engine
+ENGINE_MODULE = 'module.engines.engine_vpal'
+ENGINE_DRIVER = 'EngineVPAL'
+ENGINE_SETTINGS = {
+    'HOST': 'https://example.com',
+    'TOKEN': 'very_secure_token',
+}
