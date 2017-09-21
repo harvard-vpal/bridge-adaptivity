@@ -4,14 +4,15 @@ from xml.sax.saxutils import escape
 from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db.models import Max
-from django.http import HttpResponseNotFound, HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
-from lti import OutcomeRequest, InvalidLTIConfigError, OutcomeResponse
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
@@ -20,7 +21,7 @@ from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
-from module.models import Collection, Activity, SequenceItem, Log, Sequence
+from module.models import Activity, Collection, Log, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 

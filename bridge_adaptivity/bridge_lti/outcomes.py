@@ -7,9 +7,7 @@ log = logging.getLogger(__name__)
 
 
 def update_lms_grades(request, sequence, user_id):
-    """
-    Send grade update to LMS (LTI Tool).
-    """
+    """Send grade update to LMS (LTI Tool)."""
     outcome_request = OutcomeRequest().from_post_request(request)
 
     outcome_service = sequence.outcome_service
@@ -60,9 +58,7 @@ def calculate_grade(trials_count, threshold, points_earned):
 
 
 def process_score(sequence):
-    """
-    Calculate the score for the Sequence.
-    """
+    """Calculate the score for the Sequence."""
     threshold = sequence.collection.threshold
     items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
 

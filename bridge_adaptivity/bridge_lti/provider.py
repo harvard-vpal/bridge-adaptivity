@@ -1,7 +1,7 @@
 import logging
 
 from django.core.cache import cache
-from django.http import HttpResponseBadRequest, Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -60,9 +60,7 @@ def lti_launch(request, collection_id=None):
 
 
 def instructor_flow(collection_id=None):
-    """
-    Define logic flow for Instructor.
-    """
+    """Define logic flow for Instructor."""
     if not collection_id:
         return redirect(reverse('module:collection-list'))
 
@@ -70,9 +68,7 @@ def instructor_flow(collection_id=None):
 
 
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
-    """
-    Define logic flow for Learner.
-    """
+    """Define logic flow for Learner."""
     if not collection_id:
         return render(
             request,
