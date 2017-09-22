@@ -20,7 +20,8 @@
         <tr>
           <td>{{ collection.id }}</td>
           <td><a href="{% url 'module:collection-detail' collection.id %}">{{ collection.name }} :
-            {{ collection.activities.count }}</a></td>
+            {{ collection.activities.count }}
+            {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
           <td>{{ collection.metadata|default:"-" }}</td>
           <td>{{ collection.threshold|default:"-" }}</td>
           <td>{% if collection.strict_forward %}
