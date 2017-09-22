@@ -30,7 +30,6 @@ log = logging.getLogger(__name__)
 class CollectionList(ListView):
     model = Collection
     context_object_name = 'collections'
-    paginate_by = 10
     ordering = ['id']
 
     def get_queryset(self):
