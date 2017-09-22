@@ -96,6 +96,7 @@ class EngineVPAL(EngineInterface):
         reco_url = urlparse.urljoin(
             "{}/".format(self.activity_url), "recommend?learner={user_id}&collection={collection_id}"
         ).format(user_id=sequence.lti_user.id, collection_id=sequence.collection.id)
+        log.warn("VPAL RECO URL: {}".format(reco_url))
         chosen_activity = requests.get(reco_url, headers=self.headers)
         if self.check_engine_response(chosen_activity.status_code, "chosen"):
             choose = chosen_activity.json()
