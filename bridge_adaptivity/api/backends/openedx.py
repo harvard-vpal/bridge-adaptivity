@@ -1,5 +1,7 @@
+from datetime import datetime
 import logging
 
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
@@ -23,15 +25,20 @@ class OpenEdxApiClient(EdxRestApiClient):
     def __init__(self, content_source, url=None, jwt=None, **kwargs):
         log.debug("Creating new OpenEdx API client...")
         self.content_source = content_source
-        self.access_token = jwt
-        self.expires_at = None  # TODO: token caching
 
         if not url:
             url = '{}{}'.format(content_source.host_url, self.API_URLS['base_url'])
         if not jwt:
-            self.access_token, self.expires_at = self.get_oauth_access_token()
+            api_client_id = self.content_source.oauth_clients.first().client_id
+            token_cache_key = "api:{}:token".format(api_client_id)
 
-        super(OpenEdxApiClient, self).__init__(url, jwt=self.access_token, **kwargs)
+            access_token = cache.get(token_cache_key)
+            if not access_token:
+                access_token, expires_at = self.get_oauth_access_token()
+                ttl = expires_at - datetime.now()
+                cache.set(token_cache_key, access_token, ttl.seconds)
+
+        super(OpenEdxApiClient, self).__init__(url, jwt=access_token, **kwargs)
 
     def get_oauth_access_token(self):
         """
