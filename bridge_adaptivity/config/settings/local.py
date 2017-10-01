@@ -1,7 +1,31 @@
 # flake8: noqa: F405
 from config.settings.base import *  # noqa: F403
 
-os.environ.setdefault('ENV_TYPE', 'local')
+try:
+    import secure
+except ImportError:
+    import secure_example as secure
+
+SECRET_KEY = secure.SECRET_KEY
+
+DATABASES = secure.DATABASES
+
+# Configure Bridge host with is used for lis_outcome_service_url composition
+BRIDGE_HOST = secure.BRIDGE_HOST
+
+try:
+    # Engine for Adaptivity configuration block
+    # ENGINE_MODULE is a string with the path to the engine module
+    ENGINE_MODULE = secure.ENGINE_MODULE
+
+    # ENGINE_DRIVER is a string with the name of driver class in the engine module
+    ENGINE_DRIVER = secure.ENGINE_DRIVER
+
+    # ENGINE_SETTINGS is a dict, with the initial params for driver initialization
+    ENGINE_SETTINGS = secure.ENGINE_SETTINGS
+except AttributeError:
+    # Default Mock engine will be used
+    pass
 
 DEBUG = True
 LTI_SSL = False
