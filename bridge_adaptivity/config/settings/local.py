@@ -39,7 +39,7 @@ MIDDLEWARE_CLASSES += (
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
+STATIC_ROOT = normpath(join(SITE_ROOT, 'static'))
 
 # For Django Debug Toolbar:
 # NOTE(idegtiarov) In order to make dgango-debug-toolbar works with docker add here docker machine ip address.
