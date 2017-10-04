@@ -139,6 +139,10 @@ class EngineVPAL(EngineInterface):
         :param sequence_item: SequenceItem instance
         """
         submit_url = urlparse.urljoin(self.base_url, 'score')
-        payload = self.fulfill_payload(instance_to_parse=sequence_item)
+        payload = dict(
+            learner = sequence_item.sequence.lti_user.id,
+            activity = sequence_item.activity.id,
+            score = sequence_item.score
+        )
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
         return self.check_engine_response(submit_activity_score.status_code, 'graded', sequence_item.activity.name)
