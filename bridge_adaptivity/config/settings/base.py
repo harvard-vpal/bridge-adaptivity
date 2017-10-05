@@ -30,6 +30,8 @@ path.append(SITE_ROOT)
 
 DEBUG = False
 
+ALLOWED_HOSTS = []
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
