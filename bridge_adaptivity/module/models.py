@@ -76,6 +76,7 @@ class Collection(models.Model):
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
+    correctness_matters = fields.BooleanField(default=True)
 
     class Meta:
         unique_together = ('owner', 'name')
