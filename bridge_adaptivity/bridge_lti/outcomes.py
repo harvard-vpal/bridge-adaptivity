@@ -61,6 +61,7 @@ def calculate_grade(trials_count, threshold, points_earned, correctness_matters)
     else:
         grade = trials_count / max(threshold, trials_count)
 
+    grade = round(grade, 4)  # round to 4 decimal places
     log.debug("Calculated grade: %s", grade)
 
     return grade
