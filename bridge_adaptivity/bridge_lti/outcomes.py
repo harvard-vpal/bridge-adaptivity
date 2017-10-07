@@ -51,7 +51,10 @@ def calculate_grade(trials_count, threshold, points_earned, correctness_matters)
     :param (float) points_earned: grade policy 'P' argument
     :return: (float) grade
     """
-    log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}, C={%s}", trials_count, threshold, points_earned, correctness_matters)
+    log.debug(
+        "Grade calculation args: N={%s}, Q={%s}, P={%s}, C={%s}",
+        trials_count, threshold, points_earned, correctness_matters
+    )
     # convert int arguments to floats
     trials_count = float(trials_count)
     threshold = float(threshold)
