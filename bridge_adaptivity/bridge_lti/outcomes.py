@@ -40,19 +40,27 @@ def update_lms_grades(request, sequence, user_id):
         ))
 
 
-def calculate_grade(trials_count, threshold, points_earned):
+def calculate_grade(trials_count, threshold, points_earned, correctness_matters):
     """
-    Grade calculation using current grade policy ("Grade Policy 1a", for now).
+    Grade calculation using current grade policy (Modified version of "Grade Policy 1a").
 
     Grade must be in {0.0 ... 1.0}
 
     :param (int) trials_count: grade policy 'N' argument
-    :param (float) threshold: grade policy 'Q' argument
+    :param (int) threshold: grade policy 'Q' argument
     :param (float) points_earned: grade policy 'P' argument
     :return: (float) grade
     """
-    log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}", trials_count, threshold, points_earned)
-    grade = points_earned / threshold if trials_count < threshold else points_earned / trials_count
+    log.debug("Grade calculation args: N={%s}, Q={%s}, P={%s}, C={%s}", trials_count, threshold, points_earned, correctness_matters)
+    # convert int arguments to floats
+    trials_count = float(trials_count)
+    threshold = float(threshold)
+
+    if correctness_matters:
+        grade = points_earned / max(threshold, trials_count)
+    else:
+        grade = trials_count / max(threshold, trials_count)
+
     log.debug("Calculated grade: %s", grade)
 
     return grade
@@ -61,6 +69,7 @@ def calculate_grade(trials_count, threshold, points_earned):
 def process_score(sequence):
     """Calculate the score for the Sequence."""
     threshold = sequence.collection.threshold
+    correctness_matters = sequence.collection.correctness_matters
     items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
 
-    return calculate_grade(items_result['trials_count'], threshold, items_result['points_earned'])
+    return calculate_grade(items_result['trials_count'], threshold, items_result['points_earned'], correctness_matters)
