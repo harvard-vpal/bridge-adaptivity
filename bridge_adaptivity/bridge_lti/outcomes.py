@@ -21,21 +21,22 @@ def update_lms_grades(request, sequence, user_id):
     score = process_score(sequence)
     outcome_request.post_replace_result(score)
     lms_response = outcome_request.outcome_response
+    comment = lms_response.code_major.text if lms_response.code_major else None
     if lms_response.is_success:
         log.info("Successfully sent updated grade to LMS. Student:{}, grade:{}, comment:{}".format(
-            user_id, score, lms_response.code_major.text
+            user_id, score, comment
         ))
     elif lms_response.is_processing:
         log.info("Grade update is being processed by LMS. Student:{}, grade:{}, comment:{}".format(
-            user_id, score, lms_response.code_major.text
+            user_id, score, comment
         ))
     elif lms_response.has_warning():
         log.warn("Grade update response has warnings. Student:{}, grade:{}, comment:{}".format(
-            user_id, score, lms_response.code_major.text
+            user_id, score, comment
         ))
     else:
         log.error("Grade update request failed. Student:{}, grade:{}, comment:{}".format(
-            user_id, score, lms_response.code_major.text
+            user_id, score, comment
         ))
 
 
