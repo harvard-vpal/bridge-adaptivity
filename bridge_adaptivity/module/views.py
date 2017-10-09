@@ -224,6 +224,7 @@ def sequence_item_next(request, pk):
 
     if not next_sequence_item or next_sequence_item.position == last_item:
         activity = utils.choose_activity(sequence_item)
+        update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
             if not activity:
                 return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
@@ -232,7 +233,7 @@ def sequence_item_next(request, pk):
                 activity=activity,
                 position=sequence_item.position + 1
             )
-        elif request.session.pop('Lti_update_activity', None):
+        elif update_activity:
             log.debug('Bridge updates activity in the un-submitted SequenceItem')
             if activity:
                 next_sequence_item.activity = activity

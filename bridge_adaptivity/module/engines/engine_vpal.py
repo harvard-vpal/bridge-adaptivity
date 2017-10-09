@@ -63,8 +63,7 @@ class EngineVPAL(EngineInterface):
             log.error("[VPAL Engine] activity {} is not {} to the VPAL Engine.".format(activity_name, action))
             return False
 
-    @staticmethod
-    def fulfill_payload(payload={}, instance_to_parse=None):
+    def fulfill_payload(self, payload={}, instance_to_parse=None):
         from module.models import Activity, SequenceItem
         if isinstance(instance_to_parse, Activity):
             params = ACTIVITY_PARAMS
@@ -76,9 +75,12 @@ class EngineVPAL(EngineInterface):
             if param == 'type':
                 atype = TYPES.get(getattr(instance_to_parse, 'atype'), 'generic')
                 payload[param] = atype
-            elif param == 'collection':
-                collection = getattr(instance_to_parse, param).id
-                payload[param] = collection
+            elif param == 'learner':
+                learner = instance_to_parse.sequence.lti_user.id
+                payload[param] = learner
+            elif param in ('collection', 'activity'):
+                param_value = getattr(instance_to_parse, param).id
+                payload[param] = param_value
             else:
                 payload[param] = getattr(instance_to_parse, param)
         return payload
@@ -139,10 +141,6 @@ class EngineVPAL(EngineInterface):
         :param sequence_item: SequenceItem instance
         """
         submit_url = urlparse.urljoin(self.base_url, 'score')
-        payload = dict(
-            learner=sequence_item.sequence.lti_user.id,
-            activity=sequence_item.activity.id,
-            score=sequence_item.score
-        )
+        payload = self.fulfill_payload(instance_to_parse=sequence_item)
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
         return self.check_engine_response(submit_activity_score.status_code, 'graded', sequence_item.activity.name)
