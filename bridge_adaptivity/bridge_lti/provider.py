@@ -98,12 +98,13 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
         collection=collection
     )
 
-    if sequence.completed:
-        log.debug("Sequence {} is already completed".format(sequence.id))
-        return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
     strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id
     request.session['Lti_strict_forward'] = strict_forward
+
+    if sequence.completed:
+        log.debug("Sequence {} is already completed".format(sequence.id))
+        return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
         # NOTE(wowkalucky): empty Collection validation
