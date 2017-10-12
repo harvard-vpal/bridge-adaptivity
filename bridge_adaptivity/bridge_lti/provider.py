@@ -148,5 +148,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
 
 
 def create_session(request):
+    """
+    View that creates a new django session
+    """
     request.session.cycle_key()
-    return HttpResponse()
+    return HttpResponse("New user session created")
