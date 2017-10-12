@@ -1,7 +1,7 @@
 import logging
 
 from django.core.cache import cache
-from django.http import Http404, HttpResponseBadRequest
+from django.http import Http404, HttpResponseBadRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -145,3 +145,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_id}))
+
+
+def create_session(request):
+    request.session.cycle_key()
+    return HttpResponse()
