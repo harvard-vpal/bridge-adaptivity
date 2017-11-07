@@ -17,7 +17,7 @@ other LTI consumers
 serve dynamically. Examples of a content source system might be Open edX
 or other LTI providers.
 * Adaptive Engine - Provides activity recommendations based on student activity.
-An example of an adaptive engine application is the (ALOSI adaptive engine)[https://github.com/harvard-vpal/adaptive-engine].
+An example of an adaptive engine application is the [ALOSI adaptive engine](https://github.com/harvard-vpal/adaptive-engine).
 ![System architecture](img/architecture.png)
 
 ### More information
