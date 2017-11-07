@@ -14,9 +14,10 @@ systems to enable adaptivity in a course. These are:
 * LMS (Learning Management System), for example edX, Open edX, Canvas or 
 other LTI consumers
 * Content Source - contains the content (problems, html content) to 
-serve dynamically. 
-Examples of a content source system are Open edX or other LTI providers.
-* Adaptive Engine - The adaptive engine 
+serve dynamically. Examples of a content source system might be Open edX
+or other LTI providers.
+* Adaptive Engine - Provides activity recommendations based on student activity.
+An example of an adaptive engine application is the (ALOSI adaptive engine)[https://github.com/harvard-vpal/adaptive-engine].
 ![System architecture](img/architecture.png)
 
 ### More information
