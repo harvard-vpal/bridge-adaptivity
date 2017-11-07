@@ -3,14 +3,31 @@
 [![Travis](https://img.shields.io/travis/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://travis-ci.org/harvard-vpal/bridge-adaptivity)
 [![Code Climate](https://img.shields.io/codeclimate/github/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://codeclimate.com/github/harvard-vpal/bridge-adaptivity)
 
-A tool that interfaces with an adaptive engine to dynamically serve
+## About
+
+An application that interfaces with an adaptive engine to dynamically serve
 content in MOOCs based on real time student activity.
 
-Github wiki: https://github.com/harvard-vpal/bridge-adaptivity/wiki
+### The ALOSI adaptivity ecosystem
+The Bridge for Adaptivity is designed to work with three external 
+systems to enable adaptivity in a course. These are:
+* LMS (Learning Management System), for example edX, Open edX, Canvas or 
+other LTI consumers
+* Content Source - contains the content (problems, html content) to 
+serve dynamically. 
+Examples of a content source system are Open edX or other LTI providers.
+* Adaptive Engine - The adaptive engine 
+![System architecture](img/architecture.png)
 
-Blog post: http://vpal.harvard.edu/blog/bridge-adaptivity-enabling-use-adaptive-assessments-edx
+### More information
 
-## Deployment
+Visit our [github wiki](https://github.com/harvard-vpal/bridge-adaptivity/wiki) 
+or the [ALOSI Labs site](http://www.alosilabs.org/) for more information about 
+our group and our work.
+
+## Getting started
+
+### Deployment
 
 Deployment is based on the `Docker` containers. There are two config
 files `docker-compose_local.yml` and `docker-compose.yml` for local
