@@ -25,7 +25,9 @@ class SignatureValidator(RequestValidator):
     application-specific requirements.
     """
 
-    def __init__(self):
+    nonce_length = 20, 45
+
+    def  __init__(self):
         super(SignatureValidator, self).__init__()
         self.endpoint = SignatureOnlyEndpoint(self)
         self.lti_consumer = None
