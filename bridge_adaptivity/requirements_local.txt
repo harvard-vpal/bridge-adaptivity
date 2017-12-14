@@ -14,3 +14,7 @@ django-sslserver
 flake8==3.4.1
 tox==2.7.0
 pbr==3.1.1
+
+pytest
+pytest-django
+pytest-cov

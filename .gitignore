@@ -5,7 +5,9 @@ __pycache__/
 # local Django logs:
 ***.log
 ***.log.*
+***.egg-info
 .idea/
+.tox
 **/.coverage
 ## Secure settings
 secure.py
