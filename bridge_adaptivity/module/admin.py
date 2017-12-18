@@ -2,6 +2,7 @@ from django.contrib import admin
 from ordered_model.admin import OrderedTabularInline
 
 from .models import Activity, Collection, Log, Sequence, SequenceItem
+from models import CollectionGroup, Engine
 
 
 class SequenceItemStackedInline(admin.StackedInline):
@@ -43,6 +44,15 @@ class CollectionAdmin(admin.ModelAdmin):
                 urls = inline.get_urls(self) + urls
         return urls
 
+
+@admin.register(CollectionGroup)
+class CollectionGroupAdmin(admin.ModelAdmin):
+    model = CollectionGroup
+
+
+@admin.register(Engine)
+class EngineAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Log)
 class LogAdmin(admin.ModelAdmin):

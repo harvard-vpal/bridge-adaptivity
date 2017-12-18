@@ -104,6 +104,45 @@ class Collection(models.Model):
         return reverse('module:collection-list')
 
 
+class Engine(models.Model):
+    DEFAULT_ENGINE_NAME = 'mock'
+
+    name = models.CharField(default=DEFAULT_ENGINE_NAME, max_length=255)
+
+    def __str__(self):
+        return "Engine: {}".format(self.name)
+
+    @classmethod
+    def get_default_engine(cls):
+        if not cls.objects.count():
+            Engine.objects.create()
+            return cls.objects.get()
+        else:
+            return cls.objects.get(name=cls.DEFAULT_ENGINE_NAME)
+
+    def get_absolute_url(self):
+        return ''
+
+
+class CollectionGroup(models.Model):
+    """This class represents Collections Group"""
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    atime = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(BridgeUser)
+
+    collections = models.ManyToManyField('Collection')
+
+    engine = models.ForeignKey('Engine')
+
+    def __str__(self):
+        return u"CollectionGroup: {}".format(self.name)
+
+    def get_absolute_url(self):
+        return reverse('module:group-detail', kwargs={'pk': self.pk})
+
+
+
 @python_2_unicode_compatible
 class Activity(OrderedModel):
     """General entity which represents problem/text/video material."""

@@ -1,0 +1,21 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+
+<hr>
+
+{% block content %}
+{% if group.id %}Update {{ group.name }}{% else %}
+<h2>New Collection Group configuration</h2>
+{% endif %}
+
+<form role="form" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button class="btn btn-primary" type="submit">
+    {% if group.id %}Update{% else %}Create{% endif %}</button>
+  <a href="{% if group.id %}{% url 'module:group-detail' group.id %}{% else %}{% url 'module:group-list' %}{% endif %}" class="btn btn-default" role="button"
+     type="reset">Cancel</a>
+</form>
+
+{% endblock content %}

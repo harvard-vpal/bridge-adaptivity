@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
+from django.forms.widgets import SelectMultiple
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -18,12 +19,66 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
+from models import CollectionGroup, Engine
 from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
 from module.models import Activity, Collection, Log, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupList(ListView):
+    model = CollectionGroup
+    context_object_name = 'groups'
+    ordering = ['id']
+
+    def get_queryset(self):
+        return self.model.objects.filter(owner=self.request.user)
+
+
+class GroupEditFormMixin(object):
+    def get_form(self):
+        form = super(GroupEditFormMixin, self).get_form()
+        collections = Collection.objects.filter(
+            owner=self.request.user
+        )
+        form.fields['owner'].initial = self.request.user
+        form.fields['engine'].initial = Engine.get_default_engine()
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        form.fields['collections'].queryset = collections
+        return form
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupCreate(GroupEditFormMixin, CreateView):
+    model = CollectionGroup
+    fields = [
+        'name', 'owner', 'collections', 'engine'
+    ]
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupDetail(DetailView):
+    model = CollectionGroup
+    context_object_name = 'group'
+
+    def get_queryset(self):
+        return CollectionGroup.objects.filter(owner=self.request.user)
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupUpdate(GroupEditFormMixin, UpdateView):
+    model = CollectionGroup
+    fields = [
+        'name', 'owner', 'collections', 'engine'
+    ]
+
+    context_object_name = 'group'
+
+    def get_success_url(self):
+        return reverse('module:group-detail', kwargs={'pk': self.kwargs.get('pk')})
 
 
 @method_decorator(login_required, name='dispatch')
