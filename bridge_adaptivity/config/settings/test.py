@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from base import *
+from base import * # flake8: noqa: F401
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 

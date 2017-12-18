@@ -2,7 +2,7 @@ import logging
 
 from django.core.cache import cache
 from django.core.exceptions import SuspiciousOperation
-from django.http import Http404, HttpResponseBadRequest
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt

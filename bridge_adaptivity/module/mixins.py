@@ -1,7 +1,7 @@
 import logging
 
 from django.core.cache import cache
-from django.core.exceptions import ValidationError, PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import redirect
 
 log = logging.getLogger(__name__)
