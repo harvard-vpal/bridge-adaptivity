@@ -18,3 +18,4 @@ pbr==3.1.1
 pytest
 pytest-django
 pytest-cov
+mock
