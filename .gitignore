@@ -4,7 +4,7 @@ __pycache__/
 
 # local Django logs:
 *.log
-
+.idea/
 ## Secure settings
 secure.py
 secure.config
