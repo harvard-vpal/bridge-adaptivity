@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
+from django.conf import settings
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +31,14 @@ class LtiSessionMixin(object):
         sequence_id = request.session.get('Lti_sequence')
         if not lti_session:
             log.error('Lti session is not found, Request cannot be processed')
-            return HttpResponseForbidden("Cource content is available only through LTI protocol.")
+            msg = """
+                Your browser security settings require an additional step before starting the quiz.
+                Please open https://courses.openedx.vpal.io/event and {}/lti/create_session in new
+                browser tabs. Then close those tabs, and refresh this page. If you continue experiencing
+                problems accessing the quiz, try decreasing your browser's security settings or using a
+                different browser.
+            """.format(settings.BRIDGE_HOST)
+            return HttpResponseForbidden(msg)
         elif lti_session != cache.get(sequence_id):
             cache.set(sequence_id, lti_session)
             if request.session['Lti_strict_forward']:
