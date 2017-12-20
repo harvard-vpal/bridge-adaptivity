@@ -8,3 +8,8 @@ __pycache__/
 ## Secure settings
 secure.py
 secure.config
+.tox
+.coverage
+.cache
+*.egg*
+*.log*
