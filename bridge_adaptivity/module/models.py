@@ -79,7 +79,7 @@ class Collection(models.Model):
 
     correctness_matters = fields.BooleanField(
         default=True,
-        verbose_name="Correctness meter (related to grading policy)",
+        verbose_name="Correctness matters (grading policy setting)",
         help_text=('If checked: grade will depend on points user get,<br>'
                    'If unchecked: grade will depend on users trials count.')
     )
