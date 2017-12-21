@@ -9,11 +9,11 @@ An application that interfaces with an adaptive engine to dynamically serve
 content in MOOCs based on real time student activity.
 
 ### The ALOSI adaptivity ecosystem
-The Bridge for Adaptivity is designed to work with three external 
+The Bridge for Adaptivity is designed to work with three external
 systems to enable adaptivity in a course. These are:
-* LMS (Learning Management System), for example edX, Open edX, Canvas or 
+* LMS (Learning Management System), for example edX, Open edX, Canvas or
 other LTI consumers
-* Content Source - contains the content (problems, html content) to 
+* Content Source - contains the content (problems, html content) to
 serve dynamically. Examples of a content source system might be Open edX
 or other LTI providers.
 * Adaptive Engine - Provides activity recommendations based on student activity.
@@ -22,8 +22,8 @@ An example of an adaptive engine application is the [ALOSI adaptive engine](http
 
 ### More information
 
-Visit our [github wiki](https://github.com/harvard-vpal/bridge-adaptivity/wiki) 
-or the [ALOSI Labs site](http://www.alosilabs.org/) for more information about 
+Visit our [github wiki](https://github.com/harvard-vpal/bridge-adaptivity/wiki)
+or the [ALOSI Labs site](http://www.alosilabs.org/) for more information about
 our group and our work.
 
 ## Getting started
@@ -59,6 +59,29 @@ Local deployment contains two containers:
   Volume "pgs" is added to the the database container.
 
   Note: Development server available on `localhost:8008`
+
+
+### Running tests
+
+You can run test locally (directly on your host) and in the docker machine
+
+* to run hosts locally:
+ * install requirements with command `pip install -r requirements_local.txt`
+ * run command: `python manage.py test --settings config.settings.test` or just `pytest`. Both these commands are equal
+* to run tests in docker:
+ * up docker container with command: `docker-compose -f docker-compose_local.yml up -d`
+ * run test `docker exec -it BFA_local pytest`
+  * if you see an error:
+  ```
+  import file mismatch:
+  ...
+which is not the same as the test file we want to collect:
+  /bridge_adaptivity/config/settings/test.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+  ```
+  you should do this: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
+  and after that run tests: `docker exec -it BFA_local pytest`
+
 
 ### Production deployment
 
@@ -96,8 +119,8 @@ development:
 
 
 ### Changing Grading policy:
-Each collection my have personal grading policy. To change it just change correctness_matters in collection change view
-or in admin UI.
+Each collection could has personal grading policy.
+To switch between policies marl/unmark `correctness meters` flag while updating/creating collection or in admin UI.
 
-If correctness_meter checkbox is checked grade will depend on points user get,
-If unchecked: grade will depend on users trials count.
+If `correctness_meter` is checked grade depends on the users points,
+If unchecked: grade depends on the users trials count.

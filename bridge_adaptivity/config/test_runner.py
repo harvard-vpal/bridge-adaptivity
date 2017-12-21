@@ -8,6 +8,7 @@ class PytestTestRunner(object):
         self.verbosity = verbosity
         self.failfast = failfast
         self.keepdb = keepdb
+        self.kw = kwargs
 
     def run_tests(self, test_labels):
         """Run pytest and return the exitcode.
@@ -25,6 +26,17 @@ class PytestTestRunner(object):
             argv.append('--exitfirst')
         if self.keepdb:
             argv.append('--reuse-db')
+
+        if self.kw.get('create-db'):
+            argv.append('--create-db')
+        if self.kw.get('no-migrations'):
+            argv.append('--no-migrations')
+        if self.kw.get('migrations'):
+            argv.append('--migrations')
+        if self.kw.get('liveserver'):
+            argv.append('--liveserver')
+        if self.kw.get('ds'):
+            argv.append('--ds {}'.format(self.kw.get('ds')))
 
         argv.extend(test_labels)
         return pytest.main(argv)

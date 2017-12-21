@@ -46,8 +46,7 @@ STATIC_ROOT = normpath(join(SITE_ROOT, 'static'))
 # For Django Debug Toolbar:
 # NOTE(idegtiarov) In order to make dgango-debug-toolbar works with docker add here docker machine ip address.
 # Docker container's ip address could be found in the output of the command: > docker inspect <container_id>
-INTERNAL_IPS = ('127.0.0.1', '172.19.0.1', )
-ALLOWED_HOSTS = ('localhost',)
+INTERNAL_IPS = ('127.0.0.1', '172.19.0.1')
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
