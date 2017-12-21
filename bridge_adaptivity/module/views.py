@@ -39,7 +39,7 @@ class CollectionList(ListView):
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(CreateView):
     model = Collection
-    fields = ['name', 'owner', 'threshold', 'metadata', 'strict_forward']
+    fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters' 'strict_forward']
 
     def get_form(self):
         # FIXME(wowkalucky): improve 'unique_together' default validation message
@@ -52,7 +52,7 @@ class CollectionCreate(CreateView):
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(UpdateView):
     model = Collection
-    fields = ['name', 'threshold', 'metadata', 'strict_forward']
+    fields = ['name', 'threshold', 'metadata', 'strict_forward', 'correctness_matters']
 
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})

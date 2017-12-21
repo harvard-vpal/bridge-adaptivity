@@ -93,3 +93,11 @@ production:
 development:
 
     [sudo] docker-compose -f docker-compose_local.yml build
+
+
+### Changing Grading policy:
+Each collection my have personal grading policy. To change it just change correctness_matters in collection change view
+or in admin UI.
+
+If correctness_meter checkbox is checked grade will depend on points user get,
+If unchecked: grade will depend on users trials count.
