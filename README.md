@@ -65,22 +65,21 @@ Local deployment contains two containers:
 
 You can run test locally (directly on your host) and in the docker machine
 
-* to run hosts locally:
- * install requirements with command `pip install -r requirements_local.txt`
- * run command: `python manage.py test --settings config.settings.test` or just `pytest`. Both these commands are equal
+* to run tests locally:
+    * install requirements with command `pip install -r requirements_local.txt`
+    * run command: `python manage.py test --settings config.settings.test` or just `pytest`. Both these commands are equal
 * to run tests in docker:
- * up docker container with command: `docker-compose -f docker-compose_local.yml up -d`
- * run test `docker exec -it BFA_local pytest`
-  * if you see an error:
-  ```
-  import file mismatch:
-  ...
-which is not the same as the test file we want to collect:
-  /bridge_adaptivity/config/settings/test.py
-HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
-  ```
-  you should do this: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
-  and after that run tests: `docker exec -it BFA_local pytest`
+    * up docker container with command: `docker-compose -f docker-compose_local.yml up -d`
+    * run test `docker exec -it BFA_local pytest`
+        * if you see an error: 
+          ```
+          import file mismatch:
+          which is not the same as the test file we want to collect:
+          /bridge_adaptivity/config/settings/test.py
+          HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
+          ``` 
+          you should do this: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
+          and after that run tests: `docker exec -it BFA_local pytest`
 
 
 ### Production deployment
