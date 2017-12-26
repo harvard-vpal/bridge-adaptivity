@@ -1,4 +1,5 @@
 import logging
+import importlib
 
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
@@ -8,6 +9,9 @@ from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import slugify
+from autoslug import AutoSlugField
+
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
@@ -23,6 +27,7 @@ class Sequence(models.Model):
 
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
+    engine = models.ForeignKey('Engine', blank=True, null=True)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
@@ -108,6 +113,11 @@ class Engine(models.Model):
     DEFAULT_ENGINE_NAME = 'mock'
 
     name = models.CharField(default=DEFAULT_ENGINE_NAME, max_length=255)
+    host = models.URLField(blank=True, null=True)
+    token = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        unique_together = (('host', 'token'),)
 
     def __str__(self):
         return "Engine: {}".format(self.name)
@@ -123,6 +133,30 @@ class Engine(models.Model):
     def get_absolute_url(self):
         return ''
 
+    def make_engine(self):
+        try:
+            engine_module = importlib.import_module('module.engines.engine_{}'.format(self.name.lower()))
+        except ImportError:
+            engine_module = importlib.import_module('module.engines.engine_mock')
+        engine_template = 'Engine{}'
+        driver = getattr(
+            engine_module, engine_template.format(self.name.upper()),  # try uppercase
+                getattr(engine_module, engine_template.format(self.name.capitalize()),  # if not found - try capitalized
+                    getattr(engine_module, 'EngineMock', None)  # fallback to Mock engine
+                )
+        )
+        if self.name == 'mock':
+            # mock engine takes no params
+            settings = {}
+        else:
+            settings = {
+                'host': self.host,
+                'token': self.token
+            }
+        if driver:
+            return driver(**settings)
+        return
+
 
 class CollectionGroup(models.Model):
     """This class represents Collections Group"""
@@ -130,6 +164,11 @@ class CollectionGroup(models.Model):
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser)
+    slug = AutoSlugField(
+        null=True,
+        populate_from='name',
+        unique_with=['owner'],
+    )
 
     collections = models.ManyToManyField('Collection')
 
@@ -140,7 +179,6 @@ class CollectionGroup(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'pk': self.pk})
-
 
 
 @python_2_unicode_compatible

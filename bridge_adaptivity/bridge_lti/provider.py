@@ -12,7 +12,7 @@ from oauthlib import oauth1
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from module import utils as module_utils
-from module.models import (Collection, Sequence, SequenceItem)
+from module.models import (Collection, Sequence, SequenceItem, CollectionGroup)
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def find_last_sequence_item(sequence, strict_forward):
 
 
 @csrf_exempt
-def lti_launch(request, collection_id=None):
+def lti_launch(request, collection_id=None, group_slug=''):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -56,7 +56,8 @@ def lti_launch(request, collection_id=None):
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
-        return learner_flow(request, lti_consumer, tool_provider, collection_id=collection_id)
+        return learner_flow(request, lti_consumer, tool_provider, collection_id=collection_id,
+                            group_slug=group_slug)
 
 
 def instructor_flow(collection_id=None):
@@ -67,7 +68,7 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
+def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
     """Define logic flow for Learner."""
     if not collection_id:
         return render(
@@ -86,6 +87,11 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
         return HttpResponseBadRequest(reason='Bad launch_url collection ID.')
 
+    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
+    if not collection_group:
+        log.exception("Collection with provided ID does not exist. Check configured launch url.")
+        return HttpResponseBadRequest(reason='Bad launch_url collection ID.')
+
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
         lti_consumer=lti_consumer,
@@ -95,7 +101,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
 
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
-        collection=collection
+        collection=collection,
+        engine=collection_group.engine
     )
 
     strict_forward = collection.strict_forward
