@@ -70,16 +70,17 @@ def instructor_flow(collection_id=None):
 
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
     """Define logic flow for Learner."""
+    anononcement_page = render(
+        request,
+        template_name="bridge_lti/announcement.html",
+        context={
+            'title': 'announcement',
+            'message': 'coming soon!',
+            'tip': 'this adaptivity sequence is about to start.',
+        }
+    )
     if not collection_id:
-        return render(
-            request,
-            template_name="bridge_lti/announcement.html",
-            context={
-                'title': 'announcement',
-                'message': 'coming soon!',
-                'tip': 'this adaptivity sequence is about to start.',
-            }
-        )
+        return anononcement_page
 
     try:
         collection = Collection.objects.get(id=collection_id)
@@ -89,8 +90,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
 
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
     if not collection_group:
-        log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        return HttpResponseBadRequest(reason='Bad launch_url collection ID.')
+        log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
+        return HttpResponseBadRequest(reason='Bad launch_url collection group slug.')
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -119,15 +120,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warn('Instructor configured empty Collection.')
-            return render(
-                request,
-                template_name="bridge_lti/announcement.html",
-                context={
-                    'title': 'announcement',
-                    'message': 'coming soon!',
-                    'tip': 'this adaptivity sequence is about to start.',
-                }
-            )
+            return anononcement_page
         cache.set(str(sequence.id), request.session['Lti_session'])
 
         # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
