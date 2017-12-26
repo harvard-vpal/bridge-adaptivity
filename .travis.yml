@@ -7,6 +7,16 @@ python:
 install: pip install tox-travis
 script: tox
 
+services:
+  - postgresql
+
+before_script:
+  - psql -c "CREATE DATABASE travicidb;" -U postgres
+  - psql -c "CREATE USER test PASSWORD 'password';" -U postgres
+  - psql -c "ALTER USER test CREATEDB;" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES on DATABASE travicidb to test;" -U postgres
+
+
 after_success:
   - coveralls
   - codecov
