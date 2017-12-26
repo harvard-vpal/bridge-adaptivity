@@ -1,6 +1,7 @@
-import logging
 import importlib
+import logging
 
+from autoslug import AutoSlugField
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -9,9 +10,6 @@ from django.db.models import fields
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
-from django.utils.text import slugify
-from autoslug import AutoSlugField
-
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
@@ -110,6 +108,8 @@ class Collection(models.Model):
 
 
 class Engine(models.Model):
+    """Defines engine settings."""
+
     DEFAULT_ENGINE_NAME = 'mock'
 
     name = models.CharField(default=DEFAULT_ENGINE_NAME, max_length=255)
@@ -141,9 +141,11 @@ class Engine(models.Model):
         engine_template = 'Engine{}'
         driver = getattr(
             engine_module, engine_template.format(self.name.upper()),  # try uppercase
-                getattr(engine_module, engine_template.format(self.name.capitalize()),  # if not found - try capitalized
-                    getattr(engine_module, 'EngineMock', None)  # fallback to Mock engine
-                )
+            getattr(
+                engine_module,
+                engine_template.format(self.name.capitalize()),  # if not found - try capitalized
+                getattr(engine_module, 'EngineMock', None)  # fallback to Mock engine
+            )
         )
         if self.name == 'mock':
             # mock engine takes no params
@@ -159,7 +161,8 @@ class Engine(models.Model):
 
 
 class CollectionGroup(models.Model):
-    """This class represents Collections Group"""
+    """Represents Collections Group."""
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)

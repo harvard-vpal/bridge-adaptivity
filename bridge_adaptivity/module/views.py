@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
-from django.forms.widgets import SelectMultiple
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -19,11 +18,11 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
-from models import CollectionGroup, Engine
 from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
-from module.models import Activity, Collection, Log, Sequence, SequenceItem
+from module.models import (Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem)
+
 
 log = logging.getLogger(__name__)
 

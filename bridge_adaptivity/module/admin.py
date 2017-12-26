@@ -1,8 +1,7 @@
 from django.contrib import admin
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Activity, Collection, Log, Sequence, SequenceItem
-from models import CollectionGroup, Engine
+from .models import Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem
 
 
 class SequenceItemStackedInline(admin.StackedInline):
@@ -53,6 +52,7 @@ class CollectionGroupAdmin(admin.ModelAdmin):
 @admin.register(Engine)
 class EngineAdmin(admin.ModelAdmin):
     pass
+
 
 @admin.register(Log)
 class LogAdmin(admin.ModelAdmin):

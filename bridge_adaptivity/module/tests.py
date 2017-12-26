@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls.base import reverse
-from module.models import BridgeUser, CollectionGroup, Collection, Engine
+
+from module.models import BridgeUser, Collection, CollectionGroup, Engine
 
 
 class TestCollectionGroupTest(TestCase):
@@ -23,7 +24,6 @@ class TestCollectionGroupTest(TestCase):
         self.test_cg.collections.add(self.collection1)
         self.test_cg.collections.add(self.collection3)
 
-
     def test_create_cg_page_works(self):
         url = reverse('module:group-add')
         response = self.client.get(url)
@@ -36,7 +36,7 @@ class TestCollectionGroupTest(TestCase):
             'engine': self.engine.id,
             'owner': self.user.id
         })
-        self.assertEqual(cnt+1, CollectionGroup.objects.count())
+        self.assertEqual(cnt + 1, CollectionGroup.objects.count())
         self.assertEqual(response.status_code, 302)
 
     def test_cg_list(self):
@@ -64,14 +64,3 @@ class TestCollectionGroupTest(TestCase):
         test_g = CollectionGroup.objects.get(id=self.test_cg.id)
         self.assertNotEqual(test_g.name, self.test_cg.name)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
-
-
-
-
-
-
-
-
-
-
-
