@@ -122,6 +122,8 @@ class Engine(models.Model):
     host = models.URLField(blank=True, null=True)
     token = models.CharField(max_length=255, blank=True, null=True)
 
+    _engines_cache = {}
+
     class Meta:
         unique_together = (('host', 'token'),)
 
@@ -161,9 +163,10 @@ class Engine(models.Model):
                 'host': self.host,
                 'token': self.token
             }
-        if driver:
-            return driver(**settings)
-        return
+        key = (self.name, tuple(settings.items()))
+        if key not in Engine._engines_cache:
+            Engine._engines_cache[key] = driver(**settings)
+        return Engine._engines_cache.get(key)
 
 
 class CollectionGroup(models.Model):
