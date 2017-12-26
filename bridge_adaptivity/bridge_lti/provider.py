@@ -1,7 +1,8 @@
 import logging
 
 from django.core.cache import cache
-from django.http import Http404, HttpResponseBadRequest
+from django.core.exceptions import SuspiciousOperation
+from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -47,6 +48,7 @@ def lti_launch(request, collection_id=None, group_slug=''):
         log.error('Error happened while LTI request: {}'.format(err.__str__()))
     if not ok:
         raise Http404('LTI request is not valid')
+    print "OK = ", ok
     request.session['Lti_session'] = request_post['oauth_nonce']
     lti_consumer = LtiProvider.objects.get(consumer_key=request_post['oauth_consumer_key'])
     roles = request_post.get('roles')
@@ -86,7 +88,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         collection = Collection.objects.get(id=collection_id)
     except Collection.DoesNotExist:
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        return HttpResponseBadRequest(reason='Bad launch_url collection ID.')
+        raise SuspiciousOperation('Bad launch_url collection ID.')
 
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
     if not collection_group:

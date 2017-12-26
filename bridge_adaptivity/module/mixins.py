@@ -1,8 +1,7 @@
 import logging
 
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
-from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import redirect
 
 log = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ class LtiSessionMixin(object):
         sequence_id = request.session.get('Lti_sequence')
         if not lti_session:
             log.error('Lti session is not found, Request cannot be processed')
-            return HttpResponseForbidden("Cource content is available only through LTI protocol.")
+            raise PermissionDenied("Course content is available only through LTI protocol.")
         elif lti_session != cache.get(sequence_id):
             cache.set(sequence_id, lti_session)
             if request.session['Lti_strict_forward']:

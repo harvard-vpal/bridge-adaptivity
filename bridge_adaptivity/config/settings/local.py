@@ -6,6 +6,8 @@ try:
 except ImportError:
     import secure_example as secure
 
+TEST_RUNNER = 'config.test_runner.PytestTestRunner'
+
 SECRET_KEY = secure.SECRET_KEY
 
 DATABASES = secure.DATABASES
@@ -44,7 +46,8 @@ STATIC_ROOT = normpath(join(SITE_ROOT, 'static'))
 # For Django Debug Toolbar:
 # NOTE(idegtiarov) In order to make dgango-debug-toolbar works with docker add here docker machine ip address.
 # Docker container's ip address could be found in the output of the command: > docker inspect <container_id>
-INTERNAL_IPS = ('127.0.0.1', '172.19.0.1')
+INTERNAL_IPS = ('127.0.0.1', '172.19.0.1', )
+ALLOWED_HOSTS = ('localhost',)
 
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,

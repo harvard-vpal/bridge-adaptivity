@@ -79,7 +79,13 @@ class Collection(models.Model):
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
-    correctness_matters = fields.BooleanField(default=True)
+
+    correctness_matters = fields.BooleanField(
+        default=True,
+        verbose_name="Correctness matters (grading policy setting)",
+        help_text=('If checked: grade will depend on points user get,<br>'
+                   'If unchecked: grade will depend on users trials count.')
+    )
 
     class Meta:
         unique_together = ('owner', 'name')

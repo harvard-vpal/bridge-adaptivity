@@ -3,8 +3,12 @@ __pycache__/
 *.py[cod]
 
 # local Django logs:
-*.log
-
+***.log
+***.log.*
+***.egg-info
+.idea/
+.tox
+**/.coverage
 ## Secure settings
 secure.py
 secure.config
