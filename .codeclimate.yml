@@ -31,3 +31,4 @@ ratings:
 
 exclude_paths:
 - "**/migrations/"
+- "bridge_adaptivity/config/test_runner.py"
