@@ -70,6 +70,49 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
+def get_collection_collectiongroup(collection_id, group_slug):
+    """Returns collection and collection group by collection_id and group_slug corresponding"""
+    collection = Collection.objects.filter(id=collection_id).first()
+    if not collection:
+        log.exception("Collection with provided ID does not exist. Check configured launch url.")
+        raise SuspiciousOperation('Bad launch_url collection ID.')
+
+    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
+    if not collection_group:
+        log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
+        raise SuspiciousOperation('Bad launch_url collection group slug.')
+
+    return collection, collection_group
+
+
+def create_outcome_service_with_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
+    """Creates and returns sequence item"""
+    # NOTE(wowkalucky): empty Collection validation
+    log.debug("Sequence {} was created".format(sequence))
+    start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
+    if not start_activity:
+        log.warn('Instructor configured empty Collection.')
+        return anononcement_page
+    cache.set(str(sequence.id), request.session['Lti_session'])
+
+    # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
+    if tool_provider.is_outcome_service():
+        outcomes, __ = OutcomeService.objects.get_or_create(
+            lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
+            lms_lti_connection=lti_consumer
+        )
+        sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
+        sequence.outcome_service = outcomes
+        sequence.save()
+
+    sequence_item = SequenceItem.objects.create(
+        sequence=sequence,
+        activity=start_activity,
+        position=1
+    )
+    return sequence_item
+
+
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
     """Define logic flow for Learner."""
     anononcement_page = render(
@@ -84,16 +127,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     if not collection_id:
         return anononcement_page
 
-    try:
-        collection = Collection.objects.get(id=collection_id)
-    except Collection.DoesNotExist:
-        log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        raise SuspiciousOperation('Bad launch_url collection ID.')
-
-    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
-    if not collection_group:
-        log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
-        raise SuspiciousOperation('Bad launch_url collection group slug.')
+    collection, collection_group = get_collection_collectiongroup(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -117,28 +151,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
-        # NOTE(wowkalucky): empty Collection validation
-        log.debug("Sequence {} was created".format(sequence))
-        start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
-        if not start_activity:
-            log.warn('Instructor configured empty Collection.')
-            return anononcement_page
-        cache.set(str(sequence.id), request.session['Lti_session'])
-
-        # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
-        if tool_provider.is_outcome_service():
-            outcomes, __ = OutcomeService.objects.get_or_create(
-                lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
-                lms_lti_connection=lti_consumer
-            )
-            sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
-            sequence.outcome_service = outcomes
-            sequence.save()
-
-        sequence_item = SequenceItem.objects.create(
-            sequence=sequence,
-            activity=start_activity,
-            position=1
+        sequence_item = create_outcome_service_with_sequence_item(
+            request, sequence, anononcement_page, tool_provider, lti_consumer
         )
     else:
         sequence_item = find_last_sequence_item(sequence, strict_forward)
