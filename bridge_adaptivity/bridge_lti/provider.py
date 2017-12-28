@@ -93,7 +93,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
     if not collection_group:
         log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
-        return HttpResponseBadRequest(reason='Bad launch_url collection group slug.')
+        raise SuspiciousOperation('Bad launch_url collection group slug.')
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
