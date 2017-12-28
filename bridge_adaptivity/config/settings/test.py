@@ -3,24 +3,16 @@ from base import *  # noqa: F401,F403
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
-if 'TRAVIS' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE':   'django.db.backends.postgresql_psycopg2',
-            'NAME':     'traviscidb',
-            'USER':     'test',
-            'PASSWORD': 'password',
-            'HOST':     'localhost',
-            'PORT':     '',
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'travicidb',
+        'USER': 'test',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'test.db',
-        }
-    }
+}
 
 SECRET_KEY = 'KEY'
 
