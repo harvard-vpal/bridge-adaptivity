@@ -9,6 +9,8 @@ script: tox
 
 services:
   - postgresql
+addons:
+  postgresql: "9.6"
 
 before_script:
   - psql -c "CREATE DATABASE travicidb;" -U postgres
