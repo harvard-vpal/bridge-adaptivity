@@ -71,7 +71,7 @@ def instructor_flow(collection_id=None):
 
 
 def get_collection_collectiongroup(collection_id, group_slug):
-    """Returns collection and collection group by collection_id and group_slug corresponding"""
+    """Return collection and collection group by collection_id and group_slug."""
     collection = Collection.objects.filter(id=collection_id).first()
     if not collection:
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
@@ -86,7 +86,7 @@ def get_collection_collectiongroup(collection_id, group_slug):
 
 
 def create_outcome_service_with_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
-    """Creates and returns sequence item"""
+    """Create and return sequence item."""
     # NOTE(wowkalucky): empty Collection validation
     log.debug("Sequence {} was created".format(sequence))
     start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
