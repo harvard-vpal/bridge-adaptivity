@@ -26,7 +26,9 @@ class ActivityStackedInline(OrderedTabularInline):
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'threshold', 'owner_name', 'strict_forward']
+    list_display = ['id', 'name',
+                    # 'threshold',
+                    'owner_name', 'strict_forward']
     list_display_links = ['id', 'name']
 
     def owner_name(self, obj):

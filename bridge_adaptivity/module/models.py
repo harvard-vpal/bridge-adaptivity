@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
+from django.db.models.aggregates import Count, Sum
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -26,6 +27,7 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     engine = models.ForeignKey('Engine', blank=True, null=True)
+    collection_group = models.ForeignKey('CollectionGroup')
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
@@ -70,22 +72,53 @@ class SequenceItem(models.Model):
         super(SequenceItem, self).save(*args, **kwargs)
 
 
+class CollectionGradingPolicy(models.Model):
+    collection = models.ForeignKey('Collection')
+    grading_policy = models.ForeignKey('GradingPolicy')
+
+    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
+
+    def _points_earned_grade(self, trials_count, points_earned):
+        return points_earned / max(self.threshold, trials_count)
+
+    def _trials_count(self, trials_count):
+        return trials_count / max(self.threshold, trials_count)
+
+    def calculate_grade(self, sequence):
+        items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
+        map = {
+            # name, function
+            'points_earned': (self._points_earned_grade, (items_result['trials_count'], items_result['points_earned'])),
+            'trials_count': (self._trials_count, (items_result['trials_count'],))
+        }
+        if self.grading_policy.name in map:
+            func = map[self.grading_policy.name][0]
+            return func(*map[self.grading_policy.name][1])
+
+
+class GradingPolicy(models.Model):
+    """Predefined set of Grading policy objects. Define how to grade collections."""
+
+    name = models.CharField(max_length=255)
+    collections = models.ManyToManyField('Collection', through=CollectionGradingPolicy)
+
+
 @python_2_unicode_compatible
 class Collection(models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
-    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
+    # threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
 
-    correctness_matters = fields.BooleanField(
-        default=True,
-        verbose_name="Correctness matters (grading policy setting)",
-        help_text=('If checked: grade will depend on points user get,<br>'
-                   'If unchecked: grade will depend on users trials count.')
-    )
+    # correctness_matters = fields.BooleanField(
+    #     default=True,
+    #     verbose_name="Correctness matters (grading policy setting)",
+    #     help_text=('If checked: grade will depend on points user get,<br>'
+    #                'If unchecked: grade will depend on users trials count.')
+    # )
 
     class Meta:
         unique_together = ('owner', 'name')
