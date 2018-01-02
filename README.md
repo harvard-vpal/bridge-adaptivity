@@ -63,14 +63,15 @@ Local deployment contains two containers:
 
 ### Running tests
 
-You can run test locally (directly on your host) and in the docker machine
+You can run tests locally (directly on your host), or on the docker machine.
 
 * to run tests locally:
     * install requirements with command `pip install -r requirements_local.txt`
-    * run command: `python manage.py test --settings config.settings.test` or just `pytest`. Both these commands are equal
-* to run tests in docker:
-    * up docker container with command: `docker-compose -f docker-compose_local.yml up -d`
-    * run test `docker exec -it BFA_local pytest`
+    * run tests: `python manage.py test --settings config.settings.test` or 
+    just `pytest`. Both commands are equal.
+* to run tests in docker container:
+    * create docker container: `docker-compose -f docker-compose_local.yml up -d`
+    * run tests: `docker exec -it BFA_local pytest`
         * if you see an error: 
           ```
           import file mismatch:
@@ -78,8 +79,8 @@ You can run test locally (directly on your host) and in the docker machine
           /bridge_adaptivity/config/settings/test.py
           HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
           ``` 
-          you should do this: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
-          and after that run tests: `docker exec -it BFA_local pytest`
+          you should run: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
+          and after that retry running the tests: `docker exec -it BFA_local pytest`
 
 
 ### Production deployment
@@ -115,11 +116,3 @@ production:
 development:
 
     [sudo] docker-compose -f docker-compose_local.yml build
-
-
-### Changing Grading policy:
-Each collection could has personal grading policy.
-To switch between policies marl/unmark `correctness meters` flag while updating/creating collection or in admin UI.
-
-If `correctness_meter` is checked grade depends on the users points,
-If unchecked: grade depends on the users trials count.
