@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
+from django.http.response import Http404
 from django.test import TestCase
 from django.test.client import RequestFactory
 import mock
@@ -23,20 +23,19 @@ class RaisedExceptionUsesCustomTemplateTest(TestCase):
     def test_learner_flow_with_incorrect_collection_id_test(self):
         """Check if learner_flow function is called with incorrect collection_id raise proper exception."""
         request = self.rf.post(self.url)
-        with pytest.raises(SuspiciousOperation):
+        with pytest.raises(Http404):
             learner_flow(
                 request,
-                None,
-                None,
+                lti_consumer=None,
+                tool_provider=None,
                 collection_id=1000
             )
 
     @mock.patch('lti.contrib.django.DjangoToolProvider.from_django_request')
     def test_client_post_with_incorrect_collection_id_test(self, from_django_request):
         """Test that when POST request received with not correct data it will show 404 error with correct template."""
-        is_valid_request = Mock(parent=from_django_request, return_value=False)
-        tool_provider = Mock(return_value=is_valid_request)
-        tool_provider.is_valid_request = Mock(return_value=False)
+        is_valid_request = Mock(return_value=False)
+        tool_provider = Mock(is_valid_request=is_valid_request)
         from_django_request.return_value = tool_provider
 
         response = self.client.post(self.url)
