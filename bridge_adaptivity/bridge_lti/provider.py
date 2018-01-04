@@ -13,7 +13,7 @@ from oauthlib import oauth1
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from module import utils as module_utils
-from module.models import Collection, CollectionGroup, Sequence, SequenceItem, Engine
+from module.models import Collection, CollectionGroup, Engine, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 
