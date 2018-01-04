@@ -1,7 +1,6 @@
 import logging
 
 from django.core.cache import cache
-from django.core.exceptions import SuspiciousOperation
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -75,7 +74,7 @@ def get_collection_engine(collection_id, group_slug):
     collection = Collection.objects.filter(id=collection_id).first()
     if not collection:
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        raise SuspiciousOperation('Bad launch_url collection ID.')
+        raise Http404('Bad launch_url collection ID.')
 
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
     if collection_group:
@@ -84,7 +83,7 @@ def get_collection_engine(collection_id, group_slug):
         engine = Engine.get_default_engine()
     if not collection_group:
         log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
-        raise SuspiciousOperation('Bad launch_url collection group slug.')
+        raise Http404('Bad launch_url collection group slug.')
 
     return collection, engine
 
