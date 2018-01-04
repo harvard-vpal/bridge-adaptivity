@@ -125,21 +125,17 @@ class Engine(models.Model):
     _engines_cache = {}
 
     class Meta:
-        unique_together = (('host', 'token'),)
+        unique_together = ('host', 'token')
 
     def __str__(self):
         return "Engine: {}".format(self.name)
 
     @classmethod
     def get_default_engine(cls):
-        if not cls.objects.count():
-            Engine.objects.create()
-            return cls.objects.get()
-        else:
-            return cls.objects.get(name=cls.DEFAULT_ENGINE_NAME)
+        return Engine.objects.get_or_create(name=cls.DEFAULT_ENGINE_NAME)
 
-    def get_absolute_url(self):
-        return ''
+    # def get_absolute_url(self):
+    #     return ''
 
     def make_engine(self):
         try:
@@ -182,9 +178,9 @@ class CollectionGroup(models.Model):
         unique_with=['owner'],
     )
 
-    collections = models.ManyToManyField('Collection')
+    collections = models.ManyToManyField(Collection)
 
-    engine = models.ForeignKey('Engine')
+    engine = models.ForeignKey(Engine)
 
     def __str__(self):
         return u"CollectionGroup: {}".format(self.name)

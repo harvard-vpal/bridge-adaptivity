@@ -13,7 +13,7 @@ from oauthlib import oauth1
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from module import utils as module_utils
-from module.models import Collection, CollectionGroup, Sequence, SequenceItem
+from module.models import Collection, CollectionGroup, Sequence, SequenceItem, Engine
 
 log = logging.getLogger(__name__)
 
@@ -58,8 +58,9 @@ def lti_launch(request, collection_id=None, group_slug=''):
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
-        return learner_flow(request, lti_consumer, tool_provider, collection_id=collection_id,
-                            group_slug=group_slug)
+        return learner_flow(
+            request, lti_consumer, tool_provider, collection_id=collection_id, group_slug=group_slug
+        )
 
 
 def instructor_flow(collection_id=None):
@@ -70,7 +71,7 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
-def get_collection_collectiongroup(collection_id, group_slug):
+def get_collection_engine(collection_id, group_slug):
     """Return collection and collection group by collection_id and group_slug."""
     collection = Collection.objects.filter(id=collection_id).first()
     if not collection:
@@ -78,14 +79,18 @@ def get_collection_collectiongroup(collection_id, group_slug):
         raise SuspiciousOperation('Bad launch_url collection ID.')
 
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
+    if collection_group:
+        engine = collection_group.engine or Engine.get_default_engine()
+    else:
+        engine = Engine.get_default_engine()
     if not collection_group:
         log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
         raise SuspiciousOperation('Bad launch_url collection group slug.')
 
-    return collection, collection_group
+    return collection, engine
 
 
-def create_outcome_service_with_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
+def create_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
     """Create and return sequence item."""
     # NOTE(wowkalucky): empty Collection validation
     log.debug("Sequence {} was created".format(sequence))
@@ -127,7 +132,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     if not collection_id:
         return anononcement_page
 
-    collection, collection_group = get_collection_collectiongroup(collection_id, group_slug)
+    collection, engine = get_collection_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -139,7 +144,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
         collection=collection,
-        engine=collection_group.engine
+        engine=engine,
     )
 
     strict_forward = collection.strict_forward
@@ -151,7 +156,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
-        sequence_item = create_outcome_service_with_sequence_item(
+        sequence_item = create_sequence_item(
             request, sequence, anononcement_page, tool_provider, lti_consumer
         )
     else:

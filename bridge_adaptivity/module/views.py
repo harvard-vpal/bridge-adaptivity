@@ -21,7 +21,7 @@ from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
-from module.models import (Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem)
+from module.models import Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)

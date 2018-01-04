@@ -46,12 +46,11 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(CollectionGroup)
 class CollectionGroupAdmin(admin.ModelAdmin):
-    model = CollectionGroup
-
+    pass
 
 @admin.register(Engine)
 class EngineAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ['name', 'host', 'token']
 
 
 @admin.register(Log)
