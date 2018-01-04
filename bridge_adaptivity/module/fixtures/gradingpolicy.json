@@ -1,0 +1,22 @@
+[
+{
+    "model": "module.gradingpolicy",
+    "pk": 1,
+    "fields": {
+        "name": "trials_count",
+        "public_name": "Trials Count Grading policy",
+        "threshold": 0,
+        "is_default": true
+    }
+},
+{
+    "model": "module.gradingpolicy",
+    "pk": 2,
+    "fields": {
+        "name": "points_earned",
+        "public_name": "Points Earned Grading policy",
+        "threshold": 0,
+        "is_default": false
+    }
+}
+]

@@ -1,4 +1,5 @@
 import logging
+from operator import itemgetter
 from xml.sax.saxutils import escape
 
 from django import forms
@@ -21,10 +22,11 @@ from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
 from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
-from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
+from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)
+VALID_GRADING_POLICIES = [itemgetter(0)(i) for i in settings.GRADING_POLICIES]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -37,14 +39,69 @@ class GroupList(ListView):
         return self.model.objects.filter(owner=self.request.user)
 
 
+class GroupForm(forms.ModelForm):
+    grading_policy = forms.ChoiceField(
+        choices=settings.GRADING_POLICIES,
+        required=True,
+        initial=lambda: GradingPolicy.objects.get(default=True).name
+    )
+
+    class Meta:
+        model = CollectionGroup
+        fields = 'name', 'owner', 'collections', 'engine', 'grading_policy'
+
+
+class GradingPolicyForm(forms.ModelForm):
+    class Meta:
+        model = GradingPolicy
+        fields = 'name', 'threshold'
+
+
+class ChangeGradingPolicyMixin(object):
+    form_class = GradingPolicyForm
+
+    def get_form(self):
+        form = super(ChangeGradingPolicyMixin, self).get_form()
+        return form
+
+    def trials_count(self):
+        pass
+
+    def points_earned(self):
+        pass
+
+    def default(self):
+        pass
+
+    def post(self):
+        gp = self.request.POST.get('grading_policy')
+        if gp and gp in VALID_GRADING_POLICIES:
+            pass
+
+
+class GroupEditFormMixin(object):
+    form_class = GroupForm
+
+    def get_form(self):
+        form = super(GroupEditFormMixin, self).get_form()
+        collections = Collection.objects.filter(
+            owner=self.request.user
+        )
+        form.fields['owner'].initial = self.request.user
+        form.fields['engine'].initial = Engine.get_default_engine()
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        form.fields['collections'].queryset = collections
+        return form
+
+
 @method_decorator(login_required, name='dispatch')
 class GroupCreate(GroupEditFormMixin, CreateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
-    fields = [
-        'name', 'owner', 'collections', 'engine'
-    ]
+    # fields = [
+    #     'name', 'owner', 'collections', 'engine', 'grading_policy'
+    # ]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -66,6 +123,10 @@ class GroupUpdate(GroupEditFormMixin, UpdateView):
     fields = [
         'name', 'owner', 'collections', 'engine'
     ]
+    form = GroupForm
+    # fields = [
+    #     'name', 'owner', 'collections', 'engine', 'grading_policy'
+    # ]
 
     context_object_name = 'group'
 

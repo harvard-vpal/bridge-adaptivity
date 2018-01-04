@@ -27,7 +27,8 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     engine = models.ForeignKey('Engine', blank=True, null=True)
-    collection_group = models.ForeignKey('CollectionGroup')
+    collection_group = models.ForeignKey('CollectionGroup', blank=True, null=True)
+    grading_policy = models.ForeignKey('GradingPolicy', blank=True, null=True)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
@@ -72,11 +73,13 @@ class SequenceItem(models.Model):
         super(SequenceItem, self).save(*args, **kwargs)
 
 
-class CollectionGradingPolicy(models.Model):
-    collection = models.ForeignKey('Collection')
-    grading_policy = models.ForeignKey('GradingPolicy')
+class GradingPolicy(models.Model):
+    """Predefined set of Grading policy objects. Define how to grade collections."""
 
+    name = models.CharField(max_length=255)
+    public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
+    is_default = models.BooleanField(default=False)
 
     def _points_earned_grade(self, trials_count, points_earned):
         return points_earned / max(self.threshold, trials_count)
@@ -86,21 +89,27 @@ class CollectionGradingPolicy(models.Model):
 
     def calculate_grade(self, sequence):
         items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
-        map = {
+        grading_map = {
             # name, function
             'points_earned': (self._points_earned_grade, (items_result['trials_count'], items_result['points_earned'])),
             'trials_count': (self._trials_count, (items_result['trials_count'],))
         }
-        if self.grading_policy.name in map:
-            func = map[self.grading_policy.name][0]
-            return func(*map[self.grading_policy.name][1])
+        if self.name in grading_map:
+            func = grading_map[self.grading_policy.name][0]
+            return func(*grading_map[self.grading_policy.name][1])
 
+    def __str__(self):
+        return "{}, public_name: {} threshold: {}{}".format(
+            self.name, self.public_name, self.threshold,
+            ", IS DEFAULT POLICY" if self.is_default else ""
+        )
 
-class GradingPolicy(models.Model):
-    """Predefined set of Grading policy objects. Define how to grade collections."""
-
-    name = models.CharField(max_length=255)
-    collections = models.ManyToManyField('Collection', through=CollectionGradingPolicy)
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            default_qs = GradingPolicy.objects.filter(is_default=True)
+            if default_qs:
+                default_qs.update(is_default=False)
+        return super(GradingPolicy, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
@@ -155,6 +164,8 @@ class Engine(models.Model):
     host = models.URLField(blank=True, null=True)
     token = models.CharField(max_length=255, blank=True, null=True)
 
+    is_default = models.BooleanField(default=False)
+
     _engines_cache = {}
 
     class Meta:
@@ -162,6 +173,14 @@ class Engine(models.Model):
 
     def __str__(self):
         return "Engine: {}".format(self.name)
+
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            # default engine could be only one
+            default_engine_qs = Engine.objects.filter(is_default=True)
+            if default_engine_qs:
+                default_engine_qs.update(is_default=False)
+        return super(Engine, self).save(*args, **kwargs)
 
     @classmethod
     def get_default_engine(cls):
@@ -207,7 +226,8 @@ class CollectionGroup(models.Model):
         unique_with=['owner'],
     )
 
-    collections = models.ManyToManyField(Collection)
+    collections = models.ManyToManyField('Collection')
+    grading_policy = models.ForeignKey('GradingPolicy', blank=True, null=True)
 
     engine = models.ForeignKey(Engine)
 

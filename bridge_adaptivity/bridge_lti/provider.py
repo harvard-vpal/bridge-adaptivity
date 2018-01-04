@@ -95,7 +95,7 @@ def create_sequence_item(request, sequence, anononcement_page, tool_provider, lt
     start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
     if not start_activity:
         log.warn('Instructor configured empty Collection.')
-        return anononcement_page
+        return None, anononcement_page
     cache.set(str(sequence.id), request.session['Lti_session'])
 
     # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
@@ -113,7 +113,7 @@ def create_sequence_item(request, sequence, anononcement_page, tool_provider, lt
         activity=start_activity,
         position=1
     )
-    return sequence_item
+    return sequence_item, None
 
 
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
@@ -139,13 +139,21 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     )
     log.debug("LTI user {}: user_id='{}'".format('created' if created else 'picked', lti_user.user_id))
 
-    sequence, created = Sequence.objects.get_or_create(
+    sequence_kw = dict(
         lti_user=lti_user,
         collection=collection,
         engine=engine,
     )
+    # TODO: merge conflict need to be merged
+    '''
+    if collection_group:
+        sequence_kw['collection_group'] = collection_group
+        sequence_kw['grading_policy'] = collection_group.grading_policy
+    '''
 
-    strict_forward = collection.strict_forward
+    sequence, created = Sequence.objects.get_or_create(**sequence_kw)
+
+    strict_forward = collection.strict_forwar
     request.session['Lti_sequence'] = sequence.id
     request.session['Lti_strict_forward'] = strict_forward
 
@@ -154,9 +162,11 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
-        sequence_item = create_sequence_item(
+        sequence_item, error = create_sequence_item(
             request, sequence, anononcement_page, tool_provider, lti_consumer
         )
+        if error:
+            return error
     else:
         sequence_item = find_last_sequence_item(sequence, strict_forward)
     sequence_item_id = sequence_item.id if sequence_item else None

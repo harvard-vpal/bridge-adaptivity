@@ -127,3 +127,9 @@ CACHES = {
         'TIMEOUT': 86400,  # 1 day
     },
 }
+
+GRADING_POLICIES = (
+    # value, display_name
+    ('trials_count', 'Trials count', ),
+    ('points_earned', 'Points earned',),
+)

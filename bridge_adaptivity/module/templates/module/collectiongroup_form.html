@@ -19,3 +19,12 @@
 </form>
 
 {% endblock content %}
+
+{% block js %}
+<script>
+  $('form select[name=grading_policy]').on('change', function() {
+    alert($('form select[name=grading_policy]').val());
+  });
+
+</script>
+{% endblock %}
