@@ -43,8 +43,12 @@ class GroupForm(forms.ModelForm):
     grading_policy = forms.ChoiceField(
         choices=settings.GRADING_POLICIES,
         required=True,
-        initial=lambda: GradingPolicy.objects.get(default=True).name
+        initial=lambda: GradingPolicy.objects.get(is_default=True).name
     )
+
+    def clean_grading_policy(self):
+        gp_name = self.cleaned_data['grading_policy']
+        return GradingPolicy.objects.get(name=gp_name)
 
     class Meta:
         model = CollectionGroup
@@ -79,21 +83,6 @@ class ChangeGradingPolicyMixin(object):
             pass
 
 
-class GroupEditFormMixin(object):
-    form_class = GroupForm
-
-    def get_form(self):
-        form = super(GroupEditFormMixin, self).get_form()
-        collections = Collection.objects.filter(
-            owner=self.request.user
-        )
-        form.fields['owner'].initial = self.request.user
-        form.fields['engine'].initial = Engine.get_default_engine()
-        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
-        form.fields['collections'].queryset = collections
-        return form
-
-
 @method_decorator(login_required, name='dispatch')
 class GroupCreate(GroupEditFormMixin, CreateView):
     model = CollectionGroup
@@ -120,10 +109,7 @@ class GroupUpdate(GroupEditFormMixin, UpdateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
-    fields = [
-        'name', 'owner', 'collections', 'engine'
-    ]
-    form = GroupForm
+    form_class = GroupForm
     # fields = [
     #     'name', 'owner', 'collections', 'engine', 'grading_policy'
     # ]

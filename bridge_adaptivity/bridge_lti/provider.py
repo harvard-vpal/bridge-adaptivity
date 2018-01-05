@@ -69,7 +69,7 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
-def get_collection_engine(collection_id, group_slug):
+def get_collection_group_engine(collection_id, group_slug):
     """Return collection and collection group by collection_id and group_slug."""
     collection = Collection.objects.filter(id=collection_id).first()
     if not collection:
@@ -85,7 +85,7 @@ def get_collection_engine(collection_id, group_slug):
         log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
         raise Http404('Bad launch_url collection group slug.')
 
-    return collection, engine
+    return collection, collection_group, engine
 
 
 def create_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
@@ -130,7 +130,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     if not collection_id:
         return anononcement_page
 
-    collection, engine = get_collection_engine(collection_id, group_slug)
+    collection, collection_group, engine = get_collection_group_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -144,16 +144,13 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         collection=collection,
         engine=engine,
     )
-    # TODO: merge conflict need to be merged
-    '''
     if collection_group:
         sequence_kw['collection_group'] = collection_group
         sequence_kw['grading_policy'] = collection_group.grading_policy
-    '''
 
     sequence, created = Sequence.objects.get_or_create(**sequence_kw)
 
-    strict_forward = collection.strict_forwar
+    strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id
     request.session['Lti_strict_forward'] = strict_forward
 

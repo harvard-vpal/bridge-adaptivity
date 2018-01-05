@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls.base import reverse
 
-from module.models import BridgeUser, Collection, CollectionGroup, Engine
+from module.models import BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy
 
 
 class BridgeTestCase(TestCase):
@@ -12,14 +12,20 @@ class BridgeTestCase(TestCase):
             email='test@me.com'
         )
         self.client.login(username='test', password='test')
+        # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
         self.collection2 = Collection.objects.create(name='col2', owner=self.user)
         self.collection3 = Collection.objects.create(name='col3', owner=self.user)
         self.engine = Engine.objects.create(name='mock')
+        # grading policies
+        self.trials_count = GradingPolicy.objects.get(name='trials_count')
+        self.points_earned = GradingPolicy.objects.get(name='points_earned')
+
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
-            engine=self.engine
+            engine=self.engine,
+            grading_policy=self.points_earned
         )
         self.test_cg.collections.add(self.collection1)
         self.test_cg.collections.add(self.collection3)
@@ -51,7 +57,8 @@ class TestCollectionGroupTest(BridgeTestCase):
             'name': "CG1",
             "collections": [self.collection1.id, self.collection2.id],
             'engine': self.engine.id,
-            'owner': self.user.id
+            'owner': self.user.id,
+            'grading_policy': self.trials_count.name
         })
         self.assertEqual(groups_count + 1, CollectionGroup.objects.count())
         self.assertEqual(response.status_code, 302)
@@ -74,15 +81,17 @@ class TestCollectionGroupTest(BridgeTestCase):
             'name': "CG2",
             "collections": [self.collection1.id, self.collection2.id, self.collection3.id],
             'engine': self.engine.id,
-            'owner': self.user.id
+            'owner': self.user.id,
+            'grading_policy': 'trials_count'
         }
-        cnt = CollectionGroup.objects.count()
+        groups_count = CollectionGroup.objects.count()
         url = reverse('module:group-change', kwargs={'pk': self.test_cg.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = self.client.post(url, data)
         self.assertRedirects(response, reverse('module:group-detail', kwargs={'pk': self.test_cg.id}))
-        self.assertEqual(cnt, CollectionGroup.objects.count())
+        # self.assertEqual(response.status_code, 200)
+        self.assertEqual(groups_count, CollectionGroup.objects.count())
         test_g = CollectionGroup.objects.get(id=self.test_cg.id)
         self.assertNotEqual(test_g.name, self.test_cg.name)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
