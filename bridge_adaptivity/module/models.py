@@ -134,23 +134,7 @@ class Engine(models.Model):
     def get_default_engine(cls):
         return Engine.objects.get_or_create(name=cls.DEFAULT_ENGINE_NAME)
 
-    # def get_absolute_url(self):
-    #     return ''
-
     def make_engine(self):
-        try:
-            engine_module = importlib.import_module('module.engines.engine_{}'.format(self.name.lower()))
-        except ImportError:
-            engine_module = importlib.import_module('module.engines.engine_mock')
-        engine_template = 'Engine{}'
-        driver = getattr(
-            engine_module, engine_template.format(self.name.upper()),  # try uppercase
-            getattr(
-                engine_module,
-                engine_template.format(self.name.capitalize()),  # if not found - try capitalized
-                getattr(engine_module, 'EngineMock', None)  # fallback to Mock engine
-            )
-        )
         if self.name == 'mock':
             # mock engine takes no params
             settings = {}
@@ -160,9 +144,22 @@ class Engine(models.Model):
                 'token': self.token
             }
         key = (self.name, tuple(settings.items()))
-        if key not in Engine._engines_cache:
-            Engine._engines_cache[key] = driver(**settings)
-        return Engine._engines_cache.get(key)
+        if key in Engine._engines_cache:
+            # if engine already in cache - return it
+            return Engine._engines_cache.get(key)
+        # otherwise create Engine, put it in cache and return it
+        engine_module = importlib.import_module('module.engines.engine_{}'.format(self.name.lower()))
+        engine_template = 'Engine{}'
+        driver = getattr(
+            engine_module, engine_template.format(self.name.upper()),  # try uppercase
+            getattr(
+                engine_module,
+                engine_template.format(self.name.capitalize()),  # if not found - try capitalized
+            )
+        )
+        Engine._engines_cache[key] = driver(**settings)
+        return Engine._engines_cache[key]
+
 
 
 class CollectionGroup(models.Model):

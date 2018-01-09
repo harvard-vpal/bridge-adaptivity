@@ -2,7 +2,9 @@ import logging
 
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
+from django import forms
 from django.shortcuts import redirect
+from models import Collection, Engine
 
 log = logging.getLogger(__name__)
 
@@ -38,3 +40,16 @@ class LtiSessionMixin(object):
                     request.session['Lti_update_activity'])
                 )
         return super(LtiSessionMixin, self).dispatch(request, *args, **kwargs)
+
+
+class GroupEditFormMixin(object):
+    def get_form(self):
+        form = super(GroupEditFormMixin, self).get_form()
+        collections = Collection.objects.filter(
+            owner=self.request.user
+        )
+        form.fields['owner'].initial = self.request.user
+        form.fields['engine'].initial = Engine.get_default_engine()
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        form.fields['collections'].queryset = collections
+        return form

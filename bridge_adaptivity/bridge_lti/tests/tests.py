@@ -4,12 +4,13 @@ from django.http.response import Http404
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+from django.urls.base import reverse
 import mock
 from mock import Mock
 import pytest
 
 
-from .provider import learner_flow
+from bridge_lti.provider import learner_flow
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ log = logging.getLogger(__name__)
 class RaisedExceptionUsesCustomTemplateTest(TestCase):
     def setUp(self):
         self.rf = RequestFactory()
-        self.url = '/lti/launch/1'
+        self.url = reverse('lti:launch', kwargs={'collection_id': 1, 'group_slug': 'asd'})
 
     @override_settings(DEBUG=False)
     def test_learner_flow_with_incorrect_collection_id_test(self):

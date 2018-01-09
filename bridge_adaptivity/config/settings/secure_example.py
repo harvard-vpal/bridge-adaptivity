@@ -20,6 +20,11 @@ DATABASES = {
         'PASSWORD': 'bridge-adaptivity',
         'HOST': 'postgres',
         'PORT': 5432,
+        'TEST': {
+            'NAME': 'travicidb',
+            'USER': 'bridge',
+            'PASSWORD': 'bridge-adaptivity',
+        }
     }
 }
 

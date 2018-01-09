@@ -20,7 +20,7 @@ from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
-from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
+from module.mixins import CollectionIdToContextMixin, LtiSessionMixin, GroupEditFormMixin
 from module.models import Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem
 
 
@@ -37,22 +37,11 @@ class GroupList(ListView):
         return self.model.objects.filter(owner=self.request.user)
 
 
-class GroupEditFormMixin(object):
-    def get_form(self):
-        form = super(GroupEditFormMixin, self).get_form()
-        collections = Collection.objects.filter(
-            owner=self.request.user
-        )
-        form.fields['owner'].initial = self.request.user
-        form.fields['engine'].initial = Engine.get_default_engine()
-        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
-        form.fields['collections'].queryset = collections
-        return form
-
-
 @method_decorator(login_required, name='dispatch')
 class GroupCreate(GroupEditFormMixin, CreateView):
     model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
     fields = [
         'name', 'owner', 'collections', 'engine'
     ]
@@ -61,6 +50,8 @@ class GroupCreate(GroupEditFormMixin, CreateView):
 @method_decorator(login_required, name='dispatch')
 class GroupDetail(DetailView):
     model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
     context_object_name = 'group'
 
     def get_queryset(self):
@@ -70,6 +61,8 @@ class GroupDetail(DetailView):
 @method_decorator(login_required, name='dispatch')
 class GroupUpdate(GroupEditFormMixin, UpdateView):
     model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
     fields = [
         'name', 'owner', 'collections', 'engine'
     ]
@@ -87,7 +80,11 @@ class CollectionList(ListView):
     ordering = ['id']
 
     def get_queryset(self):
-        return Collection.objects.filter(owner=self.request.user)
+        qs = Collection.objects.filter(owner=self.request.user)
+        if 'group_slug' in self.kwargs:
+            qs.filter(collectiongroup__slug=self.kwargs['group_slug'])
+        return qs
+
 
 
 @method_decorator(login_required, name='dispatch')
