@@ -1,8 +1,8 @@
 import logging
 
+from django import forms
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
-from django import forms
 from django.shortcuts import redirect
 from models import Collection, Engine
 
@@ -53,3 +53,11 @@ class GroupEditFormMixin(object):
         form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         form.fields['collections'].queryset = collections
         return form
+
+
+class CollectionMixin(object):
+    def get_queryset(self):
+        qs = Collection.objects.filter(owner=self.request.user)
+        if 'group_slug' in self.kwargs:
+            qs.filter(collectiongroup__slug=self.kwargs['group_slug'])
+        return qs

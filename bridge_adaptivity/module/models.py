@@ -161,7 +161,6 @@ class Engine(models.Model):
         return Engine._engines_cache[key]
 
 
-
 class CollectionGroup(models.Model):
     """Represents Collections Group."""
 

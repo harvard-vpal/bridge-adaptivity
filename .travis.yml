@@ -14,9 +14,6 @@ addons:
 
 before_script:
   - psql -c "CREATE DATABASE travicidb;" -U postgres
-  - psql -c "CREATE USER bridge PASSWORD 'bridge-adaptivity';" -U postgres
-  - psql -c "ALTER USER bridge CREATEDB;" -U postgres
-  - psql -c "GRANT ALL PRIVILEGES on DATABASE travicidb to bridge;" -U postgres
 
 
 after_success:

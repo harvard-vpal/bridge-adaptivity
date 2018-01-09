@@ -20,8 +20,8 @@ from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
-from module.mixins import CollectionIdToContextMixin, LtiSessionMixin, GroupEditFormMixin
-from module.models import Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem
+from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
+from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 class GroupList(ListView):
     model = CollectionGroup
     context_object_name = 'groups'
-    ordering = ['id']
+    ordering = ['slug']
 
     def get_queryset(self):
         return self.model.objects.filter(owner=self.request.user)
@@ -74,21 +74,14 @@ class GroupUpdate(GroupEditFormMixin, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionList(ListView):
+class CollectionList(CollectionMixin, ListView):
     model = Collection
     context_object_name = 'collections'
     ordering = ['id']
 
-    def get_queryset(self):
-        qs = Collection.objects.filter(owner=self.request.user)
-        if 'group_slug' in self.kwargs:
-            qs.filter(collectiongroup__slug=self.kwargs['group_slug'])
-        return qs
-
-
 
 @method_decorator(login_required, name='dispatch')
-class CollectionCreate(CreateView):
+class CollectionCreate(CollectionMixin, CreateView):
     model = Collection
     fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters' 'strict_forward']
 
@@ -101,7 +94,7 @@ class CollectionCreate(CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(UpdateView):
+class CollectionUpdate(CollectionMixin, UpdateView):
     model = Collection
     fields = ['name', 'threshold', 'metadata', 'strict_forward', 'correctness_matters']
 
@@ -110,7 +103,7 @@ class CollectionUpdate(UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionDetail(DetailView):
+class CollectionDetail(CollectionMixin, DetailView):
     model = Collection
     context_object_name = 'collection'
 

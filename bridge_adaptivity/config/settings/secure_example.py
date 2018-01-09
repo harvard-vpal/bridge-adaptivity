@@ -22,8 +22,10 @@ DATABASES = {
         'PORT': 5432,
         'TEST': {
             'NAME': 'travicidb',
-            'USER': 'bridge',
-            'PASSWORD': 'bridge-adaptivity',
+            'PASSWORD': '',
+            'USER': 'postgres',
+            'HOST': 'localhost',
+            'PORT': 5432
         }
     }
 }
