@@ -20,20 +20,5 @@ DATABASES = {
         'PASSWORD': 'bridge-adaptivity',
         'HOST': 'postgres',
         'PORT': 5432,
-        'TEST': {
-            'NAME': 'travicidb',
-            'PASSWORD': '',
-            'USER': 'postgres',
-            'HOST': 'localhost',
-            'PORT': 5432
-        }
     }
 }
-
-# Comment Engine's parameters to use default Mock Adaptive Engine
-# ENGINE_MODULE = 'module.engines.engine_vpal'
-# ENGINE_DRIVER = 'EngineVPAL'
-# ENGINE_SETTINGS = {
-#     'HOST': 'https://example.com',
-#     'TOKEN': 'very_secure_token',
-# }
