@@ -3,18 +3,16 @@
 from __future__ import unicode_literals
 
 import autoslug.fields
-from django.db import migrations, models
 import django.db.models.deletion
+from django.db import migrations, models
+from django.db.models.signals import post_migrate
 
 from module.models import CollectionGroup
 
-def migrate_data_forward(apps, schema_editor):
+def migrate_data_forward(*args, **kwargs):
     for instance in CollectionGroup.objects.all():
         print "Generating slug for %s" % instance
         instance.save() # Will trigger slug update
-
-def migrate_data_backward(apps, schema_editor):
-    pass
 
 
 class Migration(migrations.Migration):
@@ -53,8 +51,6 @@ class Migration(migrations.Migration):
             name='engine',
             unique_together=set([('host', 'token')]),
         ),
-        migrations.RunPython(
-            migrate_data_forward,
-            migrate_data_backward,
-        ),
     ]
+
+post_migrate.connect(migrate_data_forward, dispatch_uid='some_uid')

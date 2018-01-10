@@ -17,12 +17,12 @@
       {% for group in groups %}
         <tr>
           <td>{{ group.id }}</td>
-          <td><a href="{% url 'module:group-detail' group.id %}">{{ group.name }}</a></td>
+          <td><a href="{{ group.get_absolute_url }}">{{ group.name }}</a></td>
           <td>{{ group.collections.count }}</td>
           <td>
             <div>
               <a class="move-down"
-                 href="{% url 'module:group-change' group.id %}">
+                 href="group.get_absolute_url">
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
             </div>

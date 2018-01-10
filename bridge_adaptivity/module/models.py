@@ -227,7 +227,7 @@ class CollectionGroup(models.Model):
     )
 
     collections = models.ManyToManyField('Collection')
-    grading_policy = models.ForeignKey('GradingPolicy', blank=True, null=True)
+    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
 
     engine = models.ForeignKey(Engine)
 
@@ -235,7 +235,7 @@ class CollectionGroup(models.Model):
         return u"CollectionGroup: {}".format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:group-detail', kwargs={'pk': self.pk})
+        return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
 
 @python_2_unicode_compatible

@@ -7,12 +7,15 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
+from django.forms.models import inlineformset_factory
 from django.http import HttpResponse, HttpResponseNotFound
-from django.shortcuts import redirect, render
+from django.http.response import Http404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
+from django.views.generic.edit import FormView
 from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
@@ -20,7 +23,7 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
-from module.forms import ActivityForm
+from module.forms import ActivityForm, GradingPolicyForm, GroupForm
 from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
 from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Log, Sequence, SequenceItem
 
@@ -39,48 +42,27 @@ class GroupList(ListView):
         return self.model.objects.filter(owner=self.request.user)
 
 
-class GroupForm(forms.ModelForm):
-    grading_policy = forms.ChoiceField(
-        choices=settings.GRADING_POLICIES,
-        required=True,
-        initial=lambda: GradingPolicy.objects.get(is_default=True).name
-    )
-
-    def clean_grading_policy(self):
-        gp_name = self.cleaned_data['grading_policy']
-        return GradingPolicy.objects.get(name=gp_name)
-
-    class Meta:
-        model = CollectionGroup
-        fields = 'name', 'owner', 'collections', 'engine', 'grading_policy'
-
-
-class GradingPolicyForm(forms.ModelForm):
-    class Meta:
-        model = GradingPolicy
-        fields = 'name', 'threshold'
-
-
-class ChangeGradingPolicyMixin(object):
+class GetGradingPolicyForm(FormView):
     form_class = GradingPolicyForm
+    template_name = 'module/gradingpolicy_form.html'
+    prefix = 'grading'
+    # grading_policy_name: FormClass
+    grading_policy_forms_map = {}
 
-    def get_form(self):
-        form = super(ChangeGradingPolicyMixin, self).get_form()
-        return form
+    def get_form_class(self):
+        return self.grading_policy_forms_map.get(self.request.GET.get('grading_policy'), self.form_class)
 
-    def trials_count(self):
-        pass
-
-    def points_earned(self):
-        pass
-
-    def default(self):
-        pass
-
-    def post(self):
-        gp = self.request.POST.get('grading_policy')
+    def get_form(self, form_class=None):
+        form = super(GetGradingPolicyForm, self).get_form()
+        group = None
+        if self.kwargs.get('group_slug'):
+            group = get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
+        gp = self.request.GET.get('grading_policy')
         if gp and gp in VALID_GRADING_POLICIES:
-            pass
+            form.fields['name'].initial = self.request.GET.get('grading_policy')
+            return form
+        else:
+            raise Http404()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -110,14 +92,11 @@ class GroupUpdate(GroupEditFormMixin, UpdateView):
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
     form_class = GroupForm
-    # fields = [
-    #     'name', 'owner', 'collections', 'engine', 'grading_policy'
-    # ]
 
     context_object_name = 'group'
 
     def get_success_url(self):
-        return reverse('module:group-detail', kwargs={'pk': self.kwargs.get('pk')})
+        return self.object.get_absolute_url()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -130,7 +109,7 @@ class CollectionList(CollectionMixin, ListView):
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(CollectionMixin, CreateView):
     model = Collection
-    fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters' 'strict_forward']
+    fields = ['name', 'owner', 'metadata', 'strict_forward']
 
     def get_form(self):
         # FIXME(wowkalucky): improve 'unique_together' default validation message
@@ -143,7 +122,7 @@ class CollectionCreate(CollectionMixin, CreateView):
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(CollectionMixin, UpdateView):
     model = Collection
-    fields = ['name', 'threshold', 'metadata', 'strict_forward', 'correctness_matters']
+    fields = ['name', 'metadata', 'strict_forward']
 
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
