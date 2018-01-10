@@ -15,7 +15,7 @@ class BridgeTestCase(TestCase):
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
         self.collection2 = Collection.objects.create(name='col2', owner=self.user)
         self.collection3 = Collection.objects.create(name='col3', owner=self.user)
-        self.engine = Engine.objects.create(name='mock')
+        self.engine = Engine.objects.create(engine='engine_mock')
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,

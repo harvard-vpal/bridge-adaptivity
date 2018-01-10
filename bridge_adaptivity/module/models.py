@@ -1,5 +1,7 @@
 import importlib
+import inspect
 import logging
+import os
 
 from autoslug import AutoSlugField
 from django.contrib.postgres.fields import JSONField
@@ -15,8 +17,29 @@ from ordered_model.models import OrderedModel
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from module import ENGINE
 
-
 log = logging.getLogger(__name__)
+
+
+def _discover_engines():
+    engines = []
+    for name in os.listdir(os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), 'engines'
+    )):
+        if name.startswith('engine_') and name.endswith('.py'):
+            engines.append((name, name[len('engine_'):-len('.py')]))
+    return engines
+
+
+def _get_engine_driver(engine):
+    driver = None
+    engine_module = importlib.import_module('module.engines.{}.py'.format(engine))
+    for attr in inspect.getmembers(engine_module):
+        if attr[0].startswith('Engine'):
+            driver = attr[1]
+    return driver
+
+
+ENGINES = _discover_engines()
 
 
 @python_2_unicode_compatible
@@ -63,7 +86,8 @@ class SequenceItem(models.Model):
     def save(self, *args, **kwargs):
         """Extension sending notification to the Adaptive engine that score is changed."""
         if self.score != self.__origin_score:
-            ENGINE.submit_activity_answer(self)
+            engine = self.sequence.engine.engine_driver
+            engine.submit_activity_answer(self)
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
                 self.activity.name, self.id
             ))
@@ -116,49 +140,43 @@ class Collection(models.Model):
 class Engine(models.Model):
     """Defines engine settings."""
 
-    DEFAULT_ENGINE_NAME = 'mock'
+    DEFAULT_ENGINE = 'engine_mock'
 
-    name = models.CharField(default=DEFAULT_ENGINE_NAME, max_length=255)
+    engine = models.CharField(choices=ENGINES, default=DEFAULT_ENGINE, max_length=100)
+    engine_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     host = models.URLField(blank=True, null=True)
     token = models.CharField(max_length=255, blank=True, null=True)
-
-    _engines_cache = {}
+    is_default = fields.BooleanField(default=False, help_text=_("If checked Engine will be used as the default!"))
 
     class Meta:
         unique_together = ('host', 'token')
 
     def __str__(self):
-        return "Engine: {}".format(self.name)
+        return "Engine: {}".format(self.engine_name)
+
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            Engine.objects.filter(is_default=True).update(is_default=False)
+        super(Engine, self).save(*args, **kwargs)
 
     @classmethod
     def get_default_engine(cls):
-        return Engine.objects.get_or_create(name=cls.DEFAULT_ENGINE_NAME)
-
-    def make_engine(self):
-        if self.name == 'mock':
-            # mock engine takes no params
-            settings = {}
-        else:
-            settings = {
-                'host': self.host,
-                'token': self.token
-            }
-        key = (self.name, tuple(settings.items()))
-        if key in Engine._engines_cache:
-            # if engine already in cache - return it
-            return Engine._engines_cache.get(key)
-        # otherwise create Engine, put it in cache and return it
-        engine_module = importlib.import_module('module.engines.engine_{}'.format(self.name.lower()))
-        engine_template = 'Engine{}'
-        driver = getattr(
-            engine_module, engine_template.format(self.name.upper()),  # try uppercase
-            getattr(
-                engine_module,
-                engine_template.format(self.name.capitalize()),  # if not found - try capitalized
-            )
+        return (
+            Engine.objects.filter(is_default=True).first() or
+            Engine.objects.get_or_create(engine=cls.DEFAULT_ENGINE, engine_name='Mock', is_default=True)
         )
-        Engine._engines_cache[key] = driver(**settings)
-        return Engine._engines_cache[key]
+
+    @property
+    def engine_driver(self):
+        if self.driver:
+            return self.driver
+        driver = _get_engine_driver(self.engine)
+        if self.engine.endswith('mock'):
+            engine_driver = driver()
+        else:
+            engine_driver = driver(**{'HOST': self.host, 'TOKEN': self.token})
+        self.driver = engine_driver
+        return self.driver
 
 
 class CollectionGroup(models.Model):
@@ -174,7 +192,7 @@ class CollectionGroup(models.Model):
         unique_with=['owner'],
     )
 
-    collections = models.ManyToManyField(Collection)
+    collections = models.ManyToManyField(Collection, related_name='collection_groups')
 
     engine = models.ForeignKey(Engine)
 
@@ -235,30 +253,34 @@ class Activity(OrderedModel):
         """Extension which sends notification to the Adaptive engine that Activity is created/updated."""
         initial_id = self.id
         if initial_id:
-            if not ENGINE.update_activity(self):
-                raise ValidationError
-            Log.objects.create(
-                log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
-                data=self.get_research_data()
-            )
+            for engine in self.collection.collection_groups.all():
+                if not engine.update_activity(self):
+                    raise ValidationError
+                Log.objects.create(
+                    log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
+                    data=self.get_research_data()
+                )
         super(Activity, self).save(*args, **kwargs)
         if not initial_id:
-            if not ENGINE.add_activity(self):
-                super(Activity, self).delete(*args, **kwargs)
-                raise ValidationError
-            Log.objects.create(
-                log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
-                data=self.get_research_data()
-            )
+            for engine in self.collection.collection_groups.all():
+                if not engine.add_activity(self):
+                    super(Activity, self).delete(*args, **kwargs)
+                    raise ValidationError
+                Log.objects.create(
+                    log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
+                    data=self.get_research_data()
+                )
 
     def delete(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is deleted."""
-        if not ENGINE.delete_activity(self):
-            raise ValidationError
-        Log.objects.create(
-            log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
-            data=self.get_research_data()
-        )
+        for engine in self.collection.collection_groups.all():
+            if not engine.delete_activity(self):
+                # Note(idegtiarov) Add handler for the case of partial engines synchronization
+                raise ValidationError
+                Log.objects.create(
+                    log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
+                    data=self.get_research_data()
+                )
         super(Activity, self).delete(*args, **kwargs)
 
     @property

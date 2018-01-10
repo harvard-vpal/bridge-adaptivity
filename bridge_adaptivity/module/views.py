@@ -83,7 +83,7 @@ class CollectionList(CollectionMixin, ListView):
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(CollectionMixin, CreateView):
     model = Collection
-    fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters' 'strict_forward']
+    fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters', 'strict_forward']
 
     def get_form(self):
         # FIXME(wowkalucky): improve 'unique_together' default validation message
