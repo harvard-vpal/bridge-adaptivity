@@ -255,20 +255,20 @@ class Activity(OrderedModel):
             for engine in self.collection.collection_groups.all():
                 if not engine.update_activity(self):
                     raise ValidationError
-                Log.objects.create(
-                    log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
-                    data=self.get_research_data()
-                )
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
+                data=self.get_research_data()
+            )
         super(Activity, self).save(*args, **kwargs)
         if not initial_id:
             for engine in self.collection.collection_groups.all():
                 if not engine.add_activity(self):
                     super(Activity, self).delete(*args, **kwargs)
                     raise ValidationError
-                Log.objects.create(
-                    log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
-                    data=self.get_research_data()
-                )
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
+                data=self.get_research_data()
+            )
 
     def delete(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is deleted."""
@@ -276,10 +276,10 @@ class Activity(OrderedModel):
             if not engine.delete_activity(self):
                 # Note(idegtiarov) Add handler for the case of partial engines synchronization
                 raise ValidationError
-                Log.objects.create(
-                    log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
-                    data=self.get_research_data()
-                )
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
+                data=self.get_research_data()
+            )
         super(Activity, self).delete(*args, **kwargs)
 
     @property
