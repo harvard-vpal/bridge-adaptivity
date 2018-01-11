@@ -3,10 +3,10 @@ import logging
 from django import forms
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.shortcuts import redirect, get_object_or_404
-from models import CollectionGroup
-from module.models import Collection, Engine, GradingPolicy
+from django.shortcuts import get_object_or_404, redirect
+
 from module.forms import GradingPolicyForm, GroupForm
+from module.models import Collection, CollectionGroup, Engine, GradingPolicy
 
 
 log = logging.getLogger(__name__)
@@ -44,12 +44,14 @@ class LtiSessionMixin(object):
                 )
         return super(LtiSessionMixin, self).dispatch(request, *args, **kwargs)
 
+
 class GroupEditFormMixin(object):
     form_class = GroupForm
     prefix = 'group'
     grading_prefix = 'grading'
 
     def get_grading_form_kwargs(self):
+        """Return kwargs for GradingForm."""
         form_kw = dict(
             prefix=self.grading_prefix,
         )

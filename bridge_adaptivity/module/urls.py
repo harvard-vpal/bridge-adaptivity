@@ -4,8 +4,8 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
-    CollectionList, CollectionUpdate, GroupCreate, GroupDetail, GroupList, GroupUpdate,
-    sequence_item_next, SequenceComplete, SequenceItemDetail, GetGradingPolicyForm
+    CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDetail, GroupList, GroupUpdate,
+    sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 
 urlpatterns = [

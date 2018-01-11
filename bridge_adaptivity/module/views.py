@@ -7,10 +7,9 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
-from django.forms.models import inlineformset_factory
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -25,7 +24,7 @@ from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm, GradingPolicyForm, GroupForm
 from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
-from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Log, Sequence, SequenceItem
+from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)
@@ -54,9 +53,8 @@ class GetGradingPolicyForm(FormView):
 
     def get_form(self, form_class=None):
         form = super(GetGradingPolicyForm, self).get_form()
-        group = None
         if self.kwargs.get('group_slug'):
-            group = get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
+            get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
         gp = self.request.GET.get('grading_policy')
         if gp and gp in VALID_GRADING_POLICIES:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
@@ -70,9 +68,6 @@ class GroupCreate(GroupEditFormMixin, CreateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
-    # fields = [
-    #     'name', 'owner', 'collections', 'engine', 'grading_policy'
-    # ]
 
 
 @method_decorator(login_required, name='dispatch')

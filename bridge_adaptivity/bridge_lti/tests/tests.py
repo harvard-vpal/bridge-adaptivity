@@ -10,8 +10,8 @@ from mock import Mock
 import pytest
 
 
-from bridge_lti.provider import learner_flow
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser
+from bridge_lti.provider import learner_flow
 from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence
 
 log = logging.getLogger(__name__)
