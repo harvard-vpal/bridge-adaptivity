@@ -15,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
-from module import ENGINE
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ def _discover_engines():
 
 def _get_engine_driver(engine):
     driver = None
-    engine_module = importlib.import_module('module.engines.{}.py'.format(engine))
+    engine_module = importlib.import_module('module.engines.{}'.format(engine))
     for attr in inspect.getmembers(engine_module):
         if attr[0].startswith('Engine'):
             driver = attr[1]
@@ -141,6 +140,7 @@ class Engine(models.Model):
     """Defines engine settings."""
 
     DEFAULT_ENGINE = 'engine_mock'
+    DRIVER = None
 
     engine = models.CharField(choices=ENGINES, default=DEFAULT_ENGINE, max_length=100)
     engine_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
@@ -163,20 +163,19 @@ class Engine(models.Model):
     def get_default_engine(cls):
         return (
             Engine.objects.filter(is_default=True).first() or
-            Engine.objects.get_or_create(engine=cls.DEFAULT_ENGINE, engine_name='Mock', is_default=True)
+            Engine.objects.get_or_create(engine=cls.DEFAULT_ENGINE, engine_name='Mock', is_default=True)[0]
         )
 
     @property
     def engine_driver(self):
-        if self.driver:
-            return self.driver
-        driver = _get_engine_driver(self.engine)
-        if self.engine.endswith('mock'):
-            engine_driver = driver()
-        else:
-            engine_driver = driver(**{'HOST': self.host, 'TOKEN': self.token})
-        self.driver = engine_driver
-        return self.driver
+        if not self.DRIVER:
+            driver = _get_engine_driver(self.engine)
+            if self.engine.endswith('mock'):
+                engine_driver = driver()
+            else:
+                engine_driver = driver(**{'HOST': self.host, 'TOKEN': self.token})
+            self.DRIVER = engine_driver
+        return self.DRIVER
 
 
 class CollectionGroup(models.Model):
