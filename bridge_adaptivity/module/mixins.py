@@ -47,10 +47,11 @@ class LtiSessionMixin(object):
 class GroupEditFormMixin(object):
     form_class = GroupForm
     prefix = 'group'
+    grading_prefix = 'grading'
 
     def get_grading_form_kwargs(self):
         form_kw = dict(
-            prefix='grading',
+            prefix=self.grading_prefix,
         )
         if self.object and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy

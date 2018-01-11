@@ -10,7 +10,9 @@ except ImportError:
     import secure_example
     DATABASES = secure_example.DATABASES
 
-DATABASES['default'].update({'NAME': 'traviscidb', 'HOST': 'localhost'})
+if 'ISLOCAL' not in os.environ:
+    # assume that we are in travis-ci
+    DATABASES['default'].update({'NAME': 'traviscidb', 'HOST': 'localhost'})
 
 SECRET_KEY = 'KEY'
 

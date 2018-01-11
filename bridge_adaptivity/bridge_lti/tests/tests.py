@@ -61,7 +61,7 @@ class RaisedExceptionUsesCustomTemplateTest(TestCase):
 
 
 class CollectionGroupGradingPolicyTest(TestCase):
-    fixtures = ['gradingpolicy.json']
+    fixtures = ['gradingpolicy']
 
     def setUp(self):
         self.rf = RequestFactory()
@@ -119,7 +119,6 @@ class CollectionGroupGradingPolicyTest(TestCase):
         Activity.objects.create(
             name='start',
             collection=self.collection1,
-            # lti_consumer=self.lti_consumer,
             atype='G'
         )
 
@@ -130,15 +129,17 @@ class CollectionGroupGradingPolicyTest(TestCase):
         response = self.client.post(
             reverse(
                 'lti:launch',
-                args=(),
                 kwargs={'collection_id': self.collection1.id, 'group_slug': self.test_cg_trials.slug}
             ),
-            {'user_id': 'some_user_id', 'context_id': 'some_context', 'oauth_nonce': 'fsdf',
-             'oauth_consumer_key': 'test'}
+            data={
+                'user_id': 'some_user_id',
+                'context_id': 'some_context',
+                'oauth_nonce': 'fsdf',
+                'oauth_consumer_key': 'test'
+            }
         )
 
         sequence = Sequence.objects.get()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(sequence.collection_group, self.test_cg_trials)
         self.assertEqual(sequence.grading_policy, self.grading_policy_trials)
-        # self.assertTemplateNotUsed(response, 'bridge_lti/announcement.html')
