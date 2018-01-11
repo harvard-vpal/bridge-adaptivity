@@ -82,6 +82,7 @@ class TestCollectionGroupTest(BridgeTestCase):
         )
 
     def add_prefix(self, prefix='', data={}):
+        """Add prefix to form data dict, which will be send as POST or GET to view."""
         return {"{}-{}".format(prefix, k): v for k, v in data.items()}
 
     def test_update_cg(self):
@@ -112,7 +113,13 @@ class TestCollectionGroupTest(BridgeTestCase):
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
 
 
-# class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
-#     def test_update_grading_policy(self):
-#         pass
+class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
+    def test_get_grading_policy_form_no_group(self):
+        """Test """
+        url = reverse('module:grading_policy_form', kwargs={})
+        response = self.client.get(url)
+        self.assertIn('form', response.context)
+
+    def test_update_grading_policy(self):
+        pass
 
