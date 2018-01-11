@@ -20,24 +20,68 @@ from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm
-from module.mixins import CollectionIdToContextMixin, LtiSessionMixin
-from module.models import Activity, Collection, Log, Sequence, SequenceItem
+from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
+from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
+
 
 log = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionList(ListView):
+class GroupList(ListView):
+    model = CollectionGroup
+    context_object_name = 'groups'
+    ordering = ['slug']
+
+    def get_queryset(self):
+        return self.model.objects.filter(owner=self.request.user)
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupCreate(GroupEditFormMixin, CreateView):
+    model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
+    fields = [
+        'name', 'owner', 'collections', 'engine'
+    ]
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupDetail(DetailView):
+    model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
+    context_object_name = 'group'
+
+    def get_queryset(self):
+        return CollectionGroup.objects.filter(owner=self.request.user)
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupUpdate(GroupEditFormMixin, UpdateView):
+    model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
+    fields = [
+        'name', 'owner', 'collections', 'engine'
+    ]
+
+    context_object_name = 'group'
+
+    def get_success_url(self):
+        return reverse('module:group-detail', kwargs={'pk': self.kwargs.get('pk')})
+
+
+@method_decorator(login_required, name='dispatch')
+class CollectionList(CollectionMixin, ListView):
     model = Collection
     context_object_name = 'collections'
     ordering = ['id']
 
-    def get_queryset(self):
-        return Collection.objects.filter(owner=self.request.user)
-
 
 @method_decorator(login_required, name='dispatch')
-class CollectionCreate(CreateView):
+class CollectionCreate(CollectionMixin, CreateView):
     model = Collection
     fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters' 'strict_forward']
 
@@ -50,7 +94,7 @@ class CollectionCreate(CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(UpdateView):
+class CollectionUpdate(CollectionMixin, UpdateView):
     model = Collection
     fields = ['name', 'threshold', 'metadata', 'strict_forward', 'correctness_matters']
 
@@ -59,7 +103,7 @@ class CollectionUpdate(UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionDetail(DetailView):
+class CollectionDetail(CollectionMixin, DetailView):
     model = Collection
     context_object_name = 'collection'
 

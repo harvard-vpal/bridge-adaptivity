@@ -12,4 +12,12 @@ __pycache__/
 ## Secure settings
 secure.py
 secure.config
-.cache
+
+**.coverage
+**.cache
+
+***.log
+***.log.*
+***.egg*
+.tox
+.idea

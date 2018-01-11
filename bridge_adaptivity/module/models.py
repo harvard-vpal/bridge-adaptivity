@@ -1,5 +1,7 @@
+import importlib
 import logging
 
+from autoslug import AutoSlugField
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -23,6 +25,7 @@ class Sequence(models.Model):
 
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
+    engine = models.ForeignKey('Engine', blank=True, null=True)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
@@ -108,6 +111,78 @@ class Collection(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
+
+
+class Engine(models.Model):
+    """Defines engine settings."""
+
+    DEFAULT_ENGINE_NAME = 'mock'
+
+    name = models.CharField(default=DEFAULT_ENGINE_NAME, max_length=255)
+    host = models.URLField(blank=True, null=True)
+    token = models.CharField(max_length=255, blank=True, null=True)
+
+    _engines_cache = {}
+
+    class Meta:
+        unique_together = ('host', 'token')
+
+    def __str__(self):
+        return "Engine: {}".format(self.name)
+
+    @classmethod
+    def get_default_engine(cls):
+        return Engine.objects.get_or_create(name=cls.DEFAULT_ENGINE_NAME)
+
+    def make_engine(self):
+        if self.name == 'mock':
+            # mock engine takes no params
+            settings = {}
+        else:
+            settings = {
+                'host': self.host,
+                'token': self.token
+            }
+        key = (self.name, tuple(settings.items()))
+        if key in Engine._engines_cache:
+            # if engine already in cache - return it
+            return Engine._engines_cache.get(key)
+        # otherwise create Engine, put it in cache and return it
+        engine_module = importlib.import_module('module.engines.engine_{}'.format(self.name.lower()))
+        engine_template = 'Engine{}'
+        driver = getattr(
+            engine_module, engine_template.format(self.name.upper()),  # try uppercase
+            getattr(
+                engine_module,
+                engine_template.format(self.name.capitalize()),  # if not found - try capitalized
+            )
+        )
+        Engine._engines_cache[key] = driver(**settings)
+        return Engine._engines_cache[key]
+
+
+class CollectionGroup(models.Model):
+    """Represents Collections Group."""
+
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    atime = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(BridgeUser)
+    slug = AutoSlugField(
+        null=True,
+        populate_from='name',
+        unique_with=['owner'],
+    )
+
+    collections = models.ManyToManyField(Collection)
+
+    engine = models.ForeignKey(Engine)
+
+    def __str__(self):
+        return u"CollectionGroup: {}".format(self.name)
+
+    def get_absolute_url(self):
+        return reverse('module:group-detail', kwargs={'pk': self.pk})
 
 
 @python_2_unicode_compatible

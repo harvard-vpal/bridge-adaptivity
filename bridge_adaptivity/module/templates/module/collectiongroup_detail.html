@@ -1,0 +1,55 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Group - {{ group.name }}{% endblock title %}
+
+<hr>
+
+{% block content %}
+  {% if group.collections.all %}
+    <table class="table table-hover">
+      <tr>
+        <th>ID</th>
+        <th>name</th>
+        <th>metadata</th>
+        <th>threshold</th>
+        <th>strict forward</th>
+        <th>options</th>
+      </tr>
+      {% for collection in group.collections.all %}
+        <tr>
+          <td>{{ collection.id }}</td>
+          <td><a href="{% url 'module:collection-detail' collection.id %}">{{ collection.name }} :
+            {{ collection.activities.count }}
+            {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
+          <td>{{ collection.metadata|default:"-" }}</td>
+          <td>{{ collection.threshold|default:"-" }}</td>
+          <td>{% if collection.strict_forward %}
+            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+          {% else %}
+            <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+          {% endif %}
+          </td>
+          <td>
+            <div>
+              <a class="move-down"
+                 href="{% url 'module:collection-change' collection.id %}">
+                {% bootstrap_button "" size='sm' icon='edit' %}
+              </a>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      You have no collections for now.
+    </div>
+  {% endif %}
+
+  <hr>
+  <a href="{% url 'module:group-change' pk=group.pk %}">
+    {% bootstrap_button 'Edit group' size='lg' icon='edit' %}
+  </a>
+
+{% endblock content %}

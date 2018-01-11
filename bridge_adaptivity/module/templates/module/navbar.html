@@ -9,6 +9,11 @@
       </ul>
     </div>
     <div>
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'module:group-list' %}">Groups</a></li>
+      </ul>
+    </div>
+    <div>
       {% if user.is_authenticated %}
       <div
         class="navbar-text navbar-right"><a href="{% url 'logout' %}" class="navbar-link">{{ user.username }}</a></div>

@@ -12,7 +12,7 @@ from oauthlib import oauth1
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from module import utils as module_utils
-from module.models import (Collection, Sequence, SequenceItem)
+from module.models import Collection, CollectionGroup, Engine, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def find_last_sequence_item(sequence, strict_forward):
 
 
 @csrf_exempt
-def lti_launch(request, collection_id=None):
+def lti_launch(request, collection_id=None, group_slug=''):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -56,7 +56,9 @@ def lti_launch(request, collection_id=None):
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
-        return learner_flow(request, lti_consumer, tool_provider, collection_id=collection_id)
+        return learner_flow(
+            request, lti_consumer, tool_provider, collection_id=collection_id, group_slug=group_slug
+        )
 
 
 def instructor_flow(collection_id=None):
@@ -67,24 +69,68 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
-    """Define logic flow for Learner."""
-    if not collection_id:
-        return render(
-            request,
-            template_name="bridge_lti/announcement.html",
-            context={
-                'title': 'announcement',
-                'message': 'coming soon!',
-                'tip': 'this adaptivity sequence is about to start.',
-            }
-        )
-
-    try:
-        collection = Collection.objects.get(id=collection_id)
-    except Collection.DoesNotExist:
+def get_collection_engine(collection_id, group_slug):
+    """Return collection and collection group by collection_id and group_slug."""
+    collection = Collection.objects.filter(id=collection_id).first()
+    if not collection:
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
         raise Http404('Bad launch_url collection ID.')
+
+    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
+    if collection_group:
+        engine = collection_group.engine or Engine.get_default_engine()
+    else:
+        engine = Engine.get_default_engine()
+    if not collection_group:
+        log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
+        raise Http404('Bad launch_url collection group slug.')
+
+    return collection, engine
+
+
+def create_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
+    """Create and return sequence item."""
+    # NOTE(wowkalucky): empty Collection validation
+    log.debug("Sequence {} was created".format(sequence))
+    start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
+    if not start_activity:
+        log.warn('Instructor configured empty Collection.')
+        return anononcement_page
+    cache.set(str(sequence.id), request.session['Lti_session'])
+
+    # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
+    if tool_provider.is_outcome_service():
+        outcomes, __ = OutcomeService.objects.get_or_create(
+            lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
+            lms_lti_connection=lti_consumer
+        )
+        sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
+        sequence.outcome_service = outcomes
+        sequence.save()
+
+    sequence_item = SequenceItem.objects.create(
+        sequence=sequence,
+        activity=start_activity,
+        position=1
+    )
+    return sequence_item
+
+
+def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
+    """Define logic flow for Learner."""
+    anononcement_page = render(
+        request,
+        template_name="bridge_lti/announcement.html",
+        context={
+            'title': 'announcement',
+            'message': 'coming soon!',
+            'tip': 'this adaptivity sequence is about to start.',
+        }
+    )
+    if not collection_id:
+        return anononcement_page
+
+    collection, engine = get_collection_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -95,7 +141,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
 
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
-        collection=collection
+        collection=collection,
+        engine=engine,
     )
 
     strict_forward = collection.strict_forward
@@ -107,36 +154,8 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None):
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
-        # NOTE(wowkalucky): empty Collection validation
-        log.debug("Sequence {} was created".format(sequence))
-        start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
-        if not start_activity:
-            log.warn('Instructor configured empty Collection.')
-            return render(
-                request,
-                template_name="bridge_lti/announcement.html",
-                context={
-                    'title': 'announcement',
-                    'message': 'coming soon!',
-                    'tip': 'this adaptivity sequence is about to start.',
-                }
-            )
-        cache.set(str(sequence.id), request.session['Lti_session'])
-
-        # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
-        if tool_provider.is_outcome_service():
-            outcomes, __ = OutcomeService.objects.get_or_create(
-                lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
-                lms_lti_connection=lti_consumer
-            )
-            sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
-            sequence.outcome_service = outcomes
-            sequence.save()
-
-        sequence_item = SequenceItem.objects.create(
-            sequence=sequence,
-            activity=start_activity,
-            position=1
+        sequence_item = create_sequence_item(
+            request, sequence, anononcement_page, tool_provider, lti_consumer
         )
     else:
         sequence_item = find_last_sequence_item(sequence, strict_forward)

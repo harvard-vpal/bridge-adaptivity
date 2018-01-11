@@ -7,6 +7,18 @@ python:
 install: pip install tox-travis
 script: tox
 
+services:
+  - postgresql
+addons:
+  postgresql: "9.6"
+
+before_script:
+  - psql -c "CREATE DATABASE traviscidb;" -U postgres
+  - psql -c "CREATE USER bridge PASSWORD 'bridge-adaptivity';" -U postgres
+  - psql -c "ALTER USER bridge CREATEDB;" -U postgres
+  - psql -c "GRANT ALL PRIVILEGES on DATABASE traviscidb to bridge;" -U postgres
+
+
 after_success:
   - coveralls
   - codecov

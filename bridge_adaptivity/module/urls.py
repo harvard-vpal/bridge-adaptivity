@@ -4,14 +4,24 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
-    CollectionList, CollectionUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
+    CollectionList, CollectionUpdate, GroupCreate, GroupDetail, GroupList, GroupUpdate,
+    sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 
 urlpatterns = [
-    url(r'^collection/$', CollectionList.as_view(), name='collection-list'),
-    url(r'^collection/add/$', CollectionCreate.as_view(), name='collection-add'),
-    url(r'^collection/(?P<pk>\d+)/change/$', CollectionUpdate.as_view(), name='collection-change'),
-    url(r'^collection/(?P<pk>\d+)/$', CollectionDetail.as_view(), name='collection-detail'),
+    url(r'^group/$', GroupList.as_view(), name='group-list'),
+    url(r'^group/add/?$', GroupCreate.as_view(), name='group-add'),
+    url(r'^group/(?P<pk>\d+)/$', GroupDetail.as_view(), name='group-detail'),
+    url(r'^group/(?P<pk>\d+)/change/$', GroupUpdate.as_view(), name='group-change'),
+
+    url(r'^(?:group/(?P<group_slug>\w+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
+    url(r'^(?:group/(?P<group_slug>\w+)/)?collection/add/$', CollectionCreate.as_view(),
+        name='collection-add'),
+    url(r'^(?:group/(?P<group_slug>\w+)/)?collection/(?P<pk>\d+)/change/$', CollectionUpdate.as_view(),
+        name='collection-change'),
+    url(r'^(?:group/(?P<group_slug>\w+)/)?collection/(?P<pk>\d+)/$', CollectionDetail.as_view(),
+        name='collection-detail'),
+
     url(r'^activity/(?P<collection_id>\d+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
         r'^activity/(?P<pk>\d+)/(?P<collection_id>\d+)/change/$',

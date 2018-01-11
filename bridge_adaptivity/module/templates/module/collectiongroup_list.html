@@ -1,0 +1,44 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 %}
+
+{% block title %}Groups of Collections{% endblock title %}
+
+<hr>
+
+{% block content %}
+  {% if groups %}
+    <table class="table table-hover">
+      <tr>
+        <th>ID</th>
+        <th>name</th>
+        <th>collections in group</th>
+        <th>options</th>
+      </tr>
+      {% for group in groups %}
+        <tr>
+          <td>{{ group.id }}</td>
+          <td><a href="{% url 'module:group-detail' group.id %}">{{ group.name }}</a></td>
+          <td>{{ group.collections.count }}</td>
+          <td>
+            <div>
+              <a class="move-down"
+                 href="{% url 'module:group-change' group.id %}">
+                {% bootstrap_button "" size='sm' icon='edit' %}
+              </a>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      You have no groups for now.
+    </div>
+  {% endif %}
+
+  <hr>
+  <a href="{% url 'module:group-add' %}">
+    {% bootstrap_button 'Add Group' size='lg' icon='plus' %}
+  </a>
+
+{% endblock content %}

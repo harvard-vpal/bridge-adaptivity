@@ -1,7 +1,7 @@
 from django.contrib import admin
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Activity, Collection, Log, Sequence, SequenceItem
+from .models import Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem
 
 
 class SequenceItemStackedInline(admin.StackedInline):
@@ -42,6 +42,16 @@ class CollectionAdmin(admin.ModelAdmin):
             if hasattr(inline, 'get_urls'):
                 urls = inline.get_urls(self) + urls
         return urls
+
+
+@admin.register(CollectionGroup)
+class CollectionGroupAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Engine)
+class EngineAdmin(admin.ModelAdmin):
+    readonly_fields = ['name', 'host', 'token']
 
 
 @admin.register(Log)

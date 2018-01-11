@@ -23,6 +23,14 @@ engines:
   markdownlint:
     enabled: true
 
+checks:
+  argument-count:
+    config:
+      threshold: 5
+  file-lines:
+    config:
+      threshold: 2000
+
 ratings:
    paths:
    - "**.js"
