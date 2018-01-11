@@ -1,8 +1,8 @@
 from django.test import TestCase
 
+from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
-from module import models
 from module.models import Engine
 
 
