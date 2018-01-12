@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
+from common import utils
 
 log = logging.getLogger(__name__)
 
@@ -155,8 +156,7 @@ class Engine(models.Model):
         return "Engine: {}".format(self.engine_name)
 
     def save(self, *args, **kwargs):
-        if self.is_default:
-            Engine.objects.filter(is_default=True).update(is_default=False)
+        utils.save_model_parameter_true_once(self, 'is_default')
         super(Engine, self).save(*args, **kwargs)
 
     @classmethod
