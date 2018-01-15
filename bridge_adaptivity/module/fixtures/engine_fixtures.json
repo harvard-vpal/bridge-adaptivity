@@ -1,1 +1,1 @@
-[{"model": "module.engine", "pk": 1, "fields": {"name": "mock", "host": "", "token": ""}}]
+[{"model": "module.engine", "pk": 1, "fields": {"engine": "mock", "engine_name": "test_mock", "host": "", "token": ""}}]

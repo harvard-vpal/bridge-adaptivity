@@ -1,11 +1,13 @@
 from django.test import TestCase
 from django.urls.base import reverse
+from mock import patch
 
 from module.models import BridgeUser, Collection, CollectionGroup, Engine
 
 
 class BridgeTestCase(TestCase):
-    def setUp(self):
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
         self.user = BridgeUser.objects.create_user(
             username='test',
             password='test',
