@@ -83,7 +83,7 @@ class CollectionList(CollectionMixin, ListView):
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(CollectionMixin, CreateView):
     model = Collection
-    fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters' 'strict_forward']
+    fields = ['name', 'owner', 'threshold', 'metadata', 'correctness_matters', 'strict_forward']
 
     def get_form(self):
         # FIXME(wowkalucky): improve 'unique_together' default validation message
@@ -141,6 +141,7 @@ class CollectionDetail(CollectionMixin, DetailView):
         Example: https://bridge.host/lti/launch/3
         :return: launch URL
         """
+        # NOTE(idegtiarov) Improve creation of the launch URL
         return '{bridge_host}/lti/launch/{collection_id}'.format(
             bridge_host=settings.BRIDGE_HOST, collection_id=self.object.id
         )

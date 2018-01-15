@@ -51,7 +51,7 @@ class CollectionGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Engine)
 class EngineAdmin(admin.ModelAdmin):
-    readonly_fields = ['name', 'host', 'token']
+    pass
 
 
 @admin.register(Log)

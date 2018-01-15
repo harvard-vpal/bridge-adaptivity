@@ -30,6 +30,9 @@ checks:
   file-lines:
     config:
       threshold: 2000
+  identical-code:
+    config:
+      threshold: 35
 
 ratings:
    paths:
