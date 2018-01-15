@@ -33,6 +33,10 @@ checks:
   identical-code:
     config:
       threshold: 35
+  return-statements:
+    config:
+      threshold: 6
+
 
 ratings:
    paths:
