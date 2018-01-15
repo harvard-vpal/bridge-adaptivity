@@ -20,6 +20,20 @@ from module import ENGINE
 log = logging.getLogger(__name__)
 
 
+class ModelWithDefaultInstanceMixin(object):
+    IS_DEFAULT_FIELD = 'is_default'
+
+    def save(self, *args, **kwargs):
+        if not hasattr(self, self.IS_DEFAULT_FIELD):
+            raise ValueError('Model {} has no field {}'.format(self, self.IS_DEFAULT_FIELD))
+
+        if getattr(self, self.IS_DEFAULT_FIELD, None):
+            default_qs = self.__class__.objects.filter(**{self.IS_DEFAULT_FIELD: True})
+            if default_qs:
+                default_qs.update(is_default=False)
+        return super(ModelWithDefaultInstanceMixin, self).save(*args, **kwargs)
+
+
 @python_2_unicode_compatible
 class Sequence(models.Model):
     """Represents User's problem solving track."""
@@ -73,7 +87,7 @@ class SequenceItem(models.Model):
         super(SequenceItem, self).save(*args, **kwargs)
 
 
-class GradingPolicy(models.Model):
+class GradingPolicy(ModelWithDefaultInstanceMixin, models.Model):
     """Predefined set of Grading policy objects. Define how to grade collections."""
 
     name = models.CharField(max_length=255)
@@ -104,12 +118,6 @@ class GradingPolicy(models.Model):
             ", IS DEFAULT POLICY" if self.is_default else ""
         )
 
-    def save(self, *args, **kwargs):
-        if self.is_default:
-            default_qs = GradingPolicy.objects.filter(is_default=True)
-            if default_qs:
-                default_qs.update(is_default=False)
-        return super(GradingPolicy, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
@@ -118,16 +126,8 @@ class Collection(models.Model):
 
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
-    # threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
-
-    # correctness_matters = fields.BooleanField(
-    #     default=True,
-    #     verbose_name="Correctness matters (grading policy setting)",
-    #     help_text=('If checked: grade will depend on points user get,<br>'
-    #                'If unchecked: grade will depend on users trials count.')
-    # )
 
     class Meta:
         unique_together = ('owner', 'name')
@@ -155,7 +155,7 @@ class Collection(models.Model):
         return reverse('module:collection-list')
 
 
-class Engine(models.Model):
+class Engine(ModelWithDefaultInstanceMixin, models.Model):
     """Defines engine settings."""
 
     DEFAULT_ENGINE_NAME = 'mock'
@@ -173,14 +173,6 @@ class Engine(models.Model):
 
     def __str__(self):
         return "Engine: {}".format(self.name)
-
-    def save(self, *args, **kwargs):
-        if self.is_default:
-            # default engine could be only one
-            default_engine_qs = Engine.objects.filter(is_default=True)
-            if default_engine_qs:
-                default_engine_qs.update(is_default=False)
-        return super(Engine, self).save(*args, **kwargs)
 
     @classmethod
     def get_default_engine(cls):

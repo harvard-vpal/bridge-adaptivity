@@ -85,6 +85,16 @@ class CollectionGroupGradingPolicyTest(TestCase):
         )
 
         self.client.login(username='test', password='test')
+
+        self.setup_collections_groups_policies()
+
+        Activity.objects.create(
+            name='start',
+            collection=self.collection1,
+            atype='G'
+        )
+
+    def setup_collections_groups_policies(self):
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
         self.collection2 = Collection.objects.create(name='col2', owner=self.user)
         self.collection3 = Collection.objects.create(name='col3', owner=self.user)
@@ -115,12 +125,6 @@ class CollectionGroupGradingPolicyTest(TestCase):
         self.grading_policy_trials = GradingPolicy.objects.get(name='trials_count')
         self.test_cg_trials.grading_policy = self.grading_policy_trials
         self.test_cg_trials.save()
-
-        Activity.objects.create(
-            name='start',
-            collection=self.collection1,
-            atype='G'
-        )
 
     @dont_check_lti_keys
     # @mock.patch('module.utils.choose_activity', return_value=True)
