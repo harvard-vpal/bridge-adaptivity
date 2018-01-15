@@ -87,6 +87,7 @@ class SequenceItem(models.Model):
         super(SequenceItem, self).save(*args, **kwargs)
 
 
+@python_2_unicode_compatible
 class GradingPolicy(ModelWithDefaultInstanceMixin, models.Model):
     """Predefined set of Grading policy objects. Define how to grade collections."""
 
@@ -117,7 +118,6 @@ class GradingPolicy(ModelWithDefaultInstanceMixin, models.Model):
             self.name, self.public_name, self.threshold,
             ", IS DEFAULT POLICY" if self.is_default else ""
         )
-
 
 
 @python_2_unicode_compatible
@@ -155,6 +155,7 @@ class Collection(models.Model):
         return reverse('module:collection-list')
 
 
+@python_2_unicode_compatible
 class Engine(ModelWithDefaultInstanceMixin, models.Model):
     """Defines engine settings."""
 
@@ -205,6 +206,7 @@ class Engine(ModelWithDefaultInstanceMixin, models.Model):
         return Engine._engines_cache[key]
 
 
+@python_2_unicode_compatible
 class CollectionGroup(models.Model):
     """Represents Collections Group."""
 
