@@ -100,7 +100,7 @@ class SequenceItem(models.Model):
 @python_2_unicode_compatible
 class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     """Predefined set of Grading policy objects. Define how to grade collections."""
-    
+
     name = models.CharField(max_length=20)
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
