@@ -44,7 +44,6 @@ def _get_engine_driver(engine):
 ENGINES = _discover_engines()
 
 
-
 @python_2_unicode_compatible
 class Sequence(models.Model):
     """Represents User's problem solving track."""
@@ -101,6 +100,7 @@ class SequenceItem(models.Model):
 @python_2_unicode_compatible
 class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     """Predefined set of Grading policy objects. Define how to grade collections."""
+    
     name = models.CharField(max_length=20)
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
@@ -207,6 +207,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
                 engine_driver = driver(**{'HOST': self.host, 'TOKEN': self.token})
             self.DRIVER = engine_driver
         return self.DRIVER
+
 
 @python_2_unicode_compatible
 class CollectionGroup(models.Model):
