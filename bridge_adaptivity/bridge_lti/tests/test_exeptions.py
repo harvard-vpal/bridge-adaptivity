@@ -15,7 +15,6 @@ from module.tests.test_views import BridgeTestCase
 log = logging.getLogger(__name__)
 
 
-
 class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
     def setUp(self):
         super(RaisedExceptionUsesCustomTemplateTest, self).setUp()
