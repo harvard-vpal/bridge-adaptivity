@@ -81,9 +81,6 @@ def get_collection_collectiongroup_engine(collection_id, group_slug):
         engine = collection_group.engine or Engine.get_default_engine()
     else:
         engine = Engine.get_default_engine()
-    if not collection_group:
-        log.exception("CollectionGroup with provided slug does not exist. Check configured launch url.")
-        raise Http404('Bad launch_url collection group slug.')
 
     return collection, collection_group, engine
 

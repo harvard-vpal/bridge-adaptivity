@@ -26,11 +26,11 @@ class BridgeTestCase(TestCase):
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
         self.collection2 = Collection.objects.create(name='col2', owner=self.user)
         self.collection3 = Collection.objects.create(name='col3', owner=self.user)
-        self.engine = Engine.objects.get(name='mock')
         # grading policies
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
+        self.engine = Engine.objects.create(engine='engine_mock')
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,

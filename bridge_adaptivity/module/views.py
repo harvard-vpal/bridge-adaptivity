@@ -162,6 +162,7 @@ class CollectionDetail(CollectionMixin, DetailView):
         Example: https://bridge.host/lti/launch/3
         :return: launch URL
         """
+        # NOTE(idegtiarov) Improve creation of the launch URL
         return '{bridge_host}/lti/launch/{collection_id}'.format(
             bridge_host=settings.BRIDGE_HOST, collection_id=self.object.id
         )

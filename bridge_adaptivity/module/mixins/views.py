@@ -99,5 +99,5 @@ class CollectionMixin(object):
     def get_queryset(self):
         qs = Collection.objects.filter(owner=self.request.user)
         if 'group_slug' in self.kwargs:
-            qs.filter(collectiongroup__slug=self.kwargs['group_slug'])
+            qs.filter(collection_groups__slug=self.kwargs['group_slug'])
         return qs

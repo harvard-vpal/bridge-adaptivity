@@ -4,6 +4,7 @@ from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from common import utils
 from .utils import short_token
 
 
@@ -53,8 +54,7 @@ class LtiConsumer(models.Model):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
 
     def save(self, *args, **kwargs):
-        if self.is_active:
-            LtiConsumer.objects.filter(is_active=True).update(is_active=False)
+        utils.save_model_parameter_true_once(self, 'is_active')
         super(LtiConsumer, self).save(*args, **kwargs)
 
 
