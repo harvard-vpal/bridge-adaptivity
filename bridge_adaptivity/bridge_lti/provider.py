@@ -69,7 +69,7 @@ def instructor_flow(collection_id=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
 
 
-def get_collection_group_engine(collection_id, group_slug):
+def get_collection_collectiongroup_engine(collection_id, group_slug):
     """Return collection and collection group by collection_id and group_slug."""
     collection = Collection.objects.filter(id=collection_id).first()
     if not collection:
@@ -88,14 +88,9 @@ def get_collection_group_engine(collection_id, group_slug):
     return collection, collection_group, engine
 
 
-def create_sequence_item(request, sequence, anononcement_page, tool_provider, lti_consumer):
+def create_sequence_item(request, sequence, start_activity, tool_provider, lti_consumer):
     """Create and return sequence item."""
     # NOTE(wowkalucky): empty Collection validation
-    log.debug("Sequence {} was created".format(sequence))
-    start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
-    if not start_activity:
-        log.warn('Instructor configured empty Collection.')
-        return None, anononcement_page
     cache.set(str(sequence.id), request.session['Lti_session'])
 
     # NOTE(wowkalucky): save outcome service parameters when Sequence is created:
@@ -113,7 +108,7 @@ def create_sequence_item(request, sequence, anononcement_page, tool_provider, lt
         activity=start_activity,
         position=1
     )
-    return sequence_item, None
+    return sequence_item
 
 
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
@@ -130,7 +125,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     if not collection_id:
         return anononcement_page
 
-    collection, collection_group, engine = get_collection_group_engine(collection_id, group_slug)
+    collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -143,10 +138,9 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         lti_user=lti_user,
         collection=collection,
         engine=engine,
+        collection_group=collection_group,
+        grading_policy=collection_group.grading_policy,
     )
-    if collection_group:
-        sequence_kw['collection_group'] = collection_group
-        sequence_kw['grading_policy'] = collection_group.grading_policy
 
     sequence, created = Sequence.objects.get_or_create(**sequence_kw)
 
@@ -159,8 +153,13 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
 
     if created:
+        log.debug("Sequence {} was created".format(sequence))
+        start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
+        if not start_activity:
+            log.warn('Instructor configured empty Collection.')
+            return anononcement_page
         sequence_item, error = create_sequence_item(
-            request, sequence, anononcement_page, tool_provider, lti_consumer
+            request, sequence, start_activity, tool_provider, lti_consumer
         )
         if error:
             return error

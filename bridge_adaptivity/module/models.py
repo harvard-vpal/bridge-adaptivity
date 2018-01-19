@@ -14,24 +14,12 @@ from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
+from module.mixins.models import ModelFieldIsDefaultMixin
 from module import ENGINE
 
 
 log = logging.getLogger(__name__)
 
-
-class ModelWithDefaultInstanceMixin(object):
-    IS_DEFAULT_FIELD = 'is_default'
-
-    def save(self, *args, **kwargs):
-        if not hasattr(self, self.IS_DEFAULT_FIELD):
-            raise ValueError('Model {} has no field {}'.format(self, self.IS_DEFAULT_FIELD))
-
-        if getattr(self, self.IS_DEFAULT_FIELD, None):
-            default_qs = self.__class__.objects.filter(**{self.IS_DEFAULT_FIELD: True})
-            if default_qs:
-                default_qs.update(is_default=False)
-        return super(ModelWithDefaultInstanceMixin, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible
@@ -41,7 +29,6 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     engine = models.ForeignKey('Engine', blank=True, null=True)
-    collection_group = models.ForeignKey('CollectionGroup', blank=True, null=True)
     grading_policy = models.ForeignKey('GradingPolicy', blank=True, null=True)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
@@ -88,10 +75,9 @@ class SequenceItem(models.Model):
 
 
 @python_2_unicode_compatible
-class GradingPolicy(ModelWithDefaultInstanceMixin, models.Model):
+class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     """Predefined set of Grading policy objects. Define how to grade collections."""
-
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=20)
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     is_default = models.BooleanField(default=False)
@@ -104,14 +90,14 @@ class GradingPolicy(ModelWithDefaultInstanceMixin, models.Model):
 
     def calculate_grade(self, sequence):
         items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
+        # NOTE: dict with key -grading policy name and
+        # NOTE: value - tuple with first element - function to calculate grade, second element - function args.
         grading_map = {
-            # name, function
             'points_earned': (self._points_earned_grade, (items_result['trials_count'], items_result['points_earned'])),
             'trials_count': (self._trials_count, (items_result['trials_count'],))
         }
-        if self.name in grading_map:
-            func = grading_map[self.grading_policy.name][0]
-            return func(*grading_map[self.grading_policy.name][1])
+        func = grading_map[self.grading_policy.name][0]
+        return func(*grading_map[self.grading_policy.name][1])
 
     def __str__(self):
         return "{}, public_name: {} threshold: {}{}".format(
@@ -156,7 +142,7 @@ class Collection(models.Model):
 
 
 @python_2_unicode_compatible
-class Engine(ModelWithDefaultInstanceMixin, models.Model):
+class Engine(ModelFieldIsDefaultMixin, models.Model):
     """Defines engine settings."""
 
     DEFAULT_ENGINE_NAME = 'mock'

@@ -23,7 +23,7 @@ from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm, GradingPolicyForm, GroupForm
-from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
+from module.mixins.views import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
 from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
 
 

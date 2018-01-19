@@ -2,7 +2,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls.base import reverse
 
-from module.mixins import GroupEditFormMixin
+from module.mixins.views import GroupEditFormMixin
 from module.models import BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy
 
 
