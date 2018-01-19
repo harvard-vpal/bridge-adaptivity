@@ -45,7 +45,8 @@ class BridgeTestCase(TestCase):
             'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
             'engine': self.engine.id,
             'owner': self.user.id,
-            'grading_policy_name': 'trials_count'
+            'grading_policy_name': 'trials_count',
+            'description': 'Some description for a group'
         })
 
 
@@ -111,6 +112,7 @@ class TestCollectionGroupTest(BridgeTestCase):
         self.assertEqual(groups_count, CollectionGroup.objects.count())
         test_g = CollectionGroup.objects.get(id=self.test_cg.id)
         self.assertNotEqual(test_g.name, self.test_cg.name)
+        self.assertNotEqual(test_g.description, self.test_cg.description)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
 
 
