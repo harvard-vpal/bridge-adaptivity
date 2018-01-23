@@ -85,7 +85,7 @@ class GroupEditFormMixin(object):
             owner=self.request.user
         )
         form.fields['owner'].initial = self.request.user
-        form.fields['engine'].initial = Engine.get_default_engine()
+        form.fields['engine'].initial = Engine.get_default()
         form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         form.fields['collections'].queryset = collections
         if self.kwargs.get('pk'):

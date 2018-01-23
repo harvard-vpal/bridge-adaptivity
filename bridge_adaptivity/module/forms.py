@@ -4,7 +4,7 @@ from django import forms
 from django.conf import settings
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, GradingPolicy
+from module.models import Activity, CollectionGroup, GradingPolicy, GRADING_POLICY_CHOICES
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class ActivityForm(ModelForm):
 
 class GroupForm(ModelForm):
     grading_policy_name = forms.ChoiceField(
-        choices=settings.GRADING_POLICIES,
+        choices=GRADING_POLICY_CHOICES,
         required=True,
         initial=lambda: GradingPolicy.objects.get(is_default=True).name
     )

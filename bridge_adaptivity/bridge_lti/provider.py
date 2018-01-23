@@ -78,9 +78,9 @@ def get_collection_collectiongroup_engine(collection_id, group_slug):
 
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
     if collection_group:
-        engine = collection_group.engine or Engine.get_default_engine()
+        engine = collection_group.engine or Engine.get_default()
     else:
-        engine = Engine.get_default_engine()
+        engine = Engine.get_default()
 
     return collection, collection_group, engine
 

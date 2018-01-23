@@ -3,13 +3,15 @@ from django.test import TestCase
 from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
-from module.models import Engine
+from module.models import Engine, GradingPolicy
+from module.policies.policy_points_earned import PointsEarnedGradingPolicy
+from module.policies.policy_trials_count import TrialsCountGradingPolicy
 
 
 class TestEngineUtilityFunction(TestCase):
     def test__discover_engines(self):
         """Test _discover_engines function."""
-        found_engines = models._discover_engines()
+        found_engines = models._discover_applicable_modules(folder_name='engines', file_startswith='engine_')
         self.assertEquals(len(found_engines), 2)
         self.assertCountEqual([('engine_mock.py', 'mock'), ('engine_vpal.py', 'vpal')], found_engines)
 
@@ -37,7 +39,7 @@ class TestEngineModel(TestCase):
         """Test get_default_engine method."""
         engine_default_set = Engine.objects.filter(is_default=True)
         self.assertFalse(engine_default_set)
-        default_engine = Engine.get_default_engine()
+        default_engine = Engine.get_default()
         engine_default_new_set = Engine.objects.filter(is_default=True)
         self.assertEquals(engine_default_new_set.count(), 1)
         self.assertEquals(engine_default_set.first(), default_engine)
@@ -54,3 +56,51 @@ class TestEngineModel(TestCase):
         self.assertIsInstance(vpal_driver, EngineVPAL)
         self.assertEqual(vpal_driver.host, host)
         self.assertEqual(vpal_driver.headers, {'Authorization': 'Token {}'.format(token)})
+
+
+class TestDiscoverGradingPolicies(TestCase):
+    def test_discover_grading_policies(self):
+        """Test _discover_applicable_modules function."""
+        found_policies = models._discover_applicable_modules(folder_name='policies', file_startswith='policy_')
+        self.assertEquals(len(found_policies), 2)
+        self.assertCountEqual(
+            [('policy_points_earned.py', 'points_earned'), ('policy_trials_count.py', 'trials_count')],
+            found_policies
+        )
+
+    def test_get_policy_module(self):
+        """Test _get_grading_policy_module function."""
+        points_earned_cls = models._get_grading_policy_cls('points_earned')
+        self.assertEquals(points_earned_cls.__name__, 'PointsEarnedGradingPolicy')
+        trials_count_cls = models._get_grading_policy_cls('trials_count')
+        self.assertEquals(trials_count_cls.__name__, 'TrialsCountGradingPolicy')
+
+
+class TestGradingPolicyModel(TestCase):
+    fixtures = ['gradingpolicy.json']
+
+    def test_grading_policy_is_default(self):
+        gp1 = GradingPolicy.objects.create(name='trials_count', public_name='GP1', is_default=True)
+        gp2 = GradingPolicy.objects.create(name='trials_count', public_name='GP2', is_default=True)
+
+        default_set = GradingPolicy.objects.filter(is_default=True)
+        self.assertEquals(default_set.count(), 1)
+        default_engine = default_set.first()
+        self.assertNotEqual(default_engine, gp1)
+        self.assertEquals(default_engine, gp2)
+
+    def test_grading_policy_get_default_engine(self):
+        """Test get_default method."""
+        default_set = GradingPolicy.objects.filter(is_default=True)
+        # cause we use fixtures we already have default GP on this step.
+        self.assertTrue(default_set, "Default GradingPolicy should be defined in fixtures.")
+        default_grading_policy = GradingPolicy.get_default()
+        gp_default_new_set = GradingPolicy.objects.filter(is_default=True)
+        self.assertEquals(gp_default_new_set.count(), 1)
+        self.assertEquals(default_set.first(), default_grading_policy)
+
+    def test_policy_cls_property(self):
+        gp_trials_count = GradingPolicy.objects.get(name='trials_count')
+        gp_points_earned = GradingPolicy.objects.get(name='points_earned')
+        self.assertTrue(gp_trials_count.policy_cls is TrialsCountGradingPolicy)
+        self.assertTrue(gp_points_earned.policy_cls is PointsEarnedGradingPolicy)
