@@ -34,11 +34,6 @@ class Migration(migrations.Migration):
             name='threshold',
         ),
         migrations.AddField(
-            model_name='engine',
-            name='is_default',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
             model_name='collectiongroup',
             name='grading_policy',
             field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='module.GradingPolicy'),
