@@ -9,7 +9,6 @@ log = logging.getLogger(__name__)
 
 
 ACTIVITY_PARAMS = (
-    'collection',
     'name',
     'tags',
     'type',
@@ -55,12 +54,12 @@ class EngineVPAL(EngineInterface):
         self.headers = {'Authorization': 'Token {}'.format(token)} if token else {}
 
     @staticmethod
-    def check_engine_response(engine_status, action=None, activity_name=None, status=200):
+    def check_engine_response(engine_status, action=None, obj=None, status=200):
         if engine_status == status:
-            log.debug("[VPAL Engine] activity {} is {} to the VPAL Engine.".format(activity_name, action))
+            log.debug("[VPAL Engine] {} is {}.".format(obj, action))
             return True
         else:
-            log.error("[VPAL Engine] activity {} is not {} to the VPAL Engine.".format(activity_name, action))
+            log.error("[VPAL Engine] {} is not {}.".format(obj, action))
             return False
 
     def fulfill_payload(self, payload={}, instance_to_parse=None):
@@ -78,9 +77,8 @@ class EngineVPAL(EngineInterface):
             elif param == 'learner':
                 learner = instance_to_parse.sequence.lti_user.id
                 payload[param] = learner
-            elif param in ('collection', 'activity'):
-                param_value = getattr(instance_to_parse, param).id
-                payload[param] = param_value
+            elif param == 'activity':
+                payload[param] = getattr(instance_to_parse, param).id
             else:
                 payload[param] = getattr(instance_to_parse, param)
         return payload
@@ -100,39 +98,10 @@ class EngineVPAL(EngineInterface):
         ).format(user_id=sequence.lti_user.id, collection_id=sequence.collection.id)
         log.warn("VPAL RECO URL: {}".format(reco_url))
         chosen_activity = requests.get(reco_url, headers=self.headers)
-        if self.check_engine_response(chosen_activity.status_code, "chosen"):
+        if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
             choose = chosen_activity.json()
             return choose.get('id')
         return None
-
-    def add_activity(self, activity):
-        """
-        VPAL engine provides recommended activity from the collection to the Bridge.
-
-        :param activity: Activity instance
-        """
-        payload = self.fulfill_payload({'id': activity.id}, activity)
-        add_activity = requests.post(self.activity_url, json=payload, headers=self.headers)
-        return self.check_engine_response(add_activity.status_code, 'added', activity.name, 201)
-
-    def update_activity(self, activity):
-        """
-        VPAL engine update activity when it is updated on the Bridge.
-
-        :param activity: Activity instance
-        """
-        payload = self.fulfill_payload(instance_to_parse=activity)
-        update_activity = requests.patch(self.combine_activity_url(activity), json=payload, headers=self.headers)
-        return self.check_engine_response(update_activity.status_code, 'updated', activity.name)
-
-    def delete_activity(self, activity):
-        """
-        VPAL engine delete activity when it is deleted on the Bridge.
-
-        :param activity: Activity instance
-        """
-        delete_activity = requests.delete(self.combine_activity_url(activity), headers=self.headers)
-        return self.check_engine_response(delete_activity.status_code, 'deleted', activity.name, 204)
 
     def submit_activity_answer(self, sequence_item):
         """
@@ -143,4 +112,18 @@ class EngineVPAL(EngineInterface):
         submit_url = urlparse.urljoin(self.base_url, 'score')
         payload = self.fulfill_payload(instance_to_parse=sequence_item)
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
-        return self.check_engine_response(submit_activity_score.status_code, 'graded', sequence_item.activity.name)
+        return self.check_engine_response(submit_activity_score.status_code, action='graded', obj='sequence item')
+
+    def sync_collection_activities(self, collection_id, activities):
+        """
+        VPAL engine synchronize Collection's Activities
+
+        :param collection_id: ID of the collection for synchronization
+        :param activities: QuerySet with Activities to update
+        """
+        sync_url = urlparse.urljoin(self.base_url, 'sync/collection/{}'.format(collection_id))
+        payload = {"collection": collection_id, "activities": []}
+        for activity in activities:
+            payload["activities"].append(self.fulfill_payload(instance_to_parse=activity))
+        sync_collection = requests.post(sync_url, json=payload, headers=self.headers)
+        return self.check_engine_response(sync_collection.status_code, action='synchronized', obj='collection')
