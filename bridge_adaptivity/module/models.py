@@ -1,4 +1,3 @@
-from functools import partial
 import importlib
 import inspect
 import logging
@@ -10,7 +9,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
-from django.db.models.aggregates import Count, Sum
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -48,6 +46,7 @@ def _get_grading_policy_cls(mod_name):
         if attr[0].endswith('GradingPolicy'):
             module = attr[1]
     return module
+
 
 ENGINES = _discover_applicable_modules(folder_name='engines', file_startswith='engine_')
 
@@ -125,7 +124,6 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     def calculate_grade(self, sequence):
         policy = self.policy_cls(policy=self, sequence=sequence)
         return policy.grade
-
 
     def __str__(self):
         return "{}, public_name: {} threshold: {}{}".format(

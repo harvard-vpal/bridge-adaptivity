@@ -1,10 +1,9 @@
 import logging
 
 from django import forms
-from django.conf import settings
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, GradingPolicy, GRADING_POLICY_CHOICES
+from module.models import Activity, CollectionGroup, GRADING_POLICY_CHOICES, GradingPolicy
 
 log = logging.getLogger(__name__)
 

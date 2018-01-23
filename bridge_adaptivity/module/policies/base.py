@@ -1,10 +1,10 @@
-# from module.models import Sequence, GradingPolicy as GradingPolicyModel
-from django.db.models.aggregates import Sum, Count
+from django.db.models.aggregates import Count, Sum
 
 
-class GradingPolicy(object):
+class BaseGradingPolicy(object):
     """Base grading policy class defines methods and variables of grading policy.
-    >>> gp =  GradingPolicy(sequence=1, policy=2, b=3)
+
+    >>> gp =  BaseGradingPolicy(sequence=1, policy=2, b=3)
     >>> gp.sequence
     1
     >>> gp.context['b']
@@ -33,7 +33,8 @@ class GradingPolicy(object):
     def _get_points_earned_trials_count(self):
         """Get points earned and trials count from the sequence.
 
-        :return tuple([trials_count, points_earned])"""
+        :return tuple([trials_count, points_earned])
+        """
         items_result = self.sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
         return items_result['trials_count'], items_result['points_earned']
 

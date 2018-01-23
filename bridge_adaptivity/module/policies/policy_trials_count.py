@@ -1,8 +1,7 @@
-from django.db.models.aggregates import Count
-from .base import GradingPolicy
+from .base import BaseGradingPolicy
 
 
-class TrialsCountGradingPolicy(GradingPolicy):
+class TrialsCountGradingPolicy(BaseGradingPolicy):
     public_name = 'Trials count'
     internal_name = 'trials_count'
 

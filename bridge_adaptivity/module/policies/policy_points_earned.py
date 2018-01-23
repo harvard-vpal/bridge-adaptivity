@@ -1,9 +1,8 @@
-from django.db.models.aggregates import Sum, Count
-from .base import GradingPolicy
+from .base import BaseGradingPolicy
 
 
-class PointsEarnedGradingPolicy(GradingPolicy):
-    """GRadding policy class calculate grade based upon users earned points"""
+class PointsEarnedGradingPolicy(BaseGradingPolicy):
+    """GRadding policy class calculate grade based upon users earned points."""
 
     public_name = 'Points earned'
     internal_name = 'points_earned'

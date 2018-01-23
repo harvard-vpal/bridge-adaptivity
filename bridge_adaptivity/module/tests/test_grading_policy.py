@@ -1,15 +1,46 @@
+from ddt import data, ddt, unpack
+from django.test import TestCase
 import mock
 import pytest
-from django.test import TestCase
-from ddt import ddt, data, unpack
 
 from module.models import GradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
 
+
+GRADING_POLICY_TEST_DATA = (
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 0,
+     'points_earned': 1, 'er': ZeroDivisionError},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 1, 'er': 1},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 1,
+     'er': ZeroDivisionError},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 1, 'er': 1},
+    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 4, 'trials_count': 3, 'points_earned': 0.75,
+     'er': 0.1875},
+
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 1},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 1},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 0,
+     'er': ZeroDivisionError},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 1},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 1},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 0,
+     'er': ZeroDivisionError},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 3., 'points_earned': 0, 'er': 1.},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0, 'er': 0.75}
+)
+
+
 @ddt
 class TestGradingPolicyObject(TestCase):
-    """Integration tests for GradingPolicy modules"""
+    """Integration test for GradingPolicy modules."""
 
     fixtures = ['gradingpolicy.json']
 
@@ -19,36 +50,16 @@ class TestGradingPolicyObject(TestCase):
         {'test_cls': TrialsCountGradingPolicy, 'name': 'trials_count'}
     )
     def test_grading_policy_has_name(self, test_cls, name):
-        """Test that GradingPolicy sub-classes has name and public name"""
+        """Test that GradingPolicy sub-classes has name and public name."""
         self.assertEqual(test_cls.internal_name, name)
         self.assertIsNotNone(getattr(test_cls, 'public_name', None))
 
-    @mock.patch('module.policies.base.GradingPolicy._get_points_earned_trials_count')
+    @mock.patch('module.policies.base.BaseGradingPolicy._get_points_earned_trials_count')
     @unpack
-    @data(
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 1, 'er': ZeroDivisionError},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 1, 'er': 1},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 1, 'er': ZeroDivisionError},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 1, 'er': 1},
-        {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 4, 'trials_count': 3, 'points_earned': 0.75, 'er': 0.1875},
-
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 1},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 1},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 0, 'er': ZeroDivisionError},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 1},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 1},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 0, 'points_earned': 0, 'er': ZeroDivisionError},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 3., 'points_earned': 0, 'er': 1.},
-        {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0, 'er': 0.75},
-    )
-    def test_trials_count_math(self, points_earned_trials_count, GradingPolicyCls, threshold, trials_count, points_earned, er):
+    @data(*GRADING_POLICY_TEST_DATA)
+    def test_policy_math(
+            self, points_earned_trials_count, GradingPolicyCls, threshold, trials_count, points_earned, er
+    ):
         points_earned_trials_count.return_value = trials_count, points_earned
 
         policy = GradingPolicy.objects.filter(name=GradingPolicyCls.internal_name).first()
@@ -62,8 +73,3 @@ class TestGradingPolicyObject(TestCase):
             grade = GradingPolicyCls(sequence=None, policy=policy)._calculate()
             self.assertEqual(grade, er)
             self.assertIsInstance(grade, float)
-
-
-
-
-
