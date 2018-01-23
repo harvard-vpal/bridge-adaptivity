@@ -4,6 +4,7 @@ import logging
 import os
 
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -166,6 +167,11 @@ class Collection(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
+
+    def get_launch_url(self, group):
+        return "{}{}".format(
+            settings.BRIDGE_HOST,
+            reverse("lti:launch", kwargs={'collection_id': self.id, 'group_slug': group.slug}))
 
 
 @python_2_unicode_compatible

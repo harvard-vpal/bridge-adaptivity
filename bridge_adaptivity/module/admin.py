@@ -46,7 +46,8 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(CollectionGroup)
 class CollectionGroupAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ('slug',)
+    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine')
 
 
 @admin.register(Engine)

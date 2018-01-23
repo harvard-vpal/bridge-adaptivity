@@ -5,7 +5,9 @@
 <hr>
 
 {% block content %}
-{% if group.id %}Update {{ group.name }}{% else %}
+{% if group.id %}
+<h2>Update {{ group.name }}</h2>
+{% else %}
 <h2>New Collection Group configuration</h2>
 {% endif %}
 

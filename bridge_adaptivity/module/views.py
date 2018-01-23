@@ -77,6 +77,11 @@ class GroupDetail(DetailView):
     slug_url_kwarg = 'group_slug'
     context_object_name = 'group'
 
+    def get_context_data(self, **kwargs):
+        context = super(GroupDetail, self).get_context_data(**kwargs)
+        context.update({'bridge_host': settings.BRIDGE_HOST})
+        return context
+
     def get_queryset(self):
         return CollectionGroup.objects.filter(owner=self.request.user)
 
@@ -138,7 +143,6 @@ class CollectionDetail(CollectionMixin, DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
-        context['launch_url'] = self.get_launch_url()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
             context['engine'] = engine_failure
@@ -154,18 +158,6 @@ class CollectionDetail(CollectionMixin, DetailView):
                 "LtiConsumer.is_active=True."
             )
             return []
-
-    def get_launch_url(self):
-        """
-        Build LTI launch URL for the Collection to be used by LTI Tool.
-
-        Example: https://bridge.host/lti/launch/3
-        :return: launch URL
-        """
-        # NOTE(idegtiarov) Improve creation of the launch URL
-        return '{bridge_host}/lti/launch/{collection_id}'.format(
-            bridge_host=settings.BRIDGE_HOST, collection_id=self.object.id
-        )
 
 
 @method_decorator(login_required, name='dispatch')
