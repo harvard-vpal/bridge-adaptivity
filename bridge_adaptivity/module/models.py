@@ -176,6 +176,8 @@ class Engine(models.Model):
     def engine_driver(self):
         if not self.DRIVER:
             driver = _get_engine_driver(self.engine)
+            # NOTE(idegtiarov) Currently, statement coves existent engines modules. Improve in case new engine will be
+            # added to the engines package.
             if self.engine.endswith('mock'):
                 engine_driver = driver()
             else:

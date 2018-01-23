@@ -44,7 +44,7 @@ class TestEngineModel(TestCase):
 
     def test_engine_driver_property(self):
         """Test Engine model's property engine_driver."""
-        host, token = ('fake_host', 'fake_token')
+        host, token = 'fake_host', 'fake_token'
         engine_mock = Engine.objects.create(engine='engine_mock', engine_name='Mock')
         engine_vpal = Engine.objects.create(
             engine='engine_vpal', engine_name='VPAL', host=host, token=token
