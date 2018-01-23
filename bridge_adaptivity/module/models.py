@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
+from django.db.models.aggregates import Count, Sum
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -16,6 +17,7 @@ from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common import utils
+from module.mixins.models import ModelFieldIsDefaultMixin
 
 log = logging.getLogger(__name__)
 
@@ -49,6 +51,7 @@ class Sequence(models.Model):
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
     engine = models.ForeignKey('Engine', blank=True, null=True)
+    grading_policy = models.ForeignKey('GradingPolicy', blank=True, null=True)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
@@ -95,21 +98,46 @@ class SequenceItem(models.Model):
 
 
 @python_2_unicode_compatible
+class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
+    """Predefined set of Grading policy objects. Define how to grade collections."""
+
+    name = models.CharField(max_length=20)
+    public_name = models.CharField(max_length=255)
+    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
+    is_default = models.BooleanField(default=False)
+
+    def _points_earned_grade(self, trials_count, points_earned):
+        return points_earned / max(self.threshold, trials_count)
+
+    def _trials_count(self, trials_count):
+        return trials_count / max(self.threshold, trials_count)
+
+    def calculate_grade(self, sequence):
+        items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
+        # NOTE: dict with key -grading policy name and
+        # NOTE: value - tuple with first element - function to calculate grade, second element - function args.
+        grading_map = {
+            'points_earned': (self._points_earned_grade, (items_result['trials_count'], items_result['points_earned'])),
+            'trials_count': (self._trials_count, (items_result['trials_count'],))
+        }
+        func = grading_map[self.grading_policy.name][0]
+        return func(*grading_map[self.grading_policy.name][1])
+
+    def __str__(self):
+        return "{}, public_name: {} threshold: {}{}".format(
+            self.name, self.public_name, self.threshold,
+            ", IS DEFAULT POLICY" if self.is_default else ""
+        )
+
+
+@python_2_unicode_compatible
 class Collection(models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
     owner = models.ForeignKey(BridgeUser)
-    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
-
-    correctness_matters = fields.BooleanField(
-        default=True,
-        verbose_name="Correctness matters (grading policy setting)",
-        help_text=('If checked: grade will depend on points user get,<br>'
-                   'If unchecked: grade will depend on users trials count.')
-    )
 
     class Meta:
         unique_together = ('owner', 'name')
@@ -137,7 +165,8 @@ class Collection(models.Model):
         return reverse('module:collection-list')
 
 
-class Engine(models.Model):
+@python_2_unicode_compatible
+class Engine(ModelFieldIsDefaultMixin, models.Model):
     """Defines engine settings."""
 
     DEFAULT_ENGINE = 'engine_mock'
@@ -180,6 +209,7 @@ class Engine(models.Model):
         return self.DRIVER
 
 
+@python_2_unicode_compatible
 class CollectionGroup(models.Model):
     """Represents Collections Group."""
 
@@ -193,6 +223,7 @@ class CollectionGroup(models.Model):
         unique_with=['owner'],
     )
 
+    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
     collections = models.ManyToManyField(Collection, related_name='collection_groups')
 
     engine = models.ForeignKey(Engine)
@@ -201,7 +232,7 @@ class CollectionGroup(models.Model):
         return u"CollectionGroup: {}".format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:group-detail', kwargs={'pk': self.pk})
+        return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
 
 @python_2_unicode_compatible
