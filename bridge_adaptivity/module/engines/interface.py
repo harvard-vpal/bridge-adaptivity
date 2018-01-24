@@ -24,11 +24,10 @@ class EngineInterface(object):
         raise NotImplementedError("Adaptive Engine driver must implement this method.")
 
     @abstractmethod
-    def sync_collection_activities(self, collection_id, activities):
+    def sync_collection_activities(self, collection):
         """
-        Synchronize Collection's Activities with the engine
+        Synchronize Collection's Activities with the engine.
 
-        :param collection_id: ID of the collection to sync with the engine
-        :param activities: QuerySet with Activities to update
+        :param collection: Collection instance to sync with the engine
         """
         raise NotImplementedError("Adaptive Engine driver must implement this method.")

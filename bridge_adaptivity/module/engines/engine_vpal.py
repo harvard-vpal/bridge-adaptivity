@@ -54,7 +54,9 @@ class EngineVPAL(EngineInterface):
         self.headers = {'Authorization': 'Token {}'.format(token)} if token else {}
 
     @staticmethod
-    def check_engine_response(engine_status, action=None, obj=None, status=200):
+    def check_engine_response(engine_status, action=None, obj=None, name=None, status=200):
+        if obj and name:
+            obj += ' {}'.format(name)
         if engine_status == status:
             log.debug("[VPAL Engine] {} is {}.".format(obj, action))
             return True
@@ -96,7 +98,6 @@ class EngineVPAL(EngineInterface):
         reco_url = urlparse.urljoin(
             "{}/".format(self.activity_url), "recommend?learner={user_id}&collection={collection_id}"
         ).format(user_id=sequence.lti_user.id, collection_id=sequence.collection.id)
-        log.warn("VPAL RECO URL: {}".format(reco_url))
         chosen_activity = requests.get(reco_url, headers=self.headers)
         if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
             choose = chosen_activity.json()
@@ -112,18 +113,21 @@ class EngineVPAL(EngineInterface):
         submit_url = urlparse.urljoin(self.base_url, 'score')
         payload = self.fulfill_payload(instance_to_parse=sequence_item)
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
-        return self.check_engine_response(submit_activity_score.status_code, action='graded', obj='sequence item')
+        return self.check_engine_response(
+            submit_activity_score.status_code, action='graded', obj='sequence item', name=sequence_item.activity.name
+        )
 
-    def sync_collection_activities(self, collection_id, activities):
+    def sync_collection_activities(self, collection):
         """
-        VPAL engine synchronize Collection's Activities
+        VPAL engine synchronize Collection's Activities.
 
-        :param collection_id: ID of the collection for synchronization
-        :param activities: QuerySet with Activities to update
+        :param collection: Collection instance for synchronization
         """
-        sync_url = urlparse.urljoin(self.base_url, 'sync/collection/{}'.format(collection_id))
-        payload = {"collection": collection_id, "activities": []}
-        for activity in activities:
+        sync_url = urlparse.urljoin(self.base_url, 'sync/collection/{}'.format(collection.id))
+        payload = {"collection": collection.id, "activities": []}
+        for activity in collection.activities.all():
             payload["activities"].append(self.fulfill_payload(instance_to_parse=activity))
         sync_collection = requests.post(sync_url, json=payload, headers=self.headers)
-        return self.check_engine_response(sync_collection.status_code, action='synchronized', obj='collection')
+        return self.check_engine_response(
+            sync_collection.status_code, action='synchronized', obj='collection', name=collection.name
+        )

@@ -38,9 +38,9 @@ class EngineMock(EngineInterface):
         ))
         return True
 
-    def sync_collection_activities(self, collection_id, activities):
+    def sync_collection_activities(self, collection):
         """Mock engine works with data stored on the Bridge and do not need to implement method."""
-        log.debug("The Collection {} is successfully synchronized with the Mock Engine.".format(
-            activities.collection.name
+        log.debug("The Collection {} was successfully synchronized with the Mock Engine.".format(
+            collection.name
         ))
         return True
