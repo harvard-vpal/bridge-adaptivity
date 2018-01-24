@@ -14,22 +14,22 @@ class EngineMock(EngineInterface):
         Mock engine provides random choice for the activity from the collection on the Bridge.
 
         :param sequence: sequence
-        :return: selected activity_id
+        :return: selected activity source_launch_url
         """
         s_activities_list = list(sequence.items.exclude(score__isnull=True).values_list('activity_id', flat=True))
         available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
         pre_assesment = available_activities.filter(atype='A')
         generic = available_activities.filter(atype='G')
         post_assessment = available_activities.filter(atype='Z')
-        chosen_activity_id = None
+        chosen_activity_url = None
         if pre_assesment:
-            chosen_activity_id = pre_assesment.first().id
+            chosen_activity_url = pre_assesment.first().source_launch_url
         elif generic:
-            chosen_activity_id = random.choice(generic).id
+            chosen_activity_url = random.choice(generic).source_launch_url
         elif post_assessment:
-            chosen_activity_id = post_assessment.first().id
-        log.debug("Chosen activity is: {}".format(chosen_activity_id))
-        return chosen_activity_id
+            chosen_activity_url = post_assessment.first().source_launch_url
+        log.debug("Chosen activity is: {}".format(chosen_activity_url))
+        return chosen_activity_url
 
     def add_activity(self, activity):
         """Mock engine works with data stored on the Bridge and do not need to implement method."""

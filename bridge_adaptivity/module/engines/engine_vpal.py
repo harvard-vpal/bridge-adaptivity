@@ -14,6 +14,7 @@ ACTIVITY_PARAMS = (
     'tags',
     'type',
     'difficulty',
+    'source_launch_url',
 )
 
 SEQUENCE_ITEM_PARAMS = (
@@ -93,7 +94,7 @@ class EngineVPAL(EngineInterface):
         VPAL engine provides recommended activity from the collection on the Bridge.
 
         :param sequence: sequence
-        :return: selected activity_id
+        :return: selected activity source_launch_url
         """
         reco_url = urlparse.urljoin(
             "{}/".format(self.activity_url), "recommend?learner={user_id}&collection={collection_id}"
@@ -102,7 +103,7 @@ class EngineVPAL(EngineInterface):
         chosen_activity = requests.get(reco_url, headers=self.headers)
         if self.check_engine_response(chosen_activity.status_code, "chosen"):
             choose = chosen_activity.json()
-            return choose.get('id')
+            return choose.get('source_launch_url')
         return None
 
     def add_activity(self, activity):
@@ -111,7 +112,7 @@ class EngineVPAL(EngineInterface):
 
         :param activity: Activity instance
         """
-        payload = self.fulfill_payload({'id': activity.id}, activity)
+        payload = self.fulfill_payload(activity)
         add_activity = requests.post(self.activity_url, json=payload, headers=self.headers)
         return self.check_engine_response(add_activity.status_code, 'added', activity.name, 201)
 
