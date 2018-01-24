@@ -10,7 +10,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
-from django.db.models.aggregates import Count, Sum
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
@@ -226,7 +225,7 @@ class CollectionGroup(models.Model):
     slug = AutoSlugField(
         null=True,
         populate_from='name',
-        unique_with=['owner'],
+        unique_with=('atime',),
     )
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
