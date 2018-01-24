@@ -26,11 +26,11 @@ class Migration(migrations.Migration):
             name='engine_name',
             field=models.CharField(blank=True, max_length=255, null=True, unique=True),
         ),
-        # migrations.AddField(
-        #     model_name='engine',
-        #     name='is_default',
-        #     field=models.BooleanField(default=False, help_text='If checked Engine will be used as the default!'),
-        # ),
+        migrations.AddField(
+            model_name='engine',
+            name='is_default',
+            field=models.BooleanField(default=False, help_text='If checked Engine will be used as the default!'),
+        ),
         migrations.AlterField(
             model_name='collectiongroup',
             name='collections',
