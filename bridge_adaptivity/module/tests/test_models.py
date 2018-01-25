@@ -1,10 +1,11 @@
-from ddt import ddt, data, unpack
+from ddt import data, ddt, unpack
 from django.test import TestCase
 
 from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import Engine, GradingPolicy
+from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
 
@@ -18,10 +19,11 @@ class TestEngineUtilityFunction(TestCase):
 
     def test__get_engine_driver(self):
         """Test _get_engine_driver function."""
-        driver = models._get_engine_driver('engine_mock')
+        driver = models._load_cls_from_applicable_module('module.engines.', 'engine_mock', class_startswith='Engine')
         self.assertEquals(driver.__name__, 'EngineMock')
 
-        vpal_driver = models._get_engine_driver('engine_vpal')
+        vpal_driver = models._load_cls_from_applicable_module('module.engines.', 'engine_vpal',
+                                                              class_startswith='Engine')
         self.assertEquals(vpal_driver.__name__, 'EngineVPAL')
 
 
@@ -58,6 +60,7 @@ class TestEngineModel(TestCase):
         self.assertEqual(vpal_driver.host, host)
         self.assertEqual(vpal_driver.headers, {'Authorization': 'Token {}'.format(token)})
 
+
 @ddt
 class TestDiscoverGradingPolicies(TestCase):
     def test_discover_grading_policies(self):
@@ -78,7 +81,7 @@ class TestDiscoverGradingPolicies(TestCase):
     )
     def test_get_policy_module(self, mod, mod_name, cls_end, exp_cls_name):
         """Test _get_grading_policy_module function."""
-        grade_policy = models._get_grading_policy_cls(mod, mod_name, class_endswith=cls_end)
+        grade_policy = models._load_cls_from_applicable_module(mod, mod_name, class_endswith=cls_end)
         self.assertEquals(grade_policy.__name__, exp_cls_name)
 
 
@@ -108,5 +111,7 @@ class TestGradingPolicyModel(TestCase):
     def test_policy_cls_property(self):
         gp_trials_count = GradingPolicy.objects.get(name='trials_count')
         gp_points_earned = GradingPolicy.objects.get(name='points_earned')
+        gp_full_credit = GradingPolicy.objects.get(name='full_credit')
         self.assertTrue(gp_trials_count.policy_cls is TrialsCountGradingPolicy)
         self.assertTrue(gp_points_earned.policy_cls is PointsEarnedGradingPolicy)
+        self.assertTrue(gp_full_credit.policy_cls is FullCreditOnCompleteGradingPolicy)

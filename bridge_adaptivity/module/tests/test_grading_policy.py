@@ -4,9 +4,9 @@ import mock
 import pytest
 
 from module.models import GRADING_POLICY_NAME_TO_CLS, GradingPolicy, Sequence
+from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
-from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 
 
 GRADING_POLICY_TEST_DATA = (
@@ -61,12 +61,6 @@ GRADING_POLICY_TEST_DATA = (
      'sequence': Sequence(completed=False), 'er': 0},
     {'GradingPolicyCls': FullCreditOnCompleteGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
      'sequence': Sequence(completed=True), 'er': 1},
-    # {'GradingPolicyCls': FullCreditOnCompleteGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
-    #  'sequence': Sequence(), 'er': 0.75},
-    # {'GradingPolicyCls': FullCreditOnCompleteGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
-    #  'sequence': Sequence(), 'er': 0.75},
-    # {'GradingPolicyCls': FullCreditOnCompleteGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
-    #  'sequence': Sequence(), 'er': 0.75},
 )
 
 

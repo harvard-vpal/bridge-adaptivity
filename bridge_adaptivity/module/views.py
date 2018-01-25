@@ -1,5 +1,4 @@
 import logging
-from operator import itemgetter
 from xml.sax.saxutils import escape
 
 from django import forms
@@ -21,11 +20,10 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
-from models import GRADING_POLICY_NAME_TO_CLS
 from module import utils
 from module.forms import ActivityForm, GradingPolicyForm, GroupForm
 from module.mixins.views import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
-from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_CHOICES, Log, Sequence, SequenceItem
+from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)

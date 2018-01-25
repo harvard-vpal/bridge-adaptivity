@@ -40,8 +40,8 @@ def _get_engine_driver(engine):
     return driver
 
 
-def _get_grading_policy_cls(module_path, mod_name, class_startswith=None, class_endswith=None):
-    """Search for class in """
+def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=None, class_endswith=None):
+    """Load class from module."""
     module = None
     gp_module = importlib.import_module('{}{}'.format(module_path, mod_name))
     for attr in inspect.getmembers(gp_module):
@@ -56,7 +56,7 @@ ENGINES = _discover_applicable_modules(folder_name='engines', file_startswith='e
 
 GRADING_POLICY_MODULES = _discover_applicable_modules(folder_name='policies', file_startswith='policy_')
 GRADING_POLICY_NAME_TO_CLS = {
-    name: _get_grading_policy_cls("module.policies.policy_", name, class_endswith="GradingPolicy")
+    name: _load_cls_from_applicable_module("module.policies.policy_", name, class_endswith="GradingPolicy")
     for _, name in GRADING_POLICY_MODULES
 }
 GRADING_POLICY_CHOICES = ((k, v.public_name) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
@@ -214,7 +214,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
     @property
     def engine_driver(self):
         if not self.DRIVER:
-            driver = _get_engine_driver(self.engine)
+            driver = _load_cls_from_applicable_module('module.engines.', self.engine, class_startswith='Engine')
             # NOTE(idegtiarov) Currently, statement coves existent engines modules. Improve in case new engine will be
             # added to the engines package.
             if self.engine.endswith('mock'):
