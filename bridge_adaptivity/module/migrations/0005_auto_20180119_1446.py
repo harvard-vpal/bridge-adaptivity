@@ -10,7 +10,7 @@ import module.mixins.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('module', '0004_auto_20180109_1325'),
+        ('module', '0005_auto_20180111_1838'),
     ]
 
     operations = [

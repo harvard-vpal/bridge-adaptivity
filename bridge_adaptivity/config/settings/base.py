@@ -128,6 +128,12 @@ CACHES = {
     },
 }
 
+GRADING_POLICIES = (
+    # value, display_name
+    ('trials_count', 'Trials count', ),
+    ('points_earned', 'Points earned',),
+)
+
 # Celery settings
 
 # Timespan for running sync task in seconds
