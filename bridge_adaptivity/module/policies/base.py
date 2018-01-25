@@ -1,4 +1,5 @@
 from django.db.models.aggregates import Count, Sum
+from abc import ABCMeta, abstractmethod
 
 
 class BaseGradingPolicy(object):
@@ -19,14 +20,16 @@ class BaseGradingPolicy(object):
     NotImplementedError: Method is not implemented.
     """
 
+    __metaclass__ = ABCMeta
+
     public_name = 'Grading Policy'
-    internal_name = 'policy_name'
 
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence
         self.policy = policy
         self.context = kwargs
 
+    @abstractmethod
     def _calculate(self):
         raise NotImplementedError('Method is not implemented.')
 

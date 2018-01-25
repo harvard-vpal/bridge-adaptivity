@@ -12,7 +12,7 @@
 {% endblock title %}
 
 {% block content %}
-<div class="col-md-8">
+<div class="col-md-9">
   {% if group.collections.all %}
     <table class="table table-hover">
       <tr>
@@ -55,11 +55,11 @@
     </div>
   {% endif %}
 </div>
-<div class="col-md-4">
+<div class="col-md-3">
   <div class="row">
     <h3 class="text-center">Group Info</h3>
     <div class="alert alert-warning text-center" role="alert">
-      Engine - {{ group.engine.engine_name|default:'Not selected' }}
+      Engine - {{ group.engine.engine_name }}
     </div>
     <div class="alert alert-warning text-center" role="alert">
       Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
