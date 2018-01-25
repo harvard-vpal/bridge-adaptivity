@@ -1,3 +1,4 @@
+from ddt import ddt, data, unpack
 from django.test import TestCase
 
 from module import models
@@ -57,23 +58,28 @@ class TestEngineModel(TestCase):
         self.assertEqual(vpal_driver.host, host)
         self.assertEqual(vpal_driver.headers, {'Authorization': 'Token {}'.format(token)})
 
-
+@ddt
 class TestDiscoverGradingPolicies(TestCase):
     def test_discover_grading_policies(self):
         """Test _discover_applicable_modules function."""
         found_policies = models._discover_applicable_modules(folder_name='policies', file_startswith='policy_')
-        self.assertEquals(len(found_policies), 2)
+        self.assertEquals(len(found_policies), 3)
         self.assertCountEqual(
-            [('policy_points_earned.py', 'points_earned'), ('policy_trials_count.py', 'trials_count')],
+            [('policy_points_earned.py', 'points_earned'), ('policy_trials_count.py', 'trials_count'),
+             ('policy_full_credit.py', 'full_credit')],
             found_policies
         )
 
-    def test_get_policy_module(self):
+    @unpack
+    @data(
+        ("module.policies.policy_", "points_earned", "GradingPolicy", "PointsEarnedGradingPolicy"),
+        ("module.policies.policy_", "trials_count", "GradingPolicy", "TrialsCountGradingPolicy"),
+        ("module.policies.policy_", "full_credit", "GradingPolicy", "FullCreditOnCompleteGradingPolicy"),
+    )
+    def test_get_policy_module(self, mod, mod_name, cls_end, exp_cls_name):
         """Test _get_grading_policy_module function."""
-        points_earned_cls = models._get_grading_policy_cls('points_earned')
-        self.assertEquals(points_earned_cls.__name__, 'PointsEarnedGradingPolicy')
-        trials_count_cls = models._get_grading_policy_cls('trials_count')
-        self.assertEquals(trials_count_cls.__name__, 'TrialsCountGradingPolicy')
+        grade_policy = models._get_grading_policy_cls(mod, mod_name, class_endswith=cls_end)
+        self.assertEquals(grade_policy.__name__, exp_cls_name)
 
 
 class TestGradingPolicyModel(TestCase):

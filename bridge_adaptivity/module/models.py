@@ -40,11 +40,14 @@ def _get_engine_driver(engine):
     return driver
 
 
-def _get_grading_policy_cls(mod_name):
+def _get_grading_policy_cls(module_path, mod_name, class_startswith=None, class_endswith=None):
+    """Search for class in """
     module = None
-    gp_module = importlib.import_module('module.policies.policy_{}'.format(mod_name))
+    gp_module = importlib.import_module('{}{}'.format(module_path, mod_name))
     for attr in inspect.getmembers(gp_module):
-        if attr[0].endswith('GradingPolicy'):
+        if class_endswith and attr[0].endswith(class_endswith):
+            module = attr[1]
+        elif class_startswith and attr[0].startswith(class_startswith):
             module = attr[1]
     return module
 
@@ -52,7 +55,10 @@ def _get_grading_policy_cls(mod_name):
 ENGINES = _discover_applicable_modules(folder_name='engines', file_startswith='engine_')
 
 GRADING_POLICY_MODULES = _discover_applicable_modules(folder_name='policies', file_startswith='policy_')
-GRADING_POLICY_NAME_TO_CLS = {name: _get_grading_policy_cls(name) for _, name in GRADING_POLICY_MODULES}
+GRADING_POLICY_NAME_TO_CLS = {
+    name: _get_grading_policy_cls("module.policies.policy_", name, class_endswith="GradingPolicy")
+    for _, name in GRADING_POLICY_MODULES
+}
 GRADING_POLICY_CHOICES = ((k, v.public_name) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
 
@@ -198,12 +204,12 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
         return "Engine: {}".format(self.engine_name)
 
     @classmethod
-    def get_or_create_default(cls):
-        return cls.objects.get_or_create(
+    def create_default(cls):
+        return cls.objects.create(
             engine=cls.DEFAULT_ENGINE,
             engine_name='Mock',
             is_default=True
-        )[0]
+        )
 
     @property
     def engine_driver(self):

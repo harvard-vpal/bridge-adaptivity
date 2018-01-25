@@ -21,14 +21,14 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
+from models import GRADING_POLICY_NAME_TO_CLS
 from module import utils
 from module.forms import ActivityForm, GradingPolicyForm, GroupForm
 from module.mixins.views import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
-from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
+from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_CHOICES, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)
-VALID_GRADING_POLICIES = [itemgetter(0)(i) for i in settings.GRADING_POLICIES]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -45,18 +45,19 @@ class GetGradingPolicyForm(FormView):
     form_class = GradingPolicyForm
     template_name = 'module/gradingpolicy_form.html'
     prefix = 'grading'
-    # grading_policy_name: FormClass
-    grading_policy_forms_map = {}
 
     def get_form_class(self):
-        return self.grading_policy_forms_map.get(self.request.GET.get('grading_policy'), self.form_class)
+        policy_cls = GRADING_POLICY_NAME_TO_CLS.get(self.request.GET.get('grading_policy'), None)
+        if policy_cls is None:
+            raise Http404("No such grading policy")
+        return policy_cls.get_form_class()
 
     def get_form(self, form_class=None):
         form = super(GetGradingPolicyForm, self).get_form()
         if self.kwargs.get('group_slug'):
             get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
         gp = self.request.GET.get('grading_policy')
-        if gp and gp in VALID_GRADING_POLICIES:
+        if gp and gp in GRADING_POLICY_NAME_TO_CLS.keys():
             form.fields['name'].initial = self.request.GET.get('grading_policy')
             return form
         else:

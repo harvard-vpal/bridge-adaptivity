@@ -25,6 +25,11 @@ class BaseGradingPolicy(object):
 
     public_name = 'Grading Policy'
 
+    @classmethod
+    def get_form_class(cls):
+        from module.forms import GradingPolicyForm
+        return GradingPolicyForm
+
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence
         self.policy = policy

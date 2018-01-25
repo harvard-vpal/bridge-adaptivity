@@ -3,14 +3,14 @@ class ModelFieldIsDefaultMixin(object):
     IS_DEFAULT_FIELD = 'is_default'
 
     @classmethod
-    def get_or_create_default(cls):
+    def create_default(cls):
         raise NotImplementedError('Not implemented!')
 
     @classmethod
     def get_default(cls):
         return (
             cls.objects.filter(**{cls.IS_DEFAULT_FIELD: True}).first() or
-            cls.get_or_create_default()
+            cls.create_default()
         )
 
     def save(self, *args, **kwargs):
