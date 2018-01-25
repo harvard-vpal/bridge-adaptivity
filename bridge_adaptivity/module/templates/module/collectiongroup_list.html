@@ -11,6 +11,7 @@
       <tr>
         <th>ID</th>
         <th>name</th>
+        <th>description</th>
         <th>collections in group</th>
         <th>options</th>
       </tr>
@@ -18,6 +19,13 @@
         <tr>
           <td>{{ group.id }}</td>
           <td><a href="{{ group.get_absolute_url }}">{{ group.name }}</a></td>
+          <td>
+            {% if group.description %}
+            {{ group.description|truncatewords:20 }}
+            {% else %}
+            No description
+            {% endif %}
+          </td>
           <td>{{ group.collections.count }}</td>
           <td>
             <div>

@@ -125,7 +125,9 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
 
     if collection not in collection_group.collections.all():
-        raise Http404('Not correctly configured launch URL.')
+        raise Http404('Not correctly configured launch URL. Collection with ID `{}` not in group with slug `{}`'.format(
+            collection_id, group_slug
+        ))
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],

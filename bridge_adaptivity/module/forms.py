@@ -25,7 +25,7 @@ class GroupForm(ModelForm):
 
     class Meta:
         model = CollectionGroup
-        fields = 'name', 'owner', 'collections', 'engine', 'grading_policy_name'
+        fields = 'name', 'description', 'owner', 'collections', 'engine', 'grading_policy_name'
 
 
 class GradingPolicyForm(ModelForm):
