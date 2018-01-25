@@ -1,4 +1,5 @@
 from django.test import TestCase
+from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.models import Activity, Collection, Engine, GradingPolicy, Sequence
@@ -8,7 +9,8 @@ from module.utils import choose_activity
 class TestUtilities(TestCase):
     fixtures = ['gradingpolicy', 'engine']
 
-    def setUp(self):
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
         self.user = BridgeUser.objects.create_user(
             username='test_user',
             password='test_pass',
