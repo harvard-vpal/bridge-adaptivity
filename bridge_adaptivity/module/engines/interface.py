@@ -10,7 +10,7 @@ class EngineInterface(object):
         Select activity from the collection by the adaptive engine.
 
         :param sequence: Sequence instance
-        :return: selected activity_id
+        :return: selected activity source_launch_url
         """
         raise NotImplementedError("Adaptive Engine driver must implement this method.")
 
