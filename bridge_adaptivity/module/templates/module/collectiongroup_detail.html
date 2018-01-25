@@ -48,7 +48,7 @@
   {% endif %}
 
   <hr>
-  <a href="{% url 'module:group-change' pk=group.pk %}">
+  <a href="{% url 'module:group-change' group_slug=group.slug %}">
     {% bootstrap_button 'Edit group' size='lg' icon='edit' %}
   </a>
 
