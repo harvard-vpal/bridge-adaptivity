@@ -11,5 +11,4 @@ def sync_collection_engines(collection_id=None, created_at=None):
         return
     for coll_group in collection.collection_groups.all().prefetch_related('engine'):
         # NOTE(idegtiarov) Refactor send one sync request instead of bunch of requests
-        for activity in collection.activities.all():
-            coll_group.engine.engine_driver.update_activity(activity)
+        coll_group.engine.engine_driver.sync_collection_activities(collection)

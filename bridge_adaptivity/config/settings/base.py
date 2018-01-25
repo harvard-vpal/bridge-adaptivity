@@ -128,6 +128,17 @@ CACHES = {
     },
 }
 
+# Celery settings
+
+# Timespan for running sync task in seconds
+CELERY_DELAY_SYNC_TASK = 5 * 60  # default value is equal to 5 minutes
+
+#: Only add pickle to this list if your broker is secured
+#: from unwanted access (see userguide/security.html)
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 GRADING_POLICIES = (
     # value, display_name
     ('trials_count', 'Trials count', ),
