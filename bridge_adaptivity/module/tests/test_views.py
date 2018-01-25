@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.test import TestCase
 from django.urls.base import reverse
+from mock import patch
 
 from module.mixins.views import GroupEditFormMixin
 from module.models import BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy
@@ -15,7 +16,8 @@ class BridgeTestCase(TestCase):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
         return {"{}-{}".format(prefix, k): v for k, v in data.items()}
 
-    def setUp(self):
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
         self.user = BridgeUser.objects.create_user(
             username='test',
             password='test',
