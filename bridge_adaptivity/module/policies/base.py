@@ -1,5 +1,6 @@
-from django.db.models.aggregates import Count, Sum
 from abc import ABCMeta, abstractmethod
+
+from django.db.models.aggregates import Count, Sum
 
 
 class BaseGradingPolicy(object):

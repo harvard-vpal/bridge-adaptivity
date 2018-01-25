@@ -3,7 +3,7 @@ from django.test import TestCase
 import mock
 import pytest
 
-from module.models import GradingPolicy, GRADING_POLICY_NAME_TO_CLS
+from module.models import GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
 
@@ -20,7 +20,7 @@ GRADING_POLICY_TEST_DATA = (
     {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 2, 'trials_count': 5, 'points_earned': 0.7,
      'er': 0.14},
     {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 40, 'trials_count': 3, 'points_earned': 0.75,
-     'er': 0.1875},
+     'er': 0.02},
 
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0, 'er': 1},
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0, 'er': 1},
@@ -30,6 +30,12 @@ GRADING_POLICY_TEST_DATA = (
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0, 'er': 0},
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 3., 'points_earned': 0, 'er': 1.},
+
+
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 4, 'trials_count': 4., 'points_earned': 0, 'er': 1.},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 5, 'trials_count': 4., 'points_earned': 0, 'er': 0.8},
+    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 20, 'trials_count': 10., 'points_earned': 0, 'er': 0.5},
+
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0, 'er': 0.75}
 )
 
