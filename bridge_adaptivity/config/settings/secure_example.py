@@ -22,3 +22,7 @@ DATABASES = {
         'PORT': 5432,
     }
 }
+
+# Celery settings
+AMQP_USER = 'bridge_celery_user'
+AMQP_PASS = 'bridge_celety_password'

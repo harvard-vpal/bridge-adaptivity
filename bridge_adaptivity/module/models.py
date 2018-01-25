@@ -4,8 +4,8 @@ import logging
 import os
 
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
@@ -17,6 +17,7 @@ from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common import utils
+from module import tasks
 from module.mixins.models import ModelFieldIsDefaultMixin
 
 log = logging.getLogger(__name__)
@@ -138,6 +139,7 @@ class Collection(models.Model):
     owner = models.ForeignKey(BridgeUser)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
+    updated_at = fields.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('owner', 'name')
@@ -149,6 +151,10 @@ class Collection(models.Model):
         """Extension cover method with logging."""
         initial_id = self.id
         super(Collection, self).save(*args, **kwargs)
+        tasks.sync_collection_engines.apply_async(
+            kwargs={'collection_id': self.id, 'created_at': self.updated_at},
+            countdown=settings.CELERY_DELAY_SYNC_TASK,
+        )
 
         if initial_id:
             Log.objects.create(
@@ -285,35 +291,26 @@ class Activity(OrderedModel):
         """Extension which sends notification to the Adaptive engine that Activity is created/updated."""
         initial_id = self.id
         if initial_id:
-            for engine in self.collection.collection_groups.all():
-                if not engine.update_activity(self):
-                    raise ValidationError
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_UPDATED,
                 data=self.get_research_data()
             )
-        super(Activity, self).save(*args, **kwargs)
-        if not initial_id:
-            for engine in self.collection.collection_groups.all():
-                if not engine.add_activity(self):
-                    super(Activity, self).delete(*args, **kwargs)
-                    raise ValidationError
+        else:
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
                 data=self.get_research_data()
             )
+        super(Activity, self).save(*args, **kwargs)
+        self.collection.save()
 
     def delete(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is deleted."""
-        for engine in self.collection.collection_groups.all():
-            if not engine.delete_activity(self):
-                # Note(idegtiarov) Add handler for the case of partial engines synchronization
-                raise ValidationError
-            Log.objects.create(
-                log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
-                data=self.get_research_data()
-            )
+        Log.objects.create(
+            log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
+            data=self.get_research_data()
+        )
         super(Activity, self).delete(*args, **kwargs)
+        self.collection.save()
 
     @property
     def last_pre(self):

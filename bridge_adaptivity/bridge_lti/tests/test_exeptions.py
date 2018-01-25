@@ -34,7 +34,7 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
                 lti_consumer=None,
                 tool_provider=None,
                 collection_id=1000,
-                group_slug=self.test_cg.slug
+                group_slug=self.test_cg.slug,
             )
 
     @override_settings(DEBUG=False)
@@ -47,7 +47,7 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
                 lti_consumer=None,
                 tool_provider=None,
                 collection_id=self.not_correct_kw['collection_id'],
-                group_slug=self.not_correct_kw['group_slug']
+                group_slug=self.not_correct_kw['group_slug'],
             )
 
     @mock.patch('lti.contrib.django.DjangoToolProvider.from_django_request')

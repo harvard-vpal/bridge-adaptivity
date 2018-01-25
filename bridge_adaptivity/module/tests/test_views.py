@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.test import TestCase
 from django.urls.base import reverse
+from mock import patch
 
 from module.mixins.views import GroupEditFormMixin
 from module.models import BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy
@@ -15,7 +16,8 @@ class BridgeTestCase(TestCase):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
         return {"{}-{}".format(prefix, k): v for k, v in data.items()}
 
-    def setUp(self):
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
         self.user = BridgeUser.objects.create_user(
             username='test',
             password='test',
@@ -40,13 +42,16 @@ class BridgeTestCase(TestCase):
         self.test_cg.collections.add(self.collection1)
         self.test_cg.collections.add(self.collection3)
 
-        self.group_post_data = self.add_prefix(self.group_prefix, {
+        self.group_update_data = {
             'name': "CG2",
             'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
             'engine': self.engine.id,
             'owner': self.user.id,
-            'grading_policy_name': 'trials_count'
-        })
+            'grading_policy_name': 'trials_count',
+            'description': 'Some description for a group'
+        }
+
+        self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
 
 
 class TestCollectionList(BridgeTestCase):
@@ -76,6 +81,7 @@ class TestCollectionGroupTest(BridgeTestCase):
             "collections": [self.collection1.id, self.collection2.id],
             'engine': self.engine.id,
             'owner': self.user.id,
+            'description': 'Some description for a group',
             'grading_policy_name': self.trials_count.name
         }))
         self.assertEqual(groups_count + 1, CollectionGroup.objects.count())
@@ -110,7 +116,11 @@ class TestCollectionGroupTest(BridgeTestCase):
         self.assertRedirects(response, reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}))
         self.assertEqual(groups_count, CollectionGroup.objects.count())
         test_g = CollectionGroup.objects.get(id=self.test_cg.id)
+        self.assertEqual(test_g.name, self.group_update_data['name'])
+        self.assertEqual(test_g.description, self.group_update_data['description'])
+        self.assertEqual(test_g.engine.id, self.group_update_data['engine'])
         self.assertNotEqual(test_g.name, self.test_cg.name)
+        self.assertNotEqual(test_g.description, self.test_cg.description)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
 
 

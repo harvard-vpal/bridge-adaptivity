@@ -24,5 +24,24 @@ services:
     stdin_open: true
     tty: true
 
+   # Celery worker
+  worker:
+    image: bridgeadaptivity_bridge
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.local
+    command: bash -c "sleep 5 && celery -A config worker -l info"
+    volumes:
+      - .:/bridge_adaptivity
+    links:
+      - rabbit
+      - postgres
+    depends_on:
+      - bridge
+
+  rabbit:
+    container_name: rabbitmq
+    image: rabbitmq
+    env_file: ./envs/rabbit.env
+
 volumes:
   pgs:

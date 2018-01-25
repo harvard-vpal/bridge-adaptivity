@@ -52,6 +52,13 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
 
+# Celery settings
+AMQP_PASS = secure.AMQP_PASS
+AMQP_USER = secure.AMQP_USER
+
+CELERY_BROKER_URL = 'amqp://{}:{}@rabbit//'.format(AMQP_USER, AMQP_PASS)
+
+# Logging settings
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
