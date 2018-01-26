@@ -116,7 +116,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
 
     name = models.CharField(max_length=20)  # Field name is not editable in admin UI.
     public_name = models.CharField(max_length=255)
-    threshold = models.PositiveIntegerField(blank=True, default=1, help_text="Grade policy: 'Q'")
+    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     is_default = models.BooleanField(default=False)
 
     @property

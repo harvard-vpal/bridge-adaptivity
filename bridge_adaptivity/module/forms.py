@@ -20,7 +20,6 @@ class GroupForm(ModelForm):
     grading_policy_name = forms.ChoiceField(
         choices=GRADING_POLICY_CHOICES,
         required=True,
-        initial=lambda: GradingPolicy.objects.get(is_default=True).name
     )
 
     class Meta:

@@ -24,7 +24,7 @@
     "pk": 3,
     "fields": {
         "name": "full_credit",
-        "public_name": "Full credit on complete.",
+        "public_name": "Grade on sequence completion",
         "threshold": 1,
         "is_default": false
     }

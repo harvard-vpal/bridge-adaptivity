@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 
 from module.forms import GradingPolicyForm, GroupForm
-from module.models import Collection, CollectionGroup, Engine, GradingPolicy
+from module.models import Collection, CollectionGroup, Engine
 
 
 log = logging.getLogger(__name__)
@@ -57,9 +57,6 @@ class GroupEditFormMixin(object):
         )
         if self.object and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy
-        else:
-            default_grading_policy = GradingPolicy.objects.get(is_default=True)
-            form_kw['initial'] = {'name': default_grading_policy.name}
         return form_kw
 
     def form_valid(self, form):

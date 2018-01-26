@@ -27,7 +27,7 @@ GRADING_POLICY_TEST_DATA = (
     {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 2, 'trials_count': 5, 'points_earned': 0.7,
      'sequence': Sequence(), 'er': 0.14},
     {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 40, 'trials_count': 3, 'points_earned': 0.75,
-     'sequence': Sequence(), 'er': 0.02},
+     'sequence': Sequence(), 'er': 0.0187},
 
     {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0,
      'sequence': Sequence(), 'er': 1},
@@ -74,7 +74,7 @@ class TestGradingPolicyObject(TestCase):
     @data(
         {'test_cls': PointsEarnedGradingPolicy, 'public_name': 'Points earned'},
         {'test_cls': TrialsCountGradingPolicy, 'public_name': 'Trials count'},
-        {'test_cls': FullCreditOnCompleteGradingPolicy, 'public_name': 'Full credit on complete'},
+        {'test_cls': FullCreditOnCompleteGradingPolicy, 'public_name': 'Grade on sequence completion'},
     )
     def test_grading_policy_has_name(self, test_cls, public_name):
         """Test that GradingPolicy sub-classes has name and public name."""
