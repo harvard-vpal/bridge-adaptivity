@@ -52,7 +52,7 @@ def lti_launch(request, collection_id=None, group_slug=''):
     roles = request_post.get('roles')
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
-        return instructor_flow(collection_id=collection_id)
+        return instructor_flow(request, collection_id=collection_id)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
@@ -61,9 +61,9 @@ def lti_launch(request, collection_id=None, group_slug=''):
         )
 
 
-def instructor_flow(collection_id=None):
+def instructor_flow(request, collection_id=None):
     """Define logic flow for Instructor."""
-    if not collection_id:
+    if not collection_id or not Collection.objects.filter(owner=request.user, id=collection_id):
         return redirect(reverse('module:collection-list'))
 
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
@@ -159,11 +159,9 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         if not start_activity:
             log.warn('Instructor configured empty Collection.')
             return anononcement_page
-        sequence_item, error = create_sequence_item(
+        sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer
         )
-        if error:
-            return error
     else:
         sequence_item = find_last_sequence_item(sequence, strict_forward)
     sequence_item_id = sequence_item.id if sequence_item else None
