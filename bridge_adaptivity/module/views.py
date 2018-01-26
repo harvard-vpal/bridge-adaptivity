@@ -55,7 +55,7 @@ class GetGradingPolicyForm(FormView):
         if self.kwargs.get('group_slug'):
             get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
         gp = self.request.GET.get('grading_policy')
-        if gp and gp in GRADING_POLICY_NAME_TO_CLS.keys():
+        if gp in GRADING_POLICY_NAME_TO_CLS.keys():
             form.fields['name'].initial = self.request.GET.get('grading_policy')
             return form
         else:

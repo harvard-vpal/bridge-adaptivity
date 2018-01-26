@@ -4,7 +4,7 @@
 {% block title %}
 <span class="label label-default">{{ group.slug }}</span> Group: {{ group.name }}
   <h3>
-    <small>threshold: {{ group.grading_policy.threshold|default:"not set" }}</small>
+    <small>threshold: {{ group.grading_policy.threshold }}</small>
     <a class="pull-right" href="{% url 'module:group-change' group.slug %}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
