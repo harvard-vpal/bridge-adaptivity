@@ -30,6 +30,7 @@ def _discover_applicable_modules(folder_name='engines', file_startswith='engine_
             modules.append((name[:-len('.py')], name[len(file_startswith):-len('.py')]))
     return modules
 
+
 def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=None, class_endswith=None):
     """Load class from module."""
     module = None
