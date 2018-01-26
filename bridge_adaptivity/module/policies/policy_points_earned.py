@@ -8,4 +8,4 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
 
     def _calculate(self):
         trials_count, points_earned = self._get_points_earned_trials_count()
-        return self.internal_calculate(points_earned)
+        return self._internal_calculate(points_earned)
