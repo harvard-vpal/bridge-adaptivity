@@ -15,14 +15,14 @@ class TestEngineUtilityFunction(TestCase):
         """Test _discover_engines function."""
         found_engines = models._discover_applicable_modules(folder_name='engines', file_startswith='engine_')
         self.assertEquals(len(found_engines), 2)
-        self.assertCountEqual([('engine_mock.py', 'mock'), ('engine_vpal.py', 'vpal')], found_engines)
+        self.assertCountEqual([('engine_mock', 'mock'), ('engine_vpal', 'vpal')], found_engines)
 
     def test__get_engine_driver(self):
         """Test _get_engine_driver function."""
-        driver = models._load_cls_from_applicable_module('module.engines.', 'engine_mock', class_startswith='Engine')
+        driver = models._load_cls_from_applicable_module('module.engines', 'engine_mock', class_startswith='Engine')
         self.assertEquals(driver.__name__, 'EngineMock')
 
-        vpal_driver = models._load_cls_from_applicable_module('module.engines.', 'engine_vpal',
+        vpal_driver = models._load_cls_from_applicable_module('module.engines', 'engine_vpal',
                                                               class_startswith='Engine')
         self.assertEquals(vpal_driver.__name__, 'EngineVPAL')
 
@@ -68,16 +68,16 @@ class TestDiscoverGradingPolicies(TestCase):
         found_policies = models._discover_applicable_modules(folder_name='policies', file_startswith='policy_')
         self.assertEquals(len(found_policies), 3)
         self.assertCountEqual(
-            [('policy_points_earned.py', 'points_earned'), ('policy_trials_count.py', 'trials_count'),
-             ('policy_full_credit.py', 'full_credit')],
+            [('policy_points_earned', 'points_earned'), ('policy_trials_count', 'trials_count'),
+             ('policy_full_credit', 'full_credit')],
             found_policies
         )
 
     @unpack
     @data(
-        ("module.policies.policy_", "points_earned", "GradingPolicy", "PointsEarnedGradingPolicy"),
-        ("module.policies.policy_", "trials_count", "GradingPolicy", "TrialsCountGradingPolicy"),
-        ("module.policies.policy_", "full_credit", "GradingPolicy", "FullCreditOnCompleteGradingPolicy"),
+        ("module.policies", "policy_points_earned", "GradingPolicy", "PointsEarnedGradingPolicy"),
+        ("module.policies", "policy_trials_count", "GradingPolicy", "TrialsCountGradingPolicy"),
+        ("module.policies", "policy_full_credit", "GradingPolicy", "FullCreditOnCompleteGradingPolicy"),
     )
     def test_get_policy_module(self, mod, mod_name, cls_end, exp_cls_name):
         """Test _get_grading_policy_module function."""

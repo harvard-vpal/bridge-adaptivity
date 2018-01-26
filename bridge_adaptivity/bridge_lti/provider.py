@@ -140,7 +140,6 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         lti_user=lti_user,
         collection=collection,
         engine=engine,
-        collection_group=collection_group,
         grading_policy=collection_group.grading_policy,
     )
 

@@ -27,23 +27,13 @@ def _discover_applicable_modules(folder_name='engines', file_startswith='engine_
         os.path.dirname(os.path.abspath(__file__)), folder_name
     )):
         if name.startswith(file_startswith) and name.endswith('.py'):
-            modules.append((name, name[len(file_startswith):-len('.py')]))
+            modules.append((name[:-len('.py')], name[len(file_startswith):-len('.py')]))
     return modules
-
-
-def _get_engine_driver(engine):
-    driver = None
-    engine_module = importlib.import_module('module.engines.{}'.format(engine))
-    for attr in inspect.getmembers(engine_module):
-        if attr[0].startswith('Engine'):
-            driver = attr[1]
-    return driver
-
 
 def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=None, class_endswith=None):
     """Load class from module."""
     module = None
-    gp_module = importlib.import_module('{}{}'.format(module_path, mod_name))
+    gp_module = importlib.import_module('{}.{}'.format(module_path, mod_name))
     for attr in inspect.getmembers(gp_module):
         if class_endswith and attr[0].endswith(class_endswith):
             module = attr[1]
@@ -56,8 +46,8 @@ ENGINES = _discover_applicable_modules(folder_name='engines', file_startswith='e
 
 GRADING_POLICY_MODULES = _discover_applicable_modules(folder_name='policies', file_startswith='policy_')
 GRADING_POLICY_NAME_TO_CLS = {
-    name: _load_cls_from_applicable_module("module.policies.policy_", name, class_endswith="GradingPolicy")
-    for _, name in GRADING_POLICY_MODULES
+    name: _load_cls_from_applicable_module("module.policies", file_name, class_endswith="GradingPolicy")
+    for file_name, name in GRADING_POLICY_MODULES
 }
 GRADING_POLICY_CHOICES = ((k, v.public_name) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
@@ -117,9 +107,13 @@ class SequenceItem(models.Model):
 
 @python_2_unicode_compatible
 class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
-    """Predefined set of Grading policy objects. Define how to grade collections."""
+    """
+    Predefined set of Grading policy objects. Define how to grade collections.
 
-    name = models.CharField(max_length=20)
+    Field `name` if fulfilled from the correspondent choices in the form GradingPolicyForm.
+    """
+
+    name = models.CharField(max_length=20)  # Field name is not editable in admin UI.
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=1, help_text="Grade policy: 'Q'")
     is_default = models.BooleanField(default=False)
@@ -214,7 +208,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
     @property
     def engine_driver(self):
         if not self.DRIVER:
-            driver = _load_cls_from_applicable_module('module.engines.', self.engine, class_startswith='Engine')
+            driver = _load_cls_from_applicable_module('module.engines', self.engine, class_startswith='Engine')
             # NOTE(idegtiarov) Currently, statement coves existent engines modules. Improve in case new engine will be
             # added to the engines package.
             if self.engine.endswith('mock'):
