@@ -23,6 +23,25 @@ services:
     links:
       - postgres
 
+  # Celery worker
+  worker:
+    image: bridgeadaptivity_bridge
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    command: bash -c "sleep 5 && celery -A config worker -l info"
+    volumes:
+      - .:/bridge_adaptivity
+    links:
+      - rabbit
+      - postgres
+    depends_on:
+      - bridge
+
+  rabbit:
+    container_name: rabbitmq
+    image: rabbitmq
+    env_file: ./envs/rabbit.env
+
   nginx:
     container_name: nginx_BFA
     build: ./nginx

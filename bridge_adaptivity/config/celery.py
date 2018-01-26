@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 from celery import Celery
 
-celery_app = Celery('bridge_adaptivity')
+celery_app = Celery('bridge')
 
 # Using a string here means the worker don't have to serialize
 # the configuration object to child processes.
