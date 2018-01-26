@@ -15,8 +15,8 @@ from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
+from common.mixins.models import ModelFieldIsDefaultMixin
 from module import tasks
-from module.mixins.models import ModelFieldIsDefaultMixin
 
 log = logging.getLogger(__name__)
 

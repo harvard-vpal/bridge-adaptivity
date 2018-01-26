@@ -4,7 +4,7 @@ class ModelFieldIsDefaultMixin(object):
 
     @classmethod
     def create_default(cls):
-        raise NotImplementedError('Not implemented!')
+        pass
 
     @classmethod
     def get_default(cls):

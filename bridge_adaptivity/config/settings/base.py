@@ -138,9 +138,3 @@ CELERY_DELAY_SYNC_TASK = 5 * 60  # default value is equal to 5 minutes
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-
-GRADING_POLICIES = (
-    # value, display_name
-    ('trials_count', 'Trials count', ),
-    ('points_earned', 'Points earned',),
-)

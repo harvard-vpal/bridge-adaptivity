@@ -35,10 +35,6 @@ class BaseGradingPolicy(object):
         self.policy = policy
         self.context = kwargs
 
-    def _internal_calculate(self, numerator):
-        trials_count, _ = self._get_points_earned_trials_count()
-        return round(float(numerator) / max(self.policy.threshold, trials_count), 2)
-
     @abstractmethod
     def _calculate(self):
         raise NotImplementedError('Method is not implemented.')

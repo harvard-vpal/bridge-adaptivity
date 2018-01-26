@@ -1,10 +1,16 @@
-from django.conf import settings
 from django.test import TestCase
 from django.urls.base import reverse
 from mock import patch
 
-from module.mixins.views import GroupEditFormMixin
+from module.mixins import GroupEditFormMixin
 from module.models import BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy
+
+
+GRADING_POLICIES = (
+    # value, display_name
+    ('trials_count', 'Trials count', ),
+    ('points_earned', 'Points earned',),
+)
 
 
 class BridgeTestCase(TestCase):
@@ -127,7 +133,7 @@ class TestCollectionGroupTest(BridgeTestCase):
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
     def test_get_grading_policy_form_no_group(self):
         """Test that form is present in response context for both grading policies."""
-        policies = settings.GRADING_POLICIES
+        policies = GRADING_POLICIES
         for policy, _ in policies:
             url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format(policy)
             response = self.client.get(url)
@@ -169,7 +175,7 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         * policy count not changed,
         * grading_policy_form is in context with default policy by default.
         """
-        policies = settings.GRADING_POLICIES
+        policies = GRADING_POLICIES
         for policy, _ in policies:
             self.group_post_data.update({'grading_policy_name': policy})
 

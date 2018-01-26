@@ -4,7 +4,7 @@ from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from common import utils
+from common.mixins.models import ModelFieldIsDefaultMixin
 from .utils import short_token
 
 
@@ -32,13 +32,14 @@ class LtiProvider(models.Model):
 
 
 @python_2_unicode_compatible
-class LtiConsumer(models.Model):
+class LtiConsumer(ModelFieldIsDefaultMixin, models.Model):
     """
     Model to manage LTI source providers.
 
     Content source connections.
     """
 
+    IS_DEFAULT_FIELD = 'is_active'
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
@@ -52,10 +53,6 @@ class LtiConsumer(models.Model):
 
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
-
-    def save(self, *args, **kwargs):
-        utils.save_model_parameter_true_once(self, 'is_active')
-        super(LtiConsumer, self).save(*args, **kwargs)
 
 
 @python_2_unicode_compatible

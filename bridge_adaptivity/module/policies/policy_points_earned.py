@@ -8,4 +8,4 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
 
     def _calculate(self):
         trials_count, points_earned = self._get_points_earned_trials_count()
-        return self._internal_calculate(points_earned)
+        return round(float(points_earned) / max(self.policy.threshold, trials_count), 2)
