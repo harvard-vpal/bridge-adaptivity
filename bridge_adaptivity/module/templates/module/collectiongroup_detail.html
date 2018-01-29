@@ -4,7 +4,6 @@
 {% block title %}
 <span class="label label-default">{{ group.slug }}</span> Group: {{ group.name }}
   <h3>
-    <small>threshold: {{ group.grading_policy.threshold }}</small>
     <a class="pull-right" href="{% url 'module:group-change' group.slug %}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
@@ -64,8 +63,11 @@
     <div class="alert alert-warning text-center" role="alert">
       Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
     </div>
+    <div class="alert alert-warning text-center" role="alert">
+      Threshold: {{ group.grading_policy.threshold|default:"0" }}
+    </div>
     {% if group.description %}
-    <div>
+    <div class="alert alert-info text-center">
       <h4 class="text-center">Description</h4>
       <p class="text-left">
         {{ group.description }}

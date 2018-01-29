@@ -99,6 +99,22 @@ class GroupUpdate(GroupEditFormMixin, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
+class GroupDelete(GroupEditFormMixin, DeleteView):
+    model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
+
+    def get_success_url(self):
+        return reverse('module:group-list')
+
+    def get_queryset(self):
+        return super(GroupDelete, self).get_queryset().filter(owner=self.request.user.id)
+
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
 class CollectionList(CollectionMixin, ListView):
     model = Collection
     context_object_name = 'collections'
