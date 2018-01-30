@@ -1,16 +1,21 @@
-from django.conf import settings
 from django.test import TestCase
 from django.urls.base import reverse
 from mock import patch
 
-from module.mixins.views import GroupEditFormMixin
+from module.mixins import GroupEditFormMixin
 from module.models import BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy
+
+
+GRADING_POLICIES = (
+    # value, display_name
+    ('trials_count', 'Trials count', ),
+    ('points_earned', 'Points earned',),
+)
 
 
 class BridgeTestCase(TestCase):
     fixtures = ['gradingpolicy', 'engine']
     group_prefix = GroupEditFormMixin.prefix
-    grading_prefix = GroupEditFormMixin.grading_prefix
 
     def add_prefix(self, prefix='', data={}):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
@@ -127,7 +132,7 @@ class TestCollectionGroupTest(BridgeTestCase):
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
     def test_get_grading_policy_form_no_group(self):
         """Test that form is present in response context for both grading policies."""
-        policies = settings.GRADING_POLICIES
+        policies = GRADING_POLICIES
         for policy, _ in policies:
             url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format(policy)
             response = self.client.get(url)
@@ -169,17 +174,12 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         * policy count not changed,
         * grading_policy_form is in context with default policy by default.
         """
-        policies = settings.GRADING_POLICIES
+        policies = GRADING_POLICIES
         for policy, _ in policies:
             self.group_post_data.update({'grading_policy_name': policy})
 
-            policy_data = self.add_prefix(self.grading_prefix, {
-                'threshold': 1,
-                'name': policy
-            })
             data = {}
             data.update(self.group_post_data)
-            data.update(policy_data)
 
             self.check_group_change_page()
             self.check_update_group(data)
@@ -188,13 +188,8 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         """Test update grading policy with not correct grading policy name (negative flow)."""
         self.group_post_data.update({'group-grading_policy_name': 'BLA_BLA'})
 
-        policy_data = self.add_prefix(self.grading_prefix, {
-            'threshold': 1,
-            'name': 'BLA_BLA'
-        })
         data = {}
         data.update(self.group_post_data)
-        data.update(policy_data)
 
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.post(url, data=data)

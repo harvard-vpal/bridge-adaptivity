@@ -5,9 +5,8 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 
-from module.forms import GradingPolicyForm, GroupForm
-from module.models import Collection, CollectionGroup, Engine, GradingPolicy
-
+from module.forms import BaseGradingPolicyForm, GroupForm, ThresholdGradingPolicyForm
+from module.models import Collection, CollectionGroup, Engine
 
 log = logging.getLogger(__name__)
 
@@ -48,24 +47,18 @@ class LtiSessionMixin(object):
 class GroupEditFormMixin(object):
     form_class = GroupForm
     prefix = 'group'
-    grading_prefix = 'grading'
 
     def get_grading_form_kwargs(self):
         """Return kwargs for GradingForm."""
-        form_kw = dict(
-            prefix=self.grading_prefix,
-        )
+        form_kw = {}
         if self.object and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy
-        else:
-            default_grading_policy = GradingPolicy.objects.get(is_default=True)
-            form_kw['initial'] = {'name': default_grading_policy.name}
         return form_kw
 
     def form_valid(self, form):
         resp = super(GroupEditFormMixin, self).form_valid(form)
         form_kw = self.get_grading_form_kwargs()
-        grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
+        grading_policy_form = ThresholdGradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
             grading_policy = grading_policy_form.save()
             self.object.grading_policy = grading_policy
@@ -76,7 +69,8 @@ class GroupEditFormMixin(object):
         data = super(GroupEditFormMixin, self).get_context_data(**kwargs)
         form_kw = self.get_grading_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
-        data['grading_policy_form'] = GradingPolicyForm(post_or_none, **form_kw)
+        data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
+        print(data)
         return data
 
     def get_form(self):
@@ -85,11 +79,11 @@ class GroupEditFormMixin(object):
             owner=self.request.user
         )
         form.fields['owner'].initial = self.request.user
-        form.fields['engine'].initial = Engine.get_default_engine()
+        form.fields['engine'].initial = Engine.get_default()
         form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         form.fields['collections'].queryset = collections
-        if self.kwargs.get('pk'):
-            group = get_object_or_404(CollectionGroup, id=self.kwargs['pk'])
+        if self.kwargs.get('group_slug'):
+            group = get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
             if group.grading_policy:
                 form.fields['grading_policy_name'].initial = group.grading_policy.name
         return form

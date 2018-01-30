@@ -5,7 +5,11 @@
 <hr>
 
 {% block content %}
+{% if not collection.id%}
 <h2>New Collection configuration</h2>
+{% else %}
+<h2>Edit collection: {{collection.name }}</h2>
+{% endif %}
 
 <form role="form" method="post">
   {% csrf_token %}

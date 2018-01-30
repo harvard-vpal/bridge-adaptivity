@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations, models
 import django.db.models.deletion
-import module.mixins.models
+import common.mixins.models
 
 
 class Migration(migrations.Migration):
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('threshold', models.PositiveIntegerField(blank=True, default=0, help_text=b"Grade policy: 'Q'")),
                 ('is_default', models.BooleanField(default=False)),
             ],
-            bases=(module.mixins.models.ModelFieldIsDefaultMixin, models.Model),
+            bases=(common.mixins.models.ModelFieldIsDefaultMixin, models.Model),
         ),
         migrations.RemoveField(
             model_name='collection',

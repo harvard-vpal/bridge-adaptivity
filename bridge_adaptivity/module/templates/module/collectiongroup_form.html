@@ -1,15 +1,17 @@
 {% extends "module/base.html" %}
-{% load bootstrap3 %}
+{% load bootstrap3 static %}
 
 
 <hr>
 
 {% block content %}
-{% if group.id %}Update {{ group.name }}{% else %}
+{% if group.id %}
+<h2>Update {{ group.name }}</h2>
+{% else %}
 <h2>New Collection Group configuration</h2>
 {% endif %}
 
-<form role="form" method="post">
+<form role="form" method="post" id="group_form" data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
   {% csrf_token %}
   {% bootstrap_form form %}
   <div class="grading_policy">
@@ -25,23 +27,5 @@
 {% endblock content %}
 
 {% block js %}
-<script>
-  var update_form = function() {
-    var gp = $('select[name="group-grading_policy_name"]').val();
-    console.log(gp);
-    $.get('{% url 'module:grading_policy_form' group_slug=group.slug %}', {
-        grading_policy: gp,
-        csrfmiddlewaretoken: '{{ csrf_token }}',
-      }, function(response) {
-         $("div.grading_policy").html(response);
-      })
-  }
-  $(document).ready(function() {
-    $('form select[name=group-grading_policy_name]').on('change', function() {
-      update_form();
-    });
-  })
-
-
-</script>
+<script src="{% static 'module/js/collectiongroup.js' %}"></script>
 {% endblock %}

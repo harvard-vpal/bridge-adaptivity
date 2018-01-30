@@ -1,10 +1,9 @@
 import logging
 
 from django import forms
-from django.conf import settings
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, GradingPolicy
+from module.models import Activity, CollectionGroup, GRADING_POLICY_CHOICES, GradingPolicy
 
 log = logging.getLogger(__name__)
 
@@ -19,9 +18,8 @@ class ActivityForm(ModelForm):
 
 class GroupForm(ModelForm):
     grading_policy_name = forms.ChoiceField(
-        choices=settings.GRADING_POLICIES,
+        choices=GRADING_POLICY_CHOICES,
         required=True,
-        initial=lambda: GradingPolicy.objects.get(is_default=True).name
     )
 
     class Meta:
@@ -29,10 +27,19 @@ class GroupForm(ModelForm):
         fields = 'name', 'description', 'owner', 'collections', 'engine', 'grading_policy_name'
 
 
-class GradingPolicyForm(ModelForm):
+class BaseGradingPolicyForm(ModelForm):
+    class Meta:
+        model = GradingPolicy
+        fields = 'name',
+        widgets = {
+            'name': forms.HiddenInput(),
+        }
+
+
+class ThresholdGradingPolicyForm(ModelForm):
     class Meta:
         model = GradingPolicy
         fields = 'threshold', 'name'
         widgets = {
-            'name': forms.HiddenInput()
+            'name': forms.HiddenInput(),
         }
