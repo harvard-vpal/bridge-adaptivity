@@ -11,7 +11,7 @@
 <h2>New Collection Group configuration</h2>
 {% endif %}
 
-<form role="form" method="post">
+<form role="form" method="post" id="group_form" data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
   {% csrf_token %}
   {% bootstrap_form form %}
   <div class="grading_policy">
@@ -27,5 +27,5 @@
 {% endblock content %}
 
 {% block js %}
-<script source="{% static 'module/js/collectiongroup.js' %}"></script>
+<script src="{% static 'module/js/collectiongroup.js' %}"></script>
 {% endblock %}

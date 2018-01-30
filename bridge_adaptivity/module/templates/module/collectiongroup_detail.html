@@ -62,9 +62,9 @@
     </div>
     <div class="alert alert-warning text-center" role="alert">
       Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
-    </div>
-    <div class="alert alert-warning text-center" role="alert">
-      Threshold: {{ group.grading_policy.threshold|default:"0" }}
+      {% if group.grading_policy.threshold %}
+        <p>Threshold: {{ group.grading_policy.threshold }}</p>
+      {% endif %}
     </div>
     {% if group.description %}
     <div class="alert alert-info text-center">

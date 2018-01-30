@@ -27,8 +27,8 @@ class BaseGradingPolicy(object):
 
     @classmethod
     def get_form_class(cls):
-        from module.forms import GradingPolicyForm
-        return GradingPolicyForm
+        from module.forms import BaseGradingPolicyForm
+        return BaseGradingPolicyForm
 
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence

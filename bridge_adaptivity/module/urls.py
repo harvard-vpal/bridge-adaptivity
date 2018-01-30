@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
-    CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDetail, GroupDelete, GroupList,
+    CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList,
     GroupUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 

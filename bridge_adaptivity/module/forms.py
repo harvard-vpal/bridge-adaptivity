@@ -27,10 +27,19 @@ class GroupForm(ModelForm):
         fields = 'name', 'description', 'owner', 'collections', 'engine', 'grading_policy_name'
 
 
-class GradingPolicyForm(ModelForm):
+class BaseGradingPolicyForm(ModelForm):
+    class Meta:
+        model = GradingPolicy
+        fields = 'name',
+        widgets = {
+            'name': forms.HiddenInput(),
+        }
+
+
+class ThresholdGradingPolicyForm(ModelForm):
     class Meta:
         model = GradingPolicy
         fields = 'threshold', 'name'
         widgets = {
-            'name': forms.HiddenInput()
+            'name': forms.HiddenInput(),
         }

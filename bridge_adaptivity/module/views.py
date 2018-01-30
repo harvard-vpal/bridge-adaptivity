@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -21,7 +21,7 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
-from module.forms import ActivityForm, GradingPolicyForm, GroupForm
+from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
 from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
 from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 
@@ -40,7 +40,7 @@ class GroupList(ListView):
 
 
 class GetGradingPolicyForm(FormView):
-    form_class = GradingPolicyForm
+    form_class = BaseGradingPolicyForm
     template_name = 'module/gradingpolicy_form.html'
     prefix = 'grading'
 
@@ -51,11 +51,10 @@ class GetGradingPolicyForm(FormView):
         return policy_cls.get_form_class()
 
     def get_form(self, form_class=None):
+        self.form_class = self.get_form_class()
         form = super(GetGradingPolicyForm, self).get_form()
-        if self.kwargs.get('group_slug'):
-            get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
         gp = self.request.GET.get('grading_policy')
-        if gp in GRADING_POLICY_NAME_TO_CLS.keys():
+        if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
             return form
         else:
