@@ -47,30 +47,34 @@ class LtiSessionMixin(object):
 class GroupEditFormMixin(object):
     form_class = GroupForm
     prefix = 'group'
+    grading_prefix = 'grading'
 
     def get_grading_form_kwargs(self):
         """Return kwargs for GradingForm."""
-        form_kw = {}
+        form_kw = dict(
+            prefix=self.grading_prefix,
+        )
         if self.object and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy
         return form_kw
 
     def form_valid(self, form):
-        resp = super(GroupEditFormMixin, self).form_valid(form)
         form_kw = self.get_grading_form_kwargs()
         grading_policy_form = ThresholdGradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
+            response = super(GroupEditFormMixin, self).form_valid(form)
             grading_policy = grading_policy_form.save()
             self.object.grading_policy = grading_policy
             self.object.save()
-        return resp
+        else:
+            return self.form_invalid(form)
+        return response
 
     def get_context_data(self, **kwargs):
         data = super(GroupEditFormMixin, self).get_context_data(**kwargs)
         form_kw = self.get_grading_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
         data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
-        print(data)
         return data
 
     def get_form(self):
