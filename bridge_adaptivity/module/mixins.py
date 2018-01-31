@@ -70,7 +70,6 @@ class GroupEditFormMixin(object):
         form_kw = self.get_grading_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
         data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
-        print(data)
         return data
 
     def get_form(self):
