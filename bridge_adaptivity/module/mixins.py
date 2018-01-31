@@ -59,14 +59,16 @@ class GroupEditFormMixin(object):
         return form_kw
 
     def form_valid(self, form):
-        resp = super(GroupEditFormMixin, self).form_valid(form)
         form_kw = self.get_grading_form_kwargs()
         grading_policy_form = ThresholdGradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
+            response = super(GroupEditFormMixin, self).form_valid(form)
             grading_policy = grading_policy_form.save()
             self.object.grading_policy = grading_policy
             self.object.save()
-        return resp
+        else:
+            return self.form_invalid(form)
+        return response
 
     def get_context_data(self, **kwargs):
         data = super(GroupEditFormMixin, self).get_context_data(**kwargs)
