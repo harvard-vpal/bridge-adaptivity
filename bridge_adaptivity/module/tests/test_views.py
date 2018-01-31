@@ -16,6 +16,7 @@ GRADING_POLICIES = (
 class BridgeTestCase(TestCase):
     fixtures = ['gradingpolicy', 'engine']
     group_prefix = GroupEditFormMixin.prefix
+    grading_prefix = GroupEditFormMixin.grading_prefix
 
     def add_prefix(self, prefix='', data={}):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
@@ -81,15 +82,15 @@ class TestCollectionGroupTest(BridgeTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
         groups_count = CollectionGroup.objects.count()
-        response = self.client.post(url, data=self.add_prefix(self.group_prefix, {
-            'name': "CG1",
-            "collections": [self.collection1.id, self.collection2.id],
-            'engine': self.engine.id,
-            'owner': self.user.id,
-            'description': 'Some description for a group',
-            'grading_policy_name': self.trials_count.name
-        }))
-        self.assertEqual(groups_count + 1, CollectionGroup.objects.count())
+        policy_data = self.add_prefix(self.grading_prefix, {
+            'threshold': 1,
+            'name': self.trials_count.name,
+        })
+        data = {}
+        data.update(self.group_post_data)
+        data.update(policy_data)
+        response = self.client.post(url, data=data)
+        self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
         self.assertEqual(response.status_code, 302)
 
     def test_cg_list(self):
@@ -114,7 +115,15 @@ class TestCollectionGroupTest(BridgeTestCase):
         self.assertIn('grading_policy_form', response.context)
         self.assertIn('form', response.context)
 
-        response = self.client.post(url, data=self.group_post_data)
+        policy_data = self.add_prefix(self.grading_prefix, {
+            'threshold': 1,
+            'name': self.group_update_data['grading_policy_name'],
+        })
+        data = {}
+        data.update(self.group_post_data)
+        data.update(policy_data)
+
+        response = self.client.post(url, data=data)
         if response.status_code == 200:
             print dict(response.context['form'].errors)
 
@@ -178,8 +187,13 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         for policy, _ in policies:
             self.group_post_data.update({'grading_policy_name': policy})
 
+            policy_data = self.add_prefix(self.grading_prefix, {
+                'threshold': 1,
+                'name': policy
+            })
             data = {}
             data.update(self.group_post_data)
+            data.update(policy_data)
 
             self.check_group_change_page()
             self.check_update_group(data)
@@ -188,8 +202,13 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         """Test update grading policy with not correct grading policy name (negative flow)."""
         self.group_post_data.update({'group-grading_policy_name': 'BLA_BLA'})
 
+        policy_data = self.add_prefix(self.grading_prefix, {
+            'threshold': 1,
+            'name': 'BLA_BLA'
+        })
         data = {}
         data.update(self.group_post_data)
+        data.update(policy_data)
 
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.post(url, data=data)
