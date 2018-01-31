@@ -1,3 +1,4 @@
+from django.core.exceptions import MultipleObjectsReturned
 from django.test import TestCase
 from mock import patch
 
@@ -17,9 +18,14 @@ class TestUtilities(TestCase):
             email='test@test.com'
         )
         self.collection = Collection.objects.create(name='testcol1', owner=self.user)
+        self.collection2 = Collection.objects.create(name='testcol2', owner=self.user)
+
         self.source_launch_url = 'http://test_source_launch_url.com'
         self.activity = Activity.objects.create(
             name='testactivity1', collection=self.collection, source_launch_url=self.source_launch_url
+        )
+        self.activity2 = Activity.objects.create(
+            name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url
         )
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
@@ -41,6 +47,14 @@ class TestUtilities(TestCase):
         )
 
     def test_choose_activity(self):
-        chosen_activity = choose_activity(sequence=self.sequence)
-        expected_activity = Activity.objects.get(source_launch_url=self.source_launch_url)
+        try:
+            # test if 2 activities has the same launch url but has different collections
+            # this method should return only one activity, filtered by sequence.collection
+            chosen_activity = choose_activity(sequence=self.sequence)
+        except MultipleObjectsReturned as e:
+            print Activity.ojbects.all().values('collection', 'source_launch_url')
+            self.fail(e)
+        expected_activity = Activity.objects.get(
+            collection=self.sequence.collection, source_launch_url=self.source_launch_url
+        )
         self.assertEqual(chosen_activity, expected_activity)
