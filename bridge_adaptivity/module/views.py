@@ -1,5 +1,4 @@
 import logging
-from operator import itemgetter
 from xml.sax.saxutils import escape
 
 from django import forms
@@ -9,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -22,13 +21,12 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
-from module.forms import ActivityForm, GradingPolicyForm, GroupForm
-from module.mixins.views import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
-from module.models import Activity, Collection, CollectionGroup, Log, Sequence, SequenceItem
+from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
+from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
+from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 
 
 log = logging.getLogger(__name__)
-VALID_GRADING_POLICIES = [itemgetter(0)(i) for i in settings.GRADING_POLICIES]
 
 
 @method_decorator(login_required, name='dispatch')
@@ -42,21 +40,21 @@ class GroupList(ListView):
 
 
 class GetGradingPolicyForm(FormView):
-    form_class = GradingPolicyForm
+    form_class = BaseGradingPolicyForm
     template_name = 'module/gradingpolicy_form.html'
     prefix = 'grading'
-    # grading_policy_name: FormClass
-    grading_policy_forms_map = {}
 
     def get_form_class(self):
-        return self.grading_policy_forms_map.get(self.request.GET.get('grading_policy'), self.form_class)
+        policy_cls = GRADING_POLICY_NAME_TO_CLS.get(self.request.GET.get('grading_policy'), None)
+        if policy_cls is None:
+            raise Http404("No such grading policy")
+        return policy_cls.get_form_class()
 
     def get_form(self, form_class=None):
+        self.form_class = self.get_form_class()
         form = super(GetGradingPolicyForm, self).get_form()
-        if self.kwargs.get('group_slug'):
-            get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
         gp = self.request.GET.get('grading_policy')
-        if gp and gp in VALID_GRADING_POLICIES:
+        if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
             return form
         else:
@@ -77,6 +75,11 @@ class GroupDetail(DetailView):
     slug_url_kwarg = 'group_slug'
     context_object_name = 'group'
 
+    def get_context_data(self, **kwargs):
+        context = super(GroupDetail, self).get_context_data(**kwargs)
+        context.update({'bridge_host': settings.BRIDGE_HOST})
+        return context
+
     def get_queryset(self):
         return CollectionGroup.objects.filter(owner=self.request.user)
 
@@ -92,6 +95,22 @@ class GroupUpdate(GroupEditFormMixin, UpdateView):
 
     def get_success_url(self):
         return self.object.get_absolute_url()
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupDelete(GroupEditFormMixin, DeleteView):
+    model = CollectionGroup
+    slug_field = 'slug'
+    slug_url_kwarg = 'group_slug'
+
+    def get_success_url(self):
+        return reverse('module:group-list')
+
+    def get_queryset(self):
+        return super(GroupDelete, self).get_queryset().filter(owner=self.request.user.id)
+
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -138,7 +157,6 @@ class CollectionDetail(CollectionMixin, DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
-        context['launch_url'] = self.get_launch_url()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
             context['engine'] = engine_failure
@@ -154,18 +172,6 @@ class CollectionDetail(CollectionMixin, DetailView):
                 "LtiConsumer.is_active=True."
             )
             return []
-
-    def get_launch_url(self):
-        """
-        Build LTI launch URL for the Collection to be used by LTI Tool.
-
-        Example: https://bridge.host/lti/launch/3
-        :return: launch URL
-        """
-        # NOTE(idegtiarov) Improve creation of the launch URL
-        return '{bridge_host}/lti/launch/{collection_id}'.format(
-            bridge_host=settings.BRIDGE_HOST, collection_id=self.object.id
-        )
 
 
 @method_decorator(login_required, name='dispatch')

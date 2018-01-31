@@ -9,40 +9,48 @@ from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
-from django.db.models.aggregates import Count, Sum
 from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
-from common import utils
+from common.mixins.models import ModelFieldIsDefaultMixin
 from module import tasks
-from module.mixins.models import ModelFieldIsDefaultMixin
 
 log = logging.getLogger(__name__)
 
 
-def _discover_engines():
-    engines = []
+def _discover_applicable_modules(folder_name='engines', file_startswith='engine_'):
+    modules = []
     for name in os.listdir(os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 'engines'
+        os.path.dirname(os.path.abspath(__file__)), folder_name
     )):
-        if name.startswith('engine_') and name.endswith('.py'):
-            engines.append((name, name[len('engine_'):-len('.py')]))
-    return engines
+        if name.startswith(file_startswith) and name.endswith('.py'):
+            modules.append((name[:-len('.py')], name[len(file_startswith):-len('.py')]))
+    return modules
 
 
-def _get_engine_driver(engine):
-    driver = None
-    engine_module = importlib.import_module('module.engines.{}'.format(engine))
-    for attr in inspect.getmembers(engine_module):
-        if attr[0].startswith('Engine'):
-            driver = attr[1]
-    return driver
+def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=None, class_endswith=None):
+    """Load class from module."""
+    module = None
+    gp_module = importlib.import_module('{}.{}'.format(module_path, mod_name))
+    for attr in inspect.getmembers(gp_module):
+        if class_endswith and attr[0].endswith(class_endswith):
+            module = attr[1]
+        elif class_startswith and attr[0].startswith(class_startswith):
+            module = attr[1]
+    return module
 
 
-ENGINES = _discover_engines()
+ENGINES = _discover_applicable_modules(folder_name='engines', file_startswith='engine_')
+
+GRADING_POLICY_MODULES = _discover_applicable_modules(folder_name='policies', file_startswith='policy_')
+GRADING_POLICY_NAME_TO_CLS = {
+    name: _load_cls_from_applicable_module("module.policies", file_name, class_endswith="GradingPolicy")
+    for file_name, name in GRADING_POLICY_MODULES
+}
+GRADING_POLICY_CHOICES = ((k, v.public_name) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
 
 @python_2_unicode_compatible
@@ -100,29 +108,24 @@ class SequenceItem(models.Model):
 
 @python_2_unicode_compatible
 class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
-    """Predefined set of Grading policy objects. Define how to grade collections."""
+    """
+    Predefined set of Grading policy objects. Define how to grade collections.
 
-    name = models.CharField(max_length=20)
+    Field `name` if fulfilled from the correspondent choices in the form GradingPolicyForm.
+    """
+
+    name = models.CharField(max_length=20)  # Field name is not editable in admin UI.
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
     is_default = models.BooleanField(default=False)
 
-    def _points_earned_grade(self, trials_count, points_earned):
-        return points_earned / max(self.threshold, trials_count)
-
-    def _trials_count(self, trials_count):
-        return trials_count / max(self.threshold, trials_count)
+    @property
+    def policy_cls(self):
+        return GRADING_POLICY_NAME_TO_CLS[self.name]
 
     def calculate_grade(self, sequence):
-        items_result = sequence.items.aggregate(points_earned=Sum('score'), trials_count=Count('score'))
-        # NOTE: dict with key -grading policy name and
-        # NOTE: value - tuple with first element - function to calculate grade, second element - function args.
-        grading_map = {
-            'points_earned': (self._points_earned_grade, (items_result['trials_count'], items_result['points_earned'])),
-            'trials_count': (self._trials_count, (items_result['trials_count'],))
-        }
-        func = grading_map[self.grading_policy.name][0]
-        return func(*grading_map[self.grading_policy.name][1])
+        policy = self.policy_cls(policy=self, sequence=sequence)
+        return policy.grade
 
     def __str__(self):
         return "{}, public_name: {} threshold: {}{}".format(
@@ -170,6 +173,11 @@ class Collection(models.Model):
     def get_absolute_url(self):
         return reverse('module:collection-list')
 
+    def get_launch_url(self, group):
+        return "{}{}".format(
+            settings.BRIDGE_HOST,
+            reverse("lti:launch", kwargs={'collection_id': self.id, 'group_slug': group.slug}))
+
 
 @python_2_unicode_compatible
 class Engine(ModelFieldIsDefaultMixin, models.Model):
@@ -190,21 +198,18 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
     def __str__(self):
         return "Engine: {}".format(self.engine_name)
 
-    def save(self, *args, **kwargs):
-        utils.save_model_parameter_true_once(self, 'is_default')
-        super(Engine, self).save(*args, **kwargs)
-
     @classmethod
-    def get_default_engine(cls):
-        return (
-            Engine.objects.filter(is_default=True).first() or
-            Engine.objects.get_or_create(engine=cls.DEFAULT_ENGINE, engine_name='Mock', is_default=True)[0]
+    def create_default(cls):
+        return cls.objects.create(
+            engine=cls.DEFAULT_ENGINE,
+            engine_name='Mock',
+            is_default=True
         )
 
     @property
     def engine_driver(self):
         if not self.DRIVER:
-            driver = _get_engine_driver(self.engine)
+            driver = _load_cls_from_applicable_module('module.engines', self.engine, class_startswith='Engine')
             # NOTE(idegtiarov) Currently, statement coves existent engines modules. Improve in case new engine will be
             # added to the engines package.
             if self.engine.endswith('mock'):
@@ -226,7 +231,7 @@ class CollectionGroup(models.Model):
     slug = AutoSlugField(
         null=True,
         populate_from='name',
-        unique_with=['owner'],
+        unique_with=('atime',),
     )
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)

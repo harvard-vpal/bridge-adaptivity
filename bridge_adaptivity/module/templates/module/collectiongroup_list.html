@@ -16,7 +16,6 @@
         <th>options</th>
       </tr>
       {% for group in groups %}
-        <tr>
           <td>{{ group.id }}</td>
           <td><a href="{{ group.get_absolute_url }}">{{ group.name }}</a></td>
           <td>
@@ -30,8 +29,11 @@
           <td>
             <div>
               <a class="move-down"
-                 href="{{ group.get_absolute_url }}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
+                 href="{% url 'module:group-change' group_slug=group.slug %}">
+                {% bootstrap_button "Update" size='sm' icon='edit' %}
+              </a>
+              <a class="move-down" href="{% url 'module:group-delete' group_slug=group.slug %}">
+                  {% bootstrap_button "Remove" size='sm' icon='trash' %}
               </a>
             </div>
           </td>

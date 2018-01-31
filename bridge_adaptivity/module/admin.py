@@ -1,7 +1,7 @@
 from django.contrib import admin
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Activity, Collection, CollectionGroup, Engine, Log, Sequence, SequenceItem
+from .models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Log, Sequence, SequenceItem
 
 
 class SequenceItemStackedInline(admin.StackedInline):
@@ -46,12 +46,19 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(CollectionGroup)
 class CollectionGroupAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ('slug',)
+    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine')
 
 
 @admin.register(Engine)
 class EngineAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(GradingPolicy)
+class GradingPolicyAdmin(admin.ModelAdmin):
+    readonly_fields = ['name']
+    list_display = ['name', 'collectiongroup', 'threshold']
 
 
 @admin.register(Log)

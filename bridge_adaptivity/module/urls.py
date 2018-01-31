@@ -4,8 +4,8 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
-    CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDetail, GroupList, GroupUpdate,
-    sequence_item_next, SequenceComplete, SequenceItemDetail
+    CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList,
+    GroupUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 
 urlpatterns = [
@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^group/add/?$', GroupCreate.as_view(), name='group-add'),
     url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
     url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
+    url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
 
     url(r'group(?:/(?P<group_slug>[\w-]*))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
         name='grading_policy_form'),

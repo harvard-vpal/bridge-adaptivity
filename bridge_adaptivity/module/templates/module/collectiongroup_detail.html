@@ -1,20 +1,25 @@
 {% extends "module/base.html" %}
-{% load bootstrap3 %}
+{% load static bootstrap3 %}
 
-{% block title %}Group - {{ group.name }}{% endblock title %}
-
-<hr>
+{% block title %}
+<span class="label label-default">{{ group.slug }}</span> Group: {{ group.name }}
+  <h3>
+    <a class="pull-right" href="{% url 'module:group-change' group.slug %}">
+      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+    </a>
+  </h3>
+{% endblock title %}
 
 {% block content %}
+<div class="col-md-9">
   {% if group.collections.all %}
     <table class="table table-hover">
       <tr>
         <th>ID</th>
         <th>name</th>
         <th>metadata</th>
-        <th>threshold</th>
         <th>strict forward</th>
-        <th>options</th>
+        <th class="center">options</th>
       </tr>
       {% for collection in group.collections.all %}
         <tr>
@@ -23,7 +28,6 @@
             {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
           <td>{{ collection.metadata|default:"-" }}</td>
-          <td>{{ collection.threshold|default:"-" }}</td>
           <td>{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}
@@ -34,7 +38,10 @@
             <div>
               <a class="move-down"
                  href="{% url 'module:collection-change' collection.id %}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
+                {% bootstrap_button "Edit collection" size='sm' icon='edit' %}
+              </a>
+              <a id="launch-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug %}">
+                {% bootstrap_button 'copy Launch URL' size='sm' icon='link' %}
               </a>
             </div>
           </td>
@@ -46,10 +53,33 @@
       You have no collections for now.
     </div>
   {% endif %}
-
-  <hr>
-  <a href="{% url 'module:group-change' group_slug=group.slug %}">
-    {% bootstrap_button 'Edit group' size='lg' icon='edit' %}
-  </a>
-
+</div>
+<div class="col-md-3">
+  <div class="row">
+    <h3 class="text-center">Group Info</h3>
+    <div class="alert alert-warning text-center" role="alert">
+      Engine - {{ group.engine.engine_name }}
+    </div>
+    <div class="alert alert-warning text-center" role="alert">
+      Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
+      {% if group.grading_policy.threshold %}
+        <p>Threshold: {{ group.grading_policy.threshold }}</p>
+      {% endif %}
+    </div>
+    {% if group.description %}
+    <div class="alert alert-info text-center">
+      <h4 class="text-center">Description</h4>
+      <p class="text-left">
+        {{ group.description }}
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock content %}
+
+
+{% block bootstrap3_extra_script %}
+  {{ block.super }}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}
