@@ -4,7 +4,6 @@
 {% block title %}
   <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
   <h3>
-    <small>threshold: {{ collection.threshold|default:"not set" }}</small>
     <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
