@@ -38,6 +38,7 @@ def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=Non
         cls_module = importlib.import_module('{}.{}'.format(module_path, mod_name))
     except ImportError:
         log.error("Could not load module_path={}, mod_name={}".format(module_path, mod_name))
+        raise
     for attr in inspect.getmembers(cls_module):
         if class_endswith and attr[0].endswith(class_endswith):
             module = attr[1]

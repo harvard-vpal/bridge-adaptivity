@@ -1,3 +1,5 @@
+import logging
+
 from django.core.exceptions import MultipleObjectsReturned
 from django.test import TestCase
 from mock import patch
@@ -5,6 +7,9 @@ from mock import patch
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.models import Activity, Collection, Engine, GradingPolicy, Sequence
 from module.utils import choose_activity
+
+
+log = logging.getLogger(__name__)
 
 
 class TestUtilities(TestCase):
@@ -52,7 +57,7 @@ class TestUtilities(TestCase):
             # this method should return only one activity, filtered by sequence.collection
             chosen_activity = choose_activity(sequence=self.sequence)
         except MultipleObjectsReturned as e:
-            print Activity.ojbects.all().values('collection', 'source_launch_url')
+            log.error(Activity.ojbects.all().values('collection', 'source_launch_url'))
             self.fail(e)
         expected_activity = Activity.objects.get(
             collection=self.sequence.collection, source_launch_url=self.source_launch_url
