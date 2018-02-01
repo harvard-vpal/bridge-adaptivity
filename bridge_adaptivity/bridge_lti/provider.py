@@ -77,6 +77,19 @@ def get_collection_collectiongroup_engine(collection_id, group_slug):
         raise Http404('Bad launch_url collection ID.')
 
     collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
+
+    if collection_group is None:
+        raise Http404(
+            'The launch URL is not correctly configured. The group with the slug `{}` cannot be found.'
+            .format(group_slug)
+        )
+
+    if collection not in collection_group.collections.all():
+        raise Http404(
+            'The launch URL is not correctly configured. Collection with the ID `{}` is not in group with slug `{}`'
+            .format(collection_id, group_slug)
+        )
+
     if collection_group:
         engine = collection_group.engine or Engine.get_default()
     else:
@@ -123,11 +136,6 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         return anononcement_page
 
     collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
-
-    if collection not in collection_group.collections.all():
-        raise Http404('Not correctly configured launch URL. Collection with ID `{}` not in group with slug `{}`'.format(
-            collection_id, group_slug
-        ))
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
