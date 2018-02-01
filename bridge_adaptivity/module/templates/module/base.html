@@ -31,9 +31,16 @@
 {% block bootstrap3_content %}
   {% include "module/navbar.html" %}
   <div class="container">
+    {% if back_url %}
+      <div>
+        <a class="move-down" href="{{ back_url }}">
+          {% bootstrap_button "Back" size="sm" icon="arrow-left" %}
+        </a>
+      </div>
+    {% endif%}
     <h1>{% block title %}{% endblock %}</h1>
 
-    {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+      {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
 
     {% block content %}(no content){% endblock %}
   </div>

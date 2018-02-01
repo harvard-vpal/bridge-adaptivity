@@ -97,3 +97,12 @@ class CollectionMixin(object):
     def get_queryset(self):
         qs = Collection.objects.filter(owner=self.request.user)
         return qs
+
+
+class BackURLMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(BackURLMixin, self).get_context_data(**kwargs)
+        back_url = self.request.GET.get('back_url')
+        if back_url:
+            context['back_url'] = back_url
+        return context

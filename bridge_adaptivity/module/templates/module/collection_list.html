@@ -19,7 +19,7 @@
       {% for collection in collections %}
         <tr>
           <td>{{ collection.id }}</td>
-          <td><a href="{% url 'module:collection-detail' collection.id %}">{{ collection.name }} :
+          <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">{{ collection.name }} :
             {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
           <td>{{ collection.metadata|default:"-" }}</td>
@@ -33,7 +33,7 @@
           <td>
             <div>
               <a class="move-down"
-                 href="{% url 'module:collection-change' collection.id %}">
+                 href="{% url 'module:collection-change' collection.id %}?back_url={{ collection.get_absolute_url }}">
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
             </div>
