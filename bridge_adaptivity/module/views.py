@@ -22,7 +22,7 @@ from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
-from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
+from module.mixins import BackURLMixin, CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
 from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 
 
@@ -62,14 +62,14 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(GroupEditFormMixin, CreateView):
+class GroupCreate(GroupEditFormMixin, BackURLMixin, CreateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(DetailView):
+class GroupDetail(BackURLMixin, DetailView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
@@ -85,7 +85,7 @@ class GroupDetail(DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(GroupEditFormMixin, UpdateView):
+class GroupUpdate(GroupEditFormMixin, BackURLMixin, UpdateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
@@ -134,7 +134,7 @@ class CollectionCreate(CollectionMixin, CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(CollectionMixin, UpdateView):
+class CollectionUpdate(CollectionMixin, BackURLMixin, UpdateView):
     model = Collection
     fields = ['name', 'metadata', 'strict_forward']
 
@@ -143,7 +143,7 @@ class CollectionUpdate(CollectionMixin, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionDetail(CollectionMixin, DetailView):
+class CollectionDetail(CollectionMixin, BackURLMixin, DetailView):
     model = Collection
     context_object_name = 'collection'
 

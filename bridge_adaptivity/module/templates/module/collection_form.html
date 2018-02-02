@@ -16,7 +16,7 @@
   {% bootstrap_form form %}
   <button class="btn btn-primary" type="submit">
     {% if collection.id %}Update{% else %}Create{% endif %}</button>
-  <a href="{% if collection.id %}{% url 'module:collection-detail' collection.id %}{% else %}{% url 'module:collection-list' %}{% endif %}" class="btn btn-default" role="button"
+  <a href="{% if back_url or not collection.id %}{% url 'module:collection-list' %}{% else %}{% url 'module:collection-detail' collection.id %}{% endif %}" class="btn btn-default" role="button"
      type="reset">Cancel</a>
 </form>
 

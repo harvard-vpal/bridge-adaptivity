@@ -4,7 +4,7 @@
 {% block title %}
 <span class="label label-default">{{ group.slug }}</span> Group: {{ group.name }}
   <h3>
-    <a class="pull-right" href="{% url 'module:group-change' group.slug %}">
+    <a class="pull-right" href="{% url 'module:group-change' group.slug %}?back_url={{ group.get_absolute_url}}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
   </h3>
@@ -24,7 +24,7 @@
       {% for collection in group.collections.all %}
         <tr>
           <td>{{ collection.id }}</td>
-          <td><a href="{% url 'module:collection-detail' collection.id %}">{{ collection.name }} :
+          <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">{{ collection.name }} :
             {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
           <td>{{ collection.metadata|default:"-" }}</td>
@@ -37,8 +37,8 @@
           <td>
             <div>
               <a class="move-down"
-                 href="{% url 'module:collection-change' collection.id %}">
-                {% bootstrap_button "Edit collection" size='sm' icon='edit' %}
+                 href="{% url 'module:collection-change' collection.id %}?back_url={{ group.get_absolute_url}}">
+                {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
               <a id="launch-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug %}">
                 {% bootstrap_button 'copy Launch URL' size='sm' icon='link' %}
