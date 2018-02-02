@@ -67,6 +67,12 @@ class GroupCreate(GroupEditFormMixin, BackURLMixin, CreateView):
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
 
+    def get_context_data(self, **kwargs):
+        context = super(GroupCreate, self).get_context_data(**kwargs)
+        if 'back_url' not in context:
+            context['back_url'] = reverse('module:group-list')
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class GroupDetail(BackURLMixin, DetailView):
@@ -92,6 +98,12 @@ class GroupUpdate(GroupEditFormMixin, BackURLMixin, UpdateView):
     form_class = GroupForm
 
     context_object_name = 'group'
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupUpdate, self).get_context_data(**kwargs)
+        if 'back_url' not in context:
+            context['back_url'] = self.get_success_url()
+        return context
 
     def get_success_url(self):
         return self.object.get_absolute_url()
@@ -132,14 +144,26 @@ class CollectionCreate(CollectionMixin, CreateView):
         form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         return form
 
+    def get_context_data(self, **kwargs):
+        context = super(CollectionCreate, self).get_context_data(**kwargs)
+        if 'back_url' not in context:
+            context['back_url'] = reverse('module:collection-list')
+        return context
+
 
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(CollectionMixin, BackURLMixin, UpdateView):
     model = Collection
     fields = ['name', 'metadata', 'strict_forward']
 
+    def get_context_data(self, **kwargs):
+        context = super(CollectionUpdate, self).get_context_data(**kwargs)
+        if 'back_url' not in context:
+            context['back_url'] = self.get_success_url()
+        return context
+
     def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
 
 
 @method_decorator(login_required, name='dispatch')
