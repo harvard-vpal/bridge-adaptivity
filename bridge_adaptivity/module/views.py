@@ -69,7 +69,7 @@ class GroupCreate(GroupEditFormMixin, BackURLMixin, CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(DetailView):
+class GroupDetail(BackURLMixin, DetailView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'

@@ -220,3 +220,49 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         self.assertIn('form', response.context)
         self.assertIsNotNone(response.context['form'].errors)
         self.assertIn('grading_policy_name', response.context['form'].errors)
+
+
+class TestBackURLMixin(BridgeTestCase):
+    def setUp(self):
+        super(TestBackURLMixin, self).setUp()
+        self.back_url = '/test_back_url/'
+
+    def test_collection_edit_back_url(self):
+        """Test back_url param is added into context in collection change view."""
+        url = (
+            reverse('module:collection-change', kwargs={'pk': self.collection1.id}) +
+            '?back_url={}'.format(self.back_url)
+        )
+        change_response = self.client.get(url)
+        self.assertIn('back_url', change_response.context)
+        self.assertEqual(change_response.context['back_url'], self.back_url)
+
+    def test_collection_detail_back_url(self):
+        """Test back_url param is added into context navigation from collection detail view."""
+        url_detail = (
+            reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) +
+            '?back_url={}'.format(self.back_url)
+        )
+        detail_response = self.client.get(url_detail)
+        self.assertIn('back_url', detail_response.context)
+        self.assertEqual(detail_response.context['back_url'], self.back_url)
+
+    def test_collectiongroup_edit_back_url(self):
+        """Test back_url param is added into context navigation from collectiongroup edit view."""
+        change_url = (
+            reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug}) +
+            '?back_url={}'.format(self.back_url)
+        )
+        change_response = self.client.get(change_url)
+        self.assertIn('back_url', change_response.context)
+        self.assertEqual(change_response.context['back_url'], self.back_url)
+
+    def test_collectiongroup_detail_back_url(self):
+        """Test back_url param is added into context navigation from collectiongroup detail view."""
+        url = (
+            reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}) +
+            '?back_url={}'.format(self.back_url)
+        )
+        detail_response = self.client.get(url)
+        self.assertIn('back_url', detail_response.context)
+        self.assertEqual(detail_response.context['back_url'], self.back_url)
