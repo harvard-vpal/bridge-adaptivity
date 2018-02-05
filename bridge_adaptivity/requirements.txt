@@ -3,3 +3,5 @@
 
 # additional deployment requirements
 gunicorn==19.7.1
+boto3==1.5.22 # celery sqs requirement
+pycurl==7.43.0.1 # celery sqs requirement
