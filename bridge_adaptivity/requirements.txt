@@ -2,4 +2,4 @@
 -r requirements_base.txt
 
 # additional deployment requirements
-gunicorn
+gunicorn==19.7.1
