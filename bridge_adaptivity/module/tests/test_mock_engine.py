@@ -79,13 +79,12 @@ class TestMockEngine(TestCase):
 
         source_launch_urls = Activity.objects.values_list('source_launch_url', flat=True)
 
-        created_sequence_items = []
         for i, item in enumerate(sequence_items):
-            created_sequence_items.append(SequenceItem.objects.create(
+            SequenceItem.objects.create(
                 sequence=self.sequence,
                 activity=created_activities[i],
                 **item
-            ))
+            )
         selected_activity_url = self.engine.engine_driver.select_activity(self.sequence)
 
         if er == '__activity__':
