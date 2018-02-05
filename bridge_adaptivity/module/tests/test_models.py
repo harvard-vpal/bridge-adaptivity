@@ -141,7 +141,6 @@ class TestActivityModel(TestCase):
             user_id='some_user', course_id='some_course', email=self.user.email,
             lti_consumer=self.consumer, bridge_user=self.user
         )
-        self.client.login(username='test', password='test')
         # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
         # grading policies
@@ -160,22 +159,22 @@ class TestActivityModel(TestCase):
             engine=self.engine, grading_policy=self.trials_count,
         )
 
-    @patch('module.tasks.sync_collection_engines.apply_async')
     @unpack
     @data({'stype': 'video', 'is_problem': False},
           {'stype': 'html', 'is_problem': False},
           {'stype': 'problem', 'is_problem': True},
           )
+    @patch('module.tasks.sync_collection_engines.apply_async')
     def test_is_problem_property(self, mock_apply_async, stype, is_problem):
         activity = Activity(name='test', collection=self.collection1, tags='test', atype='G', stype=stype)
         self.assertEqual(activity.is_problem, is_problem)
 
-    @patch('module.tasks.sync_collection_engines.apply_async')
     @unpack
     @data({'stype': 'video', 'is_problem': False},
           {'stype': 'html', 'is_problem': False},
           {'stype': 'problem', 'is_problem': True},
           )
+    @patch('module.tasks.sync_collection_engines.apply_async')
     def test_create_sequence_item_for_activity(self, mock_apply_async, stype, is_problem):
         activity = Activity.objects.create(
             name='test', collection=self.collection1, tags='test', atype='G', stype=stype

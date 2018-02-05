@@ -29,7 +29,6 @@ class TestMockEngine(TestCase):
             user_id='some_user', course_id='some_course', email=self.user.email,
             lti_consumer=self.consumer, bridge_user=self.user
         )
-        self.client.login(username='test', password='test')
         # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
         # grading policies
