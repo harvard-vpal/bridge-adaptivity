@@ -14,6 +14,9 @@ class ActivityForm(ModelForm):
     class Meta:
         model = Activity
         exclude = ['collection', 'lti_consumer']
+        widgets = {
+            'stype': forms.HiddenInput(),
+        }
 
 
 class GroupForm(ModelForm):

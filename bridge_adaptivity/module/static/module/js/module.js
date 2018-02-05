@@ -180,6 +180,7 @@
             $("#id_source_name").val(source["display_name"]);
             $("#id_source_launch_url").val(source["lti_url"]);
             $("#id_source_context_id").val(source["context_id"]);
+            $("#id_stype").val(source['type']);
         }
 
         // Launch URL fetching:

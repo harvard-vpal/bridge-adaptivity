@@ -1,10 +1,14 @@
 from ddt import data, ddt, unpack
 from django.test import TestCase
+from mock.mock import patch
 
+from bridge_lti.models import LtiProvider, LtiUser
 from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
-from module.models import Engine, GradingPolicy
+from module.models import (
+    Activity, BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem
+)
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
@@ -115,3 +119,69 @@ class TestGradingPolicyModel(TestCase):
         self.assertTrue(gp_trials_count.policy_cls is TrialsCountGradingPolicy)
         self.assertTrue(gp_points_earned.policy_cls is PointsEarnedGradingPolicy)
         self.assertTrue(gp_full_credit.policy_cls is FullCreditOnCompleteGradingPolicy)
+
+
+@ddt
+class TestActivityModel(TestCase):
+    fixtures = ['gradingpolicy.json', 'engine.json']
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        self.user = BridgeUser.objects.create_user(
+            username='test',
+            password='test',
+            email='test@me.com'
+        )
+        self.consumer = LtiProvider.objects.create(
+            consumer_name='name',
+            consumer_key='key',
+            consumer_secret='secret',
+        )
+        self.lti_user = LtiUser.objects.create(
+            user_id='some_user', course_id='some_course', email=self.user.email,
+            lti_consumer=self.consumer, bridge_user=self.user
+        )
+        # collections
+        self.collection1 = Collection.objects.create(name='col1', owner=self.user)
+        # grading policies
+        self.trials_count = GradingPolicy.objects.get(name='trials_count')
+        self.points_earned = GradingPolicy.objects.get(name='points_earned')
+        self.engine = Engine.objects.create(engine='engine_mock')
+        self.test_cg = CollectionGroup.objects.create(
+            name='TestColGroup',
+            owner=self.user,
+            engine=self.engine,
+            grading_policy=self.points_earned
+        )
+        self.test_cg.collections.add(self.collection1)
+        self.sequence = Sequence.objects.create(
+            lti_user=self.lti_user, collection=self.collection1,
+            engine=self.engine, grading_policy=self.trials_count,
+        )
+
+    @unpack
+    @data({'stype': 'video', 'is_problem': False},
+          {'stype': 'html', 'is_problem': False},
+          {'stype': 'problem', 'is_problem': True},
+          )
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def test_is_problem_property(self, mock_apply_async, stype, is_problem):
+        activity = Activity(name='test', collection=self.collection1, tags='test', atype='G', stype=stype)
+        self.assertEqual(activity.is_problem, is_problem)
+
+    @unpack
+    @data({'stype': 'video', 'is_problem': False},
+          {'stype': 'html', 'is_problem': False},
+          {'stype': 'problem', 'is_problem': True},
+          )
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def test_create_sequence_item_for_activity(self, mock_apply_async, stype, is_problem):
+        activity = Activity.objects.create(
+            name='test', collection=self.collection1, tags='test', atype='G', stype=stype
+        )
+        sequence_item = SequenceItem.objects.create(
+            sequence=self.sequence,
+            activity=activity,
+        )
+        self.assertTrue(sequence_item.is_problem == activity.is_problem)
+        self.assertEqual(sequence_item.is_problem, is_problem)
