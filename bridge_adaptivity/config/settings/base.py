@@ -139,6 +139,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
+# This settings are related to module/egines and declare gradable problems
 PROBLEM_ACTIVITY_TYPES = (
     'problem',
 )
