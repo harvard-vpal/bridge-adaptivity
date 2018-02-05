@@ -48,51 +48,43 @@ class TestMockEngine(TestCase):
             engine=self.engine, grading_policy=self.trials_count,
         )
 
-    def test_check(self):
-        self.assertTrue(True)
-
-    @patch('module.tasks.sync_collection_engines.apply_async')
     @unpack
-    @data({'activity': {'stype': 'video', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-           'sequence_items': [{'score': None}], 'activity_count': 1, 'er': None},
-          {'activity': {'stype': 'html', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-           'sequence_items': [{'score': None}], 'activity_count': 1, 'er': None},
-          {'activity': {'stype': 'problem', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-           'sequence_items': [{'score': None}], 'activity_count': 1, 'er': '__activity__'},
+    @data({'activities': [{'stype': 'video', 'source_launch_url': 'http://source.url/{}'}],
+           'sequence_items': [{'score': None}], 'er': None},
+          {'activities': [{'stype': 'html', 'source_launch_url': 'http://source.url/{}'}],
+           'sequence_items': [{'score': None}], 'er': None},
+          {'activities': [{'stype': 'problem', 'source_launch_url': 'http://source.url/{}'}],
+           'sequence_items': [{'score': None}], 'er': '__activity__'},
 
-          {'activity': {'stype': 'video', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-          'sequence_items': [{'score': 1}], 'activity_count': 1, 'er': None},
-          {'activity': {'stype': 'html', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-          'sequence_items': [{'score': 1}], 'activity_count': 1, 'er': None},
-          {'activity': {'stype': 'problem', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-          'sequence_items': [{'score': 1}], 'activity_count': 1, 'er': None},
+          {'activities': [{'stype': 'problem', 'source_launch_url': 'http://source.url/{}'}],
+          'sequence_items': [{'score': 1}], 'er': None},
 
-          {'activity': {'stype': 'video', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-          'sequence_items': [{'score': None}], 'activity_count': 4, 'er': "__activity__"},
-          {'activity': {'stype': 'html', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-          'sequence_items': [{'score': None}], 'activity_count': 4, 'er': "__activity__"},
-          {'activity': {'stype': 'problem', 'atype': 'G', 'source_launch_url': 'http://source.url/{}'},
-          'sequence_items': [{'score': None}], 'activity_count': 4, 'er': "__activity__"},
+          {'activities': [{'stype': 'video', 'source_launch_url': 'http://source.url/{}'}] * 4,
+          'sequence_items': [{'score': None}], 'er': "__activity__"},
+          {'activities': [{'stype': 'html', 'source_launch_url': 'http://source.url/{}'}] * 4,
+          'sequence_items': [{'score': None}], 'er': "__activity__"},
+          {'activities': [{'stype': 'problem', 'source_launch_url': 'http://source.url/{}'}] * 4,
+          'sequence_items': [{'score': None}], 'er': "__activity__"},
           )
-    def test_create_sequence_item_for_activity(self, mock_apply_async, activity,
-                                               sequence_items, activity_count, er):
-        activities = []
-        for i in range(activity_count):
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def test_create_sequence_item_for_activity(
+        self, mock_apply_async, activities, sequence_items, er
+    ):
+        created_activities = []
+        for i, activity in enumerate(activities):
             _activity = activity.copy()
             _activity['source_launch_url'] = activity['source_launch_url'].format(i)
-            activities.append(Activity.objects.create(
+            created_activities.append(Activity.objects.create(
                 name='test_{}'.format(i), collection=self.collection1, tags='test', **_activity
             ))
 
-        source_launch_urls = Activity.objects.filter(
-            id__in=[i.id for i in activities]
-        ).values_list('source_launch_url', flat=True)
+        source_launch_urls = Activity.objects.values_list('source_launch_url', flat=True)
 
         created_sequence_items = []
         for i, item in enumerate(sequence_items):
             created_sequence_items.append(SequenceItem.objects.create(
                 sequence=self.sequence,
-                activity=activities[i],
+                activity=created_activities[i],
                 **item
             ))
         selected_activity_url = self.engine.engine_driver.select_activity(self.sequence)
