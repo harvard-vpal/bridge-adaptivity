@@ -5,12 +5,6 @@
       "name": "static"
     },
     {
-      "name": "bridge",
-      "host": {
-        "sourcePath": "/var/app/current"
-      }
-    },
-    {
       "name": "leader_marker",
       "host": {
         "sourcePath": "/tmp/leader"
@@ -24,10 +18,6 @@
       "essential": true,
       "memory": 256,
       "mountPoints": [
-        {
-          "sourceVolume": "bridge",
-          "containerPath": "/bridge_adaptivity"
-        },
         {
           "sourceVolume": "static",
           "containerPath": "/www/static"
@@ -51,12 +41,6 @@
       "image": "361808764124.dkr.ecr.us-east-1.amazonaws.com/bridge/bridge",
       "essential": false,
       "memory": 256,
-      "mountPoints": [
-        {
-          "sourceVolume": "bridge",
-          "containerPath": "/bridge_adaptivity"
-        }
-      ],
       "command": [
         "worker"
       ]
