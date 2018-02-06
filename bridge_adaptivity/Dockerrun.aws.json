@@ -1,0 +1,73 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "static"
+    },
+    {
+      "name": "leader_marker",
+      "host": {
+        "sourcePath": "/tmp/leader"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "bridge",
+      "image": "361808764124.dkr.ecr.us-east-1.amazonaws.com/bridge/bridge",
+      "essential": true,
+      "memory": 256,
+      "mountPoints": [
+        {
+          "sourceVolume": "static",
+          "containerPath": "/www/static"
+        },
+        {
+          "sourceVolume": "leader_marker",
+          "containerPath": "/tmp/leader"
+        }
+      ],
+      "portMappings": [
+        {
+          "containerPort": 8000
+        }
+      ],
+      "command": [
+        "web"
+      ]
+    },
+    {
+      "name": "worker",
+      "image": "361808764124.dkr.ecr.us-east-1.amazonaws.com/bridge/bridge",
+      "essential": false,
+      "memory": 256,
+      "command": [
+        "worker"
+      ]
+    },
+    {
+      "name": "nginx",
+      "image": "361808764124.dkr.ecr.us-east-1.amazonaws.com/bridge/nginx",
+      "essential": false,
+      "memory": 256,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        },
+        {
+          "hostPort": 443,
+          "containerPort": 443
+        }
+      ],
+      "volumesFrom": [
+        {
+          "sourceContainer": "bridge"
+        }
+      ],
+      "links": [
+        "bridge"
+      ]
+    }
+  ]
+}
