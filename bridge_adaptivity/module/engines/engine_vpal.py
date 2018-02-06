@@ -98,7 +98,7 @@ class EngineVPAL(EngineInterface):
         )
         payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.id, "sequence": []}
         for sequence_item in sequence.items.all():
-            payload["sequence"].append(self.fulfill_payload(instance_to_parse=sequence_item))
+            payload["sequence"].append(self.fulfill_payload(payload={}, instance_to_parse=sequence_item))
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
         if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
             choose = chosen_activity.json()
@@ -114,7 +114,7 @@ class EngineVPAL(EngineInterface):
         sync_url = urlparse.urljoin(self.base_url, 'sync/collection/{}'.format(collection.id))
         payload = []
         for activity in collection.activities.all():
-            payload.append(self.fulfill_payload(instance_to_parse=activity))
+            payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))
         sync_collection = requests.post(sync_url, json=payload, headers=self.headers)
         return self.check_engine_response(
             sync_collection.status_code, action='synchronized', obj='collection', name=collection.name, status=201

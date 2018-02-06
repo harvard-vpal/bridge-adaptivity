@@ -1,9 +1,11 @@
-from django.test import TestCase
-from mock import patch
+import urlparse
 
-from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
-from module.models import Activity, Collection, Engine, GradingPolicy, Sequence, SequenceItem
+from django.test import TestCase
+from mock import Mock, patch
+
+from bridge_lti.models import BridgeUser, LtiProvider, LtiUser
 from module.engines import engine_vpal
+from module.models import Activity, Collection, Engine, GradingPolicy, Sequence, SequenceItem
 
 
 class TestVPALEngine(TestCase):
@@ -18,7 +20,18 @@ class TestVPALEngine(TestCase):
             email='test@me.com'
         )
         self.collection = Collection.objects.create(name='test_col', owner=self.user)
-        self.a1 = Activity.objects.create(name='act1', collection=self.collection, source_launch_url='test_url_act1')
+        self.a1 = Activity.objects.create(
+            name='act1',
+            collection=self.collection,
+            source_launch_url='test_url_act1',
+            stype='html',
+        )
+        self.a2 = Activity.objects.create(
+            name='act2',
+            collection=self.collection,
+            source_launch_url='test_url_act2',
+            stype='problem',
+        )
         self.lti_consumer = LtiProvider.objects.create(
             consumer_name='test_consumer_name',
             consumer_key='test_consumer_key',
@@ -36,8 +49,38 @@ class TestVPALEngine(TestCase):
             engine=self.engine,
             grading_policy=self.grading_policy,
         )
-        self.sequence_item = SequenceItem.objects.create(sequence=self.sequence, activity=self.a1, score=0.4)
+        self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a1, score=0.4)
+        self.sequence_item_2 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a2, score=0.6)
 
     def test_fulfill_payload(self):
-        payload = self.engine.engine_driver.fulfill_payload(instance_to_parse=self.sequence_item)
-        raise Exception(payload)
+        expected = {'activity': self.a1.source_launch_url, 'score': self.sequence_item_1.score, 'is_problem': False}
+        payload = self.engine.engine_driver.fulfill_payload(instance_to_parse=self.sequence_item_1)
+        self.assertEqual(payload, expected)
+
+    @patch('requests.post', return_value=Mock(status_code=200))
+    def test_select_activity(self, mock_post):
+        expected_source_url = 'new_activity_source_url'
+        test_url = urlparse.urljoin(
+            "{}/".format(self.engine.engine_driver.activity_url), "recommend}"
+        )
+        expected_payload = {
+            "learner": self.sequence.lti_user.id,
+            "collection": self.sequence.collection.id,
+            "sequence": [
+                {
+                    'activity': self.a1.source_launch_url,
+                    'score': self.sequence_item_1.score,
+                    'is_problem': False
+                },
+                {
+                    'activity': self.a2.source_launch_url,
+                    'score': self.sequence_item_2.score,
+                    'is_problem': True
+                },
+            ]
+        }
+        response = mock_post.return_value
+        response.json.return_value = {'source_launch_url': expected_source_url}
+        result = self.engine.engine_driver.select_activity(self.sequence)
+        mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
+        self.assertEqual(result, expected_source_url)
