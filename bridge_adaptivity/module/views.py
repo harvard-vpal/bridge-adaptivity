@@ -22,7 +22,7 @@ from api.backends.openedx import get_available_courses, get_content_provider
 from bridge_lti.outcomes import update_lms_grades
 from module import utils
 from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
-from module.mixins import CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
+from module.mixins import BackURLMixin, CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
 from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 
 
@@ -62,14 +62,14 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(GroupEditFormMixin, CreateView):
+class GroupCreate(GroupEditFormMixin, BackURLMixin, CreateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(DetailView):
+class GroupDetail(BackURLMixin, DetailView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
@@ -85,7 +85,7 @@ class GroupDetail(DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(GroupEditFormMixin, UpdateView):
+class GroupUpdate(GroupEditFormMixin, BackURLMixin, UpdateView):
     model = CollectionGroup
     slug_field = 'slug'
     slug_url_kwarg = 'group_slug'
@@ -134,7 +134,7 @@ class CollectionCreate(CollectionMixin, CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(CollectionMixin, UpdateView):
+class CollectionUpdate(CollectionMixin, BackURLMixin, UpdateView):
     model = Collection
     fields = ['name', 'metadata', 'strict_forward']
 
@@ -143,7 +143,7 @@ class CollectionUpdate(CollectionMixin, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionDetail(CollectionMixin, DetailView):
+class CollectionDetail(CollectionMixin, BackURLMixin, DetailView):
     model = Collection
     context_object_name = 'collection'
 
@@ -177,7 +177,10 @@ class CollectionDetail(CollectionMixin, DetailView):
 @method_decorator(login_required, name='dispatch')
 class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
-    fields = ['name', 'tags', 'atype', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
+    fields = [
+        'name', 'tags', 'atype', 'difficulty', 'points', 'source_launch_url',
+        'source_name', 'source_context_id', 'stype',
+    ]
 
     def form_valid(self, form):
         activity = form.save(commit=False)
@@ -261,13 +264,12 @@ def _check_next_forbidden(pk):
     last_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence
     ).aggregate(last_item=Max('position'))['last_item']
-    next_forbidden = False
-    if (
+    next_forbidden = (
+        sequence_item.is_problem and
         sequence_item.position == last_item and
         sequence_item.sequence.collection.strict_forward and
         sequence_item.score is None
-    ):
-        next_forbidden = True
+    )
     log.debug("Next item is forbidden: {}".format(next_forbidden))
     return next_forbidden, last_item, sequence_item
 
@@ -288,10 +290,12 @@ def sequence_item_next(request, pk):
         )
     if next_forbidden:
         return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
+
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
         position=sequence_item.position + 1
     ).first()
+
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:

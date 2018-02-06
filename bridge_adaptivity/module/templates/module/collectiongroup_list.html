@@ -10,14 +10,14 @@
     <table class="table table-hover">
       <tr>
         <th>ID</th>
-        <th>name</th>
+        <th>group name</th>
         <th>description</th>
-        <th>collections in group</th>
+        <th>collections in the group</th>
         <th>options</th>
       </tr>
       {% for group in groups %}
           <td>{{ group.id }}</td>
-          <td><a href="{{ group.get_absolute_url }}">{{ group.name }}</a></td>
+          <td><a href="{{ group.get_absolute_url }}?back_url={% url 'module:group-list' %}">{{ group.name }}</a></td>
           <td>
             {% if group.description %}
             {{ group.description|truncatewords:20 }}
@@ -29,7 +29,7 @@
           <td>
             <div>
               <a class="move-down"
-                 href="{% url 'module:group-change' group_slug=group.slug %}">
+                 href="{% url 'module:group-change' group_slug=group.slug %}?back_url={% url 'module:group-list' %}">
                 {% bootstrap_button "Update" size='sm' icon='edit' %}
               </a>
               <a class="move-down" href="{% url 'module:group-delete' group_slug=group.slug %}">

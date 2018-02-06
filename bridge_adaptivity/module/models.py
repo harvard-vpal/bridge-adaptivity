@@ -34,8 +34,12 @@ def _discover_applicable_modules(folder_name='engines', file_startswith='engine_
 def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=None, class_endswith=None):
     """Load class from module."""
     module = None
-    gp_module = importlib.import_module('{}.{}'.format(module_path, mod_name))
-    for attr in inspect.getmembers(gp_module):
+    try:
+        cls_module = importlib.import_module('{}.{}'.format(module_path, mod_name))
+    except ImportError:
+        log.error("Could not load module_path={}, mod_name={}".format(module_path, mod_name))
+        raise
+    for attr in inspect.getmembers(cls_module):
         if class_endswith and attr[0].endswith(class_endswith):
             module = attr[1]
         elif class_startswith and attr[0].startswith(class_startswith):
@@ -81,6 +85,7 @@ class SequenceItem(models.Model):
     position = models.PositiveIntegerField(default=1)
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
 
+    is_problem = models.BooleanField(default=True)
     __origin_score = None
 
     def __init__(self, *args, **kwargs):
@@ -103,6 +108,7 @@ class SequenceItem(models.Model):
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
                 self.activity.name, self.id
             ))
+        self.is_problem = self.activity.is_problem
         super(SequenceItem, self).save(*args, **kwargs)
 
 
@@ -280,6 +286,15 @@ class Activity(OrderedModel):
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     source_context_id = fields.CharField(max_length=255, blank=True, null=True)
     # NOTE(wowkalucky): extra field 'order' is available (inherited from OrderedModel)
+
+    # `stype` - means source_type or string_type.
+    stype = models.CharField(
+        "Type of the activity", help_text="(problem, video, html, etc.)", max_length=25, blank=True, null=True
+    )
+
+    @property
+    def is_problem(self):
+        return self.stype in settings.PROBLEM_ACTIVITY_TYPES
 
     class Meta:
         verbose_name_plural = 'Activities'
