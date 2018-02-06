@@ -13,7 +13,7 @@
     {
       "name": "leader_marker",
       "host": {
-        "sourcePath": "/tmp/is_leader"
+        "sourcePath": "/tmp/leader"
       }
     }
   ],
@@ -34,7 +34,7 @@
         },
         {
           "sourceVolume": "leader_marker",
-          "containerPath": "/tmp/is_leader"
+          "containerPath": "/tmp/leader"
         }
       ],
       "portMappings": [

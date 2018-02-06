@@ -6,11 +6,12 @@
 #   DJANGO_SETTINGS_MODULE
 #   LEADER_ONLY
 
-: ${DJANGO_SETTINGS_MODULE:="config.settings.prod"}
-
 echo "LEADER_ONLY=$LEADER_ONLY"
 
-if [ -f /tmp/is_leader ]; then
+# For multi-instance deployments, create /tmp/leader/is_leader (volume mount
+# can be used) to denote the single container that should run admin commands
+
+if [ -f /tmp/leader/is_leader ]; then
     IS_LEADER=1
     echo "Leader marker detected"
 fi
