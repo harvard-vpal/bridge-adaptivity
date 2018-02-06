@@ -31,13 +31,6 @@ class EngineMock(EngineInterface):
         log.debug("Chosen activity is: {}".format(chosen_activity_url))
         return chosen_activity_url
 
-    def submit_activity_answer(self, sequence_item):
-        """Mock engine works with data stored on the Bridge and do not need to implement method."""
-        log.debug("Student has submitted answer for the activity {} and got {} scores.".format(
-            sequence_item.activity.name, sequence_item.score
-        ))
-        return True
-
     def sync_collection_activities(self, collection):
         """Mock engine works with data stored on the Bridge and do not need to implement method."""
         log.debug("The Collection {} was successfully synchronized with the Mock Engine.".format(

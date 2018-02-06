@@ -17,9 +17,9 @@ ACTIVITY_PARAMS = (
 )
 
 SEQUENCE_ITEM_PARAMS = (
-    'learner',
     'activity',
     'score',
+    'is_problem',
 )
 
 TYPES = {
@@ -77,9 +77,6 @@ class EngineVPAL(EngineInterface):
             if param == 'type':
                 atype = TYPES.get(getattr(instance_to_parse, 'atype'), 'generic')
                 payload[param] = atype
-            elif param == 'learner':
-                learner = instance_to_parse.sequence.lti_user.id
-                payload[param] = learner
             elif param == 'activity':
                 payload[param] = getattr(instance_to_parse, param).source_launch_url
             else:
@@ -97,30 +94,16 @@ class EngineVPAL(EngineInterface):
         :return: selected activity source_launch_url
         """
         reco_url = urlparse.urljoin(
-            "{}/".format(self.activity_url), "recommend?learner={user_id}&collection={collection_id}"
-        ).format(user_id=sequence.lti_user.id, collection_id=sequence.collection.id)
-        chosen_activity = requests.get(reco_url, headers=self.headers)
+            "{}/".format(self.activity_url), "recommend}"
+        )
+        payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.id, "sequence": []}
+        for sequence_item in sequence.items.all():
+            payload["sequence"].append(self.fulfill_payload(instance_to_parse=sequence_item))
+        chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
         if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
             choose = chosen_activity.json()
             return choose.get('source_launch_url')
         return None
-
-    def submit_activity_answer(self, sequence_item):
-        """
-        VPAL engine update student's answer for the activity in the sequence item.
-
-        :param sequence_item: SequenceItem instance
-        """
-        submit_url = urlparse.urljoin(self.base_url, 'score')
-        payload = self.fulfill_payload(instance_to_parse=sequence_item)
-        submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
-        return self.check_engine_response(
-            submit_activity_score.status_code,
-            action='graded',
-            obj='sequence item',
-            name=sequence_item.activity.name,
-            status=201,
-        )
 
     def sync_collection_activities(self, collection):
         """
