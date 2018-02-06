@@ -16,7 +16,10 @@ class EngineMock(EngineInterface):
         :param sequence: sequence
         :return: selected activity source_launch_url
         """
-        s_activities_list = list(sequence.items.exclude(score__isnull=True).values_list('activity_id', flat=True))
+        s_activities_list = list(sequence.items.exclude(
+            score__isnull=True,
+            is_problem=True,
+        ).values_list('activity_id', flat=True))
         available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
         pre_assesment = available_activities.filter(atype='A')
         generic = available_activities.filter(atype='G')

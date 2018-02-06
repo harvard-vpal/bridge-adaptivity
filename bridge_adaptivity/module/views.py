@@ -177,7 +177,10 @@ class CollectionDetail(CollectionMixin, BackURLMixin, DetailView):
 @method_decorator(login_required, name='dispatch')
 class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
-    fields = ['name', 'tags', 'atype', 'difficulty', 'points', 'source_launch_url', 'source_name', 'source_context_id']
+    fields = [
+        'name', 'tags', 'atype', 'difficulty', 'points', 'source_launch_url',
+        'source_name', 'source_context_id', 'stype',
+    ]
 
     def form_valid(self, form):
         activity = form.save(commit=False)
@@ -261,13 +264,12 @@ def _check_next_forbidden(pk):
     last_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence
     ).aggregate(last_item=Max('position'))['last_item']
-    next_forbidden = False
-    if (
+    next_forbidden = (
+        sequence_item.is_problem and
         sequence_item.position == last_item and
         sequence_item.sequence.collection.strict_forward and
         sequence_item.score is None
-    ):
-        next_forbidden = True
+    )
     log.debug("Next item is forbidden: {}".format(next_forbidden))
     return next_forbidden, last_item, sequence_item
 
@@ -288,10 +290,12 @@ def sequence_item_next(request, pk):
         )
     if next_forbidden:
         return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
+
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
         position=sequence_item.position + 1
     ).first()
+
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:
