@@ -14,9 +14,8 @@ RUN pip install -Ur requirements.txt
 # Make static media dir:
 RUN mkdir -p /www/static
 
-# Make sure entrypoint script is executable
-RUN ["chmod", "+x", "run_container.sh"]
+COPY ./entrypoint.sh entrypoint.sh
 
 EXPOSE 8000
 
-CMD ["./run_container.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
