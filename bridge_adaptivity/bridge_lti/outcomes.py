@@ -5,9 +5,11 @@ from lti import OutcomeRequest
 log = logging.getLogger(__name__)
 
 
-def update_lms_grades(request, sequence, user_id):
+def update_lms_grades(request=None, sequence=None, user_id=None):
     """Send grade update to LMS (LTI Tool)."""
-    outcome_request = OutcomeRequest().from_post_request(request)
+    outcome_request = OutcomeRequest()
+    if request is not None:
+        outcome_request = OutcomeRequest().from_post_request(request)
 
     outcome_service = sequence.outcome_service
     consumer = outcome_service.lms_lti_connection
@@ -17,7 +19,11 @@ def update_lms_grades(request, sequence, user_id):
     outcome_request.lis_outcome_service_url = outcome_service.lis_outcome_service_url
     outcome_request.lis_result_sourcedid = sequence.lis_result_sourcedid
 
-    score = sequence.grading_policy.policy_cls.grade
+    log.debug("Update LMS grades. Used sequence = {} is completed = {}, grading_policy = {}".format(
+        sequence, sequence.completed, sequence.grading_policy
+    ))
+
+    score = sequence.grading_policy.calculate_grade(sequence)
     outcome_request.post_replace_result(score)
     lms_response = outcome_request.outcome_response
     if lms_response.is_success:

@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 from django.db.models.aggregates import Count, Sum
+from outcomes import update_lms_grades
 
 
 class BaseGradingPolicy(object):
@@ -50,3 +51,13 @@ class BaseGradingPolicy(object):
     @property
     def grade(self):
         return self._calculate()
+
+    def send_grade(self, is_callback=False):
+        """Send grade to LMS system.
+
+        Call update_lms_grades(self.context['request'], sequence=self.sequence, user_id=self.context['user_id'])
+        :param is_callback: is true if method called from callback_sequence_item_grade view, otherwise False
+        :return: nothing.
+        """
+        if is_callback:
+            update_lms_grades(self.context['request'], sequence=self.sequence, user_id=self.context['user_id'])
