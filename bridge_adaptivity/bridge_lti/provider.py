@@ -147,8 +147,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     sequence_kw = dict(
         lti_user=lti_user,
         collection=collection,
-        engine=engine,
-        grading_policy=collection_group.grading_policy,
+        group=collection_group,
     )
 
     sequence, created = Sequence.objects.get_or_create(**sequence_kw)

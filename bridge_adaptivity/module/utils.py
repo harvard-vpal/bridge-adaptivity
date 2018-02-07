@@ -8,7 +8,7 @@ def choose_activity(sequence_item=None, sequence=None):
     sequence = sequence or sequence_item.sequence
 
     try:
-        activity_source_launch_url = sequence.engine.engine_driver.select_activity(sequence)
+        activity_source_launch_url = sequence.group.engine.engine_driver.select_activity(sequence)
         return get_object_or_404(Activity, collection=sequence.collection, source_launch_url=activity_source_launch_url)
     except (IndexError, Http404):
         sequence.completed = True
