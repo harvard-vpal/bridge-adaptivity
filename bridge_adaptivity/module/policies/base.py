@@ -25,15 +25,15 @@ class BaseGradingPolicy(object):
 
     public_name = 'Grading Policy'
 
-    @classmethod
-    def get_form_class(cls):
-        from module.forms import BaseGradingPolicyForm
-        return BaseGradingPolicyForm
-
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence
         self.policy = policy
         self.context = kwargs
+
+    @classmethod
+    def get_form_class(cls):
+        from module.forms import BaseGradingPolicyForm
+        return BaseGradingPolicyForm
 
     @abstractmethod
     def _calculate(self):
@@ -44,7 +44,7 @@ class BaseGradingPolicy(object):
 
         :return tuple([trials_count, points_earned])
         """
-        items_result = self.sequence.items.exclude(is_problem=False).aggregate(
+        items_result = self.sequence.items.aggregate(
             points_earned=Sum('score'), trials_count=Count('score')
         )
         return items_result['trials_count'], items_result['points_earned']
