@@ -10,9 +10,9 @@ from django.db.models.signals import post_migrate
 from module.models import CollectionGroup
 
 def migrate_data_forward(*args, **kwargs):
-    for instance in CollectionGroup.objects.all():
+    for instance in CollectionGroup.objects.filter(slug__isnull=True):
         print "Generating slug for %s" % instance
-        instance.save() # Will trigger slug update
+        instance.save()  # Will trigger slug update
 
 
 class Migration(migrations.Migration):

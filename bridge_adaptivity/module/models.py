@@ -63,14 +63,14 @@ class Sequence(models.Model):
 
     lti_user = models.ForeignKey(LtiUser)
     collection = models.ForeignKey('Collection')
-    engine = models.ForeignKey('Engine', blank=True, null=True)
-    grading_policy = models.ForeignKey('GradingPolicy', blank=True, null=True)
+    group = models.ForeignKey('CollectionGroup', null=True)
+
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
 
     class Meta:
-        unique_together = (('lti_user', 'collection'), ('lis_result_sourcedid', 'outcome_service'))
+        unique_together = (('lti_user', 'collection', 'group'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -103,7 +103,7 @@ class SequenceItem(models.Model):
     def save(self, *args, **kwargs):
         """Extension sending notification to the Adaptive engine that score is changed."""
         if self.score != self.__origin_score:
-            engine = self.sequence.engine.engine_driver
+            engine = self.sequence.group.engine.engine_driver
             engine.submit_activity_answer(self)
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
                 self.activity.name, self.id
@@ -128,6 +128,9 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     @property
     def policy_cls(self):
         return GRADING_POLICY_NAME_TO_CLS[self.name]
+
+    def policy_instance(self, **kwargs):
+        return self.policy_cls(policy=self, **kwargs)
 
     def calculate_grade(self, sequence):
         policy = self.policy_cls(policy=self, sequence=sequence)
