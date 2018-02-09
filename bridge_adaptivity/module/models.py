@@ -129,6 +129,9 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     def policy_cls(self):
         return GRADING_POLICY_NAME_TO_CLS[self.name]
 
+    def policy_instance(self, **kwargs):
+        return self.policy_cls(policy=self, **kwargs)
+
     def calculate_grade(self, sequence):
         policy = self.policy_cls(policy=self, sequence=sequence)
         return policy.grade

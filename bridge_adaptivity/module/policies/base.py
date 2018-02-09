@@ -2,6 +2,8 @@ from abc import ABCMeta, abstractmethod
 
 from django.db.models.aggregates import Count, Sum
 
+from bridge_lti.outcomes import update_lms_grades
+
 
 class BaseGradingPolicy(object):
     """Base grading policy class defines methods and variables of grading policy.
@@ -50,3 +52,12 @@ class BaseGradingPolicy(object):
     @property
     def grade(self):
         return self._calculate()
+
+    def send_grade(self):
+        """Send grade to LMS system.
+
+        Call update_lms_grades(self.context['request'], sequence=self.sequence, user_id=self.context['user_id'])
+        :return: nothing.
+        """
+        if not self.context.get('request'):
+            update_lms_grades(sequence=self.sequence, user_id=self.context['user_id'])
