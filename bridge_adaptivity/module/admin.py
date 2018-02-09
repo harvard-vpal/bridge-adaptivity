@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
 from .models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Log, Sequence, SequenceItem
@@ -44,8 +46,18 @@ class CollectionAdmin(admin.ModelAdmin):
         return urls
 
 
+class GroupForm(forms.ModelForm):
+    class Meta:
+        model = CollectionGroup
+        fields = ('name', 'owner', 'collections', 'grading_policy', 'engine')
+        widgets = {
+            'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
+        }
+
+
 @admin.register(CollectionGroup)
 class CollectionGroupAdmin(admin.ModelAdmin):
+    form = GroupForm
     readonly_fields = ('slug',)
     list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine')
 

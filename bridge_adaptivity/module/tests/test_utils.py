@@ -5,7 +5,7 @@ from django.test import TestCase
 from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
-from module.models import Activity, Collection, Engine, GradingPolicy, Sequence
+from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence
 from module.utils import choose_activity
 
 
@@ -43,11 +43,18 @@ class TestUtilities(TestCase):
         self.outcome_service = OutcomeService.objects.create(
             lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
         )
+
+        self.test_cg = CollectionGroup.objects.create(
+            name='TestColGroup',
+            owner=self.user,
+            engine=self.engine,
+            grading_policy=self.gading_policy
+        )
+        self.test_cg.collections.add(self.collection)
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
-            engine=self.engine,
-            grading_policy=self.gading_policy,
+            group=self.test_cg,
             outcome_service=self.outcome_service
         )
 
