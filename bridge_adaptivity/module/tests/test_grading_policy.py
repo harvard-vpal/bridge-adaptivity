@@ -81,15 +81,19 @@ class TestGradingPolicyObject(TestCase):
         self.assertIsNotNone(getattr(test_cls, 'public_name', None))
         self.assertEqual(getattr(test_cls, 'public_name'), public_name)
 
-    @mock.patch('module.policies.base.BaseGradingPolicy._get_points_earned_trials_count')
     @unpack
     @data(*GRADING_POLICY_TEST_DATA)
+    @mock.patch('module.policies.base.BaseGradingPolicy._get_points_earned_trials_count')
+    @mock.patch('module.policies.policy_points_earned.PointsEarnedGradingPolicy._get_points_earned_trials_count')
     def test_policy_math(
-            self, mock_points_earned_trials_count, GradingPolicyCls, threshold, trials_count, points_earned,
-            sequence, er
+            self, mock_points_earned_trials_count, mock_points_earned_get_points_earned_trials_count, GradingPolicyCls,
+            threshold, trials_count, points_earned, sequence, er
     ):
+        mock_points_earned_get_points_earned_trials_count.return_value = trials_count, points_earned
         mock_points_earned_trials_count.return_value = trials_count, points_earned
+
         POLICY_CLS_TO_NAME = {v: k for k, v in GRADING_POLICY_NAME_TO_CLS.items()}
+
         policy = GradingPolicy.objects.filter(name=POLICY_CLS_TO_NAME[GradingPolicyCls]).first()
         self.assertIsNotNone(policy)
         policy.threshold = threshold
