@@ -60,4 +60,4 @@ class BaseGradingPolicy(object):
         :return: nothing.
         """
         if not self.context.get('request'):
-            update_lms_grades(self.context['request'], sequence=self.sequence, user_id=self.context['user_id'])
+            update_lms_grades(sequence=self.sequence, user_id=self.context['user_id'])

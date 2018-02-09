@@ -23,4 +23,4 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
         :return: nothing.
         """
         if self.context.get('request'):
-            update_lms_grades(sequence=self.sequence, user_id=self.context['user_id'])
+            update_lms_grades(self.context.get('request'), sequence=self.sequence, user_id=self.context['user_id'])
