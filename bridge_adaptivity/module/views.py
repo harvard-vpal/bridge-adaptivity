@@ -301,12 +301,11 @@ def sequence_item_next(request, pk):
         activity = utils.choose_activity(sequence_item)
         update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
-            # send grade here. call policy._send_grade(is_callback=False)
             sequence = sequence_item.sequence
             policy = sequence.grading_policy.policy_instance(
-                sequence=sequence, request=None, user_id=sequence.lti_user.user_id,
+                sequence=sequence, user_id=sequence.lti_user.user_id,
             )
-            policy.send_grade(is_callback=False)
+            policy.send_grade()
             if not activity:
                 return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
             next_sequence_item = SequenceItem.objects.create(
@@ -368,9 +367,6 @@ def callback_sequence_item_grade(request):
     sequence_item.score = score
     sequence_item.save()
 
-    # call choose_activity to update sequence.conpleted flag
-    utils.choose_activity(sequence=sequence_item.sequence)
-
     log.debug("[LTI] Sequence item {} grade is updated".format(sequence_item))
     last_log_submit = Log.objects.filter(sequence_item=sequence_item, log_type='S').last()
     attempt = (last_log_submit.attempt if last_log_submit else 0) + 1
@@ -387,9 +383,7 @@ def callback_sequence_item_grade(request):
 
     sequence = sequence_item.sequence
     if sequence.lis_result_sourcedid:
-        # call policy._send_grade(is_callback=True)
-        # update_lms_grades(request, sequence, user_id)
         policy = sequence.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
-        policy.send_grade(is_callback=True)
+        policy.send_grade()
 
     return HttpResponse(xml, content_type="application/xml")

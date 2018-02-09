@@ -7,9 +7,7 @@ log = logging.getLogger(__name__)
 
 def update_lms_grades(request=None, sequence=None, user_id=None):
     """Send grade update to LMS (LTI Tool)."""
-    outcome_request = OutcomeRequest()
-    if request is not None:
-        outcome_request = OutcomeRequest().from_post_request(request)
+    outcome_request = OutcomeRequest().from_post_request(request) if request else OutcomeRequest()
 
     outcome_service = sequence.outcome_service
     consumer = outcome_service.lms_lti_connection
