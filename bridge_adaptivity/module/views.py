@@ -302,7 +302,7 @@ def sequence_item_next(request, pk):
         update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.grading_policy.policy_instance(
+            policy = sequence.group.grading_policy.policy_instance(
                 sequence=sequence, user_id=sequence.lti_user.user_id,
             )
             policy.send_grade()
@@ -383,7 +383,7 @@ def callback_sequence_item_grade(request):
 
     sequence = sequence_item.sequence
     if sequence.lis_result_sourcedid:
-        policy = sequence.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
+        policy = sequence.group.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
         policy.send_grade()
 
     return HttpResponse(xml, content_type="application/xml")
