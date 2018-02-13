@@ -1,0 +1,64 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 static %}
+
+{% block title %}Courses{% endblock title %}
+
+<hr>
+
+{% block content %}
+  {% if courses %}
+    <table class="table table-hover">
+      <tr>
+        <th>Course name</th>
+        <th>description</th>
+        <th>groups in course</th>
+        <th>options</th>
+      </tr>
+      {% for course in courses %}
+        <tr>
+          <td><a href="{% url 'module:course-detail' course.slug %}?back_url={% url 'module:course-list' %}">
+            {{ course.name }}</a></td>
+          </td>
+          <td>
+            {{ course.description }}
+          </td>
+          <td>
+            {{ course.course_groups.count }}
+          </td>
+          <td>
+            <div>
+             <a class="move-down"
+                 href="{% url 'module:course-change' course.slug %}?back_url={% url 'module:course-list' %}">
+                {% bootstrap_button "Update" size='sm' icon='edit' %}
+              </a>
+              <a class="move-down require-submission" href="{% url 'module:course-delete' course_slug=course.slug %}">
+                  {% bootstrap_button "Remove" size='sm' icon='trash' %}
+              </a>
+            </div>
+
+            <div>
+
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      You have no courses for now.
+    </div>
+  {% endif %}
+
+  <hr>
+  <a href="{% url 'module:course-add' %}">
+    {% bootstrap_button 'Add Course' size='lg' icon='plus' %}
+  </a>
+
+{% endblock content %}
+
+
+{% block bootstrap3_extra_script %}
+  {{ block.super }}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}
+

@@ -2,8 +2,8 @@ import importlib
 import inspect
 import logging
 import os
+from uuid import uuid4
 
-from autoslug import AutoSlugField
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -17,6 +17,7 @@ from ordered_model.models import OrderedModel
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common.mixins.models import ModelFieldIsDefaultMixin
 from module import tasks
+from module.mixins.models import WithUniqueSlugMixin
 
 log = logging.getLogger(__name__)
 
@@ -99,6 +100,21 @@ class SequenceItem(models.Model):
         """Extension sending notification to the Adaptive engine that score is changed."""
         self.is_problem = self.activity.is_problem
         super(SequenceItem, self).save(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Course(WithUniqueSlugMixin, models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    slug = models.SlugField(max_length=36)
+    owner = models.ForeignKey(BridgeUser)
+
+    def get_absolute_url(self):
+        return reverse('module:course-detail', kwargs={'course_slug': self.slug})
+
+    def __str__(self):
+        return self.name
 
 
 @python_2_unicode_compatible
@@ -219,18 +235,17 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class CollectionGroup(models.Model):
+class CollectionGroup(WithUniqueSlugMixin, models.Model):
     """Represents Collections Group."""
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser)
-    slug = AutoSlugField(
-        null=True,
-        populate_from='name',
-        unique_with=('atime',),
-    )
+    slug = models.SlugField(null=True)
+    course = models.ForeignKey(Course, related_name='course_groups', null=True)
+
+    course = models.ForeignKey(Course, related_name='course_groups', null=True)
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
     collections = models.ManyToManyField(Collection, related_name='collection_groups', blank=True)

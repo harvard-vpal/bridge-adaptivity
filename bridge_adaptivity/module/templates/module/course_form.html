@@ -1,0 +1,24 @@
+{% extends "module/base.html" %}
+{% load bootstrap3 static %}
+
+
+<hr>
+
+{% block content %}
+{% if course.id %}
+<h2>Update {{ course.name }}</h2>
+{% else %}
+<h2>New Course configuration</h2>
+{% endif %}
+
+<form role="form" method="post">
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button class="btn btn-primary" type="submit">
+    {% if course.id %}Update{% else %}Create{% endif %}</button>
+  <a href="{% if back_url %} {{ back_url }} {% elif course.id %}{{ course.get_absolute_url }}{% else %}{% url 'module:course-list' %}{% endif %}" class="btn btn-default" role="button"
+     type="reset">Cancel</a>
+</form>
+
+
+{% endblock content %}

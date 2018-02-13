@@ -9,6 +9,12 @@ from module.views import (
 )
 
 urlpatterns = [
+    url(r'^course/$', CourseList.as_view(), name='course-list'),
+    url(r'^course/add/?$', CourseCreate.as_view(), name='course-add'),
+    url(r'^course/(?P<course_slug>[\w-]+)/$', CourseDetail.as_view(), name='course-detail'),
+    url(r'^course/(?P<course_slug>[\w-]+)/change/?$', CourseUpdate.as_view(), name='course-change'),
+    url(r'^course/(?P<course_slug>[\w-]+)/delete/?$', CourseDelete.as_view(), name='course-delete'),
+
     url(r'^group/$', GroupList.as_view(), name='group-list'),
     url(r'^group/add/?$', GroupCreate.as_view(), name='group-add'),
     url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
