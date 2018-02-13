@@ -86,11 +86,6 @@ class SequenceItem(models.Model):
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
 
     is_problem = models.BooleanField(default=True)
-    __origin_score = None
-
-    def __init__(self, *args, **kwargs):
-        super(SequenceItem, self).__init__(*args, **kwargs)
-        self.__origin_score = self.score
 
     class Meta:
         verbose_name = "Sequence Item"
