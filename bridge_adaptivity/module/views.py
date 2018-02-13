@@ -174,6 +174,20 @@ class CollectionDetail(CollectionMixin, BackURLMixin, DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
+class CollectionDelete(DeleteView):
+    model = Collection
+
+    def get_success_url(self):
+        return reverse('module:collection-list')
+
+    def get_queryset(self):
+        return super(CollectionDelete, self).get_queryset().filter(owner=self.request.user)
+
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
 class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
     fields = [
