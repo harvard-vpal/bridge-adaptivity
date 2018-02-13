@@ -1,4 +1,5 @@
 from ddt import data, ddt, unpack
+from django.conf import settings
 from django.test import TestCase
 from mock.mock import patch
 
@@ -184,3 +185,22 @@ class TestActivityModel(TestCase):
         )
         self.assertTrue(sequence_item.is_problem == activity.is_problem)
         self.assertEqual(sequence_item.is_problem, is_problem)
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def test_update_sequence_item_with_grade(self, mock_apply_async):
+        activity = Activity.objects.create(
+            name='test', collection=self.collection1, tags='test', atype='G', stype='problem'
+        )
+        mock_apply_async.assert_called_once_with(
+            kwargs={'collection_id': self.collection1.id, 'created_at': self.collection1.updated_at},
+            countdown=settings.CELERY_DELAY_SYNC_TASK,
+        )
+        sequence_item = SequenceItem.objects.create(
+            sequence=self.sequence,
+            activity=activity,
+        )
+        sequence_item.score = 0.5
+        sequence_item.save()
+        self.assertTrue(sequence_item.is_problem == activity.is_problem)
+        self.assertTrue(sequence_item.is_problem)
+        self.assertEqual(sequence_item.score, 0.5)
