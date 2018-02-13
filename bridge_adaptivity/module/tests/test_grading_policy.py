@@ -178,7 +178,7 @@ class TestPolicySendGradeMethod(TestCase):
         mock_update_lms_grades.assert_called_with(*(request,), **default_kw)
 
     @mock.patch('module.policies.base.update_lms_grades')
-    def test_send_grade_method_policy_trials_count(self, mock_update_lms_grades):
+    def test_send_grade_method_policies_trials_count_full_credit(self, mock_update_lms_grades):
         """Test policy.send_grade method for policies TrialsCount and FullCreditOnComplete."""
         for policy_model in GradingPolicy.objects.filter(name__in=['trials_count', 'full_credit']):
             policy = policy_model.policy_instance(
