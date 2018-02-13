@@ -86,11 +86,6 @@ class SequenceItem(models.Model):
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
 
     is_problem = models.BooleanField(default=True)
-    __origin_score = None
-
-    def __init__(self, *args, **kwargs):
-        super(SequenceItem, self).__init__(*args, **kwargs)
-        self.__origin_score = self.score
 
     class Meta:
         verbose_name = "Sequence Item"
@@ -102,12 +97,6 @@ class SequenceItem(models.Model):
 
     def save(self, *args, **kwargs):
         """Extension sending notification to the Adaptive engine that score is changed."""
-        if self.score != self.__origin_score:
-            engine = self.sequence.group.engine.engine_driver
-            engine.submit_activity_answer(self)
-            log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
-                self.activity.name, self.id
-            ))
         self.is_problem = self.activity.is_problem
         super(SequenceItem, self).save(*args, **kwargs)
 
