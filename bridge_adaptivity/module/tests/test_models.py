@@ -203,3 +203,20 @@ class TestActivityModel(TestCase):
         sequence_item.save()
         # save() method is overloaded in the models, and we test that it works correctly
         self.assertEqual(sequence_item.score, 0.5)
+
+
+class TestCollectionGroupModel(TestCase):
+    fixtures = ['gradingpolicy.json', 'engine.json']
+
+    def test_create_empty_group(self):
+        """Test an ability to create empty collection group (without collections)."""
+        user = BridgeUser.objects.create_user(
+            username='test',
+            password='test',
+            email='test@me.com'
+        )
+        points_earned = GradingPolicy.objects.get(name='points_earned')
+        engine = Engine.objects.create(engine='engine_mock')
+        CollectionGroup.objects.create(
+            name='some name', engine=engine, grading_policy=points_earned, owner=user
+        )
