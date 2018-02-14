@@ -27,11 +27,6 @@ class Migration(migrations.Migration):
             ],
             bases=(module.mixins.models.WithUniqueSlugMixin, models.Model),
         ),
-        migrations.AlterField(
-            model_name='collectiongroup',
-            name='slug',
-            field=models.SlugField(null=True),
-        ),
         migrations.AddField(
             model_name='collectiongroup',
             name='course',
