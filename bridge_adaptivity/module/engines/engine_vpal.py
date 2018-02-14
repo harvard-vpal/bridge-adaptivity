@@ -111,7 +111,7 @@ class EngineVPAL(EngineInterface):
 
         :param collection: Collection instance for synchronization
         """
-        sync_url = urlparse.urljoin(self.base_url, 'sync/collection/{}'.format(collection.id))
+        sync_url = urlparse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.id))
         payload = []
         for activity in collection.activities.all():
             payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))
