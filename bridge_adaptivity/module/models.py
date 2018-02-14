@@ -2,7 +2,6 @@ import importlib
 import inspect
 import logging
 import os
-from uuid import uuid4
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField

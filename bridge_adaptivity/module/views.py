@@ -1,7 +1,6 @@
 import logging
 from xml.sax.saxutils import escape
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -34,8 +33,8 @@ log = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseCreate(BaseCourseView, SetUserInFormMixin,  CreateView):
-    fields = 'owner', 'name', 'description',
+class CourseCreate(BaseCourseView, SetUserInFormMixin, CreateView):
+    fields = 'owner', 'name', 'description'
 
 
 @method_decorator(login_required, name='dispatch')
