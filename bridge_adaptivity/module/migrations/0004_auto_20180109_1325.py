@@ -3,7 +3,6 @@
 from __future__ import unicode_literals
 import sys
 
-import autoslug.fields
 import django.db.models.deletion
 from django.db import migrations, models
 from django.db.models.signals import post_migrate
@@ -27,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='collectiongroup',
             name='slug',
-            field=autoslug.fields.AutoSlugField(editable=False, null=True, populate_from=b'name', unique_with=[b'owner']),
+            field=models.SlugField(null=True),
         ),
         migrations.AddField(
             model_name='engine',
