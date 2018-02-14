@@ -233,7 +233,7 @@ class CollectionGroup(models.Model):
     )
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
-    collections = models.ManyToManyField(Collection, related_name='collection_groups')
+    collections = models.ManyToManyField(Collection, related_name='collection_groups', blank=True)
 
     engine = models.ForeignKey(Engine)
 
