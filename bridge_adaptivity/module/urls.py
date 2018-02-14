@@ -3,8 +3,8 @@ from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
-    ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
-    CollectionDelete, CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
+    ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDelete,
+    CollectionDetail, CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
     GroupList, GroupUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 
