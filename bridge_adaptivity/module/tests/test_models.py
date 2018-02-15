@@ -210,6 +210,7 @@ class TestCollectionGroupModel(TestCase):
 
     def test_create_empty_group(self):
         """Test an ability to create empty collection group (without collections)."""
+        groups_count = CollectionGroup.objects.count()
         user = BridgeUser.objects.create_user(
             username='test',
             password='test',
@@ -217,6 +218,8 @@ class TestCollectionGroupModel(TestCase):
         )
         points_earned = GradingPolicy.objects.get(name='points_earned')
         engine = Engine.objects.create(engine='engine_mock')
-        CollectionGroup.objects.create(
+        group = CollectionGroup.objects.create(
             name='some name', engine=engine, grading_policy=points_earned, owner=user
         )
+        self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
+        self.assertFalse(group.collections.all())
