@@ -47,6 +47,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
 
     Allow programmatically create, read, update, and delete activities.
     """
+
     queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
 
@@ -57,5 +58,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     Allow programmatically create, read, update, and delete collections.
     """
+
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer

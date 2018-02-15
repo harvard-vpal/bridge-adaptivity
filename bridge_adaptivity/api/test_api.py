@@ -1,7 +1,7 @@
 from django.urls import reverse
-from rest_framework.test import APITestCase
 from mock import patch
 from rest_framework.authtoken.models import Token
+from rest_framework.test import APITestCase
 
 from bridge_lti.models import BridgeUser
 from module.models import Activity, Collection
@@ -29,6 +29,7 @@ class TestCollectionAPI(TestApiBase):
 
     CRUD requests are tested as well as request authorization.
     """
+
     @classmethod
     def setUpTestData(cls):
         super(TestCollectionAPI, cls).setUpTestData()
@@ -94,6 +95,7 @@ class TestActivityAPI(TestApiBase):
 
     CRUD requests are tested as well as request authorization.
     """
+
     @classmethod
     def setUpTestData(cls):
         super(TestActivityAPI, cls).setUpTestData()
@@ -151,5 +153,3 @@ class TestActivityAPI(TestApiBase):
         self.assertEqual(deleted.status_code, 204)
         activities = self.client.get(self.list_url).data
         self.assertEqual(len(activities), 1)
-
-

@@ -1,13 +1,12 @@
 from django.conf import settings
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 from rest_framework import routers
 
-from api.views import sources, ActivityViewSet, CollectionViewSet
+from api.views import ActivityViewSet, CollectionViewSet, sources
 
 router = routers.DefaultRouter(trailing_slash=True)
 router.register('activity', ActivityViewSet)
 router.register('collection', CollectionViewSet)
-
 
 urlpatterns = [
     url(r'^', include(router.urls)),
