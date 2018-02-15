@@ -11,11 +11,14 @@ log = logging.getLogger(__name__)
 class ActivityForm(ModelForm):
     required_css_class = 'required'
 
+    advanced_fields = ['source_launch_url', 'source_name', 'source_context_id']
+
     class Meta:
         model = Activity
-        exclude = ['collection', 'lti_consumer']
+        exclude = ['collection', 'lti_consumer', 'points']
         widgets = {
             'stype': forms.HiddenInput(),
+            'points': forms.HiddenInput(),
         }
 
 
