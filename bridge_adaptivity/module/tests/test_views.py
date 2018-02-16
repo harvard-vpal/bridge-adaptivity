@@ -77,7 +77,7 @@ class TestCollectionList(BridgeTestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TestCollectionGroupTest(BridgeTestCase):
+class TestCollectionGroup(BridgeTestCase):
     def test_create_cg_page_works(self):
         """Test that CollectionGroup page works correctly contain valid context and response code is 200."""
         url = reverse('module:group-add')

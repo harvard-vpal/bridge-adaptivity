@@ -82,9 +82,7 @@ class GroupEditFormMixin(object):
         collections = Collection.objects.filter(
             owner=self.request.user
         )
-        form.fields['owner'].initial = self.request.user
         form.fields['engine'].initial = Engine.get_default()
-        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
         form.fields['collections'].queryset = collections
         if self.kwargs.get('group_slug'):
@@ -112,8 +110,11 @@ class BackURLMixin(object):
 
 
 class SetUserInFormMixin(object):
+    owner_field_name = 'owner'
+
     def get_form(self):
         form = super(SetUserInFormMixin, self).get_form()
-        form.fields['owner'].initial = self.request.user
-        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        if form.fields.get(self.owner_field_name):
+            form.fields['owner'].initial = self.request.user
+            form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         return form

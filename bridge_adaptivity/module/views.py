@@ -48,7 +48,7 @@ class CourseDetail(BaseCourseView, DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseUpdate(BaseCourseView, UpdateView):
+class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
     fields = 'name', 'description'
     context_object_name = 'course'
 
@@ -100,7 +100,7 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(BaseGroupView, GroupEditFormMixin, CreateView):
+class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, CreateView):
     pass
 
 
@@ -115,7 +115,7 @@ class GroupDetail(BaseGroupView, DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(BaseGroupView, GroupEditFormMixin, UpdateView):
+class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, UpdateView):
     form_class = GroupForm
     context_object_name = 'group'
 
@@ -142,7 +142,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(BaseCollectionView, UpdateView):
+class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, UpdateView):
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
 

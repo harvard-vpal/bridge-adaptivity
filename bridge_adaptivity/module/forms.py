@@ -32,6 +32,9 @@ class GroupForm(ModelForm):
     class Meta:
         model = CollectionGroup
         fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name'
+        widgets = {
+            'owner': forms.HiddenInput(),
+        }
 
 
 class BaseGradingPolicyForm(ModelForm):
