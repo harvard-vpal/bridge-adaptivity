@@ -235,5 +235,10 @@
 
         $('.require-submission').requireUserSubmit();
         $('form').preventDoubleSubmission();
+
+        $('.activity-show-advanced-options').on('click', function(e){
+            $($(this).data('toggle')).toggle('slow');
+            e.preventDefault();
+        })
     });
 }(jQuery));
