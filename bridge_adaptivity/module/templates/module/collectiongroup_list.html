@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load bootstrap3 %}
+{% load static bootstrap3 %}
 
 {% block title %}Groups of Collections{% endblock title %}
 
@@ -9,14 +9,15 @@
   {% if groups %}
     <table class="table table-hover">
       <tr>
-        <th>ID</th>
         <th>group name</th>
         <th>description</th>
-        <th>collections in the group</th>
-        <th>options</th>
+        <th class="text-center">collections</th>
+        <th class="text-center">engine</th>
+        <th class="text-center">policy</th>
+        <th class="text-center">threshold</th>
+        <th class="text-center">options</th>
       </tr>
       {% for group in groups %}
-          <td>{{ group.id }}</td>
           <td><a href="{{ group.get_absolute_url }}?back_url={% url 'module:group-list' %}">{{ group.name }}</a></td>
           <td>
             {% if group.description %}
@@ -25,15 +26,19 @@
             No description
             {% endif %}
           </td>
-          <td>{{ group.collections.count }}</td>
+          <td style="width:5%; " class="container text-center">{{ group.collections.count }}</td>
+          <td class="text-center">{{ group.engine.engine_name }}</td>
+          <td class="text-center">{{ group.grading_policy.policy_cls.public_name }}</td>
+          <td class="text-center">{{ group.grading_policy.threshold }}</td>
           <td>
             <div>
               <a class="move-down"
                  href="{% url 'module:group-change' group_slug=group.slug %}?back_url={% url 'module:group-list' %}">
-                {% bootstrap_button "Update" size='sm' icon='edit' %}
+                {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
-              <a class="move-down" href="{% url 'module:group-delete' group_slug=group.slug %}">
-                  {% bootstrap_button "Remove" size='sm' icon='trash' %}
+
+              <a class="move-down require-submission" href="{% url 'module:group-delete' group_slug=group.slug %}">
+                  {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
             </div>
           </td>
@@ -52,3 +57,8 @@
   </a>
 
 {% endblock content %}
+
+{% block bootstrap3_extra_script %}
+  {{ block.super }}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}

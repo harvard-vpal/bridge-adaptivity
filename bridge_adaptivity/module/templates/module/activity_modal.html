@@ -12,9 +12,27 @@
       <div class="modal-body">
         <form role="form" method="post" action="{% url 'module:activity-add' collection_id=collection.id %}">
           {% csrf_token %}
-          {% bootstrap_form activity_form %}
-          <button class="btn btn-primary" type="submit">{% if activity %}Update{% else %}Create{% endif %}</button>
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+          {% for field in activity_form %}
+          {% if field.name not in activity_form.advanced_fields%}
+          {% bootstrap_field field %}
+          {% endif %}
+          {% endfor %}
+
+          <div class="advanced_fields">
+          {% for field in activity_form %}
+            {% if field.name in activity_form.advanced_fields %}
+              {% bootstrap_field field %}
+            {% endif %}
+          {% endfor %}
+          </div>
+          <button
+              class="pull-left btn btn-default activity-show-advanced-options"
+              data-toggle=".advanced_fields"
+              >
+            {% bootstrap_icon "plus" %} Show advanced options</button>
+          <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+          <button class="btn btn-primary pull-right " type="submit">{% if activity %}Update{% else %}Create{% endif %}</button>
         </form>
       </div>
       <div class="modal-footer">
