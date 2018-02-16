@@ -1,7 +1,6 @@
 import logging
 from xml.sax.saxutils import escape
 
-from django import forms
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -20,22 +19,62 @@ from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
 from module import utils
+from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
-from module.mixins import BackURLMixin, CollectionIdToContextMixin, CollectionMixin, GroupEditFormMixin, LtiSessionMixin
-from module.models import Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
+from module.mixins.views import (
+    CollectionIdToContextMixin, GroupEditFormMixin, LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin
+)
+from module.models import (
+    Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
+)
 
 
 log = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupList(ListView):
+class CourseCreate(BaseCourseView, SetUserInFormMixin, CreateView):
+    fields = 'owner', 'name', 'description'
+
+
+@method_decorator(login_required, name='dispatch')
+class CourseList(BaseCourseView, ListView):
+    context_object_name = 'courses'
+
+
+@method_decorator(login_required, name='dispatch')
+class CourseDetail(BaseCourseView, DetailView):
+    context_object_name = 'course'
+
+
+@method_decorator(login_required, name='dispatch')
+class CourseUpdate(BaseCourseView, UpdateView):
+    fields = 'name', 'description'
+    context_object_name = 'course'
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+    def form_valid(self, form):
+        response = super(CourseUpdate, self).form_valid(form)
+        self.object.owner = self.request.user
+        return response
+
+
+@method_decorator(login_required, name='dispatch')
+class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
+    def get_success_url(self):
+        return reverse('module:course-list')
+
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
+class GroupList(OnlyMyObjectsMixin, ListView):
     model = CollectionGroup
     context_object_name = 'groups'
     ordering = ['slug']
-
-    def get_queryset(self):
-        return self.model.objects.filter(owner=self.request.user)
 
 
 class GetGradingPolicyForm(FormView):
@@ -61,17 +100,12 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(GroupEditFormMixin, BackURLMixin, CreateView):
-    model = CollectionGroup
-    slug_field = 'slug'
-    slug_url_kwarg = 'group_slug'
+class GroupCreate(BaseGroupView, GroupEditFormMixin, CreateView):
+    pass
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(BackURLMixin, DetailView):
-    model = CollectionGroup
-    slug_field = 'slug'
-    slug_url_kwarg = 'group_slug'
+class GroupDetail(BaseGroupView, DetailView):
     context_object_name = 'group'
 
     def get_context_data(self, **kwargs):
@@ -79,17 +113,10 @@ class GroupDetail(BackURLMixin, DetailView):
         context.update({'bridge_host': settings.BRIDGE_HOST})
         return context
 
-    def get_queryset(self):
-        return CollectionGroup.objects.filter(owner=self.request.user)
-
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(GroupEditFormMixin, BackURLMixin, UpdateView):
-    model = CollectionGroup
-    slug_field = 'slug'
-    slug_url_kwarg = 'group_slug'
+class GroupUpdate(BaseGroupView, GroupEditFormMixin, UpdateView):
     form_class = GroupForm
-
     context_object_name = 'group'
 
     def get_success_url(self):
@@ -97,53 +124,31 @@ class GroupUpdate(GroupEditFormMixin, BackURLMixin, UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDelete(GroupEditFormMixin, DeleteView):
-    model = CollectionGroup
-    slug_field = 'slug'
-    slug_url_kwarg = 'group_slug'
-
+class GroupDelete(BaseGroupView, DeleteView):
     def get_success_url(self):
         return reverse('module:group-list')
-
-    def get_queryset(self):
-        return super(GroupDelete, self).get_queryset().filter(owner=self.request.user.id)
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
 
 
-@method_decorator(login_required, name='dispatch')
-class CollectionList(CollectionMixin, ListView):
-    model = Collection
+class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
-    ordering = ['id']
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionCreate(CollectionMixin, CreateView):
-    model = Collection
-    fields = ['name', 'owner', 'metadata', 'strict_forward']
-
-    def get_form(self):
-        # FIXME(wowkalucky): improve 'unique_together' default validation message
-        form = super(CollectionCreate, self).get_form()
-        form.fields['owner'].initial = self.request.user
-        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
-        return form
+class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
+    pass
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(CollectionMixin, BackURLMixin, UpdateView):
-    model = Collection
-    fields = ['name', 'metadata', 'strict_forward']
-
+class CollectionUpdate(BaseCollectionView, UpdateView):
     def get_success_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionDetail(CollectionMixin, BackURLMixin, DetailView):
-    model = Collection
+class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
 
     def get_context_data(self, **kwargs):

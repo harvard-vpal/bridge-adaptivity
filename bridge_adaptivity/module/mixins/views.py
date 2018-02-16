@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 
 from module.forms import BaseGradingPolicyForm, GroupForm, ThresholdGradingPolicyForm
-from module.models import Collection, CollectionGroup, Engine
+from module.models import Collection, CollectionGroup, Course, Engine
 
 log = logging.getLogger(__name__)
 
@@ -85,6 +85,7 @@ class GroupEditFormMixin(object):
         form.fields['owner'].initial = self.request.user
         form.fields['engine'].initial = Engine.get_default()
         form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
         form.fields['collections'].queryset = collections
         if self.kwargs.get('group_slug'):
             group = get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
@@ -93,10 +94,12 @@ class GroupEditFormMixin(object):
         return form
 
 
-class CollectionMixin(object):
+class OnlyMyObjectsMixin(object):
+    owner_field = 'owner'
+
     def get_queryset(self):
-        qs = Collection.objects.filter(owner=self.request.user)
-        return qs
+        qs = super(OnlyMyObjectsMixin, self).get_queryset()
+        return qs.filter(**{self.owner_field: self.request.user})
 
 
 class BackURLMixin(object):
@@ -106,3 +109,11 @@ class BackURLMixin(object):
         if back_url:
             context['back_url'] = back_url
         return context
+
+
+class SetUserInFormMixin(object):
+    def get_form(self):
+        form = super(SetUserInFormMixin, self).get_form()
+        form.fields['owner'].initial = self.request.user
+        form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
+        return form

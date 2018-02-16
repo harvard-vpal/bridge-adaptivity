@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Log, Sequence, SequenceItem
+from .models import Activity, Collection, CollectionGroup, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem
 
 
 class SequenceItemStackedInline(admin.StackedInline):
@@ -49,7 +49,7 @@ class CollectionAdmin(admin.ModelAdmin):
 class GroupForm(forms.ModelForm):
     class Meta:
         model = CollectionGroup
-        fields = ('name', 'owner', 'collections', 'grading_policy', 'engine')
+        fields = ('name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine')
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
         }
@@ -76,3 +76,16 @@ class GradingPolicyAdmin(admin.ModelAdmin):
 @admin.register(Log)
 class LogAdmin(admin.ModelAdmin):
     pass
+
+
+class GroupStackedInline(admin.StackedInline):
+    model = CollectionGroup
+    exclude = []
+    readonly_fields = ('slug',)
+    extra = 0
+
+
+@admin.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    inlines = (GroupStackedInline,)
+    readonly_fields = ('slug',)

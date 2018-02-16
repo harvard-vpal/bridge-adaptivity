@@ -1,0 +1,68 @@
+{% extends "module/base.html" %}
+{% load static bootstrap3 %}
+
+{% block title %}
+<div>Course: <span class="label label-default">{{ course.name }}</span></div>
+  <h3>
+    <a class="pull-right" href="{% url 'module:course-change' course.slug %}?back_url={{ course.get_absolute_url}}">
+      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+    </a>
+  </h3>
+{% endblock title %}
+
+{% block content %}
+<!--Left side column-->
+<div class="col-md-9">
+  {% if course.course_groups.all %}
+    <table class="table table-hover">
+      <tr>
+        <th>name</th>
+        <th>description</th>
+        <th>collections count</th>
+        <th>grading policy</th>
+        <th>threshold</th>
+      </tr>
+      {% for group in course.course_groups.all %}
+        <tr>
+          <td><a href="{% url 'module:group-detail' group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.name }}</a></td>
+          <td>
+            {{ group.description }}
+          </td>
+          <td>
+            {{ group.collections.count }}
+          </td>
+          <td>
+            <a href="{% url 'module:group-change' group_slug=group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.grading_policy.policy_cls.public_name }}</a>
+          </td>
+          <td>
+            {% if group.grading_policy.threshold is not None %}
+              <p>{{ group.grading_policy.threshold }}</p>
+            {% endif %}
+          </td>
+        </tr>
+      <tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      You have no groups in this course for now.
+    </div>
+  {% endif %}
+</div>
+<!--Right side-->
+<div class="col-md-3">
+  <div class="row">
+    <h3 class="text-center">Course Info</h3>
+    <div class="alert alert-info text-center">
+      <h4 class="text-center">Description</h4>
+      <p class="text-left">
+        {% if course.description %}
+          {{ course.description }}
+        {% else %}
+          No description for this course.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock content %}

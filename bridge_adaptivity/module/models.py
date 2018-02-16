@@ -2,8 +2,8 @@ import importlib
 import inspect
 import logging
 import os
+import uuid
 
-from autoslug import AutoSlugField
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -99,6 +99,21 @@ class SequenceItem(models.Model):
         """Extension sending notification to the Adaptive engine that score is changed."""
         self.is_problem = self.activity.is_problem
         super(SequenceItem, self).save(*args, **kwargs)
+
+
+@python_2_unicode_compatible
+class Course(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(BridgeUser)
+
+    def get_absolute_url(self):
+        return reverse('module:course-detail', kwargs={'course_slug': self.slug})
+
+    def __str__(self):
+        return self.name
 
 
 @python_2_unicode_compatible
@@ -226,11 +241,8 @@ class CollectionGroup(models.Model):
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser)
-    slug = AutoSlugField(
-        null=True,
-        populate_from='name',
-        unique_with=('atime',),
-    )
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    course = models.ForeignKey(Course, related_name='course_groups', null=True)
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
     collections = models.ManyToManyField(Collection, related_name='collection_groups', blank=True)
