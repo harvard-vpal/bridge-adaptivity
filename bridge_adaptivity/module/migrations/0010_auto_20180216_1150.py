@@ -74,4 +74,14 @@ class Migration(migrations.Migration):
             name='course',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='course_groups', to='module.Course'),
         ),
+        migrations.AlterField(
+            model_name='collectiongroup',
+            name='collections',
+            field=models.ManyToManyField(blank=True, related_name='collection_groups', to='module.Collection'),
+        ),
+        migrations.AlterField(
+            model_name='activity',
+            name='tags',
+            field=models.CharField(blank=True, help_text=b'Provide your tags separated by a comma.', max_length=255, null=True),
+        ),
     ]
