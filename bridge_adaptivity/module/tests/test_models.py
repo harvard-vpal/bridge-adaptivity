@@ -1,14 +1,12 @@
 from ddt import data, ddt, unpack
 from django.conf import settings
-from django.db import models as django_models
 from django.test import TestCase
-from mock.mock import call, Mock, patch
+from mock.mock import patch
 
 from bridge_lti.models import LtiProvider, LtiUser
 from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
-from module.mixins.models import WithUniqueSlugMixin
 from module.models import (
     Activity, BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem
 )
