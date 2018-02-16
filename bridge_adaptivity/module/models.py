@@ -2,6 +2,7 @@ import importlib
 import inspect
 import logging
 import os
+import uuid
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -16,7 +17,6 @@ from ordered_model.models import OrderedModel
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common.mixins.models import ModelFieldIsDefaultMixin
 from module import tasks
-from module.mixins.models import WithUniqueSlugMixin
 
 log = logging.getLogger(__name__)
 
@@ -102,11 +102,11 @@ class SequenceItem(models.Model):
 
 
 @python_2_unicode_compatible
-class Course(WithUniqueSlugMixin, models.Model):
+class Course(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    slug = models.SlugField(max_length=36)
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(BridgeUser)
 
     def get_absolute_url(self):
@@ -234,16 +234,14 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class CollectionGroup(WithUniqueSlugMixin, models.Model):
+class CollectionGroup(models.Model):
     """Represents Collections Group."""
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser)
-    slug = models.SlugField(null=True)
-    course = models.ForeignKey(Course, related_name='course_groups', null=True)
-
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course = models.ForeignKey(Course, related_name='course_groups', null=True)
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
