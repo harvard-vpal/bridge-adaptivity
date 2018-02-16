@@ -3,7 +3,7 @@ import logging
 from django import forms
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, Course, GRADING_POLICY_CHOICES, GradingPolicy
+from module.models import Activity, CollectionGroup, Course, Engine, GRADING_POLICY_CHOICES, GradingPolicy
 
 log = logging.getLogger(__name__)
 
@@ -50,6 +50,17 @@ class ThresholdGradingPolicyForm(ModelForm):
     class Meta:
         model = GradingPolicy
         fields = 'threshold', 'name'
+        widgets = {
+            'name': forms.HiddenInput(),
+        }
+
+
+class VPALEngineDependingGradingPolicy(ModelForm):
+    engine = forms.ModelChoiceField(queryset=Engine.objects.filter(engine='engine_vpal'))
+
+    class Meta:
+        model = GradingPolicy
+        fields = 'engine', 'name'
         widgets = {
             'name': forms.HiddenInput(),
         }

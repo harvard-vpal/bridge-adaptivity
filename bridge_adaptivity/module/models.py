@@ -123,7 +123,7 @@ class Course(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
-    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    slug = models.UUIDField(unique=True, db_index=True, default=uuid.uuid4, editable=False)
     owner = models.ForeignKey(BridgeUser)
 
     def get_absolute_url(self):
@@ -144,6 +144,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     name = models.CharField(max_length=20)  # Field name is not editable in admin UI.
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
+    engine = models.ForeignKey('Engine', blank=True, null=True)
     is_default = models.BooleanField(default=False)
 
     @property
