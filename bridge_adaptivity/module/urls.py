@@ -3,9 +3,9 @@ from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
-    ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDetail,
-    CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList,
-    GroupUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
+    ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDelete,
+    CollectionDetail, CollectionList, CollectionUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
+    GroupList, GroupUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail
 )
 
 urlpatterns = [
@@ -25,6 +25,8 @@ urlpatterns = [
         name='collection-change'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$', CollectionDetail.as_view(),
         name='collection-detail'),
+    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/delete/?$', CollectionDelete.as_view(),
+        name='collection-delete'),
 
     url(r'^activity/(?P<collection_id>\d+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(

@@ -17,7 +17,6 @@
       <tr>
         <th>ID</th>
         <th>name</th>
-        <th>metadata</th>
         <th>strict forward</th>
         <th class="center">options</th>
       </tr>
@@ -27,7 +26,6 @@
           <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">{{ collection.name }} :
             {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
-          <td>{{ collection.metadata|default:"-" }}</td>
           <td>{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}

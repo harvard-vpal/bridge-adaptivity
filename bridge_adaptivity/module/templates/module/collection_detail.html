@@ -4,6 +4,9 @@
 {% block title %}
   <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
   <h3>
+    <a class="pull-right require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
+      {% bootstrap_button "Delete" size='sm' icon='trash' %}
+    </a>
     <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
@@ -21,7 +24,7 @@
             {% for field in render_fields %}
               <th>{{ field }}</th>
             {% endfor %}
-            <th class="text-center">options</th>
+            <th class="text-right">options</th>
           </tr>
           {% for activity in activities %}
             <tr id="activity-row-{{ forloop.counter0 }}"
