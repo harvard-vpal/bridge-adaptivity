@@ -83,7 +83,7 @@ class TestCollectionAPI(TestApiBase):
         response = self.client.post(self.list_url, data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['name'], name)
-        deleted = self.client.delete(self.list_url + '{}/'.format(response.data['id']))
+        deleted = self.client.delete(reverse('api:collection-detail', args=[response.data['id']]))
         self.assertEqual(deleted.status_code, 204)
         collections = self.client.get(self.list_url).data
         self.assertEqual(len(collections), 1)
@@ -149,7 +149,7 @@ class TestActivityAPI(TestApiBase):
         response = self.client.post(self.list_url, self.data)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data['name'], self.name)
-        deleted = self.client.delete(self.list_url + '{}/'.format(response.data['id']))
+        deleted = self.client.delete(reverse('api:activity-detail', args=[response.data['id']]))
         self.assertEqual(deleted.status_code, 204)
         activities = self.client.get(self.list_url).data
         self.assertEqual(len(activities), 1)
