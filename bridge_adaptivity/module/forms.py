@@ -3,7 +3,7 @@ import logging
 from django import forms
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, GRADING_POLICY_CHOICES, GradingPolicy
+from module.models import Activity, CollectionGroup, Course, GRADING_POLICY_CHOICES, GradingPolicy
 
 log = logging.getLogger(__name__)
 
@@ -11,11 +11,14 @@ log = logging.getLogger(__name__)
 class ActivityForm(ModelForm):
     required_css_class = 'required'
 
+    advanced_fields = ['source_launch_url', 'source_name', 'source_context_id']
+
     class Meta:
         model = Activity
-        exclude = ['collection', 'lti_consumer']
+        exclude = ['collection', 'lti_consumer', 'points']
         widgets = {
             'stype': forms.HiddenInput(),
+            'points': forms.HiddenInput(),
         }
 
 
@@ -24,10 +27,11 @@ class GroupForm(ModelForm):
         choices=GRADING_POLICY_CHOICES,
         required=True,
     )
+    course = forms.ModelChoiceField(queryset=Course.objects.all())
 
     class Meta:
         model = CollectionGroup
-        fields = 'name', 'description', 'owner', 'collections', 'engine', 'grading_policy_name'
+        fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name'
 
 
 class BaseGradingPolicyForm(ModelForm):

@@ -217,6 +217,28 @@
             return this;
         };
 
+
+        jQuery.fn.requireUserSubmit = function() {
+            $(this).on('click', function(e) {
+                var $elem =$(this);
+                var confirmMsg = (
+                    $elem.data('confirmation-msg') || 'Are you really sure? \n\nThis action is not reversible!'
+                );
+                if (!confirm(confirmMsg)) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            });
+
+            return this;
+        };
+
+        $('.require-submission').requireUserSubmit();
         $('form').preventDoubleSubmission();
+
+        $('.activity-show-advanced-options').on('click', function(e){
+            $($(this).data('toggle')).toggle('slow');
+            e.preventDefault();
+        })
     });
 }(jQuery));

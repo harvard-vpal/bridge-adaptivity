@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load bootstrap3 %}
+{% load static bootstrap3 %}
 
 {% block title %}Collections{% endblock title %}
 
@@ -11,30 +11,39 @@
       <tr>
         <th>ID</th>
         <th>name</th>
-        <th>metadata</th>
-        <th>threshold</th>
         <th>strict forward</th>
+        <th>groups</th>
         <th>options</th>
       </tr>
       {% for collection in collections %}
         <tr>
           <td>{{ collection.id }}</td>
+
           <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">{{ collection.name }} :
             {{ collection.activities.count }}
-            {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
-          <td>{{ collection.metadata|default:"-" }}</td>
-          <td>{{ collection.threshold|default:"-" }}</td>
+            {{ collection.activities.count|pluralize:'activity,activities' }}</a>
+          </td>
+
           <td>{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}
             <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
           {% endif %}
           </td>
+
+          <td style="max-width: 30%">
+            {% for group in collection.collection_groups.all %}
+              <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group.get_absolute_url }}">{{ group.name }}</a>
+            {% endfor %}
+          </td>
           <td>
             <div>
               <a class="move-down"
                  href="{% url 'module:collection-change' collection.id %}?back_url={{ collection.get_absolute_url }}">
                 {% bootstrap_button "" size='sm' icon='edit' %}
+              </a>
+              <a class="move-down require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
+                  {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
             </div>
           </td>
@@ -53,3 +62,8 @@
   </a>
 
 {% endblock content %}
+
+{% block bootstrap3_extra_script %}
+  {{ block.super }}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}
