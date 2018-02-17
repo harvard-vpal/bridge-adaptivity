@@ -1,5 +1,5 @@
 # coding: utf-8
-from local import *  # noqa: F401,F403
+from config.settings.local import *  # noqa: F401,F403
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 

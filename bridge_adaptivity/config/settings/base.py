@@ -44,6 +44,8 @@ INSTALLED_APPS = (
     'bootstrap3',
     'corsheaders',
     'ordered_model',
+    'rest_framework',
+    'rest_framework.authtoken',
 
     # core functions
     'bridge_lti',
@@ -143,3 +145,16 @@ CELERY_RESULT_SERIALIZER = 'json'
 PROBLEM_ACTIVITY_TYPES = (
     'problem',
 )
+
+# Django Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        # for browsable api view usage
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
