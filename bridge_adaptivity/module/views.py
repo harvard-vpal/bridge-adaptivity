@@ -18,7 +18,7 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
-from module import utils
+from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
@@ -27,7 +27,6 @@ from module.mixins.views import (
 from module.models import (
     Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -161,6 +160,7 @@ class CollectionDetail(BaseCollectionView, DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
             context['engine'] = engine_failure
@@ -406,3 +406,17 @@ def callback_sequence_item_grade(request):
         policy.send_grade()
 
     return HttpResponse(xml, content_type="application/xml")
+
+
+def sync_collection(request, pk):
+    """
+    Synchronize collection immediately.
+    """
+    back_url = request.GET.get('back_url')
+    collection = Collection.objects.get(pk=pk)
+    collection.save()
+    log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
+    tasks.sync_collection_engines.delay(
+        collection_id=pk, created_at=collection.updated_at
+    )
+    return redirect(reverse('module:collection-detail', kwargs={'pk': pk}) + '?back_url={}'.format(back_url))

@@ -6,7 +6,7 @@ from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDelete,
     CollectionDetail, CollectionList, CollectionUpdate, CourseCreate, CourseDelete, CourseDetail, CourseList,
     CourseUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
-    sequence_item_next, SequenceComplete, SequenceItemDetail
+    sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection,
 )
 
 urlpatterns = [
@@ -57,5 +57,8 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url=reverse_lazy('module:collection-list'))),
 
     # Source outcome service endpoint
-    url(r'^callback_grade/$', callback_sequence_item_grade, name='sequence-item-grade')
+    url(r'^callback_grade/$', callback_sequence_item_grade, name='sequence-item-grade'),
+
+    # Sync collection with relative engines
+    url(r'^collection/(?P<pk>\d+)/sync/$', sync_collection, name='collection-sync'),
 ]
