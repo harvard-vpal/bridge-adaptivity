@@ -26,6 +26,9 @@ class BaseGradingPolicy(object):
     __metaclass__ = ABCMeta
 
     public_name = 'Grading Policy'
+    require = {
+        'engine': [],
+    }
 
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence

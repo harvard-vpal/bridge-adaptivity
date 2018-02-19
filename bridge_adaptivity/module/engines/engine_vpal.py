@@ -121,3 +121,8 @@ class EngineVPAL(EngineInterface):
         return self.check_engine_response(
             sync_collection.status_code, action='synchronized', obj='collection', name=collection.name, status=201
         )
+
+    def get_grade(self, sequence):
+        url = urlparse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(collection_id=sequence.collection.id))
+        response = requests.post(url, json={'learner_id': sequence.owner.id}, headers=self.headers)
+        return response.json().get('grade')

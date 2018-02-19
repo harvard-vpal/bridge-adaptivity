@@ -3,7 +3,9 @@ import logging
 from django import forms
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, Course, Engine, GRADING_POLICY_CHOICES, GradingPolicy
+from module.models import (
+    Activity, CollectionGroup, Course, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+)
 
 log = logging.getLogger(__name__)
 
@@ -32,9 +34,29 @@ class GroupForm(ModelForm):
     class Meta:
         model = CollectionGroup
         fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name'
-        widgets = {
-            'owner': forms.HiddenInput(),
-        }
+
+    def clean(self):
+        self.cleaned_data = super(GroupForm, self).clean()
+        engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
+
+        if policy not in [i[0] for i in self.fields['grading_policy_name'].choices]:
+            raise forms.ValidationError({'grading_policy_name': ['Not correct policy']})
+
+        engine_cls = engine.engine_driver
+        policy_cls = GRADING_POLICY_NAME_TO_CLS.get(policy)
+        required_engine = policy_cls.require.get('engine')
+
+        if required_engine and not isinstance(engine_cls, required_engine):
+            required_engine_name = ", ".join([e.__name__.strip('Engine') for e in required_engine])
+            engine_err_msg = 'You can not use policy {} with engine {}. Choose another engine or policy.'.format(
+                policy_cls.public_name, engine_cls.__class__.__name__.strip('Engine')
+            )
+            policy_err_msg = 'This policy can be used only with {} engine{}. Choose another policy or engine.'.format(
+                required_engine_name,
+                's' if len(required_engine) > 1 else ''
+            )
+            raise forms.ValidationError({'engine': [engine_err_msg], 'grading_policy_name': [policy_err_msg]})
+        return self.cleaned_data
 
 
 class BaseGradingPolicyForm(ModelForm):
@@ -50,17 +72,6 @@ class ThresholdGradingPolicyForm(ModelForm):
     class Meta:
         model = GradingPolicy
         fields = 'threshold', 'name'
-        widgets = {
-            'name': forms.HiddenInput(),
-        }
-
-
-class VPALEngineDependingGradingPolicy(ModelForm):
-    engine = forms.ModelChoiceField(queryset=Engine.objects.filter(engine='engine_vpal'))
-
-    class Meta:
-        model = GradingPolicy
-        fields = 'engine', 'name'
         widgets = {
             'name': forms.HiddenInput(),
         }
