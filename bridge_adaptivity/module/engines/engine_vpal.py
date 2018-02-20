@@ -123,6 +123,8 @@ class EngineVPAL(EngineInterface):
         )
 
     def get_grade(self, sequence):
-        url = urlparse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(collection_id=sequence.collection.id))
+        url = urlparse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
+            collection_id=sequence.collection.id)
+        )
         response = requests.post(url, json={'learner_id': sequence.owner.id}, headers=self.headers)
         return response.json().get('grade')
