@@ -268,4 +268,3 @@ class TestDeleteObjectsSeparately(TestCase):
         groups_count = CollectionGroup.objects.count()
         self.course.delete()
         self.assertEqual(CollectionGroup.objects.count(), groups_count)
-
