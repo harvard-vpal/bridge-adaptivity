@@ -1,6 +1,4 @@
 # coding: utf-8
-import requests
-
 from bridge_lti.outcomes import update_lms_grades
 from module.engines.engine_vpal import EngineVPAL
 from .base import BaseGradingPolicy
