@@ -69,11 +69,22 @@ class Sequence(models.Model):
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True)
 
+    metadata = JSONField(default={}, blank=True)
+
     class Meta:
         unique_together = (('lti_user', 'collection', 'group'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
+
+    def fulfil_sequence_metadata(self, lti_params, launch_params):
+        meta_dict = {}
+        for param in lti_params:
+            if param in launch_params:
+                meta_dict[param] = launch_params[param]
+        if meta_dict:
+            self.metadata = meta_dict
+            self.save()
 
 
 @python_2_unicode_compatible
@@ -203,6 +214,11 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
     engine_name = models.CharField(max_length=255, blank=True, null=True, unique=True)
     host = models.URLField(blank=True, null=True)
     token = models.CharField(max_length=255, blank=True, null=True)
+    lti_parameters = models.TextField(
+        default='',
+        blank=True,
+        help_text=_("LTI parameters to sent to the engine, use comma separated string")
+    )
     is_default = fields.BooleanField(default=False, help_text=_("If checked Engine will be used as the default!"))
 
     class Meta:
@@ -231,6 +247,10 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
                 engine_driver = driver(**{'HOST': self.host, 'TOKEN': self.token})
             self.DRIVER = engine_driver
         return self.DRIVER
+
+    @property
+    def lti_params(self):
+        return (param.strip() for param in self.lti_parameters.split(','))
 
 
 @python_2_unicode_compatible
