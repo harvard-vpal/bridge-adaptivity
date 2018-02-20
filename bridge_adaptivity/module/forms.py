@@ -3,7 +3,7 @@ import logging
 from django import forms
 from django.forms import ModelForm
 
-from module.models import Activity, CollectionGroup, Course, GRADING_POLICY_CHOICES, GradingPolicy
+from module.models import Activity, CollectionGroup, GRADING_POLICY_CHOICES, GradingPolicy
 
 log = logging.getLogger(__name__)
 

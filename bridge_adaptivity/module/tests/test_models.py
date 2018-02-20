@@ -8,7 +8,7 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem
+    Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy, Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -223,3 +223,49 @@ class TestCollectionGroupModel(TestCase):
         )
         self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
         self.assertFalse(group.collections.all())
+
+
+class TestDeleteObjectsSeparately(TestCase):
+
+    fixtures = ['gradingpolicy.json', 'engine.json']
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        self.user = BridgeUser.objects.create_user(
+            username='test',
+            password='test',
+            email='test@me.com'
+        )
+        self.consumer = LtiProvider.objects.create(
+            consumer_name='name',
+            consumer_key='key',
+            consumer_secret='secret',
+        )
+        # collections
+        self.collection1 = Collection.objects.create(name='col1', owner=self.user)
+        # grading policies
+        self.trials_count = GradingPolicy.objects.get(name='trials_count')
+        self.points_earned = GradingPolicy.objects.get(name='points_earned')
+        self.engine = Engine.objects.create(engine='engine_mock')
+        self.course = Course.objects.create(name='test_course', owner=self.user)
+        self.test_cg = CollectionGroup.objects.create(
+            name='TestColGroup',
+            owner=self.user,
+            engine=self.engine,
+            grading_policy=self.points_earned,
+            course=self.course
+        )
+        self.test_cg.collections.add(self.collection1)
+
+    def test_delete_group(self):
+        collections_count = Collection.objects.count()
+        self.test_cg.delete()
+        # check that any collection was deleted
+        self.assertEqual(Collection.objects.count(), collections_count)
+
+    def test_delete_course(self):
+        # check that any group was deleted when delete course
+        groups_count = CollectionGroup.objects.count()
+        self.course.delete()
+        self.assertEqual(CollectionGroup.objects.count(), groups_count)
+
