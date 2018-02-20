@@ -1,4 +1,5 @@
 import logging
+from operator import itemgetter
 
 from django import forms
 from django.forms import ModelForm
@@ -36,10 +37,11 @@ class GroupForm(ModelForm):
         fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name'
 
     def clean(self):
-        self.cleaned_data = super(GroupForm, self).clean()
+        super(GroupForm, self).clean()
         engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
+        policy_choice_values = map(itemgetter(0), self.fields['grading_policy_name'].choices)
 
-        if policy not in [i[0] for i in self.fields['grading_policy_name'].choices]:
+        if policy not in policy_choice_values:
             raise forms.ValidationError({'grading_policy_name': ['Not correct policy']})
 
         engine_cls = engine.engine_driver
