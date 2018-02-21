@@ -39,23 +39,20 @@ class GroupForm(ModelForm):
     def clean(self):
         super(GroupForm, self).clean()
         engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
-        policy_choice_values = map(itemgetter(0), self.fields['grading_policy_name'].choices)
-
-        if policy not in policy_choice_values:
-            raise forms.ValidationError({'grading_policy_name': ['Not correct policy']})
 
         engine_cls = engine.engine_driver
         policy_cls = GRADING_POLICY_NAME_TO_CLS.get(policy)
+
+        if policy_cls is None:
+            raise forms.ValidationError({'grading_policy_name': ['Not correct policy']})
+
         required_engine = policy_cls.require.get('engine')
 
         if required_engine and not isinstance(engine_cls, required_engine):
-            required_engine_name = ", ".join([e.__name__.strip('Engine') for e in required_engine])
-            engine_err_msg = 'You can not use policy {} with engine {}. Choose another engine or policy.'.format(
-                policy_cls.public_name, engine_cls.__class__.__name__.strip('Engine')
-            )
-            policy_err_msg = 'This policy can be used only with {} engine{}. Choose another policy or engine.'.format(
-                required_engine_name,
-                's' if len(required_engine) > 1 else ''
+            required_engine_names = ", ".join([e.__name__.strip('Engine') for e in required_engine])
+            engine_err_msg = 'This Engine doesn\'t support chosen Policy. Please choose another policy or engine.'
+            policy_err_msg = 'This policy can be used only with {} engine(s). Choose another policy or engine.'.format(
+                required_engine_names,
             )
             raise forms.ValidationError({'engine': [engine_err_msg], 'grading_policy_name': [policy_err_msg]})
         return self.cleaned_data

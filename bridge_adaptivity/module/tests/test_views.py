@@ -120,10 +120,9 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertEqual(
             response.context['form'].errors,
             {
-                'engine': [u'You can not use policy Engine Graded with engine Mock. '
-                           u'Choose another engine or policy.'],
-                'grading_policy_name': [u'This policy can be used only with VPAL engine. '
-                                        u'Choose another policy or engine.']
+                'engine': [u"This Engine doesn't support chosen Policy. Please choose another policy or engine."],
+                'grading_policy_name': [(u'This policy can be used only with VPAL engine(s). '
+                                         u'Choose another policy or engine.')]
             }
         )
 

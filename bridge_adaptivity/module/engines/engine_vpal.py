@@ -127,4 +127,8 @@ class EngineVPAL(EngineInterface):
             collection_id=sequence.collection.id)
         )
         response = requests.post(url, json={'learner_id': sequence.owner.id}, headers=self.headers)
-        return response.json().get('grade')
+        if self.check_engine_response(response.status_code, status=200):
+            grade = response.json().get('grade')
+            if 0 < grade < 1:
+                return grade
+        return None
