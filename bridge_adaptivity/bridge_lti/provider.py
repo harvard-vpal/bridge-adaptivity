@@ -151,9 +151,9 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     )
 
     sequence, created = Sequence.objects.get_or_create(**sequence_kw)
-    if created:
-        # Update sequence metadata with lti parameters required by the engine
-        sequence.fulfil_sequence_metadata(engine.lti_params, tool_provider.launch_params)
+
+    # Update sequence metadata with lti parameters required by the engine
+    sequence.fulfil_sequence_metadata(engine.lti_params, tool_provider.launch_params)
 
     strict_forward = collection.strict_forward
     request.session['Lti_sequence'] = sequence.id
