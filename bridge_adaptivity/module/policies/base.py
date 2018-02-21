@@ -26,6 +26,8 @@ class BaseGradingPolicy(object):
     __metaclass__ = ABCMeta
 
     public_name = 'Grading Policy'
+    summary_text = ''
+    detail_text = ''
 
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence
@@ -63,3 +65,6 @@ class BaseGradingPolicy(object):
         """
         if not self.context.get('request'):
             update_lms_grades(sequence=self.sequence, user_id=self.context['user_id'])
+
+    def __str__(self):
+        return self.public_name

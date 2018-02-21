@@ -54,7 +54,15 @@ GRADING_POLICY_NAME_TO_CLS = {
     name: _load_cls_from_applicable_module("module.policies", file_name, class_endswith="GradingPolicy")
     for file_name, name in GRADING_POLICY_MODULES
 }
-GRADING_POLICY_CHOICES = ((k, v.public_name) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
+
+"""
+Policy choices. Key is a policy name and value is a GradingPolicyClass.
+
+GradingPolicyClass has __str__ method and it's string representation is GradingPolicy.public_name.
+This hack is done to pass policy.summary_text and policy.detail_text to select policy widget's template, where these
+variables are used to show popover message with description about each policy (bootstrap3 JS popover function).
+"""
+GRADING_POLICY_CHOICES = ((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
 
 @python_2_unicode_compatible

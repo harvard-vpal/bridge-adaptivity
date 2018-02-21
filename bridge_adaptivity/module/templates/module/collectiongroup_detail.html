@@ -2,10 +2,13 @@
 {% load static bootstrap3 %}
 
 {% block title %}
-<span class="label label-default">{{ group.slug }}</span> Group: {{ group.name }}
+  Group: <span class="label label-default">{{ group.name }}</span>
   <h3>
     <a class="pull-right" href="{% url 'module:group-change' group.slug %}?back_url={{ group.get_absolute_url}}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+    </a>
+    <a class="pull-right require-submission" href="{% url 'module:group-delete' group.slug %}?back_url={{ group.get_absolute_url}}">
+      {% bootstrap_button 'Delete' size='sm' icon='trash' %}
     </a>
   </h3>
 {% endblock title %}

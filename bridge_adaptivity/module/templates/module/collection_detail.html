@@ -2,7 +2,7 @@
 {% load staticfiles bootstrap3 %}
 
 {% block title %}
-  <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
+  Collection: <span class="label label-default">{{ collection.name }}</span>
   <h3>
     <a class="pull-right require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
       {% bootstrap_button "Delete" size='sm' icon='trash' %}

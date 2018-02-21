@@ -4,6 +4,7 @@ from django import forms
 from django.forms import ModelForm
 
 from module.models import Activity, CollectionGroup, Course, GRADING_POLICY_CHOICES, GradingPolicy
+from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ class GroupForm(ModelForm):
     grading_policy_name = forms.ChoiceField(
         choices=GRADING_POLICY_CHOICES,
         required=True,
+        widget=PolicyChoiceWidget
     )
     course = forms.ModelChoiceField(queryset=Course.objects.all())
 
