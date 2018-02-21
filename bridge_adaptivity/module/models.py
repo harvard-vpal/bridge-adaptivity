@@ -78,6 +78,12 @@ class Sequence(models.Model):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
 
     def fulfil_sequence_metadata(self, lti_params, launch_params):
+        """
+        Automate fulfilling sequence metadata field with launch_params equal to lti_params.
+
+        :param lti_params: iterable object with the required lti parameters names
+        :param launch_params: dict with the launch lti parameters received in launch lti request
+        """
         meta_dict = {}
         for param in lti_params:
             if param in launch_params:
