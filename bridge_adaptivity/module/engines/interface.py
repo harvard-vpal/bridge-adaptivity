@@ -22,3 +22,12 @@ class EngineInterface(object):
         :param collection: Collection instance to sync with the engine
         """
         raise NotImplementedError("Adaptive Engine driver must implement this method.")
+
+    @abstractmethod
+    def submit_activity_answer(self, sequence_item):
+        """
+        Send student's answer to the adaptive engine.
+
+        :param sequence_item: SequenceItem instance
+        """
+        raise NotImplementedError("Adaptive Engine driver must implement this method.")
