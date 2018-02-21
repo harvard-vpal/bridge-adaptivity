@@ -377,3 +377,33 @@ class TestCourseViews(BridgeTestCase):
         self.assertEqual(course.name, self.course.name)
         self.assertEqual(course.description, self.course.description)
         self.assertEqual(course.owner, self.course.owner)
+
+
+class TestManualSync(BridgeTestCase):
+
+    @patch('module.tasks.sync_collection_engines.delay')
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    @patch('module.views.get_available_courses')
+    def test_immediate_synchronization(
+        self, mock_get_available_courses, mock_apply_async, mock_delay
+    ):
+        col_id = self.collection1.id
+        expected_url = reverse('module:collection-detail', kwargs={'pk': col_id}) + '?back_url=None'
+        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        response = self.client.get(url)
+        mock_delay.assert_called_once_with(
+            collection_id=str(col_id),
+            created_at=Collection.objects.get(pk=col_id).updated_at
+        )
+        self.assertRedirects(response, expected_url)
+
+    @patch('module.tasks.sync_collection_engines.delay')
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    @patch('module.views.get_available_courses')
+    def test_immediate_synchronization_incorrect_pk(
+        self, mock_get_available_courses, mock_apply_async, mock_delay
+    ):
+        col_id = 345
+        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

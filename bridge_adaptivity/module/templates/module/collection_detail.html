@@ -4,11 +4,18 @@
 {% block title %}
   <span class="label label-default">ID:{{ collection.id }}</span> Collection: {{ collection.name }}
   <h3>
+    {% if sync_available %}
+    <a class="pull-right require-submission"
+       href="{% url 'module:collection-sync' collection.id %}?back_url={{ back_url }}"
+       data-confirmation-msg="Collection will be synchronized immediately!">
+        {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
+    </a>
+    {% endif %}
     <a class="pull-right require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
-      {% bootstrap_button "Delete" size='sm' icon='trash' %}
+        {% bootstrap_button "Delete" size='sm' icon='trash' %}
     </a>
     <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
-      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+        {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
   </h3>
 {% endblock title %}
