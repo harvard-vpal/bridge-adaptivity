@@ -41,7 +41,7 @@ class TestVPALEngine(TestCase):
             user_id='test_ltiuser_id',
             lti_consumer=self.lti_consumer,
         )
-        self.engine = Engine.objects.create(engine='engine_vpal')
+        self.engine = Engine.objects.create(engine='engine_vpal', lti_parameters=' lis_person_sourcedid, lis_unknown')
         self.grading_policy = GradingPolicy.objects.create(name='trials_count', public_name='test_policy')
 
         self.group = CollectionGroup.objects.create(
@@ -65,12 +65,16 @@ class TestVPALEngine(TestCase):
     @patch('requests.post', return_value=Mock(status_code=200))
     def test_select_activity(self, mock_post):
         expected_source_url = 'new_activity_source_url'
+        lti_param = "lis_person_sourcedid"
+        launch_params = {lti_param: "test_lis_person_sourcedid"}
+        self.sequence.fulfil_sequence_metadata(self.engine.lti_params, launch_params)
         test_url = urlparse.urljoin(
-            "{}/".format(self.engine.engine_driver.activity_url), "recommend}"
+            "{}/".format(self.engine.engine_driver.activity_url), "recommend"
         )
         expected_payload = {
             "learner": self.sequence.lti_user.id,
             "collection": self.sequence.collection.id,
+            lti_param: self.sequence.metadata[lti_param],
             "sequence": [
                 {
                     'activity': self.a1.source_launch_url,

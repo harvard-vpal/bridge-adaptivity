@@ -94,9 +94,11 @@ class EngineVPAL(EngineInterface):
         :return: selected activity source_launch_url
         """
         reco_url = urlparse.urljoin(
-            "{}/".format(self.activity_url), "recommend}"
+            "{}/".format(self.activity_url), "recommend"
         )
         payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.id, "sequence": []}
+        if sequence.metadata:
+            payload.update(sequence.metadata)  # payload is updated with the lti parameters
         for sequence_item in sequence.items.all():
             payload["sequence"].append(self.fulfill_payload(payload={}, instance_to_parse=sequence_item))
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
