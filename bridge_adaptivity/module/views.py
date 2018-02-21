@@ -87,6 +87,17 @@ class GetGradingPolicyForm(FormView):
             raise Http404("No such grading policy")
         return policy_cls.get_form_class()
 
+    def get_form_kwargs(self):
+        kwargs = super(GetGradingPolicyForm, self).get_form_kwargs()
+        if self.kwargs.get('group_slug'):
+            group = CollectionGroup.objects.filter(
+                slug=self.kwargs.get('group_slug'),
+                grading_policy__name=self.request.GET.get('grading_policy')
+            ).first()
+            if group:
+                kwargs['instance'] = group.grading_policy
+        return kwargs
+
     def get_form(self, form_class=None):
         self.form_class = self.get_form_class()
         form = super(GetGradingPolicyForm, self).get_form()
