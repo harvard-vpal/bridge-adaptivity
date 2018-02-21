@@ -1,5 +1,4 @@
 import logging
-from operator import itemgetter
 
 from django import forms
 from django.forms import ModelForm
