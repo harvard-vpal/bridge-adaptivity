@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -413,7 +413,7 @@ def sync_collection(request, pk):
     Synchronize collection immediately.
     """
     back_url = request.GET.get('back_url')
-    collection = Collection.objects.get(pk=pk)
+    collection = get_object_or_404(Collection, pk=pk)
     collection.save()
     log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
     tasks.sync_collection_engines.delay(

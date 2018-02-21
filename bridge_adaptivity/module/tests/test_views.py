@@ -396,3 +396,14 @@ class TestManualSync(BridgeTestCase):
             created_at=Collection.objects.get(pk=col_id).updated_at
         )
         self.assertRedirects(response, expected_url)
+
+    @patch('module.tasks.sync_collection_engines.delay')
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    @patch('module.views.get_available_courses')
+    def test_immediate_synchronization_incorrect_pk(
+        self, mock_get_available_courses, mock_apply_async, mock_delay
+    ):
+        col_id = 345
+        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
