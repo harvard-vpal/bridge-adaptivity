@@ -1,6 +1,22 @@
 (function ($) {
     $(function () {
         var defaultSourceItemTitle = "No Title";
+        var $filter = $("#filter"),
+            filterVal,
+            regexFilter;
+
+        $filter.change(function () {
+            filterVal = $("#filter").val();
+            if (filterVal) {
+                regexFilter = new RegExp(filterVal, "i");
+            } else {
+                regexFilter = null;
+            }
+            var courseData = bridgeState.accordion.courseData[bridgeState.accordion.opened];
+            var content_panel = $("#content-panel-" + bridgeState.accordion.opened + " div.panel-body");
+            renderCourseBlocks(courseData, content_panel);
+
+        });
         var modalContentFrame = $("#modal-source-preview");
         var activitiesData = $.map($(".activity"), function(activityRow) {
             var $activityRow = $(activityRow);
@@ -127,6 +143,11 @@
                     sourceButton.text(defaultSourceItemTitle);
                 } else {
                     sourceButton.text(item["display_name"]);
+                }
+                if (regexFilter) {
+                    if (!regexFilter.exec(sourceButton.text())) {
+                        listItem.remove()
+                    }
                 }
                 sourceButton
                     .appendTo(listItem);
