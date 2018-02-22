@@ -8,7 +8,7 @@
         $filter.change(function () {
             filterVal = $("#filter").val();
             if (filterVal) {
-                regexFilter = new RegExp(filterVal,"i");
+                regexFilter = new RegExp(filterVal, "i");
             } else {
                 regexFilter = null;
             }
@@ -146,7 +146,7 @@
                 }
                 if (regexFilter) {
                     if (!regexFilter.exec(sourceButton.text())) {
-                        listItem.detach()
+                        listItem.remove()
                     }
                 }
                 sourceButton
