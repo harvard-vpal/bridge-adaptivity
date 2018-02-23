@@ -160,7 +160,7 @@ class TestPolicySendGradeMethod(TestCase):
             outcome_service=self.outcome_service
         )
 
-    @mock.patch('module.policies.policy_points_earned.update_lms_grades')
+    @mock.patch('module.policies.base.update_lms_grades')
     def test_send_grade_method_policy_points_earned(self, mock_update_lms_grades):
         """Test policy.send_grade method for policy PointsEarned."""
         request = self.rf.get('/')

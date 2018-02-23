@@ -22,7 +22,7 @@ def forward_function(apps, schema):
         "bridge_lti_ltiuser","bridge_lti_outcomeservice", "bridge_lti_lticonsumer", "bridge_lti_bridgeuser_groups",
         "bridge_lti_bridgeuser", "bridge_lti_bridgeuser_user_permissions", "bridge_lti_ltiprovider",
         "module_sequence", "module_engine", "module_log", "module_collection",
-        "module_collectiongroup",
+        "module_collectiongroup", "module_course",
         "module_collectiongroup_collections", "module_gradingpolicy", "module_sequenceitem", "module_activity"
     ]
     reset_tables = [t for t in all_tables if 'module_' in t]
@@ -38,7 +38,7 @@ def forward_function(apps, schema):
 \nAre you sure that you want to proceed?
 Type: yes/no\n"""
     if len(sys.argv) > 1:
-        return
+        # return
         cursor = schema.connection.cursor()
         cursor.execute(sql)
         print "Data removed and migration process will be continued.\n"

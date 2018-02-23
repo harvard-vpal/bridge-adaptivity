@@ -1,6 +1,5 @@
 from django.db.models.aggregates import Count, Sum
 
-from bridge_lti.outcomes import update_lms_grades
 from .base import BaseGradingPolicy
 
 
@@ -42,8 +41,6 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
     def send_grade(self):
         """Send grade to LMS system.
 
-        Call update_lms_grades(self.context['request'], sequence=self.sequence, user_id=self.context['user_id'])
         :return: nothing.
         """
-        if self.context.get('request'):
-            update_lms_grades(self.context.get('request'), sequence=self.sequence, user_id=self.context['user_id'])
+        self._send_grade(with_request=True)

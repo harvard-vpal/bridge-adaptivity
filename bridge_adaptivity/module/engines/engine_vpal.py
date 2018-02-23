@@ -143,3 +143,20 @@ class EngineVPAL(EngineInterface):
             name=sequence_item.activity.name,
             status=201,
         )
+
+    def get_grade(self, sequence):
+        """
+        Get grade from the VPAL engine for particular collection.
+
+        :param sequence: Sequence instance
+        :return: grade returned from engine
+        """
+        url = urlparse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
+            collection_id=sequence.collection.id)
+        )
+        response = requests.post(url, json={'learner_id': sequence.owner.id}, headers=self.headers)
+        if self.check_engine_response(response.status_code, action='grade', obj='sequence'):
+            grade = response.json().get('grade')
+            if 0 <= grade <= 1:
+                return grade
+        return None

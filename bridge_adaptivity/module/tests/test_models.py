@@ -71,10 +71,10 @@ class TestDiscoverGradingPolicies(TestCase):
     def test_discover_grading_policies(self):
         """Test _discover_applicable_modules function."""
         found_policies = models._discover_applicable_modules(folder_name='policies', file_startswith='policy_')
-        self.assertEquals(len(found_policies), 3)
+        self.assertEquals(len(found_policies), 4)
         self.assertCountEqual(
-            [('policy_points_earned', 'points_earned'), ('policy_trials_count', 'trials_count'),
-             ('policy_full_credit', 'full_credit')],
+            [('policy_engine_grade', 'engine_grade'), ('policy_points_earned', 'points_earned'),
+             ('policy_trials_count', 'trials_count'), ('policy_full_credit', 'full_credit')],
             found_policies
         )
 
