@@ -38,7 +38,7 @@ class BridgeTestCase(TestCase):
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
-        self.engine = Engine.objects.create(engine='engine_mock')
+        self.engine = Engine.objects.create(engine='engine_mock', engine_name='mockEngine')
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
@@ -95,6 +95,36 @@ class TestCollectionGroup(BridgeTestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
         self.assertEqual(response.status_code, 302)
+
+    def test_cg_with_not_correct_policy_engine_pair(self):
+        """
+        Try to create collectiongroup with not correct pair of policy and engine.
+
+        Not correct pair example - engine graded policy with mock engine.
+        In this case it should return 200, and context['form'] should contain errors.
+        """
+        self.group_update_data = {
+            'name': "CG2",
+            'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
+            'engine': self.engine.id,  # mock engine
+            'owner': self.user.id,
+            'grading_policy_name': 'engine_grade',
+            'description': 'Some description for a group',
+            'course': self.course.id,
+        }
+        url = reverse('module:group-add')
+        self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
+        response = self.client.post(url, data=self.group_post_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        self.assertEqual(
+            response.context['form'].errors,
+            {
+                'engine': [u"This Engine doesn't support chosen Policy. Please choose another policy or engine."],
+                'grading_policy_name': [(u'This policy can be used only with VPAL engine(s). '
+                                         u'Choose another policy or engine.')]
+            }
+        )
 
     def test_cg_list(self):
         """Test CollectionGroup list page. Check that response code is 200, `groups` is in context and is not empty."""

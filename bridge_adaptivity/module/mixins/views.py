@@ -5,8 +5,8 @@ from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect
 
-from module.forms import BaseGradingPolicyForm, GroupForm, ThresholdGradingPolicyForm
-from module.models import Collection, CollectionGroup, Course, Engine
+from module.forms import BaseGradingPolicyForm, GroupForm
+from module.models import Collection, CollectionGroup, Course, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
 
@@ -59,8 +59,12 @@ class GroupEditFormMixin(object):
         return form_kw
 
     def form_valid(self, form):
+        POST = self.request.POST.copy()
         form_kw = self.get_grading_form_kwargs()
-        grading_policy_form = ThresholdGradingPolicyForm(self.request.POST, **form_kw)
+        policy = GRADING_POLICY_NAME_TO_CLS[POST['group-grading_policy_name']]
+        GradingPolicyForm = policy.get_form_class()
+
+        grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
             response = super(GroupEditFormMixin, self).form_valid(form)
             grading_policy = grading_policy_form.save()
