@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -18,7 +18,7 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses, get_content_provider
-from module import utils
+from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
@@ -27,7 +27,6 @@ from module.mixins.views import (
 from module.models import (
     Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +86,17 @@ class GetGradingPolicyForm(FormView):
         if policy_cls is None:
             raise Http404("No such grading policy")
         return policy_cls.get_form_class()
+
+    def get_form_kwargs(self):
+        kwargs = super(GetGradingPolicyForm, self).get_form_kwargs()
+        if self.kwargs.get('group_slug'):
+            group = CollectionGroup.objects.filter(
+                slug=self.kwargs.get('group_slug'),
+                grading_policy__name=self.request.GET.get('grading_policy')
+            ).first()
+            if group:
+                kwargs['instance'] = group.grading_policy
+        return kwargs
 
     def get_form(self, form_class=None):
         self.form_class = self.get_form_class()
@@ -161,6 +171,7 @@ class CollectionDetail(BaseCollectionView, DetailView):
             'collection': self.object,
             'lti_consumer': get_content_provider(),
         })
+        context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
             context['engine'] = engine_failure
@@ -406,3 +417,17 @@ def callback_sequence_item_grade(request):
         policy.send_grade()
 
     return HttpResponse(xml, content_type="application/xml")
+
+
+def sync_collection(request, pk):
+    """
+    Synchronize collection immediately.
+    """
+    back_url = request.GET.get('back_url')
+    collection = get_object_or_404(Collection, pk=pk)
+    collection.save()
+    log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
+    tasks.sync_collection_engines.delay(
+        collection_id=pk, created_at=collection.updated_at
+    )
+    return redirect(reverse('module:collection-detail', kwargs={'pk': pk}) + '?back_url={}'.format(back_url))

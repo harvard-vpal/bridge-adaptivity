@@ -4,11 +4,18 @@
 {% block title %}
   Collection: <span class="label label-default">{{ collection.name }}</span>
   <h3>
+    {% if sync_available %}
+    <a class="pull-right require-submission"
+       href="{% url 'module:collection-sync' collection.id %}?back_url={{ back_url }}"
+       data-confirmation-msg="Collection will be synchronized immediately!">
+        {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
+    </a>
+    {% endif %}
     <a class="pull-right require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
-      {% bootstrap_button "Delete" size='sm' icon='trash' %}
+        {% bootstrap_button "Delete" size='sm' icon='trash' %}
     </a>
     <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
-      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+        {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
   </h3>
 {% endblock title %}
@@ -100,6 +107,12 @@
     <div class="col-md-4">
       <div class="row">
         <h3 class="text-center">Available content courses</h3>
+      </div>
+      <div class="raw panel-heading">
+        <label for="filter">Filter Activities:</label>
+        <input id="filter" type="search">
+        <span class="glyphicon glyphicon-search"></span>
+        </button>
       </div>
       <div class="row">
         {% if not source_courses %}
