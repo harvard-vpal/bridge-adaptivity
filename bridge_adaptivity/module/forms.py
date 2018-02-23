@@ -4,7 +4,7 @@ from django import forms
 from django.forms import ModelForm
 
 from module.models import (
-    Activity, CollectionGroup, Course, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+    Activity, CollectionGroup, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 )
 
 log = logging.getLogger(__name__)
