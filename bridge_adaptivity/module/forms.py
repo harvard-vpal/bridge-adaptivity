@@ -29,7 +29,6 @@ class GroupForm(ModelForm):
         choices=GRADING_POLICY_CHOICES,
         required=True,
     )
-    course = forms.ModelChoiceField(queryset=Course.objects.all())
 
     class Meta:
         model = CollectionGroup

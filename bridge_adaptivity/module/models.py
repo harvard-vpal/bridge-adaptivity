@@ -280,7 +280,7 @@ class CollectionGroup(models.Model):
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser)
     slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    course = models.ForeignKey(Course, related_name='course_groups', null=True)
+    course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
     collections = models.ManyToManyField(Collection, related_name='collection_groups', blank=True)
