@@ -7,6 +7,9 @@
     <a class="pull-right" href="{% url 'module:course-change' course.slug %}?back_url={{ course.get_absolute_url}}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
+    <a class="pull-right require-submission" href="{% url 'module:course-delete' course.slug %}?back_url={{ course.get_absolute_url}}">
+      {% bootstrap_button 'Delete' size='sm' icon='trash' %}
+    </a>
   </h3>
 {% endblock title %}
 

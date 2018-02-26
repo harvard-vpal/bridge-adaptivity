@@ -6,6 +6,7 @@ from django.forms import ModelForm
 from module.models import (
     Activity, CollectionGroup, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 )
+from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)
 
@@ -28,6 +29,7 @@ class GroupForm(ModelForm):
     grading_policy_name = forms.ChoiceField(
         choices=GRADING_POLICY_CHOICES,
         required=True,
+        widget=PolicyChoiceWidget
     )
 
     class Meta:

@@ -1,0 +1,8 @@
+<option
+    data-summary="{{ widget.label.summary_text }}"
+    data-detail="{{ widget.label.detail_text }}"
+    value="{{ widget.value|stringformat:'s' }}"
+    {% include "django/forms/widgets/attrs.html" %}
+>
+{{ widget.label }}
+</option>

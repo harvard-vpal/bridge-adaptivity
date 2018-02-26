@@ -8,6 +8,17 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
 
     public_name = 'Points earned'
 
+    summary_text = """Overall score is the proportion of points earned out of either the total possible points
+    earnable, or the threshold Q, whichever is higher."""
+
+    detail_text = """Let a_i denote the points available for the i'th activity in the sequence. Let e_i denote the
+    student's points earned for the i'th activity in the sequence. Let Q, the threshold (a configurable parameter) be a
+    positive integer. Then the sequence score is sum(e_i)/(max(Q,sum_i(a_i)).
+    The effect of Q, a "minimum available points threshold" is to encourage students to keep doing problems in the
+    sequence until the sum of the available points in the sequence is greater than Q, otherwise they will not be able
+    to attain full credit.
+    """
+
     def _get_points_earned_trials_count(self):
         """Get points earned and trials count from the sequence.
 

@@ -28,6 +28,11 @@ class BaseGradingPolicy(object):
     public_name = 'Grading Policy'
     require = {}
 
+    """Next 2 fields (summary_text, detail_text) should be defined in inherited classes
+    and should contain policy description."""
+    summary_text = ''
+    detail_text = ''
+
     def __init__(self, sequence=None, policy=None, **kwargs):
         self.sequence = sequence
         self.policy = policy
@@ -69,3 +74,6 @@ class BaseGradingPolicy(object):
 
     def send_grade(self):
         return self._send_grade()
+
+    def __str__(self):
+        return self.public_name
