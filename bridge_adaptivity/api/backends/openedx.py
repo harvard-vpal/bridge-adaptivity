@@ -8,7 +8,6 @@ from edx_rest_api_client.client import EdxRestApiClient
 from requests import RequestException
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
-from api.models import OAuthClient
 from bridge_lti.models import LtiConsumer
 
 log = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         if not url:
             url = '{}{}'.format(content_source.host_url, self.API_URLS['base_url'])
         if not jwt:
-            api_client_id = self.content_source.oauth_clients.first().client_id
+            api_client_id = self.content_source.o_auth_client.client_id
             token_cache_key = "api:{}:token".format(api_client_id)
 
             access_token = cache.get(token_cache_key)
@@ -53,7 +52,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         )
         log.debug("Requesting oauth token: (url={})".format(url))
         try:
-            oauth_client = get_oauth_client()
+            oauth_client = self.content_source.o_auth_client
             access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
                 url=url,
                 client_id=oauth_client.client_id,
@@ -89,8 +88,10 @@ class OpenEdxApiClient(EdxRestApiClient):
         API query parameters:
         - block_types_filter=['sequential', 'vertical', 'html', 'problem', 'video', 'discussion']
         - block_counts=['video', 'problem'...]
+        -
         see: http://edx.readthedocs.io/projects/edx-platform-api/en/latest/courses/blocks.html#query-parameters
 
+        :param filter_function: partially applied function `apply_data_filter` with filter parameters.
         :return: (list)
         """
         resource = self.blocks.get(
@@ -120,68 +121,108 @@ class OpenEdxApiClient(EdxRestApiClient):
         return resource.get('results')
 
 
-def get_available_blocks(course_id):
+def get_active_content_sources(source_id=None, not_allow_empty_source_id=True):
+    """
+    Check that passed source_id parameter is valid.
+
+    If there's only one active source provider - source_id parameter is not required, it will get first active.
+    :param source_id: LtiConsumer object id
+    :param not_allow_empty_source_id: if True - it will not allow empty source_id, if False - source_id could be None
+    :return: queryset of content_sources
+    :raise HttpClientError: if provided parameters are not valid
+    """
+    if not_allow_empty_source_id and not source_id:
+        # if source_id is not provided and more than one active content_provider
+        raise HttpClientError(_("Parameter source_id is mandatory if there's more than one active content source."))
+
+    content_sources = get_content_providers(source_id=source_id)
+
+    if not content_sources:
+        # if no active content sources
+        raise HttpClientError(_("No active Content Provider"))
+
+    return content_sources
+
+
+def get_available_blocks(source_id, course_id=''):
     """
     Content Source API requester.
 
-    Fetches all source blocks from the course with given ID.
+    Fetches all source blocks from the course with the given ID.
     Blocks data is filtered by `apply_data_filter`.
-    :param course_id:
+    :param course_id: Course id
+    :param source_id: LtiConsumer id
     :return: (list) blocks data
     """
-    content_source = get_content_provider()
-    if not content_source:
-        raise HttpClientError(_("No active Content Provider"))
+    content_source = get_active_content_sources(source_id).first()
+    all_blocks = []
 
     # Get API client instance:
     api = OpenEdxApiClient(content_source=content_source)
-
     try:
-        blocks = api.get_course_blocks(course_id, type_filter=['html', 'problem', 'video'])
-        filtered_blocks = apply_data_filter(
-            blocks,
-            filters=['id', 'block_id', 'display_name', 'lti_url', 'type'],
-            context_id=course_id
+        # filter function will be applied to api response
+        all_blocks.extend(
+            apply_data_filter(
+                api.get_course_blocks(
+                    course_id, type_filter=['html', 'problem', 'video']
+                ),
+                filters=['id', 'block_id', 'display_name', 'lti_url', 'type', 'content_source_id'],
+                context_id=course_id,
+                content_source_id=content_source.id
+            )
         )
     except HttpNotFoundError:
         raise HttpClientError(_("Requested course not found. Check `course_id` url encoding."))
     except HttpClientError as exc:
         raise HttpClientError(_("Not valid query: {}").format(exc.message))
 
-    return filtered_blocks
+    return all_blocks
 
 
-def get_available_courses():
+def get_available_courses(source_id=None):
     """
-    Fetch all available courses.
+    Fetch all available courses from all sources of from source with provided ID.
 
-    :param content_provider: LtiConsumer instance
+    :param source_id: content provider's ID
     :return: (list) course_ids
     """
-    content_source = get_content_provider()
-    if not content_source:
-        raise HttpClientError(_("No active Content Provider"))
+    content_sources = get_active_content_sources(source_id, not_allow_empty_source_id=False)
 
-    # Get API client instance:
-    api = OpenEdxApiClient(content_source=content_source)
+    all_courses = []
 
-    try:
-        courses_list = api.get_provider_courses()
-        filtered_courses = apply_data_filter(courses_list, filters=['id', 'course_id', 'name', 'org'])
-    except HttpClientError as exc:
-        raise HttpClientError(_("Not valid query: {}").format(exc.message))
+    for content_source in content_sources:
+        # Get API client instance:
+        api = OpenEdxApiClient(content_source=content_source)
+        try:
+            all_courses.extend(
+                apply_data_filter(
+                    api.get_provider_courses(),
+                    filters=['id', 'course_id', 'name', 'org', 'content_source_id'],
+                    content_source_id=content_source.id
+                )
+            )
+        except HttpClientError as exc:
+            raise HttpClientError(_("Not valid query: {}").format(exc.message))
 
-    return filtered_courses
+    return all_courses
 
 
-def apply_data_filter(data, filters=None, context_id=None):
+def add_to_dict(data, **kwargs):
+    """Add key and value to dict only if this pair not exist yet in data dict."""
+    for k, v in kwargs.items():
+        if k not in data:
+            data[k] = v
+    return data
+
+
+def apply_data_filter(data, filters=None, **kwargs):
     """
     Filter for `blocks` OpenEdx Course API response.
 
     Picks data which is listed in `filters` only.
     :param data: (list)
     :param filters: list of desired resource keys
-    :param context_id: if provided will be appended to every data item
+    :param kwargs: params to append to every object if it's not present in the object yet
     :return: list of resources which keys were filtered
     """
     if filters is None:
@@ -190,43 +231,25 @@ def apply_data_filter(data, filters=None, context_id=None):
     filtered_data = []
     for resource in data:
         filtered_resource = {k: v for k, v in resource.items() if k in filters}
-        if context_id is not None:
-            filtered_resource['context_id'] = context_id
-        filtered_data.append(filtered_resource)
-
+        filtered_data.append(add_to_dict(filtered_resource, **kwargs))
     return filtered_data
 
 
-def get_content_provider():
+def get_content_providers(source_id=None):
     """
     Pick active (enabled) content Sources (aka Providers).
 
     LTI Providers which expose courses content blocks to use in adaptive collections.
-    :return: content_source
+    :param source_id: LtiConsumer ID or None
+    :return: content_sources queryset
     """
-    try:
-        # TODO: multiple ContentSources processing - one, for now.
-        content_source = LtiConsumer.objects.get(is_active=True)
-        log.debug('Picked content Source: {}'.format(content_source.name))
-        return content_source
-    except LtiConsumer.DoesNotExist:
-        log.exception(
-            "There are no active content Providers for now. Make active one from Bridge Django admin "
-            "site: bridge_lti app > LtiConsumers> is_active=True"
-        )
-        return
-
-
-def get_oauth_client():
-    """Pick OAuth client for active (enabled) content Source."""
-    try:
-        content_provider = get_content_provider()
-        client = OAuthClient.objects.get(content_provider=content_provider)
-        log.debug('Picked OAuth client: {}'.format(client.name))
-        return client
-    except OAuthClient.DoesNotExist:
-        log.exception(
-            'Bridge oauth does not exist! '
-            'Please, create and configure one (Bridge admin > api app > add OAuth Client.'
-        )
-        raise ObjectDoesNotExist(_("There are no configured OAuth clients for active content provider yet."))
+    q_kw = {
+        'is_active': True
+    }
+    if source_id:
+        q_kw['id'] = source_id
+    content_source = LtiConsumer.objects.filter(**q_kw)
+    log.debug('Picked content Source(s){}: {}'.format(
+        " with content_source_id={}".format(source_id),
+        ", ".join(content_source.values_list('name', flat=True))))
+    return content_source

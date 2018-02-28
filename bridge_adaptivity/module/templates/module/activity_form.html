@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load bootstrap3 %}
+{% load bootstrap3 static %}
 
 <hr>
 
@@ -8,7 +8,26 @@
 
 <form role="form" method="post">
   {% csrf_token %}
-  {% bootstrap_form form %}
+
+  {% for field in form %}
+    {% if field.name not in form.advanced_fields%}
+    {% bootstrap_field field %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="advanced_fields">
+  {% for field in form %}
+    {% if field.name in form.advanced_fields %}
+      {% bootstrap_field field %}
+    {% endif %}
+  {% endfor %}
+  </div>
+
+  <button class="btn btn-default activity-show-advanced-options" data-toggle=".advanced_fields">
+  {% bootstrap_icon "plus" %} Show advanced options
+  </button>
+
+
   <button class="btn btn-primary" type="submit">{% if activity %}Update{% else %}Create{% endif %}</button>
   <a href="{% url 'module:collection-detail' current_collection_id %}" class="btn btn-default" role="button"
      type="reset">Cancel</a>
@@ -19,3 +38,9 @@
 </form>
 
 {% endblock content %}
+
+
+{% block bootstrap3_extra_script %}
+  {{ block.super }}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from lti import ToolConfig, ToolConsumer
 
-from api.backends.openedx import get_content_provider
+from api.backends.openedx import get_content_providers
 from module.models import SequenceItem
 
 log = logging.getLogger(__name__)
@@ -36,12 +36,12 @@ def source_preview(request):
     """View to render Source content block shared through LTI."""
     log.debug("Got request.GET: %s", request.GET)
 
-    content_provider = get_content_provider()
-    if not content_provider:
-        return render(request, 'bridge_lti/stub.html')
+    content_source_id = request.GET.get('content_source_id')
+    # pass source_id to get only on content source
+
     consumer_prams = {
-        'consumer_key': content_provider.provider_key,
-        'consumer_secret': content_provider.provider_secret,
+        'consumer_key': '',
+        'consumer_secret': '',
         'params': {
             # Required parameters
             'lti_message_type': 'basic-lti-launch-request',
@@ -54,11 +54,28 @@ def source_preview(request):
             'context_id': 'bridge_collection'
         },
     }
+
     # Default impersonal consumer parameters are used for getting problem's preview from the Source via LTI
     sequence_item_id = request.GET.get('sequence_item_id')
+    if content_source_id:
+        # staff flow
+        content_provider = get_content_providers(content_source_id).first()
+
+        if not content_provider:
+            return render(request, 'bridge_lti/stub.html')
+
+        consumer_prams['consumer_key'] = content_provider.provider_key
+        consumer_prams['consumer_secret'] = content_provider.provider_secret
+
     if sequence_item_id:
+        # student flow
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
         activity = sequence_item.activity
+
+        content_provider = activity.lti_consumer
+        consumer_prams['consumer_key'] = content_provider.provider_key
+        consumer_prams['consumer_secret'] = content_provider.provider_secret
+
         source_name = activity.source_name
         source_lti_url = activity.source_launch_url
         lis_outcome_service_url = urlparse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))

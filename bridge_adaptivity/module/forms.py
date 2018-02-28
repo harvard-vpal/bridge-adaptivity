@@ -18,10 +18,11 @@ class ActivityForm(ModelForm):
 
     class Meta:
         model = Activity
-        exclude = ['collection', 'lti_consumer', 'points']
+        exclude = ['collection', 'points']
         widgets = {
             'stype': forms.HiddenInput(),
             'points': forms.HiddenInput(),
+            'lti_consumer': forms.HiddenInput(),
         }
 
 

@@ -14,6 +14,26 @@ from module.models import Activity, Collection
 log = logging.getLogger(__name__)
 
 
+def check_source_course(request):
+    """
+    Check that source_id and course_id parameters are present and valid.
+
+    :param request: django request
+    :return: sourceID, courseID, error (or None if no error)
+    """
+    error = None
+    course_id = request.POST.get('course_id')
+    source_id = request.POST.get('content_source_id')
+
+    if not course_id:
+        error = HttpResponseBadRequest(reason={"error": "`course_id` is a mandatory parameter."})
+
+    if not source_id:
+        error = HttpResponseBadRequest(reason={"error": "`source_id` is a mandatory parameter."})
+
+    return source_id, course_id, error
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def sources(request):
@@ -22,17 +42,14 @@ def sources(request):
 
     Uses OpenEdx Course API v.1.0
     :param request:
-    :param course_id:
     :return: (JSON) blocks
     """
-    course_id = request.POST.get('course_id')
-    if not course_id:
-        return HttpResponseBadRequest(reason={"error": "`course_id` is a mandatory parameter."})
+    source_id, course_id, error = check_source_course(request)
 
-    log.debug('course_ID{}'.format(course_id))
-
+    if error:
+        return error
     try:
-        sources_list = get_available_blocks(course_id)
+        sources_list = get_available_blocks(source_id=source_id, course_id=course_id)
     except ObjectDoesNotExist as exc:
         return HttpResponseBadRequest(reason={"error": exc.message})
     except HttpClientError as exc:
