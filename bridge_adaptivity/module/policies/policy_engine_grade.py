@@ -7,9 +7,8 @@ class EngineGradedGradingPolicy(BaseGradingPolicy):
     """Grading policy class calculate grade based upon response from the engine."""
 
     public_name = 'Engine Graded'
-    summary_text = 'Engine graded grading policy.'
-    detail_text = ('This policy will ask engine to provide grade for the sequence. In this case bridge nothing '
-                   'calculates.')
+    summary_text = 'Engine grading policy.'
+    detail_text = 'This policy asks chosen engine to provide the grade for the sequence.'
     require = {
         'engine': (EngineVPAL,),
     }
