@@ -69,3 +69,8 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block bootstrap3_extra_script %}
+  {{ block.super }}
+  <script src="{% static 'module/js/module.js' %}"></script>
+{% endblock bootstrap3_extra_script %}
