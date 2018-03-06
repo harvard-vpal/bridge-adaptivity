@@ -24,8 +24,8 @@ class LtiProvider(models.Model):
     lms_metadata = fields.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
-        verbose_name = "LTI Provider"
-        verbose_name_plural = "LTI Providers"
+        verbose_name = "LMS Platform"
+        verbose_name_plural = "LMS Platforms"
 
     def __str__(self):
         return '<LtiProvider: {}>'.format(self.consumer_name)
@@ -48,8 +48,8 @@ class LtiConsumer(ModelFieldIsDefaultMixin, models.Model):
     is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
 
     class Meta:
-        verbose_name = "LTI Consumer"
-        verbose_name_plural = "LTI Consumers"
+        verbose_name = "Content Source"
+        verbose_name_plural = "Content Sources"
 
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
