@@ -1,4 +1,5 @@
 
+
 class ModelFieldIsDefaultMixin(object):
     IS_DEFAULT_FIELD = 'is_default'
 

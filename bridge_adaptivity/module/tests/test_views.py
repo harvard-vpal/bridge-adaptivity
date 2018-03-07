@@ -1,9 +1,13 @@
+import datetime
+from datetime import timedelta
+
 from django.test import TestCase
 from django.urls.base import reverse
 from mock import patch
 
+from bridge_lti.models import LtiConsumer
 from module.mixins.views import GroupEditFormMixin
-from module.models import BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy
+from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy
 
 
 GRADING_POLICIES = (
@@ -437,3 +441,104 @@ class TestManualSync(BridgeTestCase):
         url = reverse('module:collection-sync', kwargs={'pk': col_id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+
+class TestCreateUpdateActivity(BridgeTestCase):
+    fixtures = BridgeTestCase.fixtures + ['api.json', 'bridge.json']
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        super(TestCreateUpdateActivity, self).setUp()
+        self.back_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
+        self.provider = LtiConsumer.objects.get(id=2)
+        self.add_url = reverse('module:activity-add', kwargs={'collection_id': self.collection1.id})
+        self.create_data = {
+            'name': 'Adapt 310',
+            'tags': '',
+            'atype': 'G',
+            'difficulty': '1',
+            'source_launch_url': (
+                'https://edx-staging-vpal.raccoongang.com/lti_provider/courses/course-v1:MSFT+DAT222'
+                'x+4T2017/block-v1:MSFT+DAT222x+4T2017+type@problem+block@306986fde3e2489db9c97462dca19d4b'),
+            'source_name': 'Adapt 310',
+            'stype': 'problem',
+            'points': '0.5',
+            'lti_consumer': self.provider.id,
+            'source_context_id': 'course-v1:MSFT+DAT222x+4T2017'
+
+        }
+
+    @patch('module.tasks.sync_collection_engines.delay')
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    @patch('module.views.get_available_courses')
+    def test_create_activity(self, *mocks):
+        activity_count = Activity.objects.count()
+        response = self.client.post(self.add_url, self.create_data)
+        if response.status_code == 200:
+            # form errors
+            print response.context['form'].errors
+        self.assertRedirects(response, self.back_url)
+        self.assertEqual(activity_count + 1, Activity.objects.count())
+
+    @patch('module.tasks.sync_collection_engines.delay')
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    @patch('module.views.get_available_courses')
+    def test_update_activity(self, *mocks):
+        # create activity
+        self.test_create_activity(*mocks)
+        activity = Activity.objects.get()
+        activity_count = Activity.objects.count()
+        update_data = {
+            'name': 'ADOPT 100500',
+            'tags': 'some, tags, here',
+            'stype': 'video'
+        }
+        data = self.create_data.copy()
+        data.update(update_data)
+        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_id': self.collection1.id})
+        response = self.client.post(url, data)
+        self.assertEqual(activity_count, Activity.objects.count())
+
+        if response.status_code == 200:
+            # form errors
+            print response.context['form'].errors
+
+        new_activity = Activity.objects.get()
+        self.assertRedirects(response, self.back_url)
+        self.assertEqual(new_activity.name, update_data['name'])
+        self.assertEqual(new_activity.tags, update_data['tags'])
+        self.assertEqual(new_activity.stype, update_data['stype'])
+
+
+class TestMultipleContentSources(BridgeTestCase):
+    fixtures = BridgeTestCase.fixtures + ['api.json', 'bridge.json']
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        super(TestMultipleContentSources, self).setUp()
+
+    @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
+           return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
+    @patch('api.backends.openedx.OpenEdxApiClient.get_provider_courses',
+           return_value=[{'name': 'name'} for _ in range(10)])
+    def test_list_courses_multiple_sources(self, mock_get_provider_courses, mock_get_oauth_access_token):
+        url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
+        response = self.client.get(url)
+        self.assertIn('source_courses', response.context)
+        self.assertTrue(response.context['source_courses'])
+        total_courses = len(response.context['source_courses'])
+
+        self.assertEqual(total_courses, 20)
+
+        provider = LtiConsumer.objects.all().first()
+        provider.is_active = False
+        provider.save()
+
+        response = self.client.get(url)
+        self.assertIn('source_courses', response.context)
+        self.assertTrue(response.context['source_courses'])
+        new_total_courses = len(response.context['source_courses'])
+
+        self.assertNotEqual(new_total_courses, total_courses)
+        self.assertEqual(total_courses / 2, new_total_courses)
+        self.assertEqual(new_total_courses, 10)

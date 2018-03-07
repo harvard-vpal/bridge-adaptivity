@@ -17,7 +17,7 @@ from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
-from api.backends.openedx import get_available_courses, get_content_provider
+from api.backends.openedx import get_available_courses
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
@@ -167,10 +167,7 @@ class CollectionDetail(BaseCollectionView, DetailView):
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
         context['source_courses'] = self.get_content_courses()
-        context['activity_form'] = ActivityForm(initial={
-            'collection': self.object,
-            'lti_consumer': get_content_provider(),
-        })
+        context['activity_form'] = ActivityForm(initial={'collection': self.object})
         context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
@@ -206,16 +203,12 @@ class CollectionDelete(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class ActivityCreate(CollectionIdToContextMixin, CreateView):
     model = Activity
-    fields = [
-        'name', 'tags', 'atype', 'difficulty', 'points', 'source_launch_url',
-        'source_name', 'source_context_id', 'stype',
-    ]
+    form_class = ActivityForm
 
     def form_valid(self, form):
         activity = form.save(commit=False)
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
-        activity.lti_consumer = get_content_provider()
         return super(ActivityCreate, self).form_valid(form)
 
     def get_success_url(self):
@@ -225,8 +218,8 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
 @method_decorator(login_required, name='dispatch')
 class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
     model = Activity
+    form_class = ActivityForm
     context_object_name = 'activity'
-    fields = ActivityCreate.fields
 
     def get(self, request, *args, **kwargs):
         activity = self.get_object()

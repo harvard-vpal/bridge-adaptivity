@@ -1,0 +1,28 @@
+[
+{
+    "model": "bridge_lti.lticonsumer",
+    "pk": 2,
+    "fields": {
+        "name": "edx-VPAL-staging",
+        "provider_key": "some key",
+        "provider_secret": "some secret",
+        "lti_metadata": null,
+        "host_url": "https://some-staging-vpal.raccoongang.com",
+        "o_auth_client": 2,
+        "is_active": true
+    }
+},
+{
+    "model": "bridge_lti.lticonsumer",
+    "pk": 4,
+    "fields": {
+        "name": "edx-VPAL-2",
+        "provider_key": "some key",
+        "provider_secret": "some secret",
+        "lti_metadata": null,
+        "host_url": "https://edx-staging-vpal.raccoongang.com",
+        "o_auth_client": 3,
+        "is_active": true
+    }
+}
+]

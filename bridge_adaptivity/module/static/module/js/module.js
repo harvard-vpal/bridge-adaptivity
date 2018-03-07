@@ -21,7 +21,10 @@
         var activitiesData = $.map($(".activity"), function(activityRow) {
             var $activityRow = $(activityRow);
             return {
+                id: $activityRow.data("id"),
+                sourceActive: $activityRow.data("sourceActive"),
                 name: $activityRow.data("activity-name"),
+                content_source_id: $activityRow.data('content_source_id'),
                 launch_url: $activityRow.data("activity-source-launch-url")
             }
         });
@@ -31,28 +34,33 @@
             video: "glyphicon-facetime-video",
             other: "glyphicon-option-horizontal"
         };
+
+        var bridgeStateLoad = function() {
+            var storageState = JSON.parse(localStorage.getItem("bridgeState"));
+            if (storageState === null) {
+                $.extend(this, {
+                    accordion: {
+                        opened: null,
+                        activeCourseId: null,
+                        courseData: {}
+                    }
+                });
+                console.log("State initialization...");
+            } else {
+                $.extend(this, storageState);
+                console.log("State from storage...");
+                if (this.accordion.opened != null){
+                    $("#accordion a[data-course-index='" + this.accordion.opened + "']").trigger("click");
+                    // no need to pass content_source_id, because it will be loaded from LocalStorage with data
+                    clickHandler(this.accordion.opened, this.accordion.activeCourseId, this, null);
+                }
+            }
+            console.log("State loaded: ", this);
+        };
+
         var bridgeState = (function() {
             return {
-                load: function() {
-                    var storageState = JSON.parse(localStorage.getItem("bridgeState"));
-                    if (storageState === null) {
-                        $.extend(this, {
-                            accordion: {
-                                opened: null,
-                                activeCourseId: null,
-                                courseData: {}
-                            }
-                        });
-                        console.log("State initialization...");
-                    } else {
-                        $.extend(this, storageState);
-                        console.log("State from storage...");
-                        $("#accordion a[data-course-index='" + this.accordion.opened + "']").trigger("click");
-                        clickHandler(this.accordion.opened, this.accordion.activeCourseId, this);
-                    }
-                    console.log("State loaded: ", this);
-                },
-
+                load: bridgeStateLoad,
                 save: function() {
                     localStorage.setItem("bridgeState", JSON.stringify(this));
                     console.debug("State saved: ", this);
@@ -67,7 +75,7 @@
             createPreviewButton(
                 activity["name"],
                 activity["launch_url"],
-                activity["id"],
+                activity,
                 $("#activity-row-" + i + " td div").last(),
                 modalContentFrame
             )
@@ -77,26 +85,30 @@
             var target = $(this);
             var activeCourseIndex = target.data("course-index");
             var activeCourseId = target.data("course-id");
+            var activeCourseContentSourceId = target.data("content_source_id");
 
             if (activeCourseIndex !== bridgeState.accordion.opened) {
                 bridgeState.accordion.opened = activeCourseIndex;
                 bridgeState.save();
-                clickHandler(activeCourseIndex, activeCourseId, bridgeState);
+                clickHandler(activeCourseIndex, activeCourseId, bridgeState, activeCourseContentSourceId);
             } else {
                 bridgeState.accordion.opened = null;
                 bridgeState.save();
             }
         });
 
-        function clickHandler(activeCourseIndex, activeCourseId, state) {
+        function clickHandler(activeCourseIndex, activeCourseId, state, contentSourceId) {
             var courseData;
             var content_panel = $("#content-panel-" + activeCourseIndex + " div.panel-body");
             if (state.accordion.courseData[activeCourseIndex] !== undefined) {
                 console.log("Taking data from cache ...");
-                courseData= state.accordion.courseData[activeCourseIndex];
+                courseData = state.accordion.courseData[activeCourseIndex];
                 renderCourseBlocks(courseData, content_panel);
             } else {
-                var requestData = {course_id: activeCourseId};
+                var requestData = {
+                    course_id: activeCourseId,
+                    content_source_id: contentSourceId
+                };
                 $.post(internalUrls.apiSources, requestData, function (responseData) {
                     console.log("Processing API request...");
                     state.accordion.courseData[activeCourseIndex] = responseData;
@@ -155,7 +167,7 @@
                 createPreviewButton(
                     item["display_name"],
                     item["lti_url"],
-                    item["id"],
+                    item,
                     listItem,
                     modalContentFrame
                 )
@@ -163,7 +175,10 @@
             container.html(sourcesList);
         }
 
-        function createPreviewButton(title, ltiUrl, sourceId, parent, modalFrame) {
+        function createPreviewButton(title, ltiUrl, activity, parent, modalFrame) {
+            var contentSourceId = activity['content_source_id'];
+            var sourceId = activity['id'];
+
             var preview = $("<a/>")
                 .addClass("pull-right")
                 .attr("data-toggle", "modal")
@@ -180,15 +195,18 @@
                 e.stopImmediatePropagation();
                 $("#sourceModal").modal("show");
                 $("#sourceModalLabel").text(title);
-                configurePreview(title, ltiUrl, sourceId, modalFrame);
+                configurePreview(title, ltiUrl, sourceId, contentSourceId, modalFrame);
             })
         }
 
-        function configurePreview(title, ltiUrl, sourceId, modalFrame) {
+        function configurePreview(title, ltiUrl, sourceId, contentSourceId, modalFrame) {
             var idParam = "source_id=" + sourceId + "&";
             var displayNameParam = "source_name=" + title + "&";
             var ltiUrlParam = "source_lti_url=" + ltiUrl + "&";
-            var previewUrl = internalUrls.ltiSourcePreview + "?" + idParam + displayNameParam + ltiUrlParam;
+            var contentSourceIdParam = "content_source_id=" + contentSourceId + "&";
+            var previewUrl = (
+                internalUrls.ltiSourcePreview + "?" + idParam + displayNameParam + ltiUrlParam + contentSourceIdParam
+            );
             modalFrame
                 .attr("src", previewUrl)
                 .attr("title", title)
@@ -201,6 +219,7 @@
             $("#id_source_name").val(source["display_name"]);
             $("#id_source_launch_url").val(source["lti_url"]);
             $("#id_source_context_id").val(source["context_id"]);
+            $("#id_lti_consumer").val(source["content_source_id"]);
             $("#id_stype").val(source['type']);
         }
 
