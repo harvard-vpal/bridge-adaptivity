@@ -11,7 +11,11 @@
         {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
     </a>
     {% endif %}
-    <a class="pull-right require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
+    <a class="pull-right require-submissions
+        {% if collection.has_linked_sequences %}
+          {% if collection.has_linked_active_sequences %} show-alarm
+            {% else %} show-warning{% endif %}
+        {% endif %}">
         {% bootstrap_button "Delete" size='sm' icon='trash' %}
     </a>
     <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
@@ -164,9 +168,13 @@
     </div>
   </div>
 
-  {% include "module/source_modal.html" %}
-  {% include "module/activity_modal.html" with collection=object %}
-  {% include "module/engine_failure_modal.html" %}
+  {% include "module/modals/source_modal.html" %}
+  {% include "module/modals/activity_modal.html" with collection=object %}
+  {% include "module/modals/engine_failure_modal.html" %}
+
+  {% url 'module:collection-delete' pk=object.id as delete_url %}
+  {% include "module/modals/delete_collection_warning.html" with collection=object action_url=delete_url%}
+  {% include "module/modals/delete_collection_alarm.html" with collection=object action_url=delete_url %}
 
 {% endblock content %}
 

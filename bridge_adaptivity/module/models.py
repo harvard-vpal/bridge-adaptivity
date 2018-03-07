@@ -200,6 +200,14 @@ class Collection(models.Model):
     def __str__(self):
         return u'<Collection: {}>'.format(self.name)
 
+    def has_linked_sequences(self):
+        """Indicate that collection has linked sequences."""
+        return self.sequence_set.all()
+
+    def has_linked_active_sequences(self):
+        """Indicate that collection has linked not finished sequences."""
+        return self.sequence_set.filter(completed=False)
+
     def save(self, *args, **kwargs):
         """Extension cover method with logging."""
         initial_id = self.id

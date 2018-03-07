@@ -273,6 +273,24 @@
             return this;
         };
 
+        $(".show-warning button").on('click', function(e){
+            $("#deleteCollectionWarning").modal('show');
+//            e.stopPropagation();
+//            e.preventDefault();
+
+        });
+
+        $(".show-alarm button").on('click', function(e){
+            $("#deleteCollectionAlarm").modal('show');
+//            e.stopPropagation();
+//            e.preventDefault();
+
+        });
+
+        $(".close-modal").on('click', function(e){
+            $("#"+$(this).data('id')).modal('toggle');
+        })
+
         $('.require-submission').requireUserSubmit();
         $('form').preventDoubleSubmission();
 
