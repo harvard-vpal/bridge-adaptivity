@@ -42,7 +42,15 @@
                  href="{% url 'module:collection-change' collection.id %}?back_url={{ collection.get_absolute_url }}">
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
-              <a class="move-down require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
+              <a
+                  class="move-down require-submission"
+                  href="{% url 'module:collection-delete' pk=collection.id %}"
+                  {% if collection.has_linked_active_sequences %}
+                  data-confirmation-msg="At least one student are still working on Collection <{{ collection.name }}>. \n\nAre you really sure? \n\nThis action is not reversible!"
+                  {% elif collection.has_linked_sequences %}
+                  data-confirmation-msg="At least one student is linked to Collection <{{ collection.name }}>. \n\nAre you really sure? \n\nThis action is not reversible!"
+                  {% endif %}
+                  >
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
             </div>

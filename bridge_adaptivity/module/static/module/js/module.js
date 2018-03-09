@@ -263,7 +263,8 @@
                 var $elem =$(this);
                 var confirmMsg = (
                     $elem.data('confirmation-msg') || 'Are you really sure? \n\nThis action is not reversible!'
-                );
+                ).replace(/\\n/g, '\n');
+
                 if (!confirm(confirmMsg)) {
                     e.stopPropagation();
                     e.preventDefault();
