@@ -115,7 +115,8 @@ class OpenEdxApiClient(EdxRestApiClient):
         resource = self.courses.get(
             username=username,
             org=org,
-            mobile=mobile
+            mobile=mobile,
+            page_size=1000,
         )
         return resource.get('results')
 
