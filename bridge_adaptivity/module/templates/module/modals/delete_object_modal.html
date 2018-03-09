@@ -7,12 +7,12 @@
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
           aria-hidden="true">&times;</span></button>
-          <h3 class="modal-title">This item is used by the student!</h3>
+          <h3 class="modal-title">You are about deleting {{ object }}.</h3>
       </div>
       <div class="modal-body">
-          <h4>At least one student is still working on the collection: {{ object }}.</h4>
+          <h4>Are you really sure?</h4>
 
-        <p class="warn">This action could not be undone and may cause deleting of the student's progress.</p>
+        <p class="warn">This action could not be undone!</p>
         <div class="row">
           <div class="col-md-6">
             <form class="" action="{{ action_url }}" method="post">

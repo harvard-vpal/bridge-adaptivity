@@ -274,19 +274,34 @@
             return this;
         };
 
-        $(".show-warning button").on('click', function(e){
-            $("#deleteCollectionWarning").modal('show');
-//            e.stopPropagation();
-//            e.preventDefault();
+        var getDataForWarning = function (elem) {
+            $elem = $(elem);
+            return $elem.closest('a').data();
+        };
+
+        $(".show-warning,.show-alarm,.delete-object button").on('click', function(e){
+            var data = getDataForWarning(this);
+            if(data && data.id) {
+                $("#deleteModal" + data.id).modal('show');
+            } else {
+                $("#deleteModal").modal('show');
+            }
+            e.stopPropagation();
+            e.preventDefault();
 
         });
 
-        $(".show-alarm button").on('click', function(e){
-            $("#deleteCollectionAlarm").modal('show');
+//        $(".show-alarm button").on('click', function(e){
+//            var data = getDataForWarning(this);
+//            if(data && data.id){
+//                $("#deleteModal" + data.id).modal('show');
+//            } else {
+//                $("#deleteModal").modal('show');
+//            }
 //            e.stopPropagation();
 //            e.preventDefault();
-
-        });
+//
+//        });
 
         $(".close-modal").on('click', function(e){
             $("#"+$(this).data('id')).modal('toggle');

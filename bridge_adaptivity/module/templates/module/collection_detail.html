@@ -11,7 +11,7 @@
         {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
     </a>
     {% endif %}
-    <a class="pull-right require-submissions
+    <a class="pull-right delete-object
         {% if collection.has_linked_sequences %}
           {% if collection.has_linked_active_sequences %} show-alarm
             {% else %} show-warning{% endif %}
@@ -173,8 +173,14 @@
   {% include "module/modals/engine_failure_modal.html" %}
 
   {% url 'module:collection-delete' pk=object.id as delete_url %}
-  {% include "module/modals/delete_collection_warning.html" with collection=object action_url=delete_url%}
-  {% include "module/modals/delete_collection_alarm.html" with collection=object action_url=delete_url %}
+
+  {% if collection.has_linked_active_sequences %}
+    {% include "module/modals/delete_collection_alarm.html" with object=object action_url=delete_url %}
+  {% elif collection.has_linked_sequences %}
+    {% include "module/modals/delete_collection_warning.html" with object=object action_url=delete_url %}
+  {% else %}
+    {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
+  {% endif %}
 
 {% endblock content %}
 

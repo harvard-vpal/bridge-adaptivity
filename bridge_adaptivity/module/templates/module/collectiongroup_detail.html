@@ -7,7 +7,10 @@
     <a class="pull-right" href="{% url 'module:group-change' group.slug %}?back_url={{ group.get_absolute_url}}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
-    <a class="pull-right require-submission" href="{% url 'module:group-delete' group.slug %}?back_url={{ group.get_absolute_url}}">
+    <a class="pull-right delete-object
+        {% if group.has_linked_active_sequences %} show-alarm
+        {% elif group.has_linked_sequences %} show-warning{% endif %}"
+       href="{% url 'module:group-delete' group.slug %}?back_url={{ group.get_absolute_url}}">
       {% bootstrap_button 'Delete' size='sm' icon='trash' %}
     </a>
   </h3>
@@ -77,6 +80,15 @@
     {% endif %}
   </div>
 </div>
+
+{% if group.has_linked_active_sequences %}
+  {% include "module/modals/delete_collection_alarm.html" with object=group action_url=delete_url %}
+{% elif group.has_linked_sequences %}
+  {% include "module/modals/delete_collection_warning.html" with object=group action_url=delete_url %}
+{% else %}
+  {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+{% endif %}
+
 {% endblock content %}
 
 

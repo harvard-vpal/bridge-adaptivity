@@ -309,6 +309,15 @@ class CollectionGroup(models.Model):
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
+    def has_linked_sequences(self):
+        """Indicate that collection group has linked sequences."""
+        # sequence has link to group
+        return self.sequence_set.exists()
+
+    def has_linked_active_sequences(self):
+        """Indicate that collection group has linked not finished sequences."""
+        return self.sequence_set.filter(completed=False)
+
 
 @python_2_unicode_compatible
 class Activity(OrderedModel):

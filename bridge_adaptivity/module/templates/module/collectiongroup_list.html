@@ -37,9 +37,24 @@
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
 
-              <a class="move-down require-submission" href="{% url 'module:group-delete' group_slug=group.slug %}">
+              <a class="move-down delete-object
+                  {% if group.has_linked_active_sequences %} show-alarm
+                  {% elif group.has_linked_sequences %} show-warning
+                  {% endif %}"
+                 href="{% url 'module:group-delete' group_slug=group.slug %}"
+                  data-id="{{ group.id }}">
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
+
+              {% if group.has_linked_active_sequences %}
+                {% include "module/modals/delete_collection_alarm.html" with object=group action_url=delete_url id=group.id %}
+              {% elif group.has_linked_sequences %}
+                {% include "module/modals/delete_collection_warning.html" with object=group action_url=delete_url id=group.id %}
+              {% else %}
+                {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url id=group.id %}
+              {% endif %}
+
+
             </div>
           </td>
         </tr>
