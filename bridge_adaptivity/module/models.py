@@ -296,7 +296,7 @@ class CollectionGroup(models.Model):
     engine = models.ForeignKey(Engine)
 
     def __str__(self):
-        return u"CollectionGroup: {}".format(self.name)
+        return u"Group of Collections: {}".format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})

@@ -1,0 +1,31 @@
+{% load bootstrap3 %}
+<!-- Modal -->
+<div class="modal fade" id="sourceModal" tabindex="-1" role="dialog" aria-labelledby="sourceModalLabel">
+  <div class="modal-dialog" style="width:60%;" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="sourceModalLabel">
+          Add group to course: {{ course }}
+        </h4>
+      </div>
+      <div class="modal-body">
+        {% if groups_available %}
+        <form action="{{ src_url }}" method="post" id="add-group-form">
+          {% bootstrap_form add_group_form %}
+          {% csrf_token %}
+        </form>
+        {% else %}
+        <h4>No available groups!</h4>
+        <h5>All groups are already used in other courses.</h5>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+        {% if groups_available %}<button type="button" id="add-groups" class="btn btn-success pull-left">Add selected groups</button>{% endif %}
+        <a href="{% url 'module:group-add' %}" class="btn btn-primary pull-left">Add new group</a>
+      </div>
+    </div>
+  </div>
+</div>

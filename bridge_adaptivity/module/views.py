@@ -6,8 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
-from django.http.response import Http404
+from django.http.response import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -20,12 +21,12 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, BaseGradingPolicyForm, GroupForm
+from module.forms import ActivityForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
     CollectionIdToContextMixin, GroupEditFormMixin, LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionGroup, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
+    Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
@@ -44,6 +45,15 @@ class CourseList(BaseCourseView, ListView):
 @method_decorator(login_required, name='dispatch')
 class CourseDetail(BaseCourseView, DetailView):
     context_object_name = 'course'
+
+    def get_context_data(self, **kwargs):
+        data = super(CourseDetail, self).get_context_data(**kwargs)
+        form = AddCourseGroupForm(user=self.request.user)
+        data.update({
+            'add_group_form': form,
+            'groups_available': form.fields['groups'].queryset.exists()
+        })
+        return data
 
 
 @method_decorator(login_required, name='dispatch')
@@ -70,12 +80,34 @@ class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
+class CourseAddGroup(FormView):
+    model = CollectionGroup
+    template_name = 'module/modals/course_add_group.html'
+    form_class = AddCourseGroupForm
+
+    def get_form_kwargs(self):
+        kwargs = super(CourseAddGroup, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
+        form.save(course=course)
+        return JsonResponse(dict(success=True, url=reverse('module:course-detail', kwargs=self.kwargs)))
+
+    def form_invalid(self, form):
+        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
+        return JsonResponse(dict(success=False, html=html))
+
+
+@method_decorator(login_required, name='dispatch')
 class GroupList(OnlyMyObjectsMixin, ListView):
     model = CollectionGroup
     context_object_name = 'groups'
     ordering = ['slug']
 
 
+@method_decorator(login_required, name='dispatch')
 class GetGradingPolicyForm(FormView):
     form_class = BaseGradingPolicyForm
     template_name = 'module/gradingpolicy_form.html'
