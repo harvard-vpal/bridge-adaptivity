@@ -41,20 +41,24 @@
                   {% if group.has_linked_active_sequences %} show-alarm
                   {% elif group.has_linked_sequences %} show-warning
                   {% endif %}"
-                 href="{% url 'module:group-delete' group_slug=group.slug %}"
+                  href="{% url 'module:group-delete' group_slug=group.slug %}"
                   data-id="{{ group.id }}">
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
 
+              {% url 'module:group-delete' group_slug=group.slug as delete_url %}
+
               {% if group.has_linked_active_sequences %}
-                {% include "module/modals/delete_collection_alarm.html" with object=group action_url=delete_url id=group.id %}
+                {% with message="At least one student is still working on the Collection which is in " %}
+                  {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url id=group.id %}
+                {% endwith %}
               {% elif group.has_linked_sequences %}
-                {% include "module/modals/delete_collection_warning.html" with object=group action_url=delete_url id=group.id %}
+                {% with message="At least one student is linked to the Collection which is in " %}
+                  {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url id=group.id %}
+                {% endwith %}
               {% else %}
                 {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url id=group.id %}
               {% endif %}
-
-
             </div>
           </td>
         </tr>

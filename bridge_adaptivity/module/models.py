@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
-from common.mixins.models import ModelFieldIsDefaultMixin
+from common.mixins.models import ModelFieldIsDefaultMixin, HasLinkedSequence
 from module import tasks
 
 log = logging.getLogger(__name__)
@@ -185,7 +185,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class Collection(models.Model):
+class Collection(HasLinkedSequence, models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
@@ -199,14 +199,6 @@ class Collection(models.Model):
 
     def __str__(self):
         return u'<Collection: {}>'.format(self.name)
-
-    def has_linked_sequences(self):
-        """Indicate that collection has linked sequences."""
-        return self.sequence_set.all()
-
-    def has_linked_active_sequences(self):
-        """Indicate that collection has linked not finished sequences."""
-        return self.sequence_set.filter(completed=False)
 
     def save(self, *args, **kwargs):
         """Extension cover method with logging."""
@@ -288,7 +280,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class CollectionGroup(models.Model):
+class CollectionGroup(HasLinkedSequence, models.Model):
     """Represents Collections Group."""
 
     name = models.CharField(max_length=255)
@@ -308,15 +300,6 @@ class CollectionGroup(models.Model):
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
-
-    def has_linked_sequences(self):
-        """Indicate that collection group has linked sequences."""
-        # sequence has link to group
-        return self.sequence_set.exists()
-
-    def has_linked_active_sequences(self):
-        """Indicate that collection group has linked not finished sequences."""
-        return self.sequence_set.filter(completed=False)
 
 
 @python_2_unicode_compatible

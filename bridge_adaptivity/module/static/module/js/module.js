@@ -291,22 +291,6 @@
 
         });
 
-//        $(".show-alarm button").on('click', function(e){
-//            var data = getDataForWarning(this);
-//            if(data && data.id){
-//                $("#deleteModal" + data.id).modal('show');
-//            } else {
-//                $("#deleteModal").modal('show');
-//            }
-//            e.stopPropagation();
-//            e.preventDefault();
-//
-//        });
-
-        $(".close-modal").on('click', function(e){
-            $("#"+$(this).data('id')).modal('toggle');
-        })
-
         $('.require-submission').requireUserSubmit();
         $('form').preventDoubleSubmission();
 

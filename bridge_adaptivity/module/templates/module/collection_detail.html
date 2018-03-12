@@ -175,9 +175,13 @@
   {% url 'module:collection-delete' pk=object.id as delete_url %}
 
   {% if collection.has_linked_active_sequences %}
-    {% include "module/modals/delete_collection_alarm.html" with object=object action_url=delete_url %}
+    {% with message="At least one student is still working on the collection: " %}
+      {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
+    {% endwith %}
   {% elif collection.has_linked_sequences %}
-    {% include "module/modals/delete_collection_warning.html" with object=object action_url=delete_url %}
+    {% with message="At least one student is linked to the collection: " %}
+      {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
+    {% endwith %}
   {% else %}
     {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
   {% endif %}

@@ -81,10 +81,16 @@
   </div>
 </div>
 
-{% if group.has_linked_active_sequences %}
-  {% include "module/modals/delete_collection_alarm.html" with object=group action_url=delete_url %}
-{% elif group.has_linked_sequences %}
-  {% include "module/modals/delete_collection_warning.html" with object=group action_url=delete_url %}
+{% url 'module:group-delete' group_slug=group.slug as delete_url %}
+
+{% if collection.has_linked_active_sequences %}
+  {% with message="At least one student is still working on the Collection which is in Collection Group " %}
+    {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+  {% endwith %}
+{% elif collection.has_linked_sequences %}
+  {% with message="At least one student is linked to the Collection which is in Collection Group " %}
+    {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+  {% endwith %}
 {% else %}
   {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
 {% endif %}
