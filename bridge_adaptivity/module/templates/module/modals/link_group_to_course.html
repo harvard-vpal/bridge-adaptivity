@@ -24,7 +24,8 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
         {% if groups_available %}<button type="button" id="add-groups" class="btn btn-success pull-left">Add selected groups</button>{% endif %}
-        <a href="{% url 'module:group-add' %}" class="btn btn-primary pull-left">Add new group</a>
+        {% url 'module:course-detail' course_slug=course.slug as return_url %}
+        <a href="{% url 'module:group-add' %}?back_url={{ return_url }}&course={{ course.id }}&return_url={{ return_url }}" class="btn btn-primary pull-left">Add new group</a>
       </div>
     </div>
   </div>

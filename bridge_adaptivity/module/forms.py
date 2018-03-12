@@ -81,8 +81,7 @@ class AddCourseGroupForm(forms.Form):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super(AddCourseGroupForm, self).__init__(*args, **kwargs)
-        if user:
-            self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
+        self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
 
     groups = forms.ModelMultipleChoiceField(
         label="Choose groups to add into this course:",
