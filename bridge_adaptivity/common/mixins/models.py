@@ -22,7 +22,7 @@ class ModelFieldIsDefaultMixin(object):
         return super(ModelFieldIsDefaultMixin, self).save(*args, **kwargs)
 
 
-class HasLinkedSequence(object):
+class HasLinkedSequenceMixin(object):
     """
     This class implement two methods `has_linked_active_sequences` and `has_linked_sequences`.
 
@@ -37,4 +37,3 @@ class HasLinkedSequence(object):
     def has_linked_active_sequences(self):
         """Indicate that collection group has linked not finished sequences."""
         return self.sequence_set.filter(completed=False).exists()
-
