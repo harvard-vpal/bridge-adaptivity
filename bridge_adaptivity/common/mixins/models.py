@@ -24,9 +24,9 @@ class ModelFieldIsDefaultMixin(object):
 
 class HasLinkedSequenceMixin(object):
     """
-    This class implement two methods `has_linked_active_sequences` and `has_linked_sequences`.
+    This mixin implement two methods `has_linked_active_sequences` and `has_linked_sequences`.
 
-    This methods are used to understand that object (Group or Collection) has linked sequences.
+    These methods are used to understand that object (Group or Collection) has linked sequences.
     """
 
     def has_linked_sequences(self):
