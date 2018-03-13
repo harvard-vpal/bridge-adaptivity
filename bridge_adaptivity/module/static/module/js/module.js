@@ -298,5 +298,25 @@
             $($(this).data('toggle')).toggle('slow');
             e.preventDefault();
         })
+
+        $('#add-group-to-course').on('click', function(e){
+            $('#sourceModal').modal('show');
+        })
+
+        $("#add-groups").on("click", function(e) {
+            var $form = $("#add-group-form");
+            var url = $form.attr('action');
+            var data = $form.serialize();
+            $.post(url, data, function(data){
+                if(data.success) {
+                    window.location.href = data['url'];
+                } else {
+                    $form.html(data.html)
+                };
+            },
+            'json')
+        });
+
+
     });
 }(jQuery));

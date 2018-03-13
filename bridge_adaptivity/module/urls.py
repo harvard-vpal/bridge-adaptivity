@@ -4,8 +4,8 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDelete,
-    CollectionDetail, CollectionList, CollectionUpdate, CourseCreate, CourseDelete, CourseDetail, CourseList,
-    CourseUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
+    CollectionDetail, CollectionList, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail,
+    CourseList, CourseUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
     sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection,
 )
 
@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^course/(?P<course_slug>[\w-]+)/$', CourseDetail.as_view(), name='course-detail'),
     url(r'^course/(?P<course_slug>[\w-]+)/change/?$', CourseUpdate.as_view(), name='course-change'),
     url(r'^course/(?P<course_slug>[\w-]+)/delete/?$', CourseDelete.as_view(), name='course-delete'),
+    url(r'^course/(?P<course_slug>[\w-]+)/add_group/?$', CourseAddGroup.as_view(), name='add-group-to-course'),
+
 
     url(r'^group/$', GroupList.as_view(), name='group-list'),
     url(r'^group/add/?$', GroupCreate.as_view(), name='group-add'),

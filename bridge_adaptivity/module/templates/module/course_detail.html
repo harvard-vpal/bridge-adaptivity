@@ -19,7 +19,7 @@
   {% if course.course_groups.all %}
     <table class="table table-hover">
       <tr>
-        <th>name</th>
+        <th>group name</th>
         <th>description</th>
         <th>collections count</th>
         <th>grading policy</th>
@@ -51,6 +51,9 @@
       You have no groups in this course for now.
     </div>
   {% endif %}
+
+  {% bootstrap_button 'Add group to course' size='lg' icon='plus' id='add-group-to-course' extra_classes='open-modal' %}
+
 </div>
 <!--Right side-->
 <div class="col-md-3">
@@ -68,6 +71,9 @@
     </div>
   </div>
 </div>
+
+{% url "module:add-group-to-course" course_slug=course.slug as add_group_url %}
+{% include "module/modals/link_group_to_course.html" with course=course src_url=add_group_url %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
 {% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course "%}
