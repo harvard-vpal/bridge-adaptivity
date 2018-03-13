@@ -263,7 +263,8 @@
                 var $elem =$(this);
                 var confirmMsg = (
                     $elem.data('confirmation-msg') || 'Are you really sure? \n\nThis action is not reversible!'
-                );
+                ).replace(/\\n/g, '\n');
+
                 if (!confirm(confirmMsg)) {
                     e.stopPropagation();
                     e.preventDefault();
@@ -272,6 +273,23 @@
 
             return this;
         };
+
+        var getDataForWarning = function (elem) {
+            $elem = $(elem);
+            return $elem.closest('a').data();
+        };
+
+        $(".show-warning,.show-alarm,.delete-object button").on('click', function(e){
+            var data = getDataForWarning(this);
+            if(data && data.id) {
+                $("#deleteModal" + data.id).modal('show');
+            } else {
+                $("#deleteModal").modal('show');
+            }
+            e.stopPropagation();
+            e.preventDefault();
+
+        });
 
         $('.require-submission').requireUserSubmit();
         $('form').preventDoubleSubmission();

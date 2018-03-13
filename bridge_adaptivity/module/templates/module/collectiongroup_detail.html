@@ -7,7 +7,10 @@
     <a class="pull-right" href="{% url 'module:group-change' group.slug %}?back_url={{ group.get_absolute_url}}">
       {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
-    <a class="pull-right require-submission" href="{% url 'module:group-delete' group.slug %}?back_url={{ group.get_absolute_url}}">
+    <a class="pull-right delete-object
+        {% if group.has_linked_active_sequences %} show-alarm
+        {% elif group.has_linked_sequences %} show-warning{% endif %}"
+       href="{% url 'module:group-delete' group.slug %}?back_url={{ group.get_absolute_url}}">
       {% bootstrap_button 'Delete' size='sm' icon='trash' %}
     </a>
   </h3>
@@ -77,6 +80,21 @@
     {% endif %}
   </div>
 </div>
+
+{% url 'module:group-delete' group_slug=group.slug as delete_url %}
+
+{% if collection.has_linked_active_sequences %}
+  {% with message="At least one student is still working on the Collection which is in Collection Group " %}
+    {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+  {% endwith %}
+{% elif collection.has_linked_sequences %}
+  {% with message="At least one student is linked to the Collection which is in Collection Group " %}
+    {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+  {% endwith %}
+{% else %}
+  {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+{% endif %}
+
 {% endblock content %}
 
 

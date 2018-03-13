@@ -1,0 +1,37 @@
+{% load bootstrap3 %}
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal{{ id }}" role="dialog">
+  <div class="modal-dialog" role="dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+        {% if not title %}
+          <h3 class="modal-title">You are about deleting {{ object }}.</h3>
+        {% else %}
+          <h3 class="modal-title">{{ title }} {{ object }}.</h3>
+        {% endif %}
+      </div>
+      <div class="modal-body">
+        {% if message %}
+        <h4>{{ message }} {{ object }}</h4>
+        {% endif %}
+        <h4>Are you really sure?</h4>
+
+        <h4 class="warn">This action could not be undone!</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <form class="" action="{{ action_url }}" method="post">
+              {% csrf_token %}
+              <button class="btn-danger">OK</button>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <button class="close-modal pull-right btn-primary" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -42,9 +42,27 @@
                  href="{% url 'module:collection-change' collection.id %}?back_url={{ collection.get_absolute_url }}">
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
-              <a class="move-down require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
+              {% url 'module:collection-delete' pk=collection.id as delete_url %}
+              <a
+                  class="move-down delete-object
+                  {% if collection.has_linked_active_sequences %} show-alarm
+                  {% elif collection.has_linked_sequences %} show-warning{% endif %}"
+                  data-id="{{ collection.id }}">
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
+
+              {% if collection.has_linked_active_sequences %}
+                {% with message="At least one student is still working on the collection: " %}
+                  {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+                {% endwith %}
+              {% elif collection.has_linked_sequences %}
+                {% with message="At least one student is linked to the collection: " %}
+                  {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+                {% endwith %}
+              {% else %}
+                {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+              {% endif %}
+
             </div>
           </td>
         </tr>

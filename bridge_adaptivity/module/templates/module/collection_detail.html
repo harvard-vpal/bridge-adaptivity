@@ -11,7 +11,11 @@
         {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
     </a>
     {% endif %}
-    <a class="pull-right require-submission" href="{% url 'module:collection-delete' pk=collection.id %}">
+    <a class="pull-right delete-object
+        {% if collection.has_linked_sequences %}
+          {% if collection.has_linked_active_sequences %} show-alarm
+            {% else %} show-warning{% endif %}
+        {% endif %}">
         {% bootstrap_button "Delete" size='sm' icon='trash' %}
     </a>
     <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
@@ -169,9 +173,23 @@
     </div>
   </div>
 
-  {% include "module/source_modal.html" %}
-  {% include "module/activity_modal.html" with collection=object %}
-  {% include "module/engine_failure_modal.html" %}
+  {% include "module/modals/source_modal.html" %}
+  {% include "module/modals/activity_modal.html" with collection=object %}
+  {% include "module/modals/engine_failure_modal.html" %}
+
+  {% url 'module:collection-delete' pk=object.id as delete_url %}
+
+  {% if collection.has_linked_active_sequences %}
+    {% with message="At least one student is still working on the collection: " %}
+      {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
+    {% endwith %}
+  {% elif collection.has_linked_sequences %}
+    {% with message="At least one student is linked to the collection: " %}
+      {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
+    {% endwith %}
+  {% else %}
+    {% include "module/modals/delete_object_modal.html" with object=object action_url=delete_url %}
+  {% endif %}
 
 {% endblock content %}
 
