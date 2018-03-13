@@ -186,7 +186,10 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, UpdateView):
     def get_success_url(self):
-        return self.request.GET.get('return_url') or reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+        return (
+            self.request.GET.get('return_url') or
+            reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+        )
 
 
 @method_decorator(login_required, name='dispatch')
@@ -230,6 +233,7 @@ class CollectionDelete(DeleteView):
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
+
 
 @method_decorator(login_required, name='dispatch')
 class CollectionGroupDelete(DeleteView):

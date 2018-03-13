@@ -4,9 +4,9 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, callback_sequence_item_grade, CollectionCreate, CollectionDelete,
-    CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail,
-    CourseList, CourseUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
-    sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection,
+    CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate, CourseAddGroup, CourseCreate,
+    CourseDelete, CourseDetail, CourseList, CourseUpdate, GetGradingPolicyForm, GroupCreate, GroupDelete,
+    GroupDetail, GroupList, GroupUpdate, sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection,
 )
 
 urlpatterns = [
@@ -23,7 +23,8 @@ urlpatterns = [
     url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
     url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
 
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<pk>\d+)?$', CollectionGroupDelete.as_view(), name='collection-group-delete'),
+    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<pk>\d+)?$', CollectionGroupDelete.as_view(),
+        name='collection-group-delete'),
 
     url(r'group(?:/(?P<group_slug>[\w-]*))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
         name='grading_policy_form'),
