@@ -139,8 +139,13 @@
                      data-course-id="{{ source_course.course_id }}"
                      data-course-index="{{ forloop.counter0 }}"
                      aria-expanded="false"
-                     aria-controls="collapse{{ forloop.counter0 }}">
-                    {{ source_course.name }} <span
+                     aria-controls="collapse{{ forloop.counter0 }}"
+                     style="overflow:hidden; display:block;"
+                  >
+                    <span style="display:inline-block; margin-bottom:5px;">
+                        {{ source_course.name }}
+                    </span>
+                    <span
                     class="label label-default pull-right">{{ source_course.org }}</span>
                   </a>
                 </h4>
