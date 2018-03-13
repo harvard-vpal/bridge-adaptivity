@@ -31,9 +31,13 @@
                  href="{% url 'module:course-change' course.slug %}?back_url={% url 'module:course-list' %}">
                 {% bootstrap_button "Update" size='sm' icon='edit' %}
               </a>
-              <a class="move-down require-submission" href="{% url 'module:course-delete' course_slug=course.slug %}">
+              <a class="move-down delete-object"
+                 href="{% url 'module:course-delete' course_slug=course.slug %}"
+                 data-id="{{ course.id }}">
                   {% bootstrap_button "Remove" size='sm' icon='trash' %}
               </a>
+              {% url 'module:course-delete' course_slug=course.slug as delete_url %}
+              {% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url id=course.id title="You are about deleting course "%}
             </div>
 
             <div>
