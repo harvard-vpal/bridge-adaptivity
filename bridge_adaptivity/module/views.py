@@ -62,7 +62,7 @@ class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
     context_object_name = 'course'
 
     def get_success_url(self):
-        return self.object.get_absolute_url()
+        return self.request.GET.get('return_url') or self.object.get_absolute_url()
 
     def form_valid(self, form):
         response = super(CourseUpdate, self).form_valid(form)
@@ -73,7 +73,7 @@ class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
 @method_decorator(login_required, name='dispatch')
 class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
     def get_success_url(self):
-        return reverse('module:course-list')
+        return self.request.GET.get('return_url') or reverse('module:course-list')
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
@@ -162,13 +162,13 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, UpdateV
     context_object_name = 'group'
 
     def get_success_url(self):
-        return self.object.get_absolute_url()
+        return self.request.GET.get('return_url') or self.object.get_absolute_url()
 
 
 @method_decorator(login_required, name='dispatch')
 class GroupDelete(BaseGroupView, DeleteView):
     def get_success_url(self):
-        return reverse('module:group-list')
+        return self.request.GET.get('return_url') or reverse('module:group-list')
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
@@ -186,7 +186,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, UpdateView):
     def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+        return self.request.GET.get('return_url') or reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -223,13 +223,36 @@ class CollectionDelete(DeleteView):
     model = Collection
 
     def get_success_url(self):
-        return reverse('module:collection-list')
+        return self.request.GET.get('return_url') or reverse('module:collection-list')
 
     def get_queryset(self):
         return super(CollectionDelete, self).get_queryset().filter(owner=self.request.user)
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
+
+@method_decorator(login_required, name='dispatch')
+class CollectionGroupDelete(DeleteView):
+    model = CollectionGroup.collections.through
+
+    def get_success_url(self):
+        return (
+            self.request.GET.get('return_url') or
+            reverse('module:group-detail', kwargs={'group_slug': self.kwargs.get('group_slug')})
+        )
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request=request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.filter()
+
+    def get_object(self, queryset=None):
+        return self.model.objects.get(
+            collection__owner=self.request.user,
+            collection__id=self.kwargs['pk'],
+            collectiongroup__slug=self.kwargs['group_slug']
+        )
 
 
 @method_decorator(login_required, name='dispatch')
@@ -244,7 +267,9 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
         return super(ActivityCreate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
+        return self.request.GET.get('return_url') or reverse(
+            'module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')}
+        )
 
 
 @method_decorator(login_required, name='dispatch')
@@ -271,7 +296,9 @@ class ActivityDelete(DeleteView):
     model = Activity
 
     def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
+        return self.request.GET.get('return_url') or reverse(
+            'module:collection-detail', kwargs={'pk': self.object.collection.id}
+        )
 
     def delete(self, request, *args, **kwargs):
         try:

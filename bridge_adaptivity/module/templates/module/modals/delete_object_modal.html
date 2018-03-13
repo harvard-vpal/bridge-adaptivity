@@ -9,8 +9,10 @@
           aria-hidden="true">&times;</span></button>
         {% if not title %}
           <h3 class="modal-title">You are about deleting {{ object }}.</h3>
-        {% else %}
+        {% elif add_obj_in_title%}
           <h3 class="modal-title">{{ title }} {{ object }}.</h3>
+        {% else %}
+          <h3 class="modal-title">{{ title }}.</h3>
         {% endif %}
       </div>
       <div class="modal-body">

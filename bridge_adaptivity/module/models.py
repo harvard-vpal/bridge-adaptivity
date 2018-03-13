@@ -149,7 +149,7 @@ class Course(models.Model):
         return reverse('module:course-detail', kwargs={'course_slug': self.slug})
 
     def __str__(self):
-        return self.name
+        return "<Course: {}>".format(self.name)
 
 
 @python_2_unicode_compatible
@@ -296,7 +296,7 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     engine = models.ForeignKey(Engine)
 
     def __str__(self):
-        return u"Group of Collections: {}".format(self.name)
+        return u"<Group of Collections: {}>".format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})

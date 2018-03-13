@@ -68,8 +68,14 @@
               <td>{{ activity.source_name|default:"-" }}</td>
               <td>
                 <div class="options">
-                  <a class="trash pull-right" href="{% url 'module:activity-delete' activity.pk %}">
+                  <a class="trash delete-object
+                  {% if collection.has_linked_active_sequences %} show-alarm
+                  {% elif collection.has_linked_sequences %} show-warning
+                  {% endif %} pull-right" data-id="{{ activity.id }}">
                     {% bootstrap_button "" size='sm' icon='trash' %}
+                  </a>
+                  <a class="pull-right" href="{% url 'module:activity-change' activity.pk collection.pk %}">
+                    {% bootstrap_button "" size='sm' icon='edit' %}
                   </a>
                   {% ifnotequal activity.atype 'G' %}
                     {% ifnotequal activity.order 0 %}
@@ -88,6 +94,8 @@
                 </div>
               </td>
             </tr>
+          {% url 'module:activity-delete' activity.pk as delete_url %}
+                {% include "module/modals/delete_object_modal.html" with add_obj_in_title=True object=activity action_url=delete_url id=activity.id title="You are about deleting "%}
           {% endfor %}
         </table>
       {% else %}

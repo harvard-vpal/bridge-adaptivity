@@ -11,32 +11,31 @@
       <tr>
         <th>ID</th>
         <th>name</th>
-        <th>strict forward</th>
-        <th>groups</th>
-        <th>options</th>
+        <th class="text-center">strict forward</th>
+        <th class="text-center">groups</th>
+        <th class="text-center">options</th>
       </tr>
       {% for collection in collections %}
         <tr>
           <td>{{ collection.id }}</td>
-
           <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">{{ collection.name }} :
             {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a>
           </td>
 
-          <td>{% if collection.strict_forward %}
+          <td class="text-center">{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}
             <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
           {% endif %}
           </td>
 
-          <td style="max-width: 30%">
+          <td class="text-center" style="max-width: 30%">
             {% for group in collection.collection_groups.all %}
               <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group.get_absolute_url }}">{{ group.name }}</a>
             {% endfor %}
           </td>
-          <td>
+          <td class="text-center">
             <div>
               <a class="move-down"
                  href="{% url 'module:collection-change' collection.id %}?back_url={{ collection.get_absolute_url }}">
@@ -50,19 +49,19 @@
                   data-id="{{ collection.id }}">
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
-
-              {% if collection.has_linked_active_sequences %}
-                {% with message="At least one student is still working on the collection: " %}
+              {% with title="You are about deleting " add_obj_in_title=True %}
+                {% if collection.has_linked_active_sequences %}
+                  {% with message="At least one student is still working on the collection: " %}
+                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+                  {% endwith %}
+                {% elif collection.has_linked_sequences %}
+                  {% with message="At least one student is linked to the collection: " %}
+                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+                  {% endwith %}
+                {% else %}
                   {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
-                {% endwith %}
-              {% elif collection.has_linked_sequences %}
-                {% with message="At least one student is linked to the collection: " %}
-                  {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
-                {% endwith %}
-              {% else %}
-                {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
-              {% endif %}
-
+                {% endif %}
+              {% endwith %}
             </div>
           </td>
         </tr>
