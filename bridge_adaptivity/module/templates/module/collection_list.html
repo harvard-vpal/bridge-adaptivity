@@ -9,33 +9,32 @@
   {% if collections %}
     <table class="table table-hover">
       <tr>
-        <th>ID</th>
-        <th>name</th>
-        <th class="text-center">strict forward</th>
-        <th class="text-center">groups</th>
-        <th class="text-center">options</th>
+        <th>collection name</th>
+        <th>strict forward</th>
+        <th>groups</th>
+        <th>options</th>
       </tr>
       {% for collection in collections %}
         <tr>
-          <td>{{ collection.id }}</td>
-          <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">{{ collection.name }} :
-            {{ collection.activities.count }}
+          <td>
+            <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">
+            {{ collection.name }} : {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a>
           </td>
 
-          <td class="text-center">{% if collection.strict_forward %}
+          <td>{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}
             <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
           {% endif %}
           </td>
 
-          <td class="text-center" style="max-width: 30%">
+          <td style="max-width: 30%">
             {% for group in collection.collection_groups.all %}
               <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group.get_absolute_url }}">{{ group.name }}</a>
             {% endfor %}
           </td>
-          <td class="text-center">
+          <td>
             <div>
               <a class="move-down"
                  href="{% url 'module:collection-change' collection.id %}?back_url={{ collection.get_absolute_url }}">

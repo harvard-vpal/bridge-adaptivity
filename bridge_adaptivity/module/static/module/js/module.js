@@ -183,7 +183,7 @@
                 .addClass("pull-right")
                 .attr("data-toggle", "modal")
                 .attr("data-target", "#sourceModal")
-                .prependTo(parent);
+                .appendTo(parent);
             var previewButton = $("<button/>", {"class": "btn btn-default btn-sm"})
                 .appendTo(preview);
             $("<span/>")

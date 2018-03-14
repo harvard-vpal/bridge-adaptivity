@@ -101,6 +101,35 @@ class CourseAddGroup(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
+class CourseRmGroup(UpdateView):
+    model = CollectionGroup
+    template_name = 'module/modals/course_add_group.html'
+    slug_url_kwarg = 'group_slug'
+    fields = ['course',]
+
+    def get_queryset(self):
+        qs = super(CourseRmGroup, self).get_queryset()
+        course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
+        qs.filter(
+            owner=self.request.user,
+            course=course,
+        )
+        return qs
+
+    def get_success_url(self):
+        return (
+            self.request.GET.get('return_url') or
+            reverse('module:course-detail', kwargs={'course_slug': self.kwargs['course_slug']})
+        )
+
+    def get(self, *args, **kwargs):
+        self.object = self.get_object(self.get_queryset())
+        self.object.course = None
+        self.object.save()
+        return redirect(self.get_success_url())
+
+
+@method_decorator(login_required, name='dispatch')
 class GroupList(OnlyMyObjectsMixin, ListView):
     model = CollectionGroup
     context_object_name = 'groups'

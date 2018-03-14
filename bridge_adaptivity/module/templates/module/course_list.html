@@ -9,23 +9,24 @@
   {% if courses %}
     <table class="table table-hover">
       <tr>
-        <th>name</th>
-        <th>description</th>
-        <th>groups in course</th>
-        <th class="text-center">options</th>
+        <th>course name</th>
+        <th class="text-left">description</th>
+        <th style="min-width:170px;">groups in course</th>
+        <th style="min-width:90px;">options</th>
       </tr>
       {% for course in courses %}
         <tr>
-          <td><a href="{% url 'module:course-detail' course.slug %}?back_url={% url 'module:course-list' %}">
+          <td>
+            <a href="{% url 'module:course-detail' course.slug %}?back_url={% url 'module:course-list' %}">
             {{ course.name }}</a></td>
           </td>
-          <td>
+          <td class="text-left">
             {{ course.description }}
           </td>
           <td>
             {{ course.course_groups.count }}
           </td>
-          <td class="text-center">
+          <td>
             <div>
              <a class="move-down"
                  href="{% url 'module:course-change' course.slug %}?back_url={% url 'module:course-list' %}">

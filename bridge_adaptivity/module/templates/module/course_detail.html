@@ -24,6 +24,7 @@
         <th>collections count</th>
         <th>grading policy</th>
         <th>threshold</th>
+        <th>options</th>
       </tr>
       {% for group in course.course_groups.all %}
         <tr>
@@ -37,10 +38,22 @@
           <td>
             <a href="{% url 'module:group-change' group_slug=group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.grading_policy.policy_cls.public_name }}</a>
           </td>
-          <td>
+          <td class="text-center">
             {% if group.grading_policy.threshold is not None %}
               <p>{{ group.grading_policy.threshold }}</p>
             {% endif %}
+          </td>
+          <td>
+            <div class="options">
+              <!--Unlink group from course-->
+              <a class="trash" href="{% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug %}">
+                {% bootstrap_button "" size='sm' icon='trash' %}
+              </a>
+              <!--Update group-->
+              <a class="pull-right" href="{% url 'module:group-change' group_slug=group.slug %}">
+                {% bootstrap_button "" size='sm' icon='edit' %}
+              </a>
+            </div>
           </td>
         </tr>
       <tr>
@@ -52,7 +65,7 @@
     </div>
   {% endif %}
 
-  {% bootstrap_button 'Add group to course' size='lg' icon='plus' id='add-group-to-course' extra_classes='open-modal' %}
+  {% bootstrap_button 'Add group to course' size='lg' icon='link' id='add-group-to-course' extra_classes='open-modal' %}
 
 </div>
 <!--Right side-->

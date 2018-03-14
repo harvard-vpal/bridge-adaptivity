@@ -21,30 +21,27 @@
   {% if group.collections.all %}
     <table class="table table-hover">
       <tr>
-        <th>name</th>
-        <th class="text-center">strict forward</th>
-        <th class="text-center">options</th>
+        <th>collection name</th>
+        <th>strict forward</th>
+        <th>options</th>
       </tr>
       {% for collection in group.collections.all %}
         <tr>
-          <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">{{ collection.name }} :
+          <td>
+            <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">
+            {{ collection.name }} :
             {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
-          <td class="text-center">{% if collection.strict_forward %}
+          <td>{% if collection.strict_forward %}
             <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
           {% else %}
             <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
           {% endif %}
           </td>
-          <td class="text-center">
+          <td>
             <div>
-
-              <a
-                  class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
-                      {% elif collection.has_linked_sequences %} show-warning{% endif %}"
-                  href=""
-                  data-id="{{ collection.id }}">
-                {% bootstrap_button "" size='sm' icon='trash' %}
+              <a id="launch-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug %}">
+                {% bootstrap_button 'copy Launch URL' size='sm' icon='link' %}
               </a>
 
               {% url 'module:collection-group-delete' pk=collection.id group_slug=group.slug as delete_url %}
@@ -67,8 +64,12 @@
                  href="{% url 'module:collection-change' collection.id %}?back_url={{ group.get_absolute_url}}">
                 {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
-              <a id="launch-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug %}">
-                {% bootstrap_button 'copy Launch URL' size='sm' icon='link' %}
+              <a
+                  class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
+                      {% elif collection.has_linked_sequences %} show-warning{% endif %}"
+                  href=""
+                  data-id="{{ collection.id }}">
+                {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
             </div>
           </td>
