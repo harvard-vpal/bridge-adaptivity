@@ -82,7 +82,22 @@
     </div>
   {% endif %}
 
-{% bootstrap_button 'Link collection with group' size='lg' icon='link' id='link-objects-modal' extra_classes='open-modal' %}
+  <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">
+    <span class="fa fa-chain"></span>
+    Link group with course
+  </button>
+
+  <hr>
+      <h3>
+        <small>Tips:</small>
+      </h3>
+      <ul>
+        <li class="text-muted">to copy LTI launch URL - click <i>copy launch URL</i> button</li>
+        <li class="text-muted">to add the collection into the group - click <i class="fa fa-chain"> Link collection with group</i> button</li>
+        <li class="text-muted">to remove collection from the group - click <i class="fa fa-chain-broken">Unlink</i> button</li>
+      </ul>
+
+    <hr>
 
 {% url 'module:group-detail' group_slug=group.slug as back_url %}
 {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
