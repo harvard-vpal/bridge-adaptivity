@@ -3,6 +3,9 @@ from .base import BaseGradingPolicy
 
 class TrialsCountGradingPolicy(BaseGradingPolicy):
     public_name = 'Trials count'
+    require = {
+        'threshold': True
+    }
 
     summary_text = """ Overall score is the number of attempts made divided by the threshold Q, or 1 if the number of
     attempts made is greater than Q."""
