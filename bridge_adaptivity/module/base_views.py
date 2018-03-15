@@ -1,5 +1,6 @@
 # coding: utf-8
 import logging
+from django.urls.base import reverse
 
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
 from module.models import (
@@ -20,9 +21,6 @@ class BaseGroupView(OnlyMyObjectsMixin, BackURLMixin):
     slug_field = 'slug'
     model = CollectionGroup
 
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or super(BaseGroupView, self).get_success_url()
-
     def get_form_kwargs(self):
         kwargs = super(BaseGroupView, self).get_form_kwargs()
         model_field_names = [f.name for f in CollectionGroup._meta.fields]
@@ -36,3 +34,4 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     fields = ['name', 'metadata', 'strict_forward', 'owner']
     model = Collection
     ordering = ['id']
+

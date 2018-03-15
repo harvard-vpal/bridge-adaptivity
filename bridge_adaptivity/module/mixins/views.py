@@ -3,7 +3,9 @@ import logging
 from django import forms
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 
 from module.forms import BaseGradingPolicyForm, GroupForm
 from module.models import Collection, CollectionGroup, Course, Engine, GRADING_POLICY_NAME_TO_CLS
@@ -112,6 +114,9 @@ class BackURLMixin(object):
             context['back_url'] = back_url
         return context
 
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or self.object.get_absolute_url()
+
 
 class SetUserInFormMixin(object):
     owner_field_name = 'owner'
@@ -162,3 +167,16 @@ class LinkObjectsMixin(object):
             )
         })
         return context
+
+
+class JsonResponseMixin(object):
+    def get_success_url(self):
+        raise NotImplementedError("Inherited classes should implement get_success_url method.")
+
+    def form_valid(self, form):
+        form.save()
+        return JsonResponse(dict(success=True, url=self.get_success_url()))
+
+    def form_invalid(self, form):
+        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
+        return JsonResponse(dict(success=False, html=html))

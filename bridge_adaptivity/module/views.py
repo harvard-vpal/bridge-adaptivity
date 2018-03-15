@@ -19,12 +19,13 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses
+from mixins.views import BackURLMixin
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    CollectionIdToContextMixin, GroupEditFormMixin, LinkObjectsMixin, LtiSessionMixin, OnlyMyObjectsMixin,
-    SetUserInFormMixin
+    CollectionIdToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin,
+    OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
@@ -64,9 +65,6 @@ class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
     fields = 'name', 'description'
     context_object_name = 'course'
 
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or self.object.get_absolute_url()
-
     def form_valid(self, form):
         response = super(CourseUpdate, self).form_valid(form)
         self.object.owner = self.request.user
@@ -83,24 +81,19 @@ class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseAddGroup(FormView):
+class CourseAddGroup(JsonResponseMixin, FormView):
     model = CollectionGroup
     template_name = 'module/modals/course_add_group.html'
     form_class = AddCourseGroupForm
+
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or reverse('module:course-detail', kwargs=self.kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(CourseAddGroup, self).get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         return kwargs
-
-    def form_valid(self, form):
-        form.save()
-        return JsonResponse(dict(success=True, url=reverse('module:course-detail', kwargs=self.kwargs)))
-
-    def form_invalid(self, form):
-        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
-        return JsonResponse(dict(success=False, html=html))
 
 
 @method_decorator(login_required, name='dispatch')
@@ -201,7 +194,7 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
         return context
 
 
-class AddCollectionInGroup(FormView):
+class AddCollectionInGroup(JsonResponseMixin, FormView):
     template_name = 'module/modals/course_add_group.html'
     model = CollectionGroup.collections.through
     form_class = AddCollectionGroupForm
@@ -212,22 +205,14 @@ class AddCollectionInGroup(FormView):
         kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group_slug'))
         return kwargs
 
-    def form_valid(self, form):
-        form.save()
-        return JsonResponse(dict(success=True, url=reverse('module:group-detail', kwargs=self.kwargs)))
-
-    def form_invalid(self, form):
-        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
-        return JsonResponse(dict(success=False, html=html))
+    def get_success_url(self):
+        return reverse('module:group-detail', kwargs=self.kwargs)
 
 
 @method_decorator(login_required, name='dispatch')
 class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, UpdateView):
     form_class = GroupForm
     context_object_name = 'group'
-
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or self.object.get_absolute_url()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -250,11 +235,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
 
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, UpdateView):
-    def get_success_url(self):
-        return (
-            self.request.GET.get('return_url') or
-            reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
-        )
+    pass
 
 
 @method_decorator(login_required, name='dispatch')
@@ -325,7 +306,7 @@ class CollectionGroupDelete(DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(CollectionIdToContextMixin, CreateView):
+class ActivityCreate(BackURLMixin,  CollectionIdToContextMixin, CreateView):
     model = Activity
     form_class = ActivityForm
 
@@ -334,11 +315,6 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
         return super(ActivityCreate, self).form_valid(form)
-
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or reverse(
-            'module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')}
-        )
 
 
 @method_decorator(login_required, name='dispatch')
