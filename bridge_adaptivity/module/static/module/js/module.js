@@ -36,7 +36,7 @@
         };
 
         var bridgeStateLoad = function() {
-            var storageState = JSON.parse(localStorage.getItem("bridgeState"));
+            var storageState = JSON.parse(sessionStorage.getItem("bridgeState"));
             if (storageState === null) {
                 $.extend(this, {
                     accordion: {
@@ -51,7 +51,7 @@
                 console.log("State from storage...");
                 if (this.accordion.opened != null){
                     $("#accordion a[data-course-index='" + this.accordion.opened + "']").trigger("click");
-                    // no need to pass content_source_id, because it will be loaded from LocalStorage with data
+                    // no need to pass content_source_id, because it will be loaded from sessionStorage with data
                     clickHandler(this.accordion.opened, this.accordion.activeCourseId, this, null);
                 }
             }
@@ -62,7 +62,7 @@
             return {
                 load: bridgeStateLoad,
                 save: function() {
-                    localStorage.setItem("bridgeState", JSON.stringify(this));
+                    sessionStorage.setItem("bridgeState", JSON.stringify(this));
                     console.debug("State saved: ", this);
                 }
             };
