@@ -46,7 +46,10 @@
           <td>
             <div class="options">
               <!--Unlink group from course-->
-              <a class="trash" href="{% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug %}">
+              <a class="trash delete-object"
+                 href=""
+                 data-id="{{ group.id }}"
+                >
                 <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
                 <!--{% bootstrap_button "" size='sm' icon='trash' %}-->
               </a>
@@ -58,6 +61,10 @@
           </td>
         </tr>
       <tr>
+        {% with undone=True id=group.id object=group action_url=delete_url %}
+          {% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug as delete_url %}
+          {% include "module/modals/delete_object_modal.html" with title="You are about unlink group <CollectionGroup:"|add:group.name|add:"> from course <Course:"|add:group.name|add:">" %}
+        {% endwith %}
       {% endfor %}
     </table>
   {% else %}
@@ -104,7 +111,7 @@
 {% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url title='Link group with course' %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
-{% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course "%}
+{% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course " %}
 
 {% endblock content %}
 

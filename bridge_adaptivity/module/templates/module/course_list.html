@@ -38,7 +38,7 @@
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
               {% url 'module:course-delete' course_slug=course.slug as delete_url %}
-              {% include "module/modals/delete_object_modal.html" with add_obj_in_title=True object=course action_url=delete_url id=course.id title="You are about deleting "%}
+              {% include "module/modals/delete_object_modal.html" with add_obj_in_title=True object=course action_url=delete_url id=course.id title="You are about deleting " %}
             </div>
 
             <div>
