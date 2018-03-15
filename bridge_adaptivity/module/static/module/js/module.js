@@ -34,7 +34,7 @@
         var bridgeState = (function() {
             return {
                 load: function() {
-                    var storageState = JSON.parse(localStorage.getItem("bridgeState"));
+                    var storageState = JSON.parse(sessionStorage.getItem("bridgeState"));
                     if (storageState === null) {
                         $.extend(this, {
                             accordion: {
@@ -54,7 +54,7 @@
                 },
 
                 save: function() {
-                    localStorage.setItem("bridgeState", JSON.stringify(this));
+                    sessionStorage.setItem("bridgeState", JSON.stringify(this));
                     console.debug("State saved: ", this);
                 }
             };
