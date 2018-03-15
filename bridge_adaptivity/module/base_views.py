@@ -1,6 +1,5 @@
 # coding: utf-8
 import logging
-from django.urls.base import reverse
 
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
 from module.models import (
@@ -34,4 +33,3 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     fields = ['name', 'metadata', 'strict_forward', 'owner']
     model = Collection
     ordering = ['id']
-

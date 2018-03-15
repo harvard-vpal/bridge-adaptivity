@@ -6,9 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
-from django.http.response import Http404, JsonResponse
+from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -19,12 +18,11 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.openedx import get_available_courses
-from mixins.views import BackURLMixin
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    CollectionIdToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin,
+    BackURLMixin, CollectionIdToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin,
     OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
@@ -306,7 +304,7 @@ class CollectionGroupDelete(DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(BackURLMixin,  CollectionIdToContextMixin, CreateView):
+class ActivityCreate(BackURLMixin, CollectionIdToContextMixin, CreateView):
     model = Activity
     form_class = ActivityForm
 
