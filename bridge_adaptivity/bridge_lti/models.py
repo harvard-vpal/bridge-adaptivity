@@ -4,7 +4,6 @@ from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
-from common.mixins.models import ModelFieldIsDefaultMixin
 from .utils import short_token
 
 
@@ -24,32 +23,32 @@ class LtiProvider(models.Model):
     lms_metadata = fields.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
-        verbose_name = "LTI Provider"
-        verbose_name_plural = "LTI Providers"
+        verbose_name = "LMS Platform"
+        verbose_name_plural = "LMS Platforms"
 
     def __str__(self):
         return '<LtiProvider: {}>'.format(self.consumer_name)
 
 
 @python_2_unicode_compatible
-class LtiConsumer(ModelFieldIsDefaultMixin, models.Model):
+class LtiConsumer(models.Model):
     """
     Model to manage LTI source providers.
 
     Content source connections.
     """
 
-    IS_DEFAULT_FIELD = 'is_active'
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
     host_url = models.URLField(max_length=255, null=True)
+    o_auth_client = models.ForeignKey('api.OAuthClient', null=True)
     is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
 
     class Meta:
-        verbose_name = "LTI Consumer"
-        verbose_name_plural = "LTI Consumers"
+        verbose_name = "Content Source"
+        verbose_name_plural = "Content Sources"
 
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)

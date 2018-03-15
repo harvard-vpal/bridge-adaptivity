@@ -15,7 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
-from common.mixins.models import ModelFieldIsDefaultMixin
+from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
 from module import tasks
 
 log = logging.getLogger(__name__)
@@ -185,7 +185,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class Collection(models.Model):
+class Collection(HasLinkedSequenceMixin, models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
@@ -280,7 +280,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
 
 
 @python_2_unicode_compatible
-class CollectionGroup(models.Model):
+class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     """Represents Collections Group."""
 
     name = models.CharField(max_length=255)
@@ -296,7 +296,7 @@ class CollectionGroup(models.Model):
     engine = models.ForeignKey(Engine)
 
     def __str__(self):
-        return u"CollectionGroup: {}".format(self.name)
+        return u"Group of Collections: {}".format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})

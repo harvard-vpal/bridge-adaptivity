@@ -1,4 +1,5 @@
 
+
 class ModelFieldIsDefaultMixin(object):
     IS_DEFAULT_FIELD = 'is_default'
 
@@ -19,3 +20,20 @@ class ModelFieldIsDefaultMixin(object):
             if default_qs:
                 default_qs.update(**{self.IS_DEFAULT_FIELD: False})
         return super(ModelFieldIsDefaultMixin, self).save(*args, **kwargs)
+
+
+class HasLinkedSequenceMixin(object):
+    """
+    This mixin implement two methods `has_linked_active_sequences` and `has_linked_sequences`.
+
+    These methods are used to understand that object (Group or Collection) has linked sequences.
+    """
+
+    def has_linked_sequences(self):
+        """Indicate that collection group has linked sequences."""
+        # sequence has link to group
+        return self.sequence_set.exists()
+
+    def has_linked_active_sequences(self):
+        """Indicate that collection group has linked not finished sequences."""
+        return self.sequence_set.filter(completed=False).exists()

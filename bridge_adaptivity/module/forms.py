@@ -18,10 +18,11 @@ class ActivityForm(ModelForm):
 
     class Meta:
         model = Activity
-        exclude = ['collection', 'lti_consumer', 'points']
+        exclude = ['collection', 'points']
         widgets = {
             'stype': forms.HiddenInput(),
             'points': forms.HiddenInput(),
+            'lti_consumer': forms.HiddenInput(),
         }
 
 
@@ -74,3 +75,20 @@ class ThresholdGradingPolicyForm(ModelForm):
         widgets = {
             'name': forms.HiddenInput(),
         }
+
+
+class AddCourseGroupForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super(AddCourseGroupForm, self).__init__(*args, **kwargs)
+        self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
+
+    groups = forms.ModelMultipleChoiceField(
+        label="Choose groups to add into this course:",
+        queryset=CollectionGroup.objects.filter(course__isnull=True),
+        widget=forms.CheckboxSelectMultiple()
+    )
+
+    def save(self, course=None, **kwargs):
+        group_ids = [group.id for group in self.cleaned_data['groups']]
+        CollectionGroup.objects.filter(id__in=group_ids).update(course=course)

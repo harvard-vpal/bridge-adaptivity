@@ -1,0 +1,22 @@
+[
+{
+    "model": "api.oauthclient",
+    "pk": 2,
+    "fields": {
+        "name": "VPAL_EDX_client",
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "grant_type": "credentials"
+    }
+},
+{
+    "model": "api.oauthclient",
+    "pk": 3,
+    "fields": {
+        "name": "VPAL-2",
+        "client_id": "client_id",
+        "client_secret": "client_secret",
+        "grant_type": "credentials"
+    }
+}
+]
