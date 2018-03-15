@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load static bootstrap3 %}
+{% load static bootstrap3 fontawesome %}
 
 {% block title %}
   Group: <span class="label label-default">{{ group.name }}</span>
@@ -69,7 +69,7 @@
                       {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                   href=""
                   data-id="{{ collection.id }}">
-                {% bootstrap_button "" size='sm' icon='trash' %}
+                <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
               </a>
             </div>
           </td>
@@ -81,6 +81,13 @@
       You have no collections for now.
     </div>
   {% endif %}
+
+{% bootstrap_button 'Link collection with group' size='lg' icon='link' id='link-objects-modal' extra_classes='open-modal' %}
+
+{% url 'module:group-detail' group_slug=group.slug as back_url %}
+{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
+
 </div>
 <div class="col-md-3">
   <div class="row">

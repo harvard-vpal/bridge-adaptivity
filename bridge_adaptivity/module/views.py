@@ -21,9 +21,10 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
+from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    CollectionIdToContextMixin, GroupEditFormMixin, LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin
+    CollectionIdToContextMixin, GroupEditFormMixin, LinkObjectsMixin, LtiSessionMixin, OnlyMyObjectsMixin,
+    SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
@@ -43,17 +44,19 @@ class CourseList(BaseCourseView, ListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseDetail(BaseCourseView, DetailView):
+class CourseDetail(LinkObjectsMixin, BaseCourseView, DetailView):
     context_object_name = 'course'
+    link_form_class = AddCourseGroupForm
+    link_object_name = 'group'
 
-    def get_context_data(self, **kwargs):
-        data = super(CourseDetail, self).get_context_data(**kwargs)
-        form = AddCourseGroupForm(user=self.request.user)
-        data.update({
-            'add_group_form': form,
-            'groups_available': form.fields['groups'].queryset.exists()
-        })
-        return data
+    def get_link_form_kwargs(self):
+        return dict(user=self.request.user, course=self.object)
+
+    def get_link_action_url(self):
+        return reverse('module:group-add')
+
+    def get_has_available_objects(self, form):
+        return form.fields['groups'].queryset.exists()
 
 
 @method_decorator(login_required, name='dispatch')
@@ -88,11 +91,11 @@ class CourseAddGroup(FormView):
     def get_form_kwargs(self):
         kwargs = super(CourseAddGroup, self).get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         return kwargs
 
     def form_valid(self, form):
-        course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
-        form.save(course=course)
+        form.save()
         return JsonResponse(dict(success=True, url=reverse('module:course-detail', kwargs=self.kwargs)))
 
     def form_invalid(self, form):
@@ -105,7 +108,7 @@ class CourseRmGroup(UpdateView):
     model = CollectionGroup
     template_name = 'module/modals/course_add_group.html'
     slug_url_kwarg = 'group_slug'
-    fields = ['course',]
+    fields = ('course',)
 
     def get_queryset(self):
         qs = super(CourseRmGroup, self).get_queryset()
@@ -176,13 +179,46 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, CreateV
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(BaseGroupView, DetailView):
+class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
     context_object_name = 'group'
+    link_form_class = AddCollectionGroupForm
+    link_object_name = 'collection'
+
+    def get_link_form_kwargs(self):
+        return dict(user=self.request.user, group=self.object)
+
+    def get_link_action_url(self):
+        return reverse('module:collection-add')
+
+    def get_has_available_objects(self, form):
+        return form.fields['collections'].queryset.exists()
 
     def get_context_data(self, **kwargs):
         context = super(GroupDetail, self).get_context_data(**kwargs)
-        context.update({'bridge_host': settings.BRIDGE_HOST})
+        context.update({
+            'bridge_host': settings.BRIDGE_HOST,
+        })
         return context
+
+
+class AddCollectionInGroup(FormView):
+    template_name = 'module/modals/course_add_group.html'
+    model = CollectionGroup.collections.through
+    form_class = AddCollectionGroupForm
+
+    def get_form_kwargs(self):
+        kwargs = super(AddCollectionInGroup, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group_slug'))
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return JsonResponse(dict(success=True, url=reverse('module:group-detail', kwargs=self.kwargs)))
+
+    def form_invalid(self, form):
+        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
+        return JsonResponse(dict(success=False, html=html))
 
 
 @method_decorator(login_required, name='dispatch')

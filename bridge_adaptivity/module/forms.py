@@ -4,7 +4,7 @@ from django import forms
 from django.forms import ModelForm
 
 from module.models import (
-    Activity, CollectionGroup, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+    Activity, Collection, CollectionGroup, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 )
 from module.widgets import PolicyChoiceWidget
 
@@ -78,8 +78,11 @@ class ThresholdGradingPolicyForm(ModelForm):
 
 
 class AddCourseGroupForm(forms.Form):
+    """Add group to course form."""
+
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
+        self.course = kwargs.pop('course')
         super(AddCourseGroupForm, self).__init__(*args, **kwargs)
         self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
 
@@ -89,6 +92,27 @@ class AddCourseGroupForm(forms.Form):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    def save(self, course=None, **kwargs):
+    def save(self, **kwargs):
         group_ids = [group.id for group in self.cleaned_data['groups']]
-        CollectionGroup.objects.filter(id__in=group_ids).update(course=course)
+        CollectionGroup.objects.filter(id__in=group_ids).update(course=self.course)
+
+
+class AddCollectionGroupForm(forms.Form):
+    """Add collection in group form."""
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        self.group = kwargs.pop('group')
+        super(AddCollectionGroupForm, self).__init__(*args, **kwargs)
+        self.fields['collections'].queryset = self.fields['collections'].queryset.filter(
+            owner_id=self.user.id
+        ).exclude(collection_groups=self.group)
+
+    collections = forms.ModelMultipleChoiceField(
+        label="Choose colections to add into this group:",
+        queryset=Collection.objects.filter(),
+        widget=forms.CheckboxSelectMultiple()
+    )
+
+    def save(self, **kwargs):
+        [self.group.collections.add(collection) for collection in self.cleaned_data['collections']]

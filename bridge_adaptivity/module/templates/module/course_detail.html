@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load static bootstrap3 %}
+{% load static bootstrap3 fontawesome %}
 
 {% block title %}
 <div>Course: <span class="label label-default">{{ course.name }}</span></div>
@@ -47,7 +47,8 @@
             <div class="options">
               <!--Unlink group from course-->
               <a class="trash" href="{% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug %}">
-                {% bootstrap_button "" size='sm' icon='trash' %}
+                <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
+                <!--{% bootstrap_button "" size='sm' icon='trash' %}-->
               </a>
               <!--Update group-->
               <a class="pull-right" href="{% url 'module:group-change' group_slug=group.slug %}">
@@ -65,7 +66,7 @@
     </div>
   {% endif %}
 
-  {% bootstrap_button 'Add group to course' size='lg' icon='link' id='add-group-to-course' extra_classes='open-modal' %}
+  {% bootstrap_button 'Link group with course' size='lg' icon='link' id='link-objects-modal' extra_classes='open-modal' %}
 
 </div>
 <!--Right side-->
@@ -86,7 +87,7 @@
 </div>
 
 {% url "module:add-group-to-course" course_slug=course.slug as add_group_url %}
-{% include "module/modals/link_group_to_course.html" with course=course src_url=add_group_url %}
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url title='Link group with course' %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
 {% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course "%}

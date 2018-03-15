@@ -7,28 +7,31 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
           aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="sourceModalLabel">
-          Add group to course: {{ course }}
+          {{ title }}: {{ object }}
         </h4>
       </div>
       <div class="modal-body">
-        {% if groups_available %}
-        <form action="{{ src_url }}" method="post" id="add-group-form">
-          {% bootstrap_form add_group_form %}
+
+        {% if has_available_objects %}
+        <form action="{{ link_action_url }}" method="post" id="link-objects-form">
+          {% bootstrap_form link_objects_form %}
           {% csrf_token %}
         </form>
+
         {% else %}
-        <h4>No available groups!</h4>
-        <h5>All groups are already used in other courses.</h5>
+        <h4>No available objects!</h4>
+        <h5>All {{ add_new_object_name }}s  are already used.</h5>
         {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
-        {% if groups_available %}{% bootstrap_button "Add selected groups" size='md' icon='link' id='add-groups' button_class='btn-success pull-left' %}{% endif %}
-        {% url 'module:course-detail' course_slug=course.slug as return_url %}
-        <a href="{% url 'module:group-add' %}?back_url={{ return_url }}&course={{ course.id }}&return_url={{ return_url }}"
+        {% if has_available_objects %}
+          {% bootstrap_button "Add selected" size='md' icon='link' id='link-objects' button_class='btn-success pull-left' %}
+        {% endif %}
+        <a href="{{ add_new_object_url }}"
            class="btn btn-primary pull-left">
           {% bootstrap_icon "plus" size='md' %}
-          Add new group
+          Add new {{ add_new_object_name }}
         </a>
       </div>
     </div>
