@@ -141,7 +141,6 @@ class EngineVPAL(EngineInterface):
             action='graded',
             obj='sequence item',
             name=sequence_item.activity.name,
-            status=201,
         )
 
     def get_grade(self, sequence):
@@ -154,7 +153,7 @@ class EngineVPAL(EngineInterface):
         url = urlparse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
             collection_id=sequence.collection.id)
         )
-        response = requests.post(url, json={'learner_id': sequence.owner.id}, headers=self.headers)
+        response = requests.post(url, json={'learner': sequence.lti_user.id}, headers=self.headers)
         if self.check_engine_response(response.status_code, action='grade', obj='sequence'):
             grade = response.json().get('grade')
             if 0 <= grade <= 1:
