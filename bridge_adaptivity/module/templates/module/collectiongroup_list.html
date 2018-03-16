@@ -29,7 +29,7 @@
           <td style="width:5%; " class="container text-center">{{ group.collections.count }}</td>
           <td class="text-center">{{ group.engine.engine_name }}</td>
           <td class="text-center">{{ group.grading_policy.policy_cls.public_name }}</td>
-          <td class="text-center">{{ group.grading_policy.threshold }}</td>
+          <td class="text-center">{% if group.grading_policy.policy_cls.require.threshold %}{{ group.grading_policy.threshold }}{% endif %}</td>
           <td class="text-right" style="min-width: 90px;">
             <div>
               <a class="move-down"

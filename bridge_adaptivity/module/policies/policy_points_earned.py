@@ -7,6 +7,9 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
     """Grading policy class calculate grade based upon users earned points."""
 
     public_name = 'Points earned'
+    require = {
+        'threshold': True
+    }
 
     summary_text = """Overall score is the proportion of points earned out of either the total possible points
     earnable, or the threshold Q, whichever is higher."""
