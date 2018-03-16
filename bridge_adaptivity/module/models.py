@@ -83,7 +83,7 @@ class Sequence(models.Model):
         unique_together = (('lti_user', 'collection', 'group'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
-        return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
+        return u'<Sequence[{}]: {}>'.format(self.id, self.lti_user)
 
     def fulfil_sequence_metadata(self, lti_params, launch_params):
         """
@@ -149,7 +149,7 @@ class Course(models.Model):
         return reverse('module:course-detail', kwargs={'course_slug': self.slug})
 
     def __str__(self):
-        return "<Course: {}>".format(self.name)
+        return u"<Course: {}>".format(self.name)
 
 
 @python_2_unicode_compatible
@@ -178,7 +178,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
         return policy.grade
 
     def __str__(self):
-        return "{}, public_name: {} threshold: {}{}".format(
+        return u"{}, public_name: {} threshold: {}{}".format(
             self.name, self.public_name, self.threshold,
             ", IS DEFAULT POLICY" if self.is_default else ""
         )
@@ -251,7 +251,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
         unique_together = ('host', 'token')
 
     def __str__(self):
-        return "Engine: {}".format(self.engine_name)
+        return u"Engine: {}".format(self.engine_name)
 
     @classmethod
     def create_default(cls):
