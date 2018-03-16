@@ -47,7 +47,7 @@
 
                 {% url 'module:collection-group-delete' pk=collection.id group_slug=group.slug as delete_url %}
 
-                {% with title="You are about unlink collection <Collection:"|add:collection.name|add:"> from group <CollectionGroup:"|add:group.name|add:">" %}
+                {% with title="You are about unlink <Collection:"|add:collection.name|add:"> from <CollectionGroup:"|add:group.name|add:">" %}
                   {% if collection.has_linked_active_sequences %}
                     {% with message="At least one student is still working on the Collection "  %}
                       {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}

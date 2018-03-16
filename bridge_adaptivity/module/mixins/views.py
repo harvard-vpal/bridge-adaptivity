@@ -158,8 +158,9 @@ class LinkObjectsMixin(object):
             'has_available_objects': self.get_has_available_objects(form),
             'add_new_object_name': self.link_object_name,
             'link_action_url': self.get_link_action_url(),
-            'add_new_object_url': ("{action_url}?back_url={return_url}&"
-                                   "{object_name}={course.id}&return_url={return_url}").format(
+            'add_new_object_url': (
+                "{action_url}?back_url={return_url}&{object_name}={course.id}&return_url={return_url}"
+            ).format(
                 action_url=self.get_link_action_url(),
                 return_url=return_url,
                 course=self.object,

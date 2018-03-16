@@ -80,7 +80,6 @@ class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class CourseAddGroup(JsonResponseMixin, FormView):
-    model = CollectionGroup
     template_name = 'module/modals/course_add_group.html'
     form_class = AddCourseGroupForm
 
@@ -194,7 +193,6 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
 
 class AddCollectionInGroup(JsonResponseMixin, FormView):
     template_name = 'module/modals/course_add_group.html'
-    model = CollectionGroup.collections.through
     form_class = AddCollectionGroupForm
 
     def get_form_kwargs(self):

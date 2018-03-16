@@ -61,9 +61,9 @@
           </td>
         </tr>
       <tr>
-        {% with undone=True id=group.id object=group action_url=delete_url %}
-          {% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug as delete_url %}
-          {% include "module/modals/delete_object_modal.html" with title="You are about unlink group <CollectionGroup:"|add:group.name|add:"> from course <Course:"|add:group.name|add:">" %}
+        {% with undone=True id=group.id object=group %}
+          {% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug as action_url %}
+          {% include "module/modals/delete_object_modal.html" with title="You are about unlink <CollectionGroup:"|add:group.name|add:"> from <Course:"|add:group.name|add:">" %}
         {% endwith %}
       {% endfor %}
     </table>

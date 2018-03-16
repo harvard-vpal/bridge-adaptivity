@@ -115,4 +115,5 @@ class AddCollectionGroupForm(forms.Form):
     )
 
     def save(self, **kwargs):
-        [self.group.collections.add(collection) for collection in self.cleaned_data['collections']]
+        for collection in self.cleaned_data['collections']:
+            self.group.collections.add(collection)
