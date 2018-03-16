@@ -3,7 +3,9 @@ import logging
 from django import forms
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.loader import render_to_string
 
 from module.forms import BaseGradingPolicyForm, GroupForm
 from module.models import Collection, CollectionGroup, Course, Engine, GRADING_POLICY_NAME_TO_CLS
@@ -112,6 +114,9 @@ class BackURLMixin(object):
             context['back_url'] = back_url
         return context
 
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or self.object.get_absolute_url()
+
 
 class SetUserInFormMixin(object):
     owner_field_name = 'owner'
@@ -122,3 +127,57 @@ class SetUserInFormMixin(object):
             form.fields['owner'].initial = self.request.user
             form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
         return form
+
+
+class LinkObjectsMixin(object):
+    """
+    This mixin add possibility to link objects using form.
+
+    It will show popup message with form `self.link_form_class` and submit data to other view defined in
+    `link_action_url` or propose to create new object by url `add_new_object_url`.
+    """
+
+    link_form_class = None
+    link_object_name = 'collection'
+
+    def get_link_form_kwargs(self):
+        raise NotImplementedError("Method get_link_form_kwargs should be implemented in inherited classes.")
+
+    def get_link_action_url(self):
+        raise NotImplementedError("Link action URL not defined.")
+
+    def get_has_available_objects(self, form):
+        raise NotImplementedError("Method get_has_available_objects should be implemented in inherited classes.")
+
+    def get_context_data(self, **kwargs):
+        context = super(LinkObjectsMixin, self).get_context_data(**kwargs)
+        form = self.link_form_class(**self.get_link_form_kwargs())
+        return_url = self.object.get_absolute_url()
+        context.update({
+            'link_objects_form': form,
+            'has_available_objects': self.get_has_available_objects(form),
+            'add_new_object_name': self.link_object_name,
+            'link_action_url': self.get_link_action_url(),
+            'add_new_object_url': (
+                "{action_url}?back_url={return_url}&{object_name}={course.id}&return_url={return_url}"
+            ).format(
+                action_url=self.get_link_action_url(),
+                return_url=return_url,
+                course=self.object,
+                object_name=self.context_object_name,
+            )
+        })
+        return context
+
+
+class JsonResponseMixin(object):
+    def get_success_url(self):
+        raise NotImplementedError("Inherited classes should implement get_success_url method.")
+
+    def form_valid(self, form):
+        form.save()
+        return JsonResponse(dict(success=True, url=self.get_success_url()))
+
+    def form_invalid(self, form):
+        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
+        return JsonResponse(dict(success=False, html=html))

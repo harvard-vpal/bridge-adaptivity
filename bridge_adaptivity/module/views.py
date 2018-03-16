@@ -6,9 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
-from django.http.response import Http404, JsonResponse
+from django.http.response import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -21,9 +20,10 @@ from slumber.exceptions import HttpClientError
 from api.backends.openedx import get_available_courses
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
+from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    CollectionIdToContextMixin, GroupEditFormMixin, LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin
+    BackURLMixin, CollectionIdToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin,
+    OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
@@ -43,26 +43,25 @@ class CourseList(BaseCourseView, ListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseDetail(BaseCourseView, DetailView):
+class CourseDetail(LinkObjectsMixin, BaseCourseView, DetailView):
     context_object_name = 'course'
+    link_form_class = AddCourseGroupForm
+    link_object_name = 'group'
 
-    def get_context_data(self, **kwargs):
-        data = super(CourseDetail, self).get_context_data(**kwargs)
-        form = AddCourseGroupForm(user=self.request.user)
-        data.update({
-            'add_group_form': form,
-            'groups_available': form.fields['groups'].queryset.exists()
-        })
-        return data
+    def get_link_form_kwargs(self):
+        return dict(user=self.request.user, course=self.object)
+
+    def get_link_action_url(self):
+        return reverse('module:group-add')
+
+    def get_has_available_objects(self, form):
+        return form.fields['groups'].queryset.exists()
 
 
 @method_decorator(login_required, name='dispatch')
 class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
     fields = 'name', 'description'
     context_object_name = 'course'
-
-    def get_success_url(self):
-        return self.object.get_absolute_url()
 
     def form_valid(self, form):
         response = super(CourseUpdate, self).form_valid(form)
@@ -73,31 +72,54 @@ class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
 @method_decorator(login_required, name='dispatch')
 class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
     def get_success_url(self):
-        return reverse('module:course-list')
+        return self.request.GET.get('return_url') or reverse('module:course-list')
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseAddGroup(FormView):
-    model = CollectionGroup
+class CourseAddGroup(JsonResponseMixin, FormView):
     template_name = 'module/modals/course_add_group.html'
     form_class = AddCourseGroupForm
+
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or reverse('module:course-detail', kwargs=self.kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(CourseAddGroup, self).get_form_kwargs()
         kwargs['user'] = self.request.user
+        kwargs['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         return kwargs
 
-    def form_valid(self, form):
-        course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
-        form.save(course=course)
-        return JsonResponse(dict(success=True, url=reverse('module:course-detail', kwargs=self.kwargs)))
 
-    def form_invalid(self, form):
-        html = render_to_string(self.template_name, context={'form': form}, request=self.request)
-        return JsonResponse(dict(success=False, html=html))
+@method_decorator(login_required, name='dispatch')
+class CourseRmGroup(UpdateView):
+    model = CollectionGroup
+    template_name = 'module/modals/course_add_group.html'
+    slug_url_kwarg = 'group_slug'
+    fields = ('course',)
+
+    def get_queryset(self):
+        qs = super(CourseRmGroup, self).get_queryset()
+        course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
+        qs.filter(
+            owner=self.request.user,
+            course=course,
+        )
+        return qs
+
+    def get_success_url(self):
+        return (
+            self.request.GET.get('return_url') or
+            reverse('module:course-detail', kwargs={'course_slug': self.kwargs['course_slug']})
+        )
+
+    def get(self, *args, **kwargs):
+        self.object = self.get_object(self.get_queryset())
+        self.object.course = None
+        self.object.save()
+        return redirect(self.get_success_url())
 
 
 @method_decorator(login_required, name='dispatch')
@@ -147,13 +169,40 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, CreateV
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(BaseGroupView, DetailView):
+class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
     context_object_name = 'group'
+    link_form_class = AddCollectionGroupForm
+    link_object_name = 'collection'
+
+    def get_link_form_kwargs(self):
+        return dict(user=self.request.user, group=self.object)
+
+    def get_link_action_url(self):
+        return reverse('module:collection-add')
+
+    def get_has_available_objects(self, form):
+        return form.fields['collections'].queryset.exists()
 
     def get_context_data(self, **kwargs):
         context = super(GroupDetail, self).get_context_data(**kwargs)
-        context.update({'bridge_host': settings.BRIDGE_HOST})
+        context.update({
+            'bridge_host': settings.BRIDGE_HOST,
+        })
         return context
+
+
+class AddCollectionInGroup(JsonResponseMixin, FormView):
+    template_name = 'module/modals/course_add_group.html'
+    form_class = AddCollectionGroupForm
+
+    def get_form_kwargs(self):
+        kwargs = super(AddCollectionInGroup, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group_slug'))
+        return kwargs
+
+    def get_success_url(self):
+        return reverse('module:group-detail', kwargs=self.kwargs)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -161,14 +210,11 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, UpdateV
     form_class = GroupForm
     context_object_name = 'group'
 
-    def get_success_url(self):
-        return self.object.get_absolute_url()
-
 
 @method_decorator(login_required, name='dispatch')
 class GroupDelete(BaseGroupView, DeleteView):
     def get_success_url(self):
-        return reverse('module:group-list')
+        return self.request.GET.get('return_url') or reverse('module:group-list')
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
@@ -185,8 +231,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
 
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, UpdateView):
-    def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('pk')})
+    pass
 
 
 @method_decorator(login_required, name='dispatch')
@@ -223,7 +268,7 @@ class CollectionDelete(DeleteView):
     model = Collection
 
     def get_success_url(self):
-        return reverse('module:collection-list')
+        return self.request.GET.get('return_url') or reverse('module:collection-list')
 
     def get_queryset(self):
         return super(CollectionDelete, self).get_queryset().filter(owner=self.request.user)
@@ -233,7 +278,31 @@ class CollectionDelete(DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(CollectionIdToContextMixin, CreateView):
+class CollectionGroupDelete(DeleteView):
+    model = CollectionGroup.collections.through
+
+    def get_success_url(self):
+        return (
+            self.request.GET.get('return_url') or
+            reverse('module:group-detail', kwargs={'group_slug': self.kwargs.get('group_slug')})
+        )
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request=request, *args, **kwargs)
+
+    def get_queryset(self):
+        return self.model.filter()
+
+    def get_object(self, queryset=None):
+        return self.model.objects.get(
+            collection__owner=self.request.user,
+            collection__id=self.kwargs['pk'],
+            collectiongroup__slug=self.kwargs['group_slug']
+        )
+
+
+@method_decorator(login_required, name='dispatch')
+class ActivityCreate(BackURLMixin, CollectionIdToContextMixin, CreateView):
     model = Activity
     form_class = ActivityForm
 
@@ -242,9 +311,6 @@ class ActivityCreate(CollectionIdToContextMixin, CreateView):
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
         return super(ActivityCreate, self).form_valid(form)
-
-    def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.kwargs.get('collection_id')})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -271,7 +337,9 @@ class ActivityDelete(DeleteView):
     model = Activity
 
     def get_success_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.object.collection.id})
+        return self.request.GET.get('return_url') or reverse(
+            'module:collection-detail', kwargs={'pk': self.object.collection.id}
+        )
 
     def delete(self, request, *args, **kwargs):
         try:

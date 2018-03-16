@@ -33,7 +33,11 @@
         <table class="table table-hover">
           <tr>
             {% for field in render_fields %}
-              <th>{{ field }}</th>
+              <th class="{% if forloop.first %}text-left{% else %}text-center{% endif %}">
+                {% if field == 'name' %}activity name{% else %}
+                {{ field }}
+                {% endif %}
+              </th>
             {% endfor %}
             <th class="text-right">options</th>
           </tr>
@@ -46,7 +50,7 @@
                 data-content_source_id="{{ activity.lti_consumer.id }}"
                 data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
             >
-              <td>
+              <td class="text-left">
                 <a href="{% url 'module:activity-change' activity.pk collection.pk %}">
                   {{ activity.name }}
                   <div>
@@ -62,14 +66,22 @@
                   </div>
                 </a>
               </td>
-              <td>{% ifequal activity.tags 'Unknown' %}-{% else %}{{ activity.tags }}{% endifequal%}</td>
-              <td>{{ activity.difficulty }}</td>
-              <td>{{ activity.points|default:"-" }}</td>
-              <td>{{ activity.source_name|default:"-" }}</td>
-              <td>
+              <td class="text-center">
+                {% if activity.tags == 'Unknown' or activity.tags is None %}-{% else %}{{ activity.tags }}{% endif %}
+              </td>
+              <td class="text-center">{{ activity.difficulty }}</td>
+              <td class="text-center">{{ activity.points|default:"-" }}</td>
+              <td class="text-center">{{ activity.source_name|default:"-" }}</td>
+              <td class="text-right">
                 <div class="options">
-                  <a class="trash pull-right" href="{% url 'module:activity-delete' activity.pk %}">
+                  <a class="trash delete-object
+                  {% if collection.has_linked_active_sequences %} show-alarm
+                  {% elif collection.has_linked_sequences %} show-warning
+                  {% endif %} pull-right" data-id="{{ activity.id }}">
                     {% bootstrap_button "" size='sm' icon='trash' %}
+                  </a>
+                  <a class="pull-right" href="{% url 'module:activity-change' activity.pk collection.pk %}">
+                    {% bootstrap_button "" size='sm' icon='edit' %}
                   </a>
                   {% ifnotequal activity.atype 'G' %}
                     {% ifnotequal activity.order 0 %}
@@ -88,6 +100,8 @@
                 </div>
               </td>
             </tr>
+          {% url 'module:activity-delete' activity.pk as delete_url %}
+          {% include "module/modals/delete_object_modal.html" with add_obj_in_title=True object=activity action_url=delete_url id=activity.id title="You are about deleting "%}
           {% endfor %}
         </table>
       {% else %}

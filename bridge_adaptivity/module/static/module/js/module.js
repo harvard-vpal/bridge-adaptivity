@@ -183,7 +183,7 @@
                 .addClass("pull-right")
                 .attr("data-toggle", "modal")
                 .attr("data-target", "#sourceModal")
-                .prependTo(parent);
+                .appendTo(parent);
             var previewButton = $("<button/>", {"class": "btn btn-default btn-sm"})
                 .appendTo(preview);
             $("<span/>")
@@ -299,12 +299,12 @@
             e.preventDefault();
         })
 
-        $('#add-group-to-course').on('click', function(e){
+        $('#link-objects-modal').on('click', function(e){
             $('#sourceModal').modal('show');
         })
 
-        $("#add-groups").on("click", function(e) {
-            var $form = $("#add-group-form");
+        $("#link-objects").on("click", function(e) {
+            var $form = $("#link-objects-form");
             var url = $form.attr('action');
             var data = $form.serialize();
             $.post(url, data, function(data){

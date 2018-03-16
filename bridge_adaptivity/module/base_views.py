@@ -20,9 +20,6 @@ class BaseGroupView(OnlyMyObjectsMixin, BackURLMixin):
     slug_field = 'slug'
     model = CollectionGroup
 
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or super(BaseGroupView, self).get_success_url()
-
     def get_form_kwargs(self):
         kwargs = super(BaseGroupView, self).get_form_kwargs()
         model_field_names = [f.name for f in CollectionGroup._meta.fields]

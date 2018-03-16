@@ -9,18 +9,16 @@
   {% if collections %}
     <table class="table table-hover">
       <tr>
-        <th>ID</th>
-        <th>name</th>
+        <th>collection name</th>
         <th>strict forward</th>
         <th>groups</th>
         <th>options</th>
       </tr>
       {% for collection in collections %}
         <tr>
-          <td>{{ collection.id }}</td>
-
-          <td><a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">{{ collection.name }} :
-            {{ collection.activities.count }}
+          <td>
+            <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ collection.get_absolute_url }}">
+            {{ collection.name }} : {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a>
           </td>
 
@@ -50,19 +48,19 @@
                   data-id="{{ collection.id }}">
                   {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
-
-              {% if collection.has_linked_active_sequences %}
-                {% with message="At least one student is still working on the collection: " %}
+              {% with title="You are about deleting " add_obj_in_title=True %}
+                {% if collection.has_linked_active_sequences %}
+                  {% with message="At least one student is still working on the collection: " %}
+                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+                  {% endwith %}
+                {% elif collection.has_linked_sequences %}
+                  {% with message="At least one student is linked to the collection: " %}
+                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
+                  {% endwith %}
+                {% else %}
                   {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
-                {% endwith %}
-              {% elif collection.has_linked_sequences %}
-                {% with message="At least one student is linked to the collection: " %}
-                  {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
-                {% endwith %}
-              {% else %}
-                {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.id %}
-              {% endif %}
-
+                {% endif %}
+              {% endwith %}
             </div>
           </td>
         </tr>

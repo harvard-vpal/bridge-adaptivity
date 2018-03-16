@@ -4,27 +4,31 @@
 <div class="modal fade" id="deleteModal{{ id }}" role="dialog">
   <div class="modal-dialog" role="dialog">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header text-center">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
           aria-hidden="true">&times;</span></button>
         {% if not title %}
-          <h3 class="modal-title">You are about deleting {{ object }}.</h3>
+          <h3 class="modal-title">You are about deleting <br>{{ object }}.</h3>
+        {% elif add_obj_in_title%}
+          <h3 class="modal-title">{{ title }} <br>{{ object }}.</h3>
         {% else %}
-          <h3 class="modal-title">{{ title }} {{ object }}.</h3>
+          <h3 class="modal-title">{{ title }}.</h3>
         {% endif %}
       </div>
       <div class="modal-body">
         {% if message %}
-        <h4>{{ message }} {{ object }}</h4>
+        <h4 class="text-center">{{ message }} {{ object }}</h4>
         {% endif %}
-        <h4>Are you really sure?</h4>
+        <h4 class="text-center">Are you really sure?</h4>
 
-        <h4 class="warn">This action could not be undone!</h4>
+        {% if not undone %}
+        <h4 class="warn text-center">This action could not be undone!</h4>
+        {% endif %}
         <div class="row">
           <div class="col-md-6">
             <form class="" action="{{ action_url }}" method="post">
               {% csrf_token %}
-              <button class="btn-danger">OK</button>
+              <button class="btn-danger pull-left">OK</button>
             </form>
           </div>
           <div class="col-md-6">

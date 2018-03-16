@@ -42,6 +42,7 @@ INSTALLED_APPS = (
 
     # external apps
     'bootstrap3',
+    'fontawesome',
     'corsheaders',
     'ordered_model',
     'rest_framework',

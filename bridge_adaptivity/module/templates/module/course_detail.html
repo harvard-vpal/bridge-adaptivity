@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load static bootstrap3 %}
+{% load static bootstrap3 fontawesome %}
 
 {% block title %}
 <div>Course: <span class="label label-default">{{ course.name }}</span></div>
@@ -24,6 +24,7 @@
         <th>collections count</th>
         <th>grading policy</th>
         <th>threshold</th>
+        <th>options</th>
       </tr>
       {% for group in course.course_groups.all %}
         <tr>
@@ -37,13 +38,33 @@
           <td>
             <a href="{% url 'module:group-change' group_slug=group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.grading_policy.policy_cls.public_name }}</a>
           </td>
-          <td>
+          <td class="text-center">
             {% if group.grading_policy.threshold is not None %}
               <p>{{ group.grading_policy.threshold }}</p>
             {% endif %}
           </td>
+          <td>
+            <div class="options">
+              <!--Unlink group from course-->
+              <a class="trash delete-object"
+                 href=""
+                 data-id="{{ group.id }}"
+                >
+                <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
+                <!--{% bootstrap_button "" size='sm' icon='trash' %}-->
+              </a>
+              <!--Update group-->
+              <a class="pull-right" href="{% url 'module:group-change' group_slug=group.slug %}">
+                {% bootstrap_button "" size='sm' icon='edit' %}
+              </a>
+            </div>
+          </td>
         </tr>
       <tr>
+        {% with undone=True id=group.id object=group %}
+          {% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug as action_url %}
+          {% include "module/modals/delete_object_modal.html" with title="You are about unlink <CollectionGroup:"|add:group.name|add:"> from <Course:"|add:group.name|add:">" %}
+        {% endwith %}
       {% endfor %}
     </table>
   {% else %}
@@ -52,7 +73,21 @@
     </div>
   {% endif %}
 
-  {% bootstrap_button 'Add group to course' size='lg' icon='plus' id='add-group-to-course' extra_classes='open-modal' %}
+  <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">
+    <span class="fa fa-chain"></span>
+    Link group with course
+  </button>
+
+   <hr>
+      <h3>
+        <small>Tips:</small>
+      </h3>
+      <ul>
+        <li class="text-muted">to add the collection group into the course - click <i class="fa fa-chain">Link group with course</i> button</li>
+        <li class="text-muted">to remove collection group from the course - click <i class="fa fa-chain-broken">Unlink</i> button</li>
+      </ul>
+
+    <hr>
 
 </div>
 <!--Right side-->
@@ -73,10 +108,10 @@
 </div>
 
 {% url "module:add-group-to-course" course_slug=course.slug as add_group_url %}
-{% include "module/modals/link_group_to_course.html" with course=course src_url=add_group_url %}
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url title='Link group with course' %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
-{% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course "%}
+{% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course " %}
 
 {% endblock content %}
 

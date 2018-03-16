@@ -9,17 +9,18 @@
   {% if courses %}
     <table class="table table-hover">
       <tr>
-        <th>Course name</th>
-        <th>description</th>
-        <th>groups in course</th>
-        <th>options</th>
+        <th>course name</th>
+        <th class="text-left">description</th>
+        <th style="min-width:170px;">groups in course</th>
+        <th style="min-width:90px;">options</th>
       </tr>
       {% for course in courses %}
         <tr>
-          <td><a href="{% url 'module:course-detail' course.slug %}?back_url={% url 'module:course-list' %}">
+          <td>
+            <a href="{% url 'module:course-detail' course.slug %}?back_url={% url 'module:course-list' %}">
             {{ course.name }}</a></td>
           </td>
-          <td>
+          <td class="text-left">
             {{ course.description }}
           </td>
           <td>
@@ -29,15 +30,15 @@
             <div>
              <a class="move-down"
                  href="{% url 'module:course-change' course.slug %}?back_url={% url 'module:course-list' %}">
-                {% bootstrap_button "Update" size='sm' icon='edit' %}
+                {% bootstrap_button "" size='sm' icon='edit' %}
               </a>
               <a class="move-down delete-object"
                  href="{% url 'module:course-delete' course_slug=course.slug %}"
                  data-id="{{ course.id }}">
-                  {% bootstrap_button "Remove" size='sm' icon='trash' %}
+                  {% bootstrap_button "" size='sm' icon='trash' %}
               </a>
               {% url 'module:course-delete' course_slug=course.slug as delete_url %}
-              {% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url id=course.id title="You are about deleting course "%}
+              {% include "module/modals/delete_object_modal.html" with add_obj_in_title=True object=course action_url=delete_url id=course.id title="You are about deleting " %}
             </div>
 
             <div>

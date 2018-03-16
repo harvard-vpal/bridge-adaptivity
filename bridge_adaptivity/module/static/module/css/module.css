@@ -41,3 +41,28 @@ div.options {
 .advanced_fields {
   display: none;
 }
+
+table.table th:not(.text-right):not(.text-left) {
+ text-align: center;
+}
+
+table.table th:first-child:not(.text-center):not(.text-right) {
+ text-align: left;
+}
+
+table.table th:last-child:not(.text-center):not(.text-left) {
+ text-align: right;
+}
+
+table.table tr td:not(.text-left):not(.text-right) {
+ text-align: center;
+}
+
+table.table tr td:first-child:not(.text-center):not(.text-right) {
+ text-align: left;
+}
+
+table.table tr td:last-child:not(.text-center):not(.text-left) {
+ text-align: right;
+}
+

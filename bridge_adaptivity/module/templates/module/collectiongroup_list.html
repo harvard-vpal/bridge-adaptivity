@@ -10,16 +10,16 @@
     <table class="table table-hover">
       <tr>
         <th>group name</th>
-        <th>description</th>
-        <th class="text-center">collections</th>
-        <th class="text-center">engine</th>
-        <th class="text-center">policy</th>
-        <th class="text-center">threshold</th>
-        <th class="text-center">options</th>
+        <th class="text-left">description</th>
+        <th>collections</th>
+        <th>engine</th>
+        <th>policy</th>
+        <th>threshold</th>
+        <th>options</th>
       </tr>
       {% for group in groups %}
           <td><a href="{{ group.get_absolute_url }}?back_url={% url 'module:group-list' %}">{{ group.name }}</a></td>
-          <td>
+          <td class="text-left">
             {% if group.description %}
             {{ group.description|truncatewords:20 }}
             {% else %}
