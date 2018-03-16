@@ -124,7 +124,7 @@ class EngineVPAL(EngineInterface):
             payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))
         sync_collection = requests.post(sync_url, json=payload, headers=self.headers)
         return self.check_engine_response(
-            sync_collection.status_code, action='synchronized', obj='collection', name=collection.name, status=201
+            sync_collection.status_code, action='synchronized', obj='collection', name=collection.name
         )
 
     def submit_activity_answer(self, sequence_item):
