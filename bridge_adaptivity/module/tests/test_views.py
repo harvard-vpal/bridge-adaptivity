@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.urls.base import reverse
 from mock import patch
 
-from bridge_lti.models import LtiConsumer
+from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
 from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy
 
@@ -65,6 +65,17 @@ class BridgeTestCase(TestCase):
         }
 
         self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
+
+        #LtiProvider
+        self.lti_provider = LtiProvider.objects.create(
+            consumer_name='consumer_name',
+            consumer_key='consumer_key',
+            consumer_secret='consumer_secret',
+            expiration_date=datetime.datetime.today() + timedelta(days=1),
+            lms_metadata='lms_metadata'
+        )
+
+
 
 
 class TestCollectionList(BridgeTestCase):
