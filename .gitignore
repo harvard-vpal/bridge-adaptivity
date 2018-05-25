@@ -19,5 +19,4 @@ secure.config
 ***.log
 ***.log.*
 ***.egg*
-.tox
 .idea
