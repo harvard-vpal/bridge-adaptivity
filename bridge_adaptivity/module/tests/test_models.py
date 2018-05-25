@@ -19,17 +19,17 @@ class TestEngineUtilityFunction(TestCase):
     def test__discover_engines(self):
         """Test _discover_engines function."""
         found_engines = models._discover_applicable_modules(folder_name='engines', file_startswith='engine_')
-        self.assertEquals(len(found_engines), 2)
+        self.assertEqual(len(found_engines), 2)
         self.assertCountEqual([('engine_mock', 'mock'), ('engine_vpal', 'vpal')], found_engines)
 
     def test__get_engine_driver(self):
         """Test _get_engine_driver function."""
         driver = models._load_cls_from_applicable_module('module.engines', 'engine_mock', class_startswith='Engine')
-        self.assertEquals(driver.__name__, 'EngineMock')
+        self.assertEqual(driver.__name__, 'EngineMock')
 
         vpal_driver = models._load_cls_from_applicable_module('module.engines', 'engine_vpal',
                                                               class_startswith='Engine')
-        self.assertEquals(vpal_driver.__name__, 'EngineVPAL')
+        self.assertEqual(vpal_driver.__name__, 'EngineVPAL')
 
 
 class TestEngineModel(TestCase):
@@ -38,10 +38,10 @@ class TestEngineModel(TestCase):
         engine_default_old = Engine.objects.create(engine='engine_mock', engine_name='Mock Old', is_default=True)
         engine_default_new = Engine.objects.create(engine='engine_mock', engine_name='Mock New', is_default=True)
         default_set = Engine.objects.filter(is_default=True)
-        self.assertEquals(default_set.count(), 1)
+        self.assertEqual(default_set.count(), 1)
         default_engine = default_set.first()
         self.assertNotEqual(default_engine, engine_default_old)
-        self.assertEquals(default_engine, engine_default_new)
+        self.assertEqual(default_engine, engine_default_new)
 
     def test_engine_get_default_engine(self):
         """Test get_default_engine method."""
@@ -49,8 +49,8 @@ class TestEngineModel(TestCase):
         self.assertFalse(engine_default_set)
         default_engine = Engine.get_default()
         engine_default_new_set = Engine.objects.filter(is_default=True)
-        self.assertEquals(engine_default_new_set.count(), 1)
-        self.assertEquals(engine_default_set.first(), default_engine)
+        self.assertEqual(engine_default_new_set.count(), 1)
+        self.assertEqual(engine_default_set.first(), default_engine)
 
     def test_engine_driver_property(self):
         """Test Engine model's property engine_driver."""
@@ -71,7 +71,7 @@ class TestDiscoverGradingPolicies(TestCase):
     def test_discover_grading_policies(self):
         """Test _discover_applicable_modules function."""
         found_policies = models._discover_applicable_modules(folder_name='policies', file_startswith='policy_')
-        self.assertEquals(len(found_policies), 4)
+        self.assertEqual(len(found_policies), 4)
         self.assertCountEqual(
             [('policy_engine_grade', 'engine_grade'), ('policy_points_earned', 'points_earned'),
              ('policy_trials_count', 'trials_count'), ('policy_full_credit', 'full_credit')],
@@ -87,7 +87,7 @@ class TestDiscoverGradingPolicies(TestCase):
     def test_get_policy_module(self, mod, mod_name, cls_end, exp_cls_name):
         """Test _get_grading_policy_module function."""
         grade_policy = models._load_cls_from_applicable_module(mod, mod_name, class_endswith=cls_end)
-        self.assertEquals(grade_policy.__name__, exp_cls_name)
+        self.assertEqual(grade_policy.__name__, exp_cls_name)
 
 
 class TestGradingPolicyModel(TestCase):
@@ -98,10 +98,10 @@ class TestGradingPolicyModel(TestCase):
         gp2 = GradingPolicy.objects.create(name='trials_count', public_name='GP2', is_default=True)
 
         default_set = GradingPolicy.objects.filter(is_default=True)
-        self.assertEquals(default_set.count(), 1)
+        self.assertEqual(default_set.count(), 1)
         default_engine = default_set.first()
         self.assertNotEqual(default_engine, gp1)
-        self.assertEquals(default_engine, gp2)
+        self.assertEqual(default_engine, gp2)
 
     def test_grading_policy_get_default_engine(self):
         """Test get_default method."""
@@ -110,8 +110,8 @@ class TestGradingPolicyModel(TestCase):
         self.assertTrue(default_set, "Default GradingPolicy should be defined in fixtures.")
         default_grading_policy = GradingPolicy.get_default()
         gp_default_new_set = GradingPolicy.objects.filter(is_default=True)
-        self.assertEquals(gp_default_new_set.count(), 1)
-        self.assertEquals(default_set.first(), default_grading_policy)
+        self.assertEqual(gp_default_new_set.count(), 1)
+        self.assertEqual(default_set.first(), default_grading_policy)
 
     def test_policy_cls_property(self):
         gp_trials_count = GradingPolicy.objects.get(name='trials_count')

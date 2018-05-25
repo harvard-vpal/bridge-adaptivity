@@ -24,7 +24,7 @@ class BridgeTestCase(TestCase):
 
     def add_prefix(self, prefix='', data={}):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
-        return {"{}-{}".format(prefix, k): v for k, v in data.items()}
+        return {"{}-{}".format(prefix, k): v for k, v in list(data.items())}
 
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
@@ -124,9 +124,9 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertEqual(
             response.context['form'].errors,
             {
-                'engine': [u"This Engine doesn't support chosen Policy. Please choose another policy or engine."],
-                'grading_policy_name': [(u'This policy can be used only with VPAL engine(s). '
-                                         u'Choose another policy or engine.')]
+                'engine': ["This Engine doesn't support chosen Policy. Please choose another policy or engine."],
+                'grading_policy_name': [('This policy can be used only with VPAL engine(s). '
+                                         'Choose another policy or engine.')]
             }
         )
 
@@ -162,7 +162,7 @@ class TestCollectionGroup(BridgeTestCase):
 
         response = self.client.post(url, data=data)
         if response.status_code == 200:
-            print dict(response.context['form'].errors)
+            print((dict(response.context['form'].errors)))
 
         self.assertRedirects(response, reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}))
         self.assertEqual(groups_count, CollectionGroup.objects.count())
@@ -476,7 +476,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
         response = self.client.post(self.add_url, self.create_data)
         if response.status_code == 200:
             # form errors
-            print response.context['form'].errors
+            print((response.context['form'].errors))
         self.assertRedirects(response, self.back_url)
         self.assertEqual(activity_count + 1, Activity.objects.count())
 
@@ -501,7 +501,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
 
         if response.status_code == 200:
             # form errors
-            print response.context['form'].errors
+            print((response.context['form'].errors))
 
         new_activity = Activity.objects.get()
         self.assertRedirects(response, self.back_url)

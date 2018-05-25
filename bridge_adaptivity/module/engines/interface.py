@@ -1,9 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class EngineInterface(object):
-    __metaclass__ = ABCMeta
-
+class EngineInterface(object, metaclass=ABCMeta):
     @abstractmethod
     def select_activity(self, sequence):
         """
