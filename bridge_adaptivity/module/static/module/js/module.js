@@ -224,7 +224,13 @@
         }
 
         // Launch URL fetching:
-        var launchUrlFetcher = new Clipboard('#launch-url-fetcher');
+        let launchUrlFetcher = new Clipboard(
+            '#launch-url-fetcher',
+            {
+                text: trigger => {
+                    return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
+                }
+            });
         launchUrlFetcher.on("success", function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
