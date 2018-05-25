@@ -69,13 +69,13 @@ GRADING_POLICY_CHOICES = ((k, v) for k, v in list(GRADING_POLICY_NAME_TO_CLS.ite
 class Sequence(models.Model):
     """Represents User's problem solving track."""
 
-    lti_user = models.ForeignKey(LtiUser)
-    collection = models.ForeignKey('Collection')
-    group = models.ForeignKey('CollectionGroup', null=True)
+    lti_user = models.ForeignKey(LtiUser, on_delete=models.CASCADE)
+    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
+    group = models.ForeignKey('CollectionGroup', null=True, on_delete=models.CASCADE)
 
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
-    outcome_service = models.ForeignKey(OutcomeService, null=True)
+    outcome_service = models.ForeignKey(OutcomeService, null=True,  on_delete=models.CASCADE)
 
     metadata = JSONField(default={}, blank=True)
 
@@ -105,8 +105,8 @@ class Sequence(models.Model):
 class SequenceItem(models.Model):
     """Represents one User's step in problem solving track."""
 
-    sequence = models.ForeignKey('Sequence', related_name='items', null=True)
-    activity = models.ForeignKey('Activity', null=True)
+    sequence = models.ForeignKey('Sequence', related_name='items', null=True, on_delete=models.CASCADE)
+    activity = models.ForeignKey('Activity', null=True, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(default=1)
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
 
@@ -143,7 +143,7 @@ class Course(models.Model):
     description = models.TextField(blank=True, null=True)
 
     slug = models.UUIDField(unique=True, db_index=True, default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(BridgeUser)
+    owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse('module:course-detail', kwargs={'course_slug': self.slug})
@@ -163,7 +163,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     name = models.CharField(max_length=20)  # Field name is not editable in admin UI.
     public_name = models.CharField(max_length=255)
     threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
-    engine = models.ForeignKey('Engine', blank=True, null=True)
+    engine = models.ForeignKey('Engine', blank=True, null=True, on_delete=models.CASCADE)
     is_default = models.BooleanField(default=False)
 
     @property
@@ -189,7 +189,7 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
-    owner = models.ForeignKey(BridgeUser)
+    owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
     updated_at = fields.DateTimeField(auto_now=True)
@@ -286,14 +286,14 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(BridgeUser)
+    owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
-    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True)
+    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
     collections = models.ManyToManyField(Collection, related_name='collection_groups', blank=True)
 
-    engine = models.ForeignKey(Engine)
+    engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
 
     def __str__(self):
         return "<Group of Collections: {}>".format(self.name)
@@ -315,7 +315,7 @@ class Activity(OrderedModel):
     order_with_respect_to = 'atype', 'collection'
 
     name = models.CharField(max_length=255)
-    collection = models.ForeignKey('Collection', related_name='activities', null=True)
+    collection = models.ForeignKey('Collection', related_name='activities', null=True, on_delete=models.CASCADE)
     tags = fields.CharField(
         max_length=255,
         help_text="Provide your tags separated by a comma.",
@@ -333,7 +333,7 @@ class Activity(OrderedModel):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
     points = models.FloatField(blank=True, default=1)
-    lti_consumer = models.ForeignKey(LtiConsumer, null=True)
+    lti_consumer = models.ForeignKey(LtiConsumer, null=True, on_delete=models.CASCADE)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     source_context_id = fields.CharField(max_length=255, blank=True, null=True)
@@ -428,7 +428,7 @@ class Log(models.Model):
         (COLLECTION_UPDATED, 'Collection updated'),
     )
 
-    sequence_item = models.ForeignKey('SequenceItem', null=True, blank=True)
+    sequence_item = models.ForeignKey('SequenceItem', null=True, blank=True, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     log_type = fields.CharField(choices=LOG_TYPES, max_length=32)
     answer = models.BooleanField(verbose_name='Is answer correct?', default=False)

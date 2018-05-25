@@ -34,10 +34,10 @@ LTI_SSL = False
 
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += [
     'djdev_panel.middleware.DebugMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+]
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
