@@ -10,7 +10,7 @@ from module.views import (
     SequenceComplete, SequenceItemDetail, sync_collection,
 )
 
-urlpatterns = [
+urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
     url(r'^course/add/?$', CourseCreate.as_view(), name='course-add'),
     url(r'^course/(?P<course_slug>[\w-]+)/$', CourseDetail.as_view(), name='course-detail'),
@@ -70,4 +70,4 @@ urlpatterns = [
 
     # Sync collection with relative engines
     url(r'^collection/(?P<pk>\d+)/sync/$', sync_collection, name='collection-sync'),
-]
+],'module')

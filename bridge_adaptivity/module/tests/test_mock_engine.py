@@ -87,7 +87,7 @@ class TestMockEngine(TestCase):
         selected_activity_url = self.engine.engine_driver.select_activity(self.sequence)
 
         if er == '__activity__':
-            self.assertIsInstance(selected_activity_url, (str, unicode))
+            self.assertIsInstance(selected_activity_url, (str, str))
             self.assertTrue(selected_activity_url in source_launch_urls)
         else:
             self.assertEqual(selected_activity_url, er)

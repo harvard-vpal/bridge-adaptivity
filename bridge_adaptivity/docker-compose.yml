@@ -25,7 +25,7 @@ services:
 
   # Celery worker
   worker:
-    image: bridgeadaptivity_bridge
+    image: bridge_adaptivity_bridge
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
     command: bash -c "sleep 5 && celery -A config worker -l info"

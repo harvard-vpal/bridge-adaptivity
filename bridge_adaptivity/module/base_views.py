@@ -23,7 +23,7 @@ class BaseGroupView(OnlyMyObjectsMixin, BackURLMixin):
     def get_form_kwargs(self):
         kwargs = super(BaseGroupView, self).get_form_kwargs()
         model_field_names = [f.name for f in CollectionGroup._meta.fields]
-        filtered_get = {key: value for key, value in self.request.GET.items() if key in model_field_names}
+        filtered_get = {key: value for key, value in list(self.request.GET.items()) if key in model_field_names}
         if filtered_get and not self.request.POST:
             kwargs['initial'] = filtered_get
         return kwargs

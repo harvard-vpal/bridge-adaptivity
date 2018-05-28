@@ -1,5 +1,5 @@
 import logging
-import urlparse
+import urllib.parse
 
 import requests
 
@@ -49,8 +49,8 @@ class EngineVPAL(EngineInterface):
     def __init__(self, **kwargs):
         self.host = kwargs.get('HOST')
         self.api_url = 'engine/api/'
-        self.base_url = urlparse.urljoin(self.host, self.api_url)
-        self.activity_url = urlparse.urljoin(self.base_url, "activity")
+        self.base_url = urllib.parse.urljoin(self.host, self.api_url)
+        self.activity_url = urllib.parse.urljoin(self.base_url, "activity")
         token = kwargs.get('TOKEN')
         self.headers = {'Authorization': 'Token {}'.format(token)} if token else {}
 
@@ -89,7 +89,7 @@ class EngineVPAL(EngineInterface):
         return payload
 
     def combine_activity_url(self, activity):
-        return urlparse.urljoin('{}/'.format(self.activity_url), str(activity.id))
+        return urllib.parse.urljoin('{}/'.format(self.activity_url), str(activity.id))
 
     def select_activity(self, sequence):
         """
@@ -98,7 +98,7 @@ class EngineVPAL(EngineInterface):
         :param sequence: sequence
         :return: selected activity source_launch_url
         """
-        reco_url = urlparse.urljoin(
+        reco_url = urllib.parse.urljoin(
             "{}/".format(self.activity_url), "recommend"
         )
         payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.id, "sequence": []}
@@ -118,7 +118,7 @@ class EngineVPAL(EngineInterface):
 
         :param collection: Collection instance for synchronization
         """
-        sync_url = urlparse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.id))
+        sync_url = urllib.parse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.id))
         payload = []
         for activity in collection.activities.all():
             payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))
@@ -133,7 +133,7 @@ class EngineVPAL(EngineInterface):
 
         :param sequence_item: SequenceItem instance
         """
-        submit_url = urlparse.urljoin(self.base_url, 'score')
+        submit_url = urllib.parse.urljoin(self.base_url, 'score')
         payload = self.fulfill_payload(instance_to_parse=sequence_item, score=True)
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
         return self.check_engine_response(
@@ -150,7 +150,7 @@ class EngineVPAL(EngineInterface):
         :param sequence: Sequence instance
         :return: grade returned from engine
         """
-        url = urlparse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
+        url = urllib.parse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
             collection_id=sequence.collection.id)
         )
         response = requests.post(url, json={'learner': sequence.lti_user.id}, headers=self.headers)

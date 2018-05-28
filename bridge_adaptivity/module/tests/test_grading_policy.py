@@ -97,7 +97,7 @@ class TestGradingPolicyObject(TestCase):
         mock_points_earned_get_points_earned_trials_count.return_value = trials_count, points_earned
         mock_points_earned_trials_count.return_value = trials_count, points_earned
 
-        POLICY_CLS_TO_NAME = {v: k for k, v in GRADING_POLICY_NAME_TO_CLS.items()}
+        POLICY_CLS_TO_NAME = {v: k for k, v in list(GRADING_POLICY_NAME_TO_CLS.items())}
 
         policy = GradingPolicy.objects.filter(name=POLICY_CLS_TO_NAME[GradingPolicyCls]).first()
         self.assertIsNotNone(policy)

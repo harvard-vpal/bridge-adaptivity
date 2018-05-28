@@ -1,5 +1,5 @@
 import logging
-import urlparse
+import urllib.parse
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -78,7 +78,7 @@ def source_preview(request):
 
         source_name = activity.source_name
         source_lti_url = activity.source_launch_url
-        lis_outcome_service_url = urlparse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
+        lis_outcome_service_url = urllib.parse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
         consumer_prams['params'].update({
             'user_id': sequence_item.sequence.lti_user,
             'context_id': sequence_item.sequence.collection.name,
@@ -96,7 +96,7 @@ def source_preview(request):
         source_lti_url = request.GET.get('source_lti_url')
         if source_lti_url is not None:
             # NOTE(wowkalucky): Django converts plus sign to space
-            source_lti_url = request.GET.get('source_lti_url').replace(u' ', u'+')
+            source_lti_url = request.GET.get('source_lti_url').replace(' ', '+')
     consumer_prams.update({'launch_url': source_lti_url})
     log.debug("Sending parameters are: {}".format(consumer_prams))
     consumer = ToolConsumer(**consumer_prams)

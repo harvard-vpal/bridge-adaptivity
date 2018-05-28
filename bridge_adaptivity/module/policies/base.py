@@ -5,7 +5,7 @@ from django.db.models.aggregates import Count, Sum
 from bridge_lti.outcomes import update_lms_grades
 
 
-class BaseGradingPolicy(object):
+class BaseGradingPolicy(object, metaclass=ABCMeta):
     """Base grading policy class defines methods and variables of grading policy.
 
     >>> gp =  BaseGradingPolicy(sequence=1, policy=2, b=3)
@@ -22,8 +22,6 @@ class BaseGradingPolicy(object):
         ...
     NotImplementedError: Method is not implemented.
     """
-
-    __metaclass__ = ABCMeta
 
     public_name = 'Grading Policy'
     require = {}

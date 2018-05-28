@@ -2,9 +2,9 @@
 from config.settings.base import *  # noqa: F403
 
 try:
-    import secure
+    from . import secure
 except ImportError:
-    import secure_example as secure
+    from . import secure_example as secure
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
@@ -34,10 +34,10 @@ LTI_SSL = False
 
 INSTALLED_APPS += ('debug_toolbar', 'sslserver')
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += [
     'djdev_panel.middleware.DebugMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
+]
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
