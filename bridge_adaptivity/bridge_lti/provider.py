@@ -29,6 +29,11 @@ def find_last_sequence_item(sequence, strict_forward):
 
 
 def get_tool_provider_for_lti(request):
+    """
+    Return tool provider for the given request.
+
+    In case of invalid lti request return None.
+    """
     try:
         tool_provider = DjangoToolProvider.from_django_request(request=request)
         validator = SignatureValidator()
