@@ -144,7 +144,7 @@ def announcement_page(request):
         }
     )
 
-#
+
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None, unique_marker=''):
     """Define logic flow for Learner."""
     if not collection_id:
