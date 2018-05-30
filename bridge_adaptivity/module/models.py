@@ -75,7 +75,7 @@ class Sequence(models.Model):
 
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
-    outcome_service = models.ForeignKey(OutcomeService, null=True,  on_delete=models.CASCADE)
+    outcome_service = models.ForeignKey(OutcomeService, null=True, on_delete=models.CASCADE)
 
     metadata = JSONField(default={}, blank=True)
 

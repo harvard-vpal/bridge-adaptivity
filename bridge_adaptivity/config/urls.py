@@ -1,14 +1,13 @@
 from django.conf import settings
-from django.urls import include, path
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.urls import include, path
 from django.views.generic import RedirectView
 
+from api.urls import urlpatterns as api
 from bridge_lti.urls import urlpatterns as lti
 from module.urls import urlpatterns as module
-from api.urls import urlpatterns as api
-
 from . import views
 
 
