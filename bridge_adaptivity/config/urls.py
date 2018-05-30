@@ -1,26 +1,29 @@
 from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.urls import include, path
 from django.views.generic import RedirectView
 
+from api.urls import urlpatterns as api
+from bridge_lti.urls import urlpatterns as lti
+from module.urls import urlpatterns as module
 from . import views
 
 
 urlpatterns = [
-    url(r'^login/$', auth_views.login, name='login'),
-    url(r'^logout/$', auth_views.logout, name='logout'),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^health/$', views.health),
+    path('login/', auth_views.login, name='login'),
+    path('logout/', auth_views.logout, name='logout'),
+    path('admin/', admin.site.urls),
+    path('health/', views.health),
 
-    url(r'^$', login_required(RedirectView.as_view(pattern_name='module:collection-list')), name='index'),
-    url(r'^lti/', include('bridge_lti.urls', namespace="lti")),
-    url(r'^module/', include('module.urls', namespace="module")),
-    url(r'^api/', include('api.urls', namespace="api")),
+    path('', login_required(RedirectView.as_view(pattern_name='module:collection-list')), name='index'),
+    path('lti/', include(lti)),
+    path('module/', include(module)),
+    path('api/', include(api)),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns = [url(r'^__debug__/', include(debug_toolbar.urls)), ] + urlpatterns
+    urlpatterns = [path('__debug__/', include(debug_toolbar.urls)), ] + urlpatterns
