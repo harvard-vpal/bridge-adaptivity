@@ -70,4 +70,4 @@ urlpatterns = ([
 
     # Sync collection with relative engines
     url(r'^collection/(?P<pk>\d+)/sync/$', sync_collection, name='collection-sync'),
-],'module')
+], 'module')
