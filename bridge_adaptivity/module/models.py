@@ -62,7 +62,7 @@ GradingPolicyClass has __str__ method and it's string representation is GradingP
 This hack is done to pass policy.summary_text and policy.detail_text to select policy widget's template, where these
 variables are used to show popover message with description about each policy (bootstrap3 JS popover function).
 """
-GRADING_POLICY_CHOICES = ((k, v) for k, v in list(GRADING_POLICY_NAME_TO_CLS.items()))
+GRADING_POLICY_CHOICES = ((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
 
 @python_2_unicode_compatible
