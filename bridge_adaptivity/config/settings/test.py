@@ -6,9 +6,9 @@ TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 UPDATE_DATABASE = {'NAME': 'traviscidb'}
 
 try:
-    import secure
+    from . import secure
 except ImportError:
-    import secure_example as secure
+    from . import secure_example as secure
     UPDATE_DATABASE['HOST'] = 'localhost'
 
 DATABASES = secure.DATABASES

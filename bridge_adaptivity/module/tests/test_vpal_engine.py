@@ -1,4 +1,4 @@
-import urlparse
+import urllib.parse
 
 from django.test import TestCase
 from mock import Mock, patch
@@ -68,7 +68,7 @@ class TestVPALEngine(TestCase):
         lti_param = "lis_person_sourcedid"
         launch_params = {lti_param: "test_lis_person_sourcedid"}
         self.sequence.fulfil_sequence_metadata(self.engine.lti_params, launch_params)
-        test_url = urlparse.urljoin(
+        test_url = urllib.parse.urljoin(
             "{}/".format(self.engine.engine_driver.activity_url), "recommend"
         )
         expected_payload = {

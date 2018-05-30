@@ -43,7 +43,7 @@ class LtiConsumer(models.Model):
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
     host_url = models.URLField(max_length=255, null=True)
-    o_auth_client = models.ForeignKey('api.OAuthClient', null=True)
+    o_auth_client = models.ForeignKey('api.OAuthClient', null=True, on_delete=models.CASCADE)
     is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
 
     class Meta:
@@ -61,8 +61,8 @@ class LtiUser(models.Model):
     user_id = fields.CharField(max_length=255)
     course_id = fields.CharField(max_length=255, blank=True, null=True)
     email = fields.CharField(max_length=255, blank=True, null=True)
-    lti_consumer = models.ForeignKey('LtiProvider')
-    bridge_user = models.ForeignKey('BridgeUser', blank=True, null=True)
+    lti_consumer = models.ForeignKey('LtiProvider', on_delete=models.CASCADE)
+    bridge_user = models.ForeignKey('BridgeUser', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = "LTI User"
@@ -103,7 +103,7 @@ class OutcomeService(models.Model):
     """
 
     lis_outcome_service_url = models.CharField(max_length=255)
-    lms_lti_connection = models.ForeignKey('LtiProvider', null=True)
+    lms_lti_connection = models.ForeignKey('LtiProvider', null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('outcome service')
