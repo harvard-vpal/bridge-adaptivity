@@ -83,7 +83,7 @@ class Sequence(models.Model):
         unique_together = (('lti_user', 'collection', 'group'), ('lis_result_sourcedid', 'outcome_service'))
 
     def __str__(self):
-        return u'<Sequence[{}]: {}>'.format(self.id, self.lti_user)
+        return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
 
     def fulfil_sequence_metadata(self, lti_params, launch_params):
         """
@@ -123,7 +123,7 @@ class SequenceItem(models.Model):
         ordering = ['sequence', 'position']
 
     def __str__(self):
-        return u'<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
+        return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
 
     def save(self, *args, **kwargs):
         """Extension sending notification to the Adaptive engine that score is changed."""
@@ -149,7 +149,7 @@ class Course(models.Model):
         return reverse('module:course-detail', kwargs={'course_slug': self.slug})
 
     def __str__(self):
-        return u"<Course: {}>".format(self.name)
+        return "<Course: {}>".format(self.name)
 
 
 @python_2_unicode_compatible
@@ -178,7 +178,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
         return policy.grade
 
     def __str__(self):
-        return u"{}, public_name: {} threshold: {}{}".format(
+        return "{}, public_name: {} threshold: {}{}".format(
             self.name, self.public_name, self.threshold,
             ", IS DEFAULT POLICY" if self.is_default else ""
         )
@@ -198,7 +198,7 @@ class Collection(HasLinkedSequenceMixin, models.Model):
         unique_together = ('owner', 'name')
 
     def __str__(self):
-        return u'<Collection: {}>'.format(self.name)
+        return '<Collection: {}>'.format(self.name)
 
     def save(self, *args, **kwargs):
         """Extension cover method with logging."""
@@ -251,7 +251,7 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
         unique_together = ('host', 'token')
 
     def __str__(self):
-        return u"Engine: {}".format(self.engine_name)
+        return "Engine: {}".format(self.engine_name)
 
     @classmethod
     def create_default(cls):
@@ -296,7 +296,7 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     engine = models.ForeignKey(Engine)
 
     def __str__(self):
-        return u"<Group of Collections: {}>".format(self.name)
+        return "<Group of Collections: {}>".format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
@@ -354,7 +354,7 @@ class Activity(OrderedModel):
         ordering = 'atype', 'order'
 
     def __str__(self):
-        return u'<Activity: {}>'.format(self.name)
+        return '<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
@@ -438,15 +438,15 @@ class Log(models.Model):
 
     def __str__(self):
         if self.log_type == self.OPENED:
-            return u'<Log[{}]: {}>'.format(self.get_log_type_display(), self.sequence_item)
+            return '<Log[{}]: {}>'.format(self.get_log_type_display(), self.sequence_item)
         elif self.log_type == self.ADMIN:
-            return u'<Log[{}]: {} ({})>'.format(
+            return '<Log[{}]: {} ({})>'.format(
                 self.get_log_type_display(),
                 self.get_action_display(),
                 self.data
             )
         else:
-            return u'<Log[{}]: {}-{}[{}]>'.format(
+            return '<Log[{}]: {}-{}[{}]>'.format(
                 self.get_log_type_display(),
                 self.sequence_item,
                 self.answer,

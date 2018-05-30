@@ -7,7 +7,6 @@ __pycache__/
 ***.log.*
 ***.egg-info
 .idea/
-.tox
 **/.coverage
 ## Secure settings
 secure.py
@@ -19,5 +18,4 @@ secure.config
 ***.log
 ***.log.*
 ***.egg*
-.tox
 .idea

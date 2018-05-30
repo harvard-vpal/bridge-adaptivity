@@ -3,8 +3,8 @@ docker-compose deployment on production machine
 """
 
 # flake8: noqa: F405
-from base import *  # noqa: F401,F403
-import secure
+from .base import *  # noqa: F401,F403
+from . import secure
 
 SECRET_KEY = secure.SECRET_KEY
 ALLOWED_HOSTS = secure.ALLOWED_HOSTS
