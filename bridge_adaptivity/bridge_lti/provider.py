@@ -138,7 +138,7 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
 
 
 def announcement_page(request):
-    """Render announcement page"""
+    """Render announcement page."""
     return render(
         request,
         template_name="bridge_lti/announcement.html",
@@ -158,7 +158,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
-        user_id=request.POST['user_id']+unique_marker,
+        user_id=request.POST['user_id'] + unique_marker,
         lti_consumer=lti_consumer,
         defaults={'course_id': request.POST['context_id']}
     )

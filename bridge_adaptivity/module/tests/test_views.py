@@ -66,7 +66,7 @@ class BridgeTestCase(TestCase):
 
         self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
 
-        #LtiProvider
+        # LtiProvider
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='consumer_name',
             consumer_key='consumer_key',
@@ -74,8 +74,6 @@ class BridgeTestCase(TestCase):
             expiration_date=datetime.datetime.today() + timedelta(days=1),
             lms_metadata='lms_metadata'
         )
-
-
 
 
 class TestCollectionList(BridgeTestCase):

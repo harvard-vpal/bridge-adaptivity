@@ -1,9 +1,9 @@
 import logging
 
-import mock
 from ddt import data, ddt
+import mock
 
-from bridge_lti.provider import lti_launch, learner_flow
+from bridge_lti.provider import learner_flow, lti_launch
 from module.models import Sequence
 from module.tests.test_views import BridgeTestCase
 
@@ -12,12 +12,12 @@ log = logging.getLogger(__name__)
 
 @ddt
 class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
-    def lti_launch_request_for_role(self,roles):
+    def lti_launch_request_for_role(self, roles):
         return type('', (object,), {
             'POST': {
                 'oauth_nonce': 'oauth_nonce',
                 'oauth_consumer_key': self.lti_provider.consumer_key,
-                'roles':roles
+                'roles': roles
             },
             'session': {
             }
