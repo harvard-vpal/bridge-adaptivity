@@ -3,7 +3,7 @@ engines:
   radon:
     enabled: true
     config:
-      python_version: 2
+      python_version: 3
       threshold: "C"
   fixme:
     enabled: true

@@ -24,7 +24,7 @@ class BridgeTestCase(TestCase):
 
     def add_prefix(self, prefix='', data={}):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
-        return {"{}-{}".format(prefix, k): v for k, v in list(data.items())}
+        return {"{}-{}".format(prefix, k): v for k, v in data.items()}
 
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
