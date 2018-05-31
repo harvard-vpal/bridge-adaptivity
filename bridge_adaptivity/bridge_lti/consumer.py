@@ -71,6 +71,8 @@ def source_preview(request):
         # student flow
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
         activity = sequence_item.activity
+        if activity.repetition > 1:
+            sequence_item.add_suffix()
 
         content_provider = activity.lti_consumer
         consumer_prams['consumer_key'] = content_provider.provider_key
@@ -80,14 +82,15 @@ def source_preview(request):
         source_lti_url = activity.source_launch_url
         lis_outcome_service_url = urllib.parse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
         consumer_prams['params'].update({
-            'user_id': sequence_item.sequence.lti_user,
+            'user_id': sequence_item.sequence.lti_user.user_id + sequence_item.suffix,
             'context_id': sequence_item.sequence.collection.name,
             'resource_link_id': sequence_item.id,
             # Grading required parameters:
-            'lis_result_sourcedid': '{sequence_item_id}:{user_id}:{activity}'.format(
+            'lis_result_sourcedid': '{sequence_item_id}:{user_id}:{activity}:{suffix}'.format(
                 sequence_item_id=sequence_item.id,
                 user_id=sequence_item.sequence.lti_user.user_id,
                 activity=sequence_item.activity.id,
+                suffix=sequence_item.suffix,
             ),
             'lis_outcome_service_url': lis_outcome_service_url,
         })

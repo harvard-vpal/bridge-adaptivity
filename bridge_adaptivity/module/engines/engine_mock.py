@@ -1,6 +1,8 @@
 import logging
 import random
 
+from django.db.models import Count
+
 from module.engines.interface import EngineInterface
 
 log = logging.getLogger(__name__)
@@ -16,11 +18,19 @@ class EngineMock(EngineInterface):
         :param sequence: sequence
         :return: selected activity source_launch_url
         """
-        s_activities_list = list(sequence.items.exclude(
-            score__isnull=True,
-            is_problem=True,
-        ).values_list('activity_id', flat=True))
-        available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
+        s_activities_ids = []
+        s_activities_list = list(
+            sequence.items.values('activity_id', 'activity__repetition').
+            order_by('activity_id').
+            annotate(repeated=Count('activity_id')).
+            values('activity_id', 'repeated', 'activity__repetition')
+        )
+        for i, item in enumerate(s_activities_list):
+            if item['activity__repetition'] > item['repeated']:
+                continue
+            s_activities_ids.append(item['activity_id'])
+
+        available_activities = sequence.collection.activities.exclude(id__in=s_activities_ids)
         pre_assesment = available_activities.filter(atype='A')
         generic = available_activities.filter(atype='G')
         post_assessment = available_activities.filter(atype='Z')

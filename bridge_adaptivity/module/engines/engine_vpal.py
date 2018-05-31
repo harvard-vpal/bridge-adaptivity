@@ -14,6 +14,7 @@ ACTIVITY_PARAMS = (
     'type',
     'difficulty',
     'source_launch_url',
+    'repetition',
 )
 
 SEQUENCE_ITEM_PARAMS = [

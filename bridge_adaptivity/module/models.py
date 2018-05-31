@@ -1,3 +1,4 @@
+import hashlib
 import importlib
 import inspect
 import logging
@@ -13,6 +14,7 @@ from django.urls import reverse
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
+import shortuuid
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
@@ -109,6 +111,7 @@ class SequenceItem(models.Model):
     activity = models.ForeignKey('Activity', null=True, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(default=1)
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
+    suffix = models.CharField(max_length=10, default='')
 
     is_problem = models.BooleanField(default=True)
     __origin_score = None
@@ -124,6 +127,15 @@ class SequenceItem(models.Model):
 
     def __str__(self):
         return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
+
+    def add_suffix(self):
+        """
+        Add suffix to the SequenceItem if activity repetition is allowed.
+        """
+        if self.suffix:
+            return
+        self.suffix = hashlib.sha1(shortuuid.uuid().encode('utf-8')).hexdigest()[::4]  # Return 10 character uuid suffix
+        self.save(update_fields=['suffix'])
 
     def save(self, *args, **kwargs):
         """Extension sending notification to the Adaptive engine that score is changed."""
@@ -342,6 +354,10 @@ class Activity(OrderedModel):
     # `stype` - means source_type or string_type.
     stype = models.CharField(
         "Type of the activity", help_text="(problem, video, html, etc.)", max_length=25, blank=True, null=True
+    )
+    # Number of possible repetition of the activity in the sequence
+    repetition = models.PositiveIntegerField(
+        default=1, help_text="The number of possible repetition of the Activity in the sequence."
     )
 
     @property
