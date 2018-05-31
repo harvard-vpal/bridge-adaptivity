@@ -36,6 +36,12 @@ checks:
   return-statements:
     config:
       threshold: 6
+  method-lines:
+    config:
+      threshold: 50
+  method-complexity:
+    config:
+      threshold: 15
 
 
 ratings:
