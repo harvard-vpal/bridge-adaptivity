@@ -2,9 +2,6 @@ import logging
 
 import mock
 from ddt import data, ddt
-from django.test import Client
-from django.urls import reverse
-from mock import ANY
 
 from bridge_lti.provider import learner_flow, lti_launch
 from module.models import Sequence
