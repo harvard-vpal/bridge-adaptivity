@@ -25,4 +25,4 @@ DATABASES = {
 
 # Celery settings
 AMQP_USER = 'bridge_celery_user'
-AMQP_PASS = 'bridge_celety_password'
+AMQP_PASS = 'bridge_celery_password'
