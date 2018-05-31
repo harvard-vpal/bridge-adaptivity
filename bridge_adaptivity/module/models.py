@@ -129,14 +129,13 @@ class SequenceItem(models.Model):
     def __str__(self):
         return '<SequenceItem: {}={}>'.format(self.sequence, self.activity.name)
 
-    def add_suffix(self):
+    def _add_suffix(self):
         """
         Add suffix to the SequenceItem if activity repetition is allowed.
         """
         if self.suffix:
             return
         self.suffix = hashlib.sha1(shortuuid.uuid().encode('utf-8')).hexdigest()[::4]  # Return 10 character uuid suffix
-        self.save(update_fields=['suffix'])
 
     def save(self, *args, **kwargs):
         """Extension sending notification to the Adaptive engine that score is changed."""
@@ -146,6 +145,8 @@ class SequenceItem(models.Model):
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
                 self.activity.name, self.id
             ))
+        if self.activity.repetition > 1:
+            self._add_suffix()
         self.is_problem = self.activity.is_problem
         super(SequenceItem, self).save(*args, **kwargs)
 
