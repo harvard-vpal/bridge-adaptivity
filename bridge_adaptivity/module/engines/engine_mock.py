@@ -11,12 +11,13 @@ log = logging.getLogger(__name__)
 class EngineMock(EngineInterface):
     """Mock adaptive engine which is used by default if no other engines were added."""
 
-    def select_activity(self, sequence):
+    @staticmethod
+    def _get_s_activities_list(sequence):
         """
-        Mock engine provides random choice for the activity from the collection on the Bridge.
+        Create list with the activities ids which should be excluded from the selection.
 
         :param sequence: sequence
-        :return: selected activity source_launch_url
+        :return: list of ids
         """
         s_activities_ids = []
         s_activities_list = list(
@@ -29,8 +30,18 @@ class EngineMock(EngineInterface):
             if item['activity__repetition'] > item['repeated']:
                 continue
             s_activities_ids.append(item['activity_id'])
+        return s_activities_ids
 
-        available_activities = sequence.collection.activities.exclude(id__in=s_activities_ids)
+    def select_activity(self, sequence):
+        """
+        Mock engine provides random choice for the activity from the collection on the Bridge.
+
+        :param sequence: sequence
+        :return: selected activity source_launch_url
+        """
+        s_activities_list = self._get_s_activities_list(sequence)
+
+        available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
         pre_assesment = available_activities.filter(atype='A')
         generic = available_activities.filter(atype='G')
         post_assessment = available_activities.filter(atype='Z')
