@@ -101,7 +101,7 @@ class ProviderTest(BridgeTestCase):
 
         count_of_the_sequence = Sequence.objects.all().count()
 
-        # We call 2 time for ensure that implement logic for creating sequence for second call
+        # learner_flow is called 2 times (here and below) to ensure that implement logic works correctly
 
         learner_flow(mock_request, self.lti_provider, tool_provider, self.collection1.id, self.test_cg.slug)
         learner_flow(mock_request, self.lti_provider, tool_provider, self.collection1.id, self.test_cg.slug)
