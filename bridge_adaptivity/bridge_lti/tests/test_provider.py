@@ -3,7 +3,7 @@ import logging
 from ddt import data, ddt
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponse
-from django.test import Client, RequestFactory
+from django.test import RequestFactory
 from django.urls import reverse
 from lti.contrib.django import DjangoToolProvider
 import mock
