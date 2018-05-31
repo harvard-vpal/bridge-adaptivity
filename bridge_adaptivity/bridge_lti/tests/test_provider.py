@@ -1,7 +1,7 @@
 import logging
 
-import mock
 from ddt import data, ddt
+import mock
 
 from bridge_lti.provider import learner_flow, lti_launch
 from module.models import Sequence
