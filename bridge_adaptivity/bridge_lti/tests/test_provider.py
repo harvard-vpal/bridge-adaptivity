@@ -57,7 +57,7 @@ class ProviderTest(BridgeTestCase):
         mock_group_slug = '1234-124'
         mock_unique_marker = '434'
 
-        Client().post(
+        self.client.post(
             reverse(
                 'lti:launch',
                 kwargs={
