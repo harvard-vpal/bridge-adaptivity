@@ -111,6 +111,7 @@ class SequenceItem(models.Model):
     activity = models.ForeignKey('Activity', null=True, on_delete=models.CASCADE)
     position = models.PositiveIntegerField(default=1)
     score = models.FloatField(null=True, blank=True, help_text="Grade policy: 'p' (problem's current score).")
+    # NOTE(idegtiarov) suffix is a hash to make unique user_id for the Activity repetition feature.
     suffix = models.CharField(max_length=10, default='')
 
     is_problem = models.BooleanField(default=True)
