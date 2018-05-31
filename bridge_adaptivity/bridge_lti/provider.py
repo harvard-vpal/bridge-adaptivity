@@ -138,7 +138,9 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
 
 
 def announcement_page(request):
-    """Render announcement page."""
+    """
+    Render announcement page.
+    """
     return render(
         request,
         template_name="bridge_lti/announcement.html",
@@ -151,7 +153,9 @@ def announcement_page(request):
 
 
 def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None, unique_marker=''):
-    """Define logic flow for Learner."""
+    """
+    Define logic flow for Learner.
+    """
     if not collection_id:
         return announcement_page(request)
 

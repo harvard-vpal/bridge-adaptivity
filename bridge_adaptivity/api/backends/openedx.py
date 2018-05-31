@@ -210,7 +210,7 @@ def get_available_courses(source_id=None):
 
 def add_to_dict(data, **kwargs):
     """Add key and value to dict only if this pair not exist yet in data dict."""
-    for k, v in list(kwargs.items()):
+    for k, v in kwargs.items():
         if k not in data:
             data[k] = v
     return data
@@ -231,7 +231,7 @@ def apply_data_filter(data, filters=None, **kwargs):
 
     filtered_data = []
     for resource in data:
-        filtered_resource = {k: v for k, v in list(resource.items()) if k in filters}
+        filtered_resource = {k: v for k, v in resource.items() if k in filters}
         filtered_data.append(add_to_dict(filtered_resource, **kwargs))
     return filtered_data
 

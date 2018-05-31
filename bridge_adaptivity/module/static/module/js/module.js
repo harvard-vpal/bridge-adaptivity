@@ -232,15 +232,15 @@
                     return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
                 }
             });
-        const onLoaunchURLCoppy = function (e) {
+        const onLaunchURLCoppy = function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
                 button.removeClass("btn-success")
             }, 2000)
         };
-        launchUrlFetcher.on("success", onLoaunchURLCoppy);
-        launchRepetitionUrlFetcher.on("success", onLoaunchURLCoppy);
+        launchUrlFetcher.on("success", onLaunchURLCoppy);
+        launchRepetitionUrlFetcher.on("success", onLaunchURLCoppy);
 
         var engineFailure = $("#activities").data("engine");
         if (engineFailure){
