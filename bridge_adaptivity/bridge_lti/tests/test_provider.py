@@ -1,7 +1,10 @@
 import logging
 
-from ddt import data, ddt
 import mock
+from ddt import data, ddt
+from django.test import Client
+from django.urls import reverse
+from mock import ANY
 
 from bridge_lti.provider import learner_flow, lti_launch
 from module.models import Sequence
@@ -11,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 @ddt
-class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
+class ProviderTest(BridgeTestCase):
     def lti_launch_request_for_role(self, roles):
         return type('', (object,), {
             'POST': {

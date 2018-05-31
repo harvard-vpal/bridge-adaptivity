@@ -40,8 +40,11 @@
           </td>
           <td>
             <div>
-              <a id="launch-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug unique_marker='set_me_unique' %}">
-                {% bootstrap_button 'copy Launch URL' size='sm' icon='link' %}
+              <a id="launch-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug %}">
+                {% bootstrap_button 'copy Launch URL' size='sm' icon='link'  button_class='btn btn-primary' %}
+              </a>
+              <a id="launch-repetition-url-fetcher" class="" data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_id=collection.id group_slug=group.slug unique_marker='set_me_unique' %}">
+                {% bootstrap_button 'copy Launch URL for repetited collection' size='sm' icon='link' %}
               </a>
               {% with undone=True %}
 

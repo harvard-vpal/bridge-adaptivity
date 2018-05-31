@@ -224,20 +224,23 @@
         }
 
         // Launch URL fetching:
-        let launchUrlFetcher = new Clipboard(
-            '#launch-url-fetcher',
+        const launchUrlFetcher = new Clipboard('#launch-url-fetcher',);
+        const launchRepetitionUrlFetcher = new Clipboard(
+            '#launch-repetition-url-fetcher',
             {
                 text: trigger => {
                     return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
                 }
             });
-        launchUrlFetcher.on("success", function (e) {
+        const onLoaunchURLCoppy = function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
                 button.removeClass("btn-success")
             }, 2000)
-        });
+        };
+        launchUrlFetcher.on("success", onLoaunchURLCoppy);
+        launchRepetitionUrlFetcher.on("success", onLoaunchURLCoppy);
 
         var engineFailure = $("#activities").data("engine");
         if (engineFailure){
