@@ -14,7 +14,7 @@ class TestSourcesView(BridgeTestCase):
 
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
-        super(TestSourcesView, self).setUp()
+        super().setUp()
 
     @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))

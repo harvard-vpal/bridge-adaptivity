@@ -271,7 +271,7 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
 
 class TestBackURLMixin(BridgeTestCase):
     def setUp(self):
-        super(TestBackURLMixin, self).setUp()
+        super().setUp()
         self.back_url = '/test_back_url/'
 
     def test_collection_edit_back_url(self):
@@ -319,7 +319,7 @@ class TestCourseViews(BridgeTestCase):
     """Test case for course read/create/update/delete views."""
 
     def setUp(self):
-        super(TestCourseViews, self).setUp()
+        super().setUp()
 
         self.other_user = BridgeUser.objects.create(
             username='test2',
@@ -458,7 +458,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
 
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
-        super(TestCreateUpdateActivity, self).setUp()
+        super().setUp()
         self.back_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
         self.provider = LtiConsumer.objects.get(id=2)
         self.add_url = reverse('module:activity-add', kwargs={'collection_id': self.collection1.id})
@@ -526,7 +526,7 @@ class TestMultipleContentSources(BridgeTestCase):
 
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
-        super(TestMultipleContentSources, self).setUp()
+        super().setUp()
 
     @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))

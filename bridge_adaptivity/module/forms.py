@@ -38,7 +38,7 @@ class GroupForm(ModelForm):
         fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name'
 
     def clean(self):
-        super(GroupForm, self).clean()
+        super().clean()
         engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
 
         engine_cls = engine.engine_driver
@@ -83,7 +83,7 @@ class AddCourseGroupForm(forms.Form):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         self.course = kwargs.pop('course')
-        super(AddCourseGroupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
 
     groups = forms.ModelMultipleChoiceField(
@@ -103,7 +103,7 @@ class AddCollectionGroupForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         self.group = kwargs.pop('group')
-        super(AddCollectionGroupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['collections'].queryset = self.fields['collections'].queryset.filter(
             owner_id=self.user.id
         ).exclude(collection_groups=self.group)
