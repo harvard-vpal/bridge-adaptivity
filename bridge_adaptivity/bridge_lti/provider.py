@@ -79,7 +79,9 @@ def lti_launch(request, collection_id=None, group_slug='', unique_marker=''):
 
 def instructor_flow(request, collection_id=None):
     """Define logic flow for Instructor."""
-    if not collection_id or not Collection.objects.filter(owner=request.user, id=collection_id):
+    if not request.user.is_authenticated or not collection_id or not Collection.objects.filter(
+        owner=request.user, id=collection_id
+    ):
         return redirect(reverse('module:collection-list'))
 
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
@@ -191,7 +193,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         log.debug("Sequence {} was created".format(sequence))
         start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
-            log.warn('Instructor configured empty Collection.')
+            log.warning('Instructor configured empty Collection.')
             return announcement_page(request)
         sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer

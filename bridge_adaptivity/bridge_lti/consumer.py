@@ -32,6 +32,49 @@ def tool_config(request):
     return HttpResponse(lti_tool_config.to_xml(), content_type='text/xml')
 
 
+def create_lti_launch_params(request, sequence_item_id, consumer_prams):
+    """
+    Construct lti launch parameters to get Activity from the Source.
+
+    :param request: request
+    :param sequence_item_id: id of the sequence_item
+    :param consumer_prams: default consumer params
+    :return: source_name, source_lti_url, updated consumer_prams
+    """
+    if sequence_item_id:
+        # student flow
+        sequence_item = SequenceItem.objects.get(id=sequence_item_id)
+        activity = sequence_item.activity
+
+        content_provider = activity.lti_consumer
+        consumer_prams['consumer_key'] = content_provider.provider_key
+        consumer_prams['consumer_secret'] = content_provider.provider_secret
+
+        source_name = activity.source_name
+        source_lti_url = activity.source_launch_url
+        lis_outcome_service_url = urllib.parse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
+        consumer_prams['params'].update({
+            'user_id': sequence_item.sequence.lti_user.user_id + sequence_item.suffix,
+            'context_id': sequence_item.sequence.collection.name,
+            'resource_link_id': sequence_item.id,
+            # Grading required parameters:
+            'lis_result_sourcedid': '{sequence_item_id}:{user_id}:{activity}:{suffix}'.format(
+                sequence_item_id=sequence_item.id,
+                user_id=sequence_item.sequence.lti_user.user_id,
+                activity=sequence_item.activity.id,
+                suffix=sequence_item.suffix,
+            ),
+            'lis_outcome_service_url': lis_outcome_service_url,
+        })
+    else:
+        source_name = request.GET.get('source_name')
+        source_lti_url = request.GET.get('source_lti_url')
+        if source_lti_url is not None:
+            # NOTE(wowkalucky): Django converts plus sign to space
+            source_lti_url = request.GET.get('source_lti_url').replace(' ', '+')
+    return source_name, source_lti_url, consumer_prams
+
+
 def source_preview(request):
     """View to render Source content block shared through LTI."""
     log.debug("Got request.GET: %s", request.GET)
@@ -67,36 +110,8 @@ def source_preview(request):
         consumer_prams['consumer_key'] = content_provider.provider_key
         consumer_prams['consumer_secret'] = content_provider.provider_secret
 
-    if sequence_item_id:
-        # student flow
-        sequence_item = SequenceItem.objects.get(id=sequence_item_id)
-        activity = sequence_item.activity
+    source_name, source_lti_url, consumer_prams = create_lti_launch_params(request, sequence_item_id, consumer_prams)
 
-        content_provider = activity.lti_consumer
-        consumer_prams['consumer_key'] = content_provider.provider_key
-        consumer_prams['consumer_secret'] = content_provider.provider_secret
-
-        source_name = activity.source_name
-        source_lti_url = activity.source_launch_url
-        lis_outcome_service_url = urllib.parse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
-        consumer_prams['params'].update({
-            'user_id': sequence_item.sequence.lti_user,
-            'context_id': sequence_item.sequence.collection.name,
-            'resource_link_id': sequence_item.id,
-            # Grading required parameters:
-            'lis_result_sourcedid': '{sequence_item_id}:{user_id}:{activity}'.format(
-                sequence_item_id=sequence_item.id,
-                user_id=sequence_item.sequence.lti_user.user_id,
-                activity=sequence_item.activity.id,
-            ),
-            'lis_outcome_service_url': lis_outcome_service_url,
-        })
-    else:
-        source_name = request.GET.get('source_name')
-        source_lti_url = request.GET.get('source_lti_url')
-        if source_lti_url is not None:
-            # NOTE(wowkalucky): Django converts plus sign to space
-            source_lti_url = request.GET.get('source_lti_url').replace(' ', '+')
     consumer_prams.update({'launch_url': source_lti_url})
     log.debug("Sending parameters are: {}".format(consumer_prams))
     consumer = ToolConsumer(**consumer_prams)

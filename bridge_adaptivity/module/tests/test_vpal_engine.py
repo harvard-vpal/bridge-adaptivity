@@ -25,6 +25,7 @@ class TestVPALEngine(TestCase):
             collection=self.collection,
             source_launch_url='test_url_act1',
             stype='html',
+            repetition=2,
         )
         self.a2 = Activity.objects.create(
             name='act2',
@@ -57,9 +58,22 @@ class TestVPALEngine(TestCase):
         self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a1, score=0.4)
         self.sequence_item_2 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a2, score=0.6)
 
-    def test_fulfill_payload(self):
+    def test_fulfill_sequenceitem_payload(self):
         expected = {'activity': self.a1.source_launch_url, 'score': self.sequence_item_1.score, 'is_problem': False}
         payload = self.engine.engine_driver.fulfill_payload(instance_to_parse=self.sequence_item_1)
+        self.assertEqual(payload, expected)
+
+    def test_fulfill_activity_payload(self):
+        expected = {
+            'difficulty': '0.5',
+            'name': 'act1',
+            'repetition': 2,
+            'source_launch_url': 'test_url_act1',
+            'tags': None,
+            'type': 'generic'
+        }
+
+        payload = self.engine.engine_driver.fulfill_payload(payload={}, instance_to_parse=self.a1)
         self.assertEqual(payload, expected)
 
     @patch('requests.post', return_value=Mock(status_code=200))

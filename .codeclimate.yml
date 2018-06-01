@@ -17,7 +17,7 @@ engines:
       languages:
         - javascript:
         - python:
-            python_version: 2
+            python_version: 3
   eslint:
     enabled: true
   markdownlint:
@@ -36,6 +36,12 @@ checks:
   return-statements:
     config:
       threshold: 6
+  method-lines:
+    config:
+      threshold: 50
+  method-complexity:
+    config:
+      threshold: 15
 
 
 ratings:
