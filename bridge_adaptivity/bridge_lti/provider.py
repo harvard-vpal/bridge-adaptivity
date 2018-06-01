@@ -28,8 +28,24 @@ def find_last_sequence_item(sequence, strict_forward):
     return sequence_items.last()
 
 
+def get_tool_provider_for_lti(request):
+    """
+    Return tool provider for the given request.
+
+    In case of invalid lti request return None.
+    """
+    try:
+        tool_provider = DjangoToolProvider.from_django_request(request=request)
+        validator = SignatureValidator()
+        if tool_provider.is_valid_request(validator):
+            return tool_provider
+    except (oauth1.OAuth1Error, InvalidLTIRequestError, ValueError) as err:
+        log.error('Error happened while LTI request: {}'.format(err.__str__()))
+    return None
+
+
 @csrf_exempt
-def lti_launch(request, collection_id=None, group_slug=''):
+def lti_launch(request, collection_id=None, group_slug='', unique_marker=''):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -38,14 +54,9 @@ def lti_launch(request, collection_id=None, group_slug=''):
     - The launch data is correctly signed using a known client key/secret pair
     """
     request_post = request.POST
-    try:
-        tool_provider = DjangoToolProvider.from_django_request(request=request)
-        validator = SignatureValidator()
-        ok = tool_provider.is_valid_request(validator)
-    except (oauth1.OAuth1Error, InvalidLTIRequestError, ValueError) as err:
-        ok = False
-        log.error('Error happened while LTI request: {}'.format(err.__str__()))
-    if not ok:
+    tool_provider = get_tool_provider_for_lti(request)
+
+    if not tool_provider:
         raise Http404('LTI request is not valid')
     request.session['Lti_session'] = request_post['oauth_nonce']
     lti_consumer = LtiProvider.objects.get(consumer_key=request_post['oauth_consumer_key'])
@@ -57,7 +68,12 @@ def lti_launch(request, collection_id=None, group_slug=''):
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
         return learner_flow(
-            request, lti_consumer, tool_provider, collection_id=collection_id, group_slug=group_slug
+            request,
+            lti_consumer,
+            tool_provider,
+            collection_id=collection_id,
+            group_slug=group_slug,
+            unique_marker=unique_marker
         )
 
 
@@ -123,9 +139,11 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None):
-    """Define logic flow for Learner."""
-    anononcement_page = render(
+def announcement_page(request):
+    """
+    Render announcement page.
+    """
+    return render(
         request,
         template_name="bridge_lti/announcement.html",
         context={
@@ -134,13 +152,19 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
             'tip': 'this adaptivity sequence is about to start.',
         }
     )
+
+
+def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None, unique_marker=''):
+    """
+    Define logic flow for Learner.
+    """
     if not collection_id:
-        return anononcement_page
+        return announcement_page(request)
 
     collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
-        user_id=request.POST['user_id'],
+        user_id=request.POST['user_id'] + unique_marker,
         lti_consumer=lti_consumer,
         defaults={'course_id': request.POST['context_id']}
     )
@@ -170,7 +194,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
-            return anononcement_page
+            return announcement_page(request)
         sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer
         )
