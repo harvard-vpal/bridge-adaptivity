@@ -45,8 +45,6 @@ def create_lti_launch_params(request, sequence_item_id, consumer_prams):
         # student flow
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
         activity = sequence_item.activity
-        if activity.repetition > 1:
-            sequence_item.add_suffix()
 
         content_provider = activity.lti_consumer
         consumer_prams['consumer_key'] = content_provider.provider_key
