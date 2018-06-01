@@ -37,7 +37,7 @@ class OpenEdxApiClient(EdxRestApiClient):
                 ttl = expires_at - datetime.now()
                 cache.set(token_cache_key, access_token, ttl.seconds)
 
-        super(OpenEdxApiClient, self).__init__(url, jwt=access_token, **kwargs)
+        super().__init__(url, jwt=access_token, **kwargs)
 
     def get_oauth_access_token(self):
         """
@@ -53,7 +53,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         log.debug("Requesting oauth token: (url={})".format(url))
         try:
             oauth_client = self.content_source.o_auth_client
-            access_token, expires_at = super(OpenEdxApiClient, self).get_oauth_access_token(
+            access_token, expires_at = super().get_oauth_access_token(
                 url=url,
                 client_id=oauth_client.client_id,
                 client_secret=oauth_client.client_secret,

@@ -19,7 +19,7 @@ class ModelFieldIsDefaultMixin(object):
             default_qs = self.__class__.objects.filter(**{self.IS_DEFAULT_FIELD: True})
             if default_qs:
                 default_qs.update(**{self.IS_DEFAULT_FIELD: False})
-        return super(ModelFieldIsDefaultMixin, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 class HasLinkedSequenceMixin(object):

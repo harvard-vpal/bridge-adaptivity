@@ -64,7 +64,7 @@ class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
     context_object_name = 'course'
 
     def form_valid(self, form):
-        response = super(CourseUpdate, self).form_valid(form)
+        response = super().form_valid(form)
         self.object.owner = self.request.user
         return response
 
@@ -87,7 +87,7 @@ class CourseAddGroup(JsonResponseMixin, FormView):
         return self.request.GET.get('return_url') or reverse('module:course-detail', kwargs=self.kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(CourseAddGroup, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         return kwargs
@@ -101,7 +101,7 @@ class CourseRmGroup(UpdateView):
     fields = ('course',)
 
     def get_queryset(self):
-        qs = super(CourseRmGroup, self).get_queryset()
+        qs = super().get_queryset()
         course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
         qs.filter(
             owner=self.request.user,
@@ -142,7 +142,7 @@ class GetGradingPolicyForm(FormView):
         return policy_cls.get_form_class()
 
     def get_form_kwargs(self):
-        kwargs = super(GetGradingPolicyForm, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         if self.kwargs.get('group_slug'):
             group = CollectionGroup.objects.filter(
                 slug=self.kwargs.get('group_slug'),
@@ -154,7 +154,7 @@ class GetGradingPolicyForm(FormView):
 
     def get_form(self, form_class=None):
         self.form_class = self.get_form_class()
-        form = super(GetGradingPolicyForm, self).get_form()
+        form = super().get_form()
         gp = self.request.GET.get('grading_policy')
         if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
@@ -184,7 +184,7 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
         return form.fields['collections'].queryset.exists()
 
     def get_context_data(self, **kwargs):
-        context = super(GroupDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update({
             'bridge_host': settings.BRIDGE_HOST,
         })
@@ -196,7 +196,7 @@ class AddCollectionInGroup(JsonResponseMixin, FormView):
     form_class = AddCollectionGroupForm
 
     def get_form_kwargs(self):
-        kwargs = super(AddCollectionInGroup, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group_slug'))
         return kwargs
@@ -241,7 +241,7 @@ class CollectionDetail(BaseCollectionView, DetailView):
 
     def get_context_data(self, **kwargs):
         activities = Activity.objects.filter(collection=self.object)
-        context = super(CollectionDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
         context['source_courses'] = self.get_content_courses()
@@ -272,7 +272,7 @@ class CollectionDelete(DeleteView):
         return self.request.GET.get('return_url') or reverse('module:collection-list')
 
     def get_queryset(self):
-        return super(CollectionDelete, self).get_queryset().filter(owner=self.request.user)
+        return super().get_queryset().filter(owner=self.request.user)
 
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
@@ -311,7 +311,7 @@ class ActivityCreate(BackURLMixin, CollectionIdToContextMixin, CreateView):
         activity = form.save(commit=False)
         collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
         activity.collection = collection
-        return super(ActivityCreate, self).form_valid(form)
+        return super().form_valid(form)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -330,7 +330,7 @@ class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
                 log.exception("Unknown ordering method!")
             return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
 
-        return super(ActivityUpdate, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 @method_decorator(login_required, name='dispatch')
@@ -344,7 +344,7 @@ class ActivityDelete(DeleteView):
 
     def delete(self, request, *args, **kwargs):
         try:
-            return super(ActivityDelete, self).delete(request, *args, **kwargs)
+            return super().delete(request, *args, **kwargs)
         except (ValidationError, TypeError):
             return redirect("{}?engine=failure".format(self.get_success_url()))
 
@@ -355,7 +355,7 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
     template_name = 'module/sequence_item.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SequenceItemDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         item_filter = {'sequence': self.object.sequence}
         if self.request.session.get('Lti_update_activity') and self.object.sequence.items.all().count() > 1:
             item_filter.update({'score__isnull': False})

@@ -17,13 +17,13 @@ class CollectionIdToContextMixin(object):
     extra_context = {}
 
     def get_context_data(self, **kwargs):
-        context = super(CollectionIdToContextMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['current_collection_id'] = self.kwargs.get('collection_id')
         return context
 
     def form_valid(self, form):
         try:
-            return super(CollectionIdToContextMixin, self).form_valid(form)
+            return super().form_valid(form)
         except (ValidationError, TypeError):
             return redirect("{}?engine=failure".format(self.get_success_url()))
 
@@ -43,7 +43,7 @@ class LtiSessionMixin(object):
                 log.debug("[StrictForward] Session is changed, activity update could be required: {}".format(
                     request.session['Lti_update_activity'])
                 )
-        return super(LtiSessionMixin, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class GroupEditFormMixin(object):
@@ -68,7 +68,7 @@ class GroupEditFormMixin(object):
 
         grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
-            response = super(GroupEditFormMixin, self).form_valid(form)
+            response = super().form_valid(form)
             grading_policy = grading_policy_form.save()
             self.object.grading_policy = grading_policy
             self.object.save()
@@ -77,14 +77,14 @@ class GroupEditFormMixin(object):
         return response
 
     def get_context_data(self, **kwargs):
-        data = super(GroupEditFormMixin, self).get_context_data(**kwargs)
+        data = super().get_context_data(**kwargs)
         form_kw = self.get_grading_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
         data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
         return data
 
     def get_form(self):
-        form = super(GroupEditFormMixin, self).get_form()
+        form = super().get_form()
         collections = Collection.objects.filter(
             owner=self.request.user
         )
@@ -102,13 +102,13 @@ class OnlyMyObjectsMixin(object):
     owner_field = 'owner'
 
     def get_queryset(self):
-        qs = super(OnlyMyObjectsMixin, self).get_queryset()
+        qs = super().get_queryset()
         return qs.filter(**{self.owner_field: self.request.user})
 
 
 class BackURLMixin(object):
     def get_context_data(self, **kwargs):
-        context = super(BackURLMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         back_url = self.request.GET.get('back_url')
         if back_url:
             context['back_url'] = back_url
@@ -122,7 +122,7 @@ class SetUserInFormMixin(object):
     owner_field_name = 'owner'
 
     def get_form(self):
-        form = super(SetUserInFormMixin, self).get_form()
+        form = super().get_form()
         if form.fields.get(self.owner_field_name):
             form.fields['owner'].initial = self.request.user
             form.fields['owner'].widget = forms.HiddenInput(attrs={'readonly': True})
@@ -150,7 +150,7 @@ class LinkObjectsMixin(object):
         raise NotImplementedError("Method get_has_available_objects should be implemented in inherited classes.")
 
     def get_context_data(self, **kwargs):
-        context = super(LinkObjectsMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         form = self.link_form_class(**self.get_link_form_kwargs())
         return_url = self.object.get_absolute_url()
         context.update({

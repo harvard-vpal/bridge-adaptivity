@@ -32,7 +32,7 @@ class TestCollectionAPI(TestApiBase):
 
     @classmethod
     def setUpTestData(cls):
-        super(TestCollectionAPI, cls).setUpTestData()
+        super().setUpTestData()
         cls.list_url = reverse('api:collection-list')
         cls.detail_url = reverse('api:collection-detail', args=[cls.collection.id])
 
@@ -98,7 +98,7 @@ class TestActivityAPI(TestApiBase):
 
     @classmethod
     def setUpTestData(cls):
-        super(TestActivityAPI, cls).setUpTestData()
+        super().setUpTestData()
         cls.list_url = reverse('api:activity-list')
         cls.detail_url = reverse('api:activity-detail', args=[cls.activity.id])
         cls.name = 'test_activity'
