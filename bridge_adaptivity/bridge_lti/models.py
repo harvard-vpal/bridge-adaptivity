@@ -17,7 +17,7 @@ class LtiProvider(models.Model):
     """
 
     consumer_name = models.CharField(max_length=255, unique=True)
-    consumer_key = models.CharField(max_length=32, unique=True, default=short_token)  # index
+    consumer_key = models.CharField(max_length=32, unique=True, default=short_token, db_index=True)
     consumer_secret = models.CharField(max_length=32, unique=True, default=short_token)
     expiration_date = models.DateField(verbose_name='Consumer key expiration date', null=True, blank=True)
     lms_metadata = fields.CharField(max_length=255, null=True, blank=True)
@@ -58,7 +58,7 @@ class LtiConsumer(models.Model):
 class LtiUser(models.Model):
     """Model to manage LTI users."""
 
-    user_id = fields.CharField(max_length=255)
+    user_id = fields.CharField(max_length=255, db_index=True)
     course_id = fields.CharField(max_length=255, blank=True, null=True)
     email = fields.CharField(max_length=255, blank=True, null=True)
     lti_consumer = models.ForeignKey('LtiProvider', on_delete=models.CASCADE)

@@ -301,7 +301,7 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
-    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
     course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
