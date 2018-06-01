@@ -220,6 +220,7 @@ class GroupDelete(BaseGroupView, DeleteView):
         return self.post(*args, **kwargs)
 
 
+@method_decorator(login_required, name='dispatch')
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
 
@@ -469,7 +470,7 @@ def callback_sequence_item_grade(request):
         log.debug("Failure to archive grade from the source: %s" + error_message)
         outcome_response.description = escape(error_message)
         return HttpResponse(outcome_response.generate_response_xml(), content_type='application/xml')
-    sequence_item_id, user_id, _ = outcome_request.lis_result_sourcedid.text.split(':')
+    sequence_item_id, user_id, _activity, _suffix = outcome_request.lis_result_sourcedid.text.split(':')
     outcome_response.code_major = CODE_MAJOR_CODES[0]
     outcome_response.description = 'Score for {sourced_id} is now {score}'.format(
         sourced_id=outcome_request.lis_result_sourcedid, score=score

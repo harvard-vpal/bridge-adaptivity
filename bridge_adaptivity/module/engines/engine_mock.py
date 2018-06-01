@@ -1,6 +1,8 @@
 import logging
 import random
 
+from django.db.models import Count
+
 from module.engines.interface import EngineInterface
 
 log = logging.getLogger(__name__)
@@ -9,6 +11,27 @@ log = logging.getLogger(__name__)
 class EngineMock(EngineInterface):
     """Mock adaptive engine which is used by default if no other engines were added."""
 
+    @staticmethod
+    def _get_s_activities_list(sequence):
+        """
+        Create list with the activities ids which should be excluded from the selection.
+
+        :param sequence: sequence
+        :return: list of ids
+        """
+        s_activities_ids = []
+        s_activities_list = list(
+            sequence.items.values('activity_id', 'activity__repetition').
+            order_by('activity_id').
+            annotate(repeated=Count('activity_id')).
+            values('activity_id', 'repeated', 'activity__repetition')
+        )
+        for i, item in enumerate(s_activities_list):
+            if item['activity__repetition'] > item['repeated']:
+                continue
+            s_activities_ids.append(item['activity_id'])
+        return s_activities_ids
+
     def select_activity(self, sequence):
         """
         Mock engine provides random choice for the activity from the collection on the Bridge.
@@ -16,10 +39,8 @@ class EngineMock(EngineInterface):
         :param sequence: sequence
         :return: selected activity source_launch_url
         """
-        s_activities_list = list(sequence.items.exclude(
-            score__isnull=True,
-            is_problem=True,
-        ).values_list('activity_id', flat=True))
+        s_activities_list = self._get_s_activities_list(sequence)
+
         available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
         pre_assesment = available_activities.filter(atype='A')
         generic = available_activities.filter(atype='G')

@@ -22,8 +22,9 @@ class BridgeTestCase(TestCase):
     group_prefix = GroupEditFormMixin.prefix
     grading_prefix = GroupEditFormMixin.grading_prefix
 
-    def add_prefix(self, prefix='', data={}):
+    def add_prefix(self, prefix='', data=None):
         """Add prefix to form data dict, which will be send as POST or GET to view."""
+        data = data or {}
         return {"{}-{}".format(prefix, k): v for k, v in data.items()}
 
     @patch('module.tasks.sync_collection_engines.apply_async')
@@ -472,6 +473,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
             'source_name': 'Adapt 310',
             'stype': 'problem',
             'points': '0.5',
+            'repetition': 1,
             'lti_consumer': self.provider.id,
             'source_context_id': 'course-v1:MSFT+DAT222x+4T2017'
 

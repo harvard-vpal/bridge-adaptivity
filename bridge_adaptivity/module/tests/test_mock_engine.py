@@ -52,10 +52,10 @@ class TestMockEngine(TestCase):
           {'activities': [{'stype': 'html', 'source_launch_url': 'http://source.url/{}'}],
            'sequence_items': [{'score': None}], 'er': None},
           {'activities': [{'stype': 'problem', 'source_launch_url': 'http://source.url/{}'}],
-           'sequence_items': [{'score': None}], 'er': '__activity__'},
+           'sequence_items': [{'score': None}], 'er': None},
 
-          {'activities': [{'stype': 'problem', 'source_launch_url': 'http://source.url/{}'}],
-          'sequence_items': [{'score': 1}], 'er': None},
+          {'activities': [{'stype': 'problem', 'source_launch_url': 'http://source.url/{}', 'repetition': 2}],
+          'sequence_items': [{'score': 1}], 'er': '__activity__'},
 
           {'activities': [{'stype': 'video', 'source_launch_url': 'http://source.url/{}'}] * 4,
           'sequence_items': [{'score': None}], 'er': "__activity__"},
