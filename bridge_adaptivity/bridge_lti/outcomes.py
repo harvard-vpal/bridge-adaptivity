@@ -33,7 +33,7 @@ def update_lms_grades(request=None, sequence=None, user_id=None):
             user_id, score
         ))
     elif lms_response.has_warning():
-        log.warn("Grade update response has warnings. Student:{}, grade:{}, comment: warning".format(
+        log.warning("Grade update response has warnings. Student:{}, grade:{}, comment: warning".format(
             user_id, score
         ))
     else:

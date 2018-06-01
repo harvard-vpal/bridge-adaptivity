@@ -169,7 +169,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
         log.debug("Sequence {} was created".format(sequence))
         start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
-            log.warn('Instructor configured empty Collection.')
+            log.warning('Instructor configured empty Collection.')
             return anononcement_page
         sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer

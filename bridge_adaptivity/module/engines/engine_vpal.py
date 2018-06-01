@@ -66,7 +66,9 @@ class EngineVPAL(EngineInterface):
             log.error("[VPAL Engine] {} is not {}.".format(obj, action))
             return False
 
-    def fulfill_payload(self, payload={}, instance_to_parse=None, score=None):
+    def fulfill_payload(self, payload=None, instance_to_parse=None, score=None):
+        if payload is None:
+            payload = {}
         from module.models import Activity, SequenceItem
         if isinstance(instance_to_parse, Activity):
             params = ACTIVITY_PARAMS
