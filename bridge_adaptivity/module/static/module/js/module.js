@@ -224,14 +224,23 @@
         }
 
         // Launch URL fetching:
-        var launchUrlFetcher = new Clipboard('#launch-url-fetcher');
-        launchUrlFetcher.on("success", function (e) {
+        const launchUrlFetcher = new Clipboard('#launch-url-fetcher',);
+        const launchRepetitionUrlFetcher = new Clipboard(
+            '#launch-repetition-url-fetcher',
+            {
+                text: trigger => {
+                    return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
+                }
+            });
+        const onLaunchURLCoppy = function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
                 button.removeClass("btn-success")
             }, 2000)
-        });
+        };
+        launchUrlFetcher.on("success", onLaunchURLCoppy);
+        launchRepetitionUrlFetcher.on("success", onLaunchURLCoppy);
 
         var engineFailure = $("#activities").data("engine");
         if (engineFailure){
