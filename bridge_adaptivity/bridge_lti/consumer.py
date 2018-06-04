@@ -54,7 +54,7 @@ def create_lti_launch_params(request, sequence_item_id, consumer_prams):
         source_lti_url = activity.source_launch_url
         lis_outcome_service_url = urllib.parse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
         consumer_prams['params'].update({
-            'user_id': sequence_item.sequence.lti_user.user_id + sequence_item.suffix,
+            'user_id': sequence_item.user_id_for_consumer,
             'context_id': sequence_item.sequence.collection.name,
             'resource_link_id': sequence_item.id,
             # Grading required parameters:

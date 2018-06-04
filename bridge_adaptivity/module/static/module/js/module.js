@@ -224,7 +224,6 @@
         }
 
         // Launch URL fetching:
-        const launchUrlFetcher = new Clipboard('#launch-url-fetcher',);
         const launchRepetitionUrlFetcher = new Clipboard(
             '#launch-repetition-url-fetcher',
             {
@@ -232,15 +231,13 @@
                     return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
                 }
             });
-        const onLaunchURLCoppy = function (e) {
+        launchRepetitionUrlFetcher.on("success",  function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
                 button.removeClass("btn-success")
             }, 2000)
-        };
-        launchUrlFetcher.on("success", onLaunchURLCoppy);
-        launchRepetitionUrlFetcher.on("success", onLaunchURLCoppy);
+        });
 
         var engineFailure = $("#activities").data("engine");
         if (engineFailure){
@@ -326,6 +323,8 @@
             'json')
         });
 
-
+         $('#launch_url_help').tooltip({
+             title:"to insert same group in other unit as group that will be new for user click `copy launch URL` button one more time",
+         });
     });
 }(jQuery));

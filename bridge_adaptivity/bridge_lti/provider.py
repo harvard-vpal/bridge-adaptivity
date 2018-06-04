@@ -164,19 +164,18 @@ def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group
     collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
-        user_id=request.POST['user_id'] + unique_marker,
+        user_id=request.POST['user_id'],
         lti_consumer=lti_consumer,
         defaults={'course_id': request.POST['context_id']}
     )
     log.debug("LTI user {}: user_id='{}'".format('created' if created else 'picked', lti_user.user_id))
 
-    sequence_kw = dict(
+    sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
         collection=collection,
         group=collection_group,
+        suffix=unique_marker,
     )
-
-    sequence, created = Sequence.objects.get_or_create(**sequence_kw)
 
     # Update sequence metadata with lti parameters required by the engine
     sequence.fulfil_sequence_metadata(engine.lti_params, tool_provider.launch_params)
