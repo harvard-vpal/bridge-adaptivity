@@ -101,7 +101,7 @@ class ProviderTest(BridgeTestCase):
         tool_provider = DjangoToolProvider.from_django_request(request=mock_request)
 
         count_of_the_sequence = Sequence.objects.all().count()
-        cout_of_lti_users = LtiUser.objects.all().count()
+        count_of_lti_users = LtiUser.objects.all().count()
 
         # learner_flow is called 2 times (here and below) to ensure that implement logic works correctly
 
@@ -120,4 +120,4 @@ class ProviderTest(BridgeTestCase):
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 2)
 
         # Ensure that only one LTI user was created.
-        self.assertEqual(LtiUser.objects.all().count(), cout_of_lti_users + 1)
+        self.assertEqual(LtiUser.objects.all().count(), count_of_lti_users + 1)

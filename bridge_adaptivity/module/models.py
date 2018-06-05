@@ -81,7 +81,7 @@ class Sequence(models.Model):
 
     metadata = JSONField(default={}, blank=True)
 
-    # NOTE(yura.braiko) suffix is a hash to make unique user_id for the sequence repetition feature.
+    # NOTE(yura.braiko) suffix is a hash to make unique user_id for the collection repetition feature.
     suffix = models.CharField(max_length=15, default='')
 
     class Meta:

@@ -224,14 +224,14 @@
         }
 
         // Launch URL fetching:
-        const launchRepetitionUrlFetcher = new Clipboard(
-            '#launch-repetition-url-fetcher',
+        const launchUrlFetcher = new Clipboard(
+            '#launch-url-fetcher',
             {
                 text: trigger => {
                     return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
                 }
             });
-        launchRepetitionUrlFetcher.on("success",  function (e) {
+        launchUrlFetcher.on("success",  function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
