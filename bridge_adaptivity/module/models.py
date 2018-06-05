@@ -158,7 +158,7 @@ class SequenceItem(models.Model):
 
     @property
     def user_id_for_consumer(self):
-        return f'{self.sequence.lti_user.user_id}|{self.suffix}|{self.sequence_item.suffix}'
+        return f'{self.sequence.lti_user.user_id}|{self.sequence.suffix}|{self.suffix}'
 
 
 @python_2_unicode_compatible

@@ -100,4 +100,8 @@ class SignatureValidator(RequestValidator):
         present, or None if the key does not exist in the database.
         """
         log.debug('Getting client secret')
-        return self.lti_consumer.consumer_secret
+        return self.lti_consumer.consumer_secret if client_key() else None
+
+    def dummy_client(self):
+        log.debug('Getting dummy client')
+        return None
