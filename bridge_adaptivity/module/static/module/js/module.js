@@ -324,7 +324,9 @@
         });
 
          $('#launch_url_help').tooltip({
-             title:"to insert same group in other unit as group that will be new for user click `copy launch URL` button one more time",
+             title:"`copy launch URL` button generates unique LTI Launch URL to the chosen collection. " +
+             "To add the same collection in the one course please use dissimilar URLs for each collection entrance. ",
+
          });
     });
 }(jQuery));
