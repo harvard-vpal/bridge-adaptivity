@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
     def setUp(self):
-        super(RaisedExceptionUsesCustomTemplateTest, self).setUp()
+        super().setUp()
         self.rf = RequestFactory()
         self.correct_kw = {'collection_id': self.collection1.id, 'group_slug': self.test_cg.slug}
         self.not_correct_kw = {'collection_id': self.collection2.id, 'group_slug': self.test_cg.slug}

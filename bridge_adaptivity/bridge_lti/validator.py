@@ -28,7 +28,7 @@ class SignatureValidator(RequestValidator):
     nonce_length = 20, 45
 
     def __init__(self):
-        super(SignatureValidator, self).__init__()
+        super().__init__()
         self.endpoint = SignatureOnlyEndpoint(self)
         self.lti_consumer = None
         self.cache = cache

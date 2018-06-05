@@ -224,23 +224,20 @@
         }
 
         // Launch URL fetching:
-        const launchUrlFetcher = new Clipboard('#launch-url-fetcher',);
-        const launchRepetitionUrlFetcher = new Clipboard(
-            '#launch-repetition-url-fetcher',
+        const launchUrlFetcher = new Clipboard(
+            '#launch-url-fetcher',
             {
                 text: trigger => {
                     return trigger.getAttribute('data-clipboard-text').replace('set_me_unique', (new Date().getTime()))
                 }
             });
-        const onLaunchURLCoppy = function (e) {
+        launchUrlFetcher.on("success",  function (e) {
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
                 button.removeClass("btn-success")
             }, 2000)
-        };
-        launchUrlFetcher.on("success", onLaunchURLCoppy);
-        launchRepetitionUrlFetcher.on("success", onLaunchURLCoppy);
+        });
 
         var engineFailure = $("#activities").data("engine");
         if (engineFailure){
@@ -326,6 +323,11 @@
             'json')
         });
 
+         $('#launch_url_help').tooltip({
+             title: "<b>copy launch URL</b> button generates unique LTI Launch URL to the chosen collection. " +
+             "To add the same collection in the one course please use dissimilar URLs for each collection entrance. ",
+             html: true
 
+         });
     });
 }(jQuery));

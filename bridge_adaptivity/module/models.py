@@ -81,8 +81,14 @@ class Sequence(models.Model):
 
     metadata = JSONField(default={}, blank=True)
 
+    # NOTE(yura.braiko) suffix is a hash to make unique user_id for the collection repetition feature.
+    suffix = models.CharField(max_length=15, default='')
+
     class Meta:
-        unique_together = (('lti_user', 'collection', 'group'), ('lis_result_sourcedid', 'outcome_service'))
+        unique_together = (
+            ('lti_user', 'collection', 'group', 'suffix'),
+            ('lis_result_sourcedid', 'outcome_service')
+        )
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -118,7 +124,7 @@ class SequenceItem(models.Model):
     __origin_score = None
 
     def __init__(self, *args, **kwargs):
-        super(SequenceItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__origin_score = self.score
 
     class Meta:
@@ -148,7 +154,11 @@ class SequenceItem(models.Model):
         if self.activity.repetition > 1:
             self._add_suffix()
         self.is_problem = self.activity.is_problem
-        super(SequenceItem, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
+
+    @property
+    def user_id_for_consumer(self):
+        return f'{self.sequence.lti_user.user_id}|{self.suffix}|{self.sequence_item.suffix}'
 
 
 @python_2_unicode_compatible
@@ -217,7 +227,7 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     def save(self, *args, **kwargs):
         """Extension cover method with logging."""
         initial_id = self.id
-        super(Collection, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         tasks.sync_collection_engines.apply_async(
             kwargs={'collection_id': self.id, 'created_at': self.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
@@ -390,7 +400,7 @@ class Activity(OrderedModel):
                 log_type=Log.ADMIN, action=Log.ACTIVITY_CREATED,
                 data=self.get_research_data()
             )
-        super(Activity, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self.collection.save()
 
     def delete(self, *args, **kwargs):
@@ -399,7 +409,7 @@ class Activity(OrderedModel):
             log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
             data=self.get_research_data()
         )
-        super(Activity, self).delete(*args, **kwargs)
+        super().delete(*args, **kwargs)
         self.collection.save()
 
     @property
