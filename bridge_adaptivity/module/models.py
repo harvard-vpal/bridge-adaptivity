@@ -81,8 +81,14 @@ class Sequence(models.Model):
 
     metadata = JSONField(default={}, blank=True)
 
+    # NOTE(yura.braiko) suffix is a hash to make unique user_id for the collection repetition feature.
+    suffix = models.CharField(max_length=15, default='')
+
     class Meta:
-        unique_together = (('lti_user', 'collection', 'group'), ('lis_result_sourcedid', 'outcome_service'))
+        unique_together = (
+            ('lti_user', 'collection', 'group', 'suffix'),
+            ('lis_result_sourcedid', 'outcome_service')
+        )
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -149,6 +155,10 @@ class SequenceItem(models.Model):
             self._add_suffix()
         self.is_problem = self.activity.is_problem
         super().save(*args, **kwargs)
+
+    @property
+    def user_id_for_consumer(self):
+        return f'{self.sequence.lti_user.user_id}|{self.suffix}|{self.sequence_item.suffix}'
 
 
 @python_2_unicode_compatible
