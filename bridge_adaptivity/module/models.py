@@ -85,10 +85,7 @@ class Sequence(models.Model):
     suffix = models.CharField(max_length=15, default='')
 
     class Meta:
-        unique_together = (
-            ('lti_user', 'collection', 'group', 'suffix'),
-            ('lis_result_sourcedid', 'outcome_service')
-        )
+        unique_together = ('lti_user', 'collection', 'group', 'suffix')
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -158,7 +155,7 @@ class SequenceItem(models.Model):
 
     @property
     def user_id_for_consumer(self):
-        return f'{self.sequence.lti_user.user_id}|{self.sequence.suffix}|{self.suffix}'
+        return f'{self.sequence.lti_user.user_id}{self.sequence.suffix}{self.suffix}'
 
 
 @python_2_unicode_compatible
