@@ -324,7 +324,7 @@
         });
 
          $('#launch_url_help').tooltip({
-             title:"`copy launch URL` button generates unique LTI Launch URL to the chosen collection. " +
+             title: "`copy launch URL` button generates unique LTI Launch URL to the chosen collection. " +
              "To add the same collection in the one course please use dissimilar URLs for each collection entrance. ",
 
          });
