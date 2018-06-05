@@ -197,7 +197,7 @@ class TestActivityModel(TestCase):
             suffix='68686'
         )
         self.assertEqual(
-            f'{self.sequence.lti_user.user_id}|{self.sequence.suffix}|{sequence_item.suffix}',
+            f'{self.sequence.lti_user.user_id}{self.sequence.suffix}{sequence_item.suffix}',
             sequence_item.user_id_for_consumer
         )
 
