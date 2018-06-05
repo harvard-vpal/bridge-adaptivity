@@ -109,5 +109,5 @@ class SignatureValidator(RequestValidator):
 
         :return: Always `None`
         """
-        log.debug('Getting dummy client')
+        log.debug('[Warning] Client key validation failed, getting dummy client then')
         return None
