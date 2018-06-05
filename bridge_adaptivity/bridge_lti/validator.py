@@ -105,7 +105,7 @@ class SignatureValidator(RequestValidator):
     @property
     def dummy_client(self):
         """
-        Dummy client used when an invalid client key is supplied.
+        Return dummy client, which will be used when an invalid client key is supplied.
 
         :return: Always `None`
         """
