@@ -164,9 +164,7 @@ def get_available_blocks(source_id, course_id=''):
         # filter function will be applied to api response
         all_blocks.extend(
             apply_data_filter(
-                api.get_course_blocks(
-                    course_id, type_filter=['html', 'problem', 'video']
-                ),
+                api.get_course_blocks(course_id),
                 filters=['id', 'block_id', 'display_name', 'lti_url', 'type', 'content_source_id'],
                 context_id=course_id,
                 content_source_id=content_source.id
