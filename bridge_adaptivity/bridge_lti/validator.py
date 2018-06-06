@@ -100,4 +100,14 @@ class SignatureValidator(RequestValidator):
         present, or None if the key does not exist in the database.
         """
         log.debug('Getting client secret')
-        return self.lti_consumer.consumer_secret
+        return self.lti_consumer.consumer_secret if client_key else None
+
+    @property
+    def dummy_client(self):
+        """
+        Return dummy client, which will be used when an invalid client key is supplied.
+
+        :return: Always `None`
+        """
+        log.debug('[Warning] Client key validation failed, getting dummy client then')
+        return None

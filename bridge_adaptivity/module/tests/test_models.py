@@ -156,7 +156,7 @@ class TestActivityModel(TestCase):
         )
         self.test_cg.collections.add(self.collection1)
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, group=self.test_cg
+            lti_user=self.lti_user, collection=self.collection1, group=self.test_cg, suffix='12345'
         )
 
     @unpack
@@ -185,6 +185,21 @@ class TestActivityModel(TestCase):
         )
         self.assertTrue(sequence_item.is_problem == activity.is_problem)
         self.assertEqual(sequence_item.is_problem, is_problem)
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def test_sequence_item_user(self, apply_async):
+        activity = Activity.objects.create(
+            name='test', collection=self.collection1, tags='test', atype='G', stype='html'
+        )
+        sequence_item = SequenceItem.objects.create(
+            sequence=self.sequence,
+            activity=activity,
+            suffix='68686'
+        )
+        self.assertEqual(
+            f'{self.sequence.lti_user.user_id}{self.sequence.suffix}{sequence_item.suffix}',
+            sequence_item.user_id_for_consumer
+        )
 
     @patch('module.tasks.sync_collection_engines.apply_async')
     def test_update_sequence_item_with_grade(self, mock_apply_async):
