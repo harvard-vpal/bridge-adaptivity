@@ -28,12 +28,19 @@
                 launch_url: $activityRow.data("activity-source-launch-url")
             }
         });
-        var typeToIcon = {
-            html: "glyphicon-list-alt",
-            problem: "glyphicon-question-sign",
-            video: "glyphicon-facetime-video",
-            other: "glyphicon-option-horizontal"
-        };
+
+        function typeToIcon(itemType) {
+            switch (itemType) {
+                case "html":
+                    return "glyphicon-list-alt";
+                case "problem":
+                    return "glyphicon-question-sign";
+                case "video":
+                    return "glyphicon-facetime-video";
+                default:
+                    return "glyphicon-option-horizontal"
+            }
+        }
 
         var bridgeStateLoad = function() {
             var storageState = JSON.parse(sessionStorage.getItem("bridgeState"));
@@ -131,7 +138,7 @@
                 $("<span/>")
                     .data("toggle", "tooltip")
                     .attr("title", item.type)
-                    .addClass("badge pull-left glyphicon " + typeToIcon[item.type])
+                    .addClass(`badge pull-left glyphicon ${typeToIcon(item.type)}`)
                     .text(" ")
                     .css("margin-right", "5px")
                     .appendTo(listItem);
