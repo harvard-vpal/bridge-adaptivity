@@ -30,15 +30,16 @@
         });
 
         function typeToIcon(itemType) {
-            var mapTypeToIcon = {
-                html: "glyphicon-list-alt",
-                problem: "glyphicon-question-sign",
-                video: "glyphicon-facetime-video"
-            };
-            if (itemType in mapTypeToIcon) {
-                return mapTypeToIcon[itemType]
+            switch (itemType) {
+                case "html":
+                    return "glyphicon-list-alt";
+                case "problem":
+                    return "glyphicon-question-sign";
+                case "video":
+                    return "glyphicon-facetime-video";
+                default:
+                    return "glyphicon-option-horizontal"
             }
-            return "glyphicon-option-horizontal"
         }
 
         var bridgeStateLoad = function() {
@@ -137,7 +138,7 @@
                 $("<span/>")
                     .data("toggle", "tooltip")
                     .attr("title", item.type)
-                    .addClass("badge pull-left glyphicon " + typeToIcon(item.type))
+                    .addClass(`badge pull-left glyphicon ${typeToIcon(item.type)}`)
                     .text(" ")
                     .css("margin-right", "5px")
                     .appendTo(listItem);
