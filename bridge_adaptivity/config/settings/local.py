@@ -39,7 +39,6 @@ MIDDLEWARE += [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = normpath(join(SITE_ROOT, 'static'))
 
