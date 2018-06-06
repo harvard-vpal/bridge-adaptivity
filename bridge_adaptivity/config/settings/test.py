@@ -17,3 +17,6 @@ DATABASES['default'].update(UPDATE_DATABASE)
 SECRET_KEY = 'KEY'
 
 DEBUG = False
+
+# Disable versions of the static file for the tests
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
