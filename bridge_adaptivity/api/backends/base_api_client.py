@@ -14,7 +14,7 @@ class BaseApiClient(slumber.API):
     def url(self):
         return self.content_source.host_url
 
-    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
+    def get_course_blocks(self, course_id):
         """
         Return list of the blocks for given course.
 
@@ -22,11 +22,10 @@ class BaseApiClient(slumber.API):
         """
         resource = self.blocks.get(
             course_id=course_id,
-            all_blocks=all_blocks,
-            depth=depth,
+            all_blocks=True,
+            depth='all',
             requested_fields='lti_url',
-            return_type='list',
-            block_types_filter=type_filter or []
+            return_type='list'
         )
         return resource
 

@@ -76,7 +76,7 @@ class OpenEdxApiClient(BaseApiClient, EdxRestApiClient):
             )
         return access_token, expires_at
 
-    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
-        blocks = super().get_course_blocks(course_id, all_blocks, depth, type_filter)
+    def get_course_blocks(self, course_id):
+        blocks = super().get_course_blocks(course_id)
         filtered_blocks = ['sequential', 'course', 'chapter', 'vertical']
         return [block for block in blocks if block['type'] not in filtered_blocks]
