@@ -51,7 +51,7 @@ class LtiConsumer(models.Model):
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
     host_url = models.URLField(max_length=255, null=True)
-    o_auth_client = models.ForeignKey('api.OAuthClient', null=True, on_delete=models.CASCADE)
+    o_auth_client = models.ForeignKey('api.OAuthClient', default=None, null=True, blank=True, on_delete=models.CASCADE)
     is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
     source_type = models.CharField(choices=SOURCE_TYPE_CHOICES, default=EDX_SOURCE, max_length=100)
 
