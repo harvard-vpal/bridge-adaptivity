@@ -528,9 +528,9 @@ class TestMultipleContentSources(BridgeTestCase):
     def setUp(self, mock_apply_async):
         super().setUp()
 
-    @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
-    @patch('api.backends.openedx.OpenEdxApiClient.get_provider_courses',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses',
            return_value=[{'name': 'name'} for _ in range(10)])
     def test_list_courses_multiple_sources(self, mock_get_provider_courses, mock_get_oauth_access_token):
         url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})

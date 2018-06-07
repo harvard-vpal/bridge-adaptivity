@@ -1,130 +1,14 @@
-from datetime import datetime
 import logging
 
-from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
-from edx_rest_api_client.client import EdxRestApiClient
-from requests import RequestException
-import slumber
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
+from api.backends.base_api_client import BaseApiClient
+from api.backends.edx_api_client import OpenEdxApiClient
 from bridge_lti.models import LtiConsumer
 
+
 log = logging.getLogger(__name__)
-
-
-class BaseApiClient(slumber.API):
-    """
-    Provide base class for the content source API.
-    """
-
-    def __init__(self, content_source):
-        self.content_source = content_source
-        super().__init__(self.url)
-
-    @property
-    def url(self):
-        return self.content_source.host_url
-
-    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
-        """
-        Return list of the blocks for given course.
-
-        Result list item has next structure: {block_id, display_name, lti_url, type}
-        """
-        resource = self.blocks.get(
-            course_id=course_id,
-            all_blocks=all_blocks,
-            depth=depth,
-            requested_fields='lti_url',
-            return_type='list',
-            block_types_filter=type_filter or []
-        )
-        return resource
-
-    def get_provider_courses(self, username=None, org=None, mobile=None):
-        """
-        Return list of the courses.
-
-        Result list item has next structure: {course_id, name, org}
-        """
-        resource = self.courses.get(
-            username=username,
-            org=org,
-            mobile=mobile,
-            page_size=1000,
-        )
-        return resource.get('results')
-
-
-class OpenEdxApiClient(BaseApiClient, EdxRestApiClient):
-    """API client to interact with OpenEdx Course API."""
-
-    TOKEN_URL = "/oauth2/access_token"
-
-    def __init__(self, content_source):
-        BaseApiClient.__init__(self, content_source=content_source)
-        log.debug("Creating new OpenEdx API client...")
-
-        token_cache_key = f'api:{self.content_source.o_auth_client.client_id}:token'
-
-        access_token = cache.get(token_cache_key)
-        if not access_token:
-            access_token, expires_at = self.get_oauth_access_token()
-            ttl = expires_at - datetime.now()
-            cache.set(token_cache_key, access_token, ttl.seconds)
-
-        EdxRestApiClient.__init__(self, self.url, jwt=access_token)
-
-    @property
-    def url(self):
-        return f'{self.content_source.host_url}/api/courses/v1/'
-
-    def get_oauth_access_token(self):
-        """
-        Request OpenEdx API OAuth2 token.
-
-        Token type: JWT (reference: https://jwt.io/).
-        :return: access_token, expires_at
-        """
-        url = "{host_url}{token_url}".format(
-            host_url=self.content_source.host_url,
-            token_url=self.TOKEN_URL
-        )
-        log.debug("Requesting oauth token: (url={})".format(url))
-        try:
-            oauth_client = self.content_source.o_auth_client
-            access_token, expires_at = super().get_oauth_access_token(
-                url=url,
-                client_id=oauth_client.client_id,
-                client_secret=oauth_client.client_secret,
-                token_type='jwt',
-            )
-        except ObjectDoesNotExist:
-            raise HttpClientError(
-                "OAuth token request failure. Please, configure OAuth client in order to be able make API requests."
-            )
-        except ValueError:
-            log.exception(
-                "You may want to check your OAuth registration on LTI Provider."
-                "LTI Provider may be disabled (to enable: LMS config > FEATURES > ENABLE_OAUTH2_PROVIDER: true"
-            )
-            raise HttpClientError(
-                "OAuth token request failure. You may want to check your OAuth registration on LTI Provider or"
-                "enable OAuth Provider."
-            )
-        except RequestException:
-            log.exception('OAuth2 token request to the OpenEdx LTI Provider failed.')
-            raise HttpClientError(
-                "OAuth token request failure. You may want to check your LTI Provider's HOST_URL(https)."
-            )
-        return access_token, expires_at
-
-    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
-        blocks = super().get_course_blocks(course_id, all_blocks, depth, type_filter)
-        filtered_blocks = ['sequential', 'course', 'chapter', 'vertical']
-        return [block for block in blocks if block['type'] not in filtered_blocks]
 
 
 def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:

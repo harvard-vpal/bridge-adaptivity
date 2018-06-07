@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework import viewsets
 from slumber.exceptions import HttpClientError
 
-from api.backends.openedx import get_available_blocks
+from api.backends.api_client import get_available_blocks
 from api.serializers import ActivitySerializer, CollectionSerializer
 from module.models import Activity, Collection
 

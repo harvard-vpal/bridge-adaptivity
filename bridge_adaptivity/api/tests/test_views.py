@@ -16,9 +16,9 @@ class TestSourcesView(BridgeTestCase):
     def setUp(self, mock_apply_async):
         super().setUp()
 
-    @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
-    @patch('api.backends.openedx.OpenEdxApiClient.get_course_blocks',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks',
            return_value=[{'name': 'name'} for _ in range(10)])
     def test_get_course_blocks(self, mock_get_course_blocks, mock_get_oauth_access_token):
         """Should not raise exceptions if LtiConsumer count is 1."""
@@ -38,9 +38,9 @@ class TestSourcesView(BridgeTestCase):
         new_objects = response.json()
         self.assertEqual(len(objects), len(new_objects))
 
-    @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
-    @patch('api.backends.openedx.OpenEdxApiClient.get_course_blocks',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks',
            return_value=[{'name': 'name'} for _ in range(10)])
     def test_get_course_blocks_without_source_id(self, *mocks):
         """Should raise exception if LtiConsumer count is more than 1."""
