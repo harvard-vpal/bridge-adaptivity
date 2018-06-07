@@ -12,6 +12,9 @@ log = logging.getLogger(__name__)
 
 
 def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
+    """
+    Return API client for the given content source.
+    """
     if content_source.source_type == LtiConsumer.EDX_SOURCE:
         return OpenEdxApiClient(content_source)
     return BaseApiClient(content_source)
