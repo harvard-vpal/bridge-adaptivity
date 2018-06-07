@@ -1,12 +1,12 @@
 from datetime import datetime
 import logging
 
-import slumber
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from edx_rest_api_client.client import EdxRestApiClient
 from requests import RequestException
+import slumber
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
 from bridge_lti.models import LtiConsumer
