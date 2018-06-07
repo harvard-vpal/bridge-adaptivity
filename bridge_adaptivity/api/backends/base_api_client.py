@@ -29,16 +29,16 @@ class BaseApiClient(slumber.API):
         )
         return resource
 
-    def get_provider_courses(self, username=None, org=None, mobile=None):
+    def get_provider_courses(self):
         """
         Return list of the courses.
 
         Result list item has next structure: {course_id, name, org}
         """
         resource = self.courses.get(
-            username=username,
-            org=org,
-            mobile=mobile,
+            username=None,
+            org=None,
+            mobile=None,
             page_size=1000,
         )
         return resource.get('results')
