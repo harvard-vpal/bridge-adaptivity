@@ -38,6 +38,14 @@ class LtiConsumer(models.Model):
     Content source connections.
     """
 
+    BASE_SOURCE = "base"
+    EDX_SOURCE = "edx"
+
+    SOURCE_TYPE_CHOICES = (
+        (BASE_SOURCE, "Base Source"),
+        (EDX_SOURCE, "edX Source")
+    )
+
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
@@ -45,6 +53,7 @@ class LtiConsumer(models.Model):
     host_url = models.URLField(max_length=255, null=True)
     o_auth_client = models.ForeignKey('api.OAuthClient', null=True, on_delete=models.CASCADE)
     is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
+    source_type = models.CharField(choices=SOURCE_TYPE_CHOICES, default=EDX_SOURCE, max_length=100)
 
     class Meta:
         verbose_name = "Content Source"

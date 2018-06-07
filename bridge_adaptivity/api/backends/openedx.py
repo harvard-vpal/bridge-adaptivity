@@ -1,6 +1,7 @@
 from datetime import datetime
 import logging
 
+import slumber
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
@@ -13,31 +14,72 @@ from bridge_lti.models import LtiConsumer
 log = logging.getLogger(__name__)
 
 
-class OpenEdxApiClient(EdxRestApiClient):
+class BaseApiClient(slumber.API):
+    """
+    Provide base class for the content source API.
+    """
+
+    def __init__(self, content_source):
+        self.content_source = content_source
+        super().__init__(self.url)
+
+    @property
+    def url(self):
+        return self.content_source.host_url
+
+    def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
+        """
+        Return list of the blocks for given course.
+
+        Result list item has next structure: {block_id, display_name, lti_url, type}
+        """
+        resource = self.blocks.get(
+            course_id=course_id,
+            all_blocks=all_blocks,
+            depth=depth,
+            requested_fields='lti_url',
+            return_type='list',
+            block_types_filter=type_filter or []
+        )
+        return resource
+
+    def get_provider_courses(self, username=None, org=None, mobile=None):
+        """
+        Return list of the courses.
+
+        Result list item has next structure: {course_id, name, org}
+        """
+        resource = self.courses.get(
+            username=username,
+            org=org,
+            mobile=mobile,
+            page_size=1000,
+        )
+        return resource.get('results')
+
+
+class OpenEdxApiClient(BaseApiClient, EdxRestApiClient):
     """API client to interact with OpenEdx Course API."""
 
-    API_URLS = {
-        "get_token": "/oauth2/access_token",
-        "base_url": "/api/courses/v1/",
-    }
+    TOKEN_URL = "/oauth2/access_token"
 
-    def __init__(self, content_source, url=None, jwt=None, **kwargs):
+    def __init__(self, content_source):
+        BaseApiClient.__init__(self, content_source=content_source)
         log.debug("Creating new OpenEdx API client...")
-        self.content_source = content_source
 
-        if not url:
-            url = '{}{}'.format(content_source.host_url, self.API_URLS['base_url'])
-        if not jwt:
-            api_client_id = self.content_source.o_auth_client.client_id
-            token_cache_key = "api:{}:token".format(api_client_id)
+        token_cache_key = f'api:{self.content_source.o_auth_client.client_id}:token'
 
-            access_token = cache.get(token_cache_key)
-            if not access_token:
-                access_token, expires_at = self.get_oauth_access_token()
-                ttl = expires_at - datetime.now()
-                cache.set(token_cache_key, access_token, ttl.seconds)
+        access_token = cache.get(token_cache_key)
+        if not access_token:
+            access_token, expires_at = self.get_oauth_access_token()
+            ttl = expires_at - datetime.now()
+            cache.set(token_cache_key, access_token, ttl.seconds)
 
-        super().__init__(url, jwt=access_token, **kwargs)
+        EdxRestApiClient.__init__(self, self.url, jwt=access_token)
+
+    @property
+    def url(self):
+        return f'{self.content_source.host_url}/api/courses/v1/'
 
     def get_oauth_access_token(self):
         """
@@ -48,7 +90,7 @@ class OpenEdxApiClient(EdxRestApiClient):
         """
         url = "{host_url}{token_url}".format(
             host_url=self.content_source.host_url,
-            token_url=self.API_URLS['get_token']
+            token_url=self.TOKEN_URL
         )
         log.debug("Requesting oauth token: (url={})".format(url))
         try:
@@ -80,46 +122,15 @@ class OpenEdxApiClient(EdxRestApiClient):
         return access_token, expires_at
 
     def get_course_blocks(self, course_id, all_blocks=True, depth='all', type_filter=None):
-        """
-        Provide API GET request to OpenEdx Course Blocks endpoint.
+        blocks = super().get_course_blocks(course_id, all_blocks, depth, type_filter)
+        filtered_blocks = ['sequential', 'course', 'chapter', 'vertical']
+        return [block for block in blocks if block['type'] not in filtered_blocks]
 
-        Optional block type filtering available.
-        Endpoint: /api/courses/v1/blocks/?course_id
-        API query parameters:
-        - block_types_filter=['sequential', 'vertical', 'html', 'problem', 'video', 'discussion']
-        - block_counts=['video', 'problem'...]
-        -
-        see: http://edx.readthedocs.io/projects/edx-platform-api/en/latest/courses/blocks.html#query-parameters
 
-        :param filter_function: partially applied function `apply_data_filter` with filter parameters.
-        :return: (list)
-        """
-        resource = self.blocks.get(
-            course_id=course_id,
-            all_blocks=all_blocks,
-            depth=depth,
-            requested_fields='lti_url',
-            return_type='list',
-            block_types_filter=type_filter or []
-        )
-        return resource
-
-    def get_provider_courses(self, username=None, org=None, mobile=None):
-        """
-        Provide API GET request to OpenEdx Courses Resource endpoint.
-
-        Gets a List of Courses.
-        Endpoint: /api/courses/v1/courses/
-        see: http://edx.readthedocs.io/projects/edx-platform-api/en/latest/courses/courses.html#query-parameters
-        :return: (dict)
-        """
-        resource = self.courses.get(
-            username=username,
-            org=org,
-            mobile=mobile,
-            page_size=1000,
-        )
-        return resource.get('results')
+def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
+    if content_source.source_type == LtiConsumer.EDX_SOURCE:
+        return OpenEdxApiClient(content_source)
+    return BaseApiClient(content_source)
 
 
 def get_active_content_sources(source_id=None, not_allow_empty_source_id=True):
@@ -159,7 +170,7 @@ def get_available_blocks(source_id, course_id=''):
     all_blocks = []
 
     # Get API client instance:
-    api = OpenEdxApiClient(content_source=content_source)
+    api = api_client_factory(content_source=content_source)
     try:
         # filter function will be applied to api response
         all_blocks.extend(
@@ -191,7 +202,7 @@ def get_available_courses(source_id=None):
 
     for content_source in content_sources:
         # Get API client instance:
-        api = OpenEdxApiClient(content_source=content_source)
+        api = api_client_factory(content_source=content_source)
         try:
             all_courses.extend(
                 apply_data_filter(
