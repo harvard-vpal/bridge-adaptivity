@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.urls.base import reverse
 from mock import patch
 
+from api.backends.api_client import get_available_courses, get_available_blocks
 from bridge_lti.models import LtiConsumer
 from module.tests.test_views import BridgeTestCase
 
@@ -38,6 +39,32 @@ class TestSourcesView(BridgeTestCase):
         new_objects = response.json()
         self.assertEqual(len(objects), len(new_objects))
 
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses',
+           return_value=[{'name': 'name'} for _ in range(10)])
+    @patch('api.backends.base_api_client.BaseApiClient.get_provider_courses',
+           return_value=[{'name': 'name'} for _ in range(10)])
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks',
+           return_value=[{'name': 'name'} for _ in range(10)])
+    @patch('api.backends.base_api_client.BaseApiClient.get_course_blocks',
+           return_value=[{'name': 'name'} for _ in range(10)])
+    def test_base_api_client_calls(
+            self,
+            mock_base_get_course_blocks,
+            mock_edx_get_course_blocks,
+            mock_base_get_provider_courses,
+            mock_edx_get_provider_courses
+    ):
+        """
+        Check that get_course_blocks called from the correct place.
+        """
+        get_available_blocks(5)
+        mock_base_get_course_blocks.assert_called_once()
+        mock_edx_get_course_blocks.assert_not_called()
+
+        get_available_courses(5)
+        mock_base_get_provider_courses.assert_called_once()
+        mock_edx_get_provider_courses.assert_not_called()
+
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks',
@@ -50,3 +77,5 @@ class TestSourcesView(BridgeTestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 400)
+
+

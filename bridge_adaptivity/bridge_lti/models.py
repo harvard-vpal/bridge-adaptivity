@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
@@ -61,6 +62,11 @@ class LtiConsumer(models.Model):
 
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
+
+    def clean(self):
+        super().clean()
+        if self.source_type == self.EDX_SOURCE and not self.o_auth_client:
+            raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client')})
 
 
 @python_2_unicode_compatible

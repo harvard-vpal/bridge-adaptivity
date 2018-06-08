@@ -12,7 +12,7 @@ class BaseApiClient(slumber.API):
 
     @property
     def url(self):
-        return self.content_source.host_url
+        return f'{self.content_source.host_url}/api/v1/'
 
     def get_course_blocks(self, course_id):
         """

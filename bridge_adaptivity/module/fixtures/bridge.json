@@ -24,5 +24,19 @@
         "o_auth_client": 3,
         "is_active": true
     }
+},
+{
+    "model": "bridge_lti.lticonsumer",
+    "pk": 5,
+    "fields": {
+        "name": "base-VPAL",
+        "provider_key": "some key",
+        "provider_secret": "some secret",
+        "lti_metadata": null,
+        "host_url": "https://edx-staging-vpal.raccoongang.com",
+        "o_auth_client": null,
+        "is_active": true,
+        "source_type": "base"
+    }
 }
 ]
