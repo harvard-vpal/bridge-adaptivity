@@ -1,11 +1,10 @@
-# coding: utf-8
 import datetime
 from datetime import timedelta
 
 from django.urls.base import reverse
 from mock import patch
 
-from api.backends.api_client import get_available_courses, get_available_blocks
+from api.backends.api_client import get_available_blocks, get_available_courses
 from bridge_lti.models import LtiConsumer
 from module.tests.test_views import BridgeTestCase
 
@@ -77,5 +76,3 @@ class TestSourcesView(BridgeTestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 400)
-
-

@@ -64,6 +64,11 @@ class LtiConsumer(models.Model):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
 
     def clean(self):
+        """
+        Check is model valid.
+
+        Rise validation exception when we try to set edx as a source type without a auth client
+        """
         super().clean()
         if self.source_type == self.EDX_SOURCE and not self.o_auth_client:
             raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client')})
