@@ -540,6 +540,9 @@ class TestMultipleContentSources(BridgeTestCase):
             mock_get_edx_provider_courses,
             mock_get_edx_oauth_access_token
     ):
+        """
+        Test count of courses from the multiple source.
+        """
         url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
         response = self.client.get(url)
         self.assertIn('source_courses', response.context)
@@ -547,7 +550,7 @@ class TestMultipleContentSources(BridgeTestCase):
         total_courses = len(response.context['source_courses'])
 
         # we use 10 because mock function return list with size 10
-        expect_course_count = LtiConsumer.objects.all().count()*10
+        expect_course_count = LtiConsumer.objects.all().count() * 10
 
         self.assertEqual(total_courses, expect_course_count)
 
@@ -562,4 +565,4 @@ class TestMultipleContentSources(BridgeTestCase):
 
         self.assertNotEqual(new_total_courses, total_courses)
         # we use 10 because mock function return list with size 10
-        self.assertEqual(new_total_courses, expect_course_count-10)
+        self.assertEqual(new_total_courses, expect_course_count - 10)
