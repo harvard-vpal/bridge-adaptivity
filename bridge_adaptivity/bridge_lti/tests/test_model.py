@@ -1,5 +1,5 @@
-import pytest
 from django.core.exceptions import ValidationError
+import pytest
 
 from api.models import OAuthClient
 from bridge_lti.models import LtiConsumer
@@ -7,8 +7,14 @@ from module.tests.test_views import BridgeTestCase
 
 
 class BridgeLtiModelTest(BridgeTestCase):
+    """
+    Tests for the bridge_lti models.
+    """
 
-    def test_content_source_creation(self):
+    def test_content_source_validation(self):
+        """
+        Test that LtiConsumer has correct validators.
+        """
         base_args = {
             'name': 'some_name',
             'provider_key': 'provider_key',
