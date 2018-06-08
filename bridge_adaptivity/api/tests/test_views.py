@@ -62,9 +62,16 @@ class TestSourcesView(BridgeTestCase):
         mock_base_get_provider_courses.assert_called_once()
         mock_edx_get_provider_courses.assert_not_called()
 
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
+           return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses')
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks')
-    def test_base_edx_client_calls(self, mock_edx_get_course_blocks, mock_edx_get_provider_courses):
+    def test_base_edx_client_calls(
+            self,
+            mock_edx_get_course_blocks,
+            mock_edx_get_provider_courses,
+            mock_get_oauth_access_token
+    ):
         """
         Check that get_course_blocks and get_provider_courses called from the edx api client.
 
