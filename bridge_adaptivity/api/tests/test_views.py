@@ -50,7 +50,9 @@ class TestSourcesView(BridgeTestCase):
             mock_edx_get_provider_courses
     ):
         """
-        Check that get_course_blocks called from the correct place.
+        Check that get_course_blocks and get_provider_courses called from the correct place.
+
+        We use the id of the content source equal to 5 because in fixture this source has type `base`
         """
         get_available_blocks(5)
         mock_base_get_course_blocks.assert_called_once()
@@ -59,6 +61,20 @@ class TestSourcesView(BridgeTestCase):
         get_available_courses(5)
         mock_base_get_provider_courses.assert_called_once()
         mock_edx_get_provider_courses.assert_not_called()
+
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses')
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks')
+    def test_base_edx_client_calls(self, mock_edx_get_course_blocks, mock_edx_get_provider_courses):
+        """
+        Check that get_course_blocks and get_provider_courses called from the edx api client.
+
+        We use the id of the content source equal to 5 because in fixture this source has type `edx`
+        """
+        get_available_blocks(4)
+        mock_edx_get_course_blocks.assert_called_once()
+
+        get_available_courses(4)
+        mock_edx_get_provider_courses.assert_called_once()
 
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))

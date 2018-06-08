@@ -546,7 +546,10 @@ class TestMultipleContentSources(BridgeTestCase):
         self.assertTrue(response.context['source_courses'])
         total_courses = len(response.context['source_courses'])
 
-        self.assertEqual(total_courses, 30)
+        # we use 10 because mock function return list with size 10
+        expect_course_count = LtiConsumer.objects.all().count()*10
+
+        self.assertEqual(total_courses, expect_course_count)
 
         provider = LtiConsumer.objects.all().first()
         provider.is_active = False
@@ -558,5 +561,5 @@ class TestMultipleContentSources(BridgeTestCase):
         new_total_courses = len(response.context['source_courses'])
 
         self.assertNotEqual(new_total_courses, total_courses)
-        self.assertEqual(total_courses - 10, new_total_courses)
-        self.assertEqual(new_total_courses, 20)
+        # we use 10 because mock function return list with size 10
+        self.assertEqual(new_total_courses, expect_course_count-10)
