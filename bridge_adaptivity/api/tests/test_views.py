@@ -38,14 +38,10 @@ class TestSourcesView(BridgeTestCase):
         new_objects = response.json()
         self.assertEqual(len(objects), len(new_objects))
 
-    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses',
-           return_value=[{'name': 'name'} for _ in range(10)])
-    @patch('api.backends.base_api_client.BaseApiClient.get_provider_courses',
-           return_value=[{'name': 'name'} for _ in range(10)])
-    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks',
-           return_value=[{'name': 'name'} for _ in range(10)])
-    @patch('api.backends.base_api_client.BaseApiClient.get_course_blocks',
-           return_value=[{'name': 'name'} for _ in range(10)])
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses')
+    @patch('api.backends.base_api_client.BaseApiClient.get_provider_courses')
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks')
+    @patch('api.backends.base_api_client.BaseApiClient.get_course_blocks')
     def test_base_api_client_calls(
             self,
             mock_base_get_course_blocks,
