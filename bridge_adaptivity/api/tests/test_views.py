@@ -62,8 +62,10 @@ class TestSourcesView(BridgeTestCase):
         mock_base_get_provider_courses.assert_called_once()
         mock_edx_get_provider_courses.assert_not_called()
 
-    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
-           return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
+    @patch(
+        'api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
+        return_value=('some_token', datetime.datetime.now() + timedelta(days=1))
+    )
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses')
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_course_blocks')
     def test_base_edx_client_calls(
