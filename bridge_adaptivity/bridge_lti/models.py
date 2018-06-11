@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
@@ -38,13 +39,22 @@ class LtiConsumer(models.Model):
     Content source connections.
     """
 
+    BASE_SOURCE = "base"
+    EDX_SOURCE = "edx"
+
+    SOURCE_TYPE_CHOICES = (
+        (BASE_SOURCE, "Base Source"),
+        (EDX_SOURCE, "edX Source")
+    )
+
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
     provider_key = models.CharField(max_length=255)
     provider_secret = models.CharField(max_length=255)
     lti_metadata = fields.CharField(max_length=255, null=True, blank=True)
     host_url = models.URLField(max_length=255, null=True)
-    o_auth_client = models.ForeignKey('api.OAuthClient', null=True, on_delete=models.CASCADE)
+    o_auth_client = models.ForeignKey('api.OAuthClient', default=None, null=True, blank=True, on_delete=models.CASCADE)
     is_active = fields.BooleanField(default=False, help_text=_("Are its sources available for Instructors?"))
+    source_type = models.CharField(choices=SOURCE_TYPE_CHOICES, default=EDX_SOURCE, max_length=100)
 
     class Meta:
         verbose_name = "Content Source"
@@ -52,6 +62,16 @@ class LtiConsumer(models.Model):
 
     def __str__(self):
         return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
+
+    def clean(self):
+        """
+        Check is model valid.
+
+        Rise validation exception when we try to set edx as a source type without a auth client
+        """
+        super().clean()
+        if self.source_type == self.EDX_SOURCE and not self.o_auth_client:
+            raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client')})
 
 
 @python_2_unicode_compatible

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from lti import ToolConfig, ToolConsumer
 
-from api.backends.openedx import get_content_providers
+from api.backends.api_client import get_content_providers
 from module.models import SequenceItem
 
 log = logging.getLogger(__name__)

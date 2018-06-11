@@ -528,18 +528,31 @@ class TestMultipleContentSources(BridgeTestCase):
     def setUp(self, mock_apply_async):
         super().setUp()
 
-    @patch('api.backends.openedx.OpenEdxApiClient.get_oauth_access_token',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
-    @patch('api.backends.openedx.OpenEdxApiClient.get_provider_courses',
+    @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses',
            return_value=[{'name': 'name'} for _ in range(10)])
-    def test_list_courses_multiple_sources(self, mock_get_provider_courses, mock_get_oauth_access_token):
+    @patch('api.backends.base_api_client.BaseApiClient.get_provider_courses',
+           return_value=[{'name': 'name'} for _ in range(10)])
+    def test_list_courses_multiple_sources(
+            self,
+            mock_base_get_provider_courses,
+            mock_get_edx_provider_courses,
+            mock_get_edx_oauth_access_token
+    ):
+        """
+        Test count of courses from the multiple source.
+        """
         url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
         response = self.client.get(url)
         self.assertIn('source_courses', response.context)
         self.assertTrue(response.context['source_courses'])
         total_courses = len(response.context['source_courses'])
 
-        self.assertEqual(total_courses, 20)
+        # we use 10 because mock function return list with size 10
+        expect_course_count = LtiConsumer.objects.all().count() * 10
+
+        self.assertEqual(total_courses, expect_course_count)
 
         provider = LtiConsumer.objects.all().first()
         provider.is_active = False
@@ -551,5 +564,5 @@ class TestMultipleContentSources(BridgeTestCase):
         new_total_courses = len(response.context['source_courses'])
 
         self.assertNotEqual(new_total_courses, total_courses)
-        self.assertEqual(total_courses / 2, new_total_courses)
-        self.assertEqual(new_total_courses, 10)
+        # we use 10 because mock function return list with size 10
+        self.assertEqual(new_total_courses, expect_course_count - 10)
