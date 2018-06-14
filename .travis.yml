@@ -18,7 +18,6 @@ before_script:
   - psql -c "ALTER USER bridge CREATEDB;" -U postgres
   - psql -c "GRANT ALL PRIVILEGES on DATABASE traviscidb to bridge;" -U postgres
 
-
 after_success:
   - coveralls
   - codecov
