@@ -1,7 +1,7 @@
 # Bridge for Adaptivity
 
-[![Travis](https://img.shields.io/travis/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://travis-ci.org/harvard-vpal/bridge-adaptivity)
-[![Code Climate](https://img.shields.io/codeclimate/github/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://codeclimate.com/github/harvard-vpal/bridge-adaptivity)
+[![Build Status](https://travis-ci.org/harvard-vpal/bridge-adaptivity.svg?branch=master)](https://travis-ci.org/harvard-vpal/bridge-adaptivity)
+[![Maintainability](https://api.codeclimate.com/v1/badges/41c39f3bbc4b6afd9a85/maintainability)](https://codeclimate.com/github/harvard-vpal/bridge-adaptivity/maintainability)
 
 ## About
 
@@ -67,18 +67,18 @@ You can run tests locally (directly on your host), or on the docker machine.
 
 * to run tests locally:
     * install requirements with command `pip install -r requirements_local.txt`
-    * run tests: `python manage.py test --settings config.settings.test` or 
+    * run tests: `python manage.py test --settings config.settings.test` or
     just `pytest`. Both commands are equal.
 * to run tests in docker container:
     * create docker container: `docker-compose -f docker-compose_local.yml up -d`
     * run tests: `docker exec -it BFA_local pytest`
-        * if you see an error: 
+        * if you see an error:
           ```
           import file mismatch:
           which is not the same as the test file we want to collect:
           /bridge_adaptivity/config/settings/test.py
           HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
-          ``` 
+          ```
           you should run: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
           and after that retry running the tests: `docker exec -it BFA_local pytest`
 
