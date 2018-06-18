@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from datetime import timedelta
 
 from django.test import TestCase
@@ -8,7 +9,6 @@ from mock import patch
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
 from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy
-
 
 GRADING_POLICIES = (
     # value, display_name
@@ -44,12 +44,7 @@ class BridgeTestCase(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mockEngine')
-        self.test_cg = CollectionGroup.objects.create(
-            name='TestColGroup',
-            owner=self.user,
-            engine=self.engine,
-            grading_policy=self.points_earned
-        )
+        self.test_cg = self.create_group(name='TestColGroup');
         self.test_cg.collections.add(self.collection1)
         self.test_cg.collections.add(self.collection3)
 
@@ -75,6 +70,32 @@ class BridgeTestCase(TestCase):
             expiration_date=datetime.datetime.today() + timedelta(days=1),
             lms_metadata='lms_metadata'
         )
+
+    def create_grading_policy(self, name=None, public_name=None, threshold=None, engine=None, is_default=True):
+        name = name or 'trials_count'
+        public_name = public_name or str(uuid.uuid4())
+        threshold = threshold or 1
+        engine = engine or self.engine
+
+        return GradingPolicy.objects.create(
+            name=name,
+            public_name=public_name,
+            threshold=threshold,
+            engine=engine,
+            is_default=is_default,
+        )
+
+    def create_group(self, name=None, owner=None, engine=None, grading_policy=None) -> CollectionGroup:
+        name = name or str(uuid.uuid4())
+        owner = owner or self.user
+        engine = engine or self.engine
+        grading_policy = grading_policy or self.create_grading_policy()
+        return CollectionGroup.objects.create(name=name, owner=owner, engine=engine, grading_policy=grading_policy)
+
+    def create_course(self, name=None, owner=None) -> Course:
+        name = name or str(uuid.uuid4())
+        owner = owner or self.user
+        return Course.objects.create(name=name, owner=owner)
 
 
 class TestCollectionList(BridgeTestCase):
@@ -183,6 +204,34 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertNotEqual(test_g.name, self.test_cg.name)
         self.assertNotEqual(test_g.description, self.test_cg.description)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
+
+    def test_add_group_to_course(self):
+        group = self.create_group()
+        course = self.create_course()
+        self.assertIsNone(CollectionGroup.objects.get(id=group.id).course)
+        self.client.post(
+            path=reverse('module:add-group-to-course', kwargs={'course_slug': course.slug}),
+            data={'groups': group.id}
+        )
+        self.assertIsNotNone(CollectionGroup.objects.get(id=group.id).course)
+
+    def test_remove_group_from_course(self):
+        group = self.create_group()
+        course = self.create_course()
+        group.course = course
+        group.save()
+        self.assertIsNotNone(CollectionGroup.objects.get(id=group.id).course)
+        self.client.post(
+            path=reverse(
+                'module:rm-group-from-course',
+                kwargs={
+                    'course_slug': course.slug,
+                    'group_slug': group.slug,
+                })
+        )
+        self.assertIsNone(CollectionGroup.objects.get(id=group.id).course)
+
+
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
