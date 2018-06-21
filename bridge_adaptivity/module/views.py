@@ -22,8 +22,8 @@ from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    BackURLMixin, CollectionIdToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin,
-    OnlyMyObjectsMixin, SetUserInFormMixin
+    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
+    LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
@@ -303,19 +303,19 @@ class CollectionGroupDelete(DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(BackURLMixin, CollectionIdToContextMixin, CreateView):
+class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, CreateView):
     model = Activity
     form_class = ActivityForm
 
     def form_valid(self, form):
         activity = form.save(commit=False)
-        collection = Collection.objects.get(pk=self.kwargs.get('collection_id'))
+        collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
         activity.collection = collection
         return super().form_valid(form)
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
+class ActivityUpdate(CollectionSlugToContextMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
     context_object_name = 'activity'
@@ -328,7 +328,7 @@ class ActivityUpdate(CollectionIdToContextMixin, UpdateView):
                 getattr(activity, kwargs['direction'])()
             except AttributeError:
                 log.exception("Unknown ordering method!")
-            return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
+            return redirect(reverse('module:collection-detail', kwargs={'slug': activity.collection.slug}))
 
         return super().get(request, *args, **kwargs)
 
@@ -339,7 +339,7 @@ class ActivityDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:collection-detail', kwargs={'pk': self.object.collection.id}
+            'module:collection-detail', kwargs={'slug': self.object.collection.slug}
         )
 
     def delete(self, request, *args, **kwargs):
@@ -513,15 +513,15 @@ def callback_sequence_item_grade(request):
     return HttpResponse(xml, content_type="application/xml")
 
 
-def sync_collection(request, pk):
+def sync_collection(request, slug):
     """
     Synchronize collection immediately.
     """
     back_url = request.GET.get('back_url')
-    collection = get_object_or_404(Collection, pk=pk)
+    collection = get_object_or_404(Collection, slug=slug)
     collection.save()
     log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
     tasks.sync_collection_engines.delay(
-        collection_id=pk, created_at=collection.updated_at
+        collection_slug=slug, created_at=collection.updated_at
     )
-    return redirect(reverse('module:collection-detail', kwargs={'pk': pk}) + '?back_url={}'.format(back_url))
+    return redirect(reverse('module:collection-detail', kwargs={'slug': slug}) + '?back_url={}'.format(back_url))

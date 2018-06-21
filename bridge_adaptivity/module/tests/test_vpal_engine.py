@@ -87,7 +87,7 @@ class TestVPALEngine(TestCase):
         )
         expected_payload = {
             "learner": self.sequence.lti_user.id,
-            "collection": self.sequence.collection.id,
+            "collection": self.sequence.collection.slug,
             lti_param: self.sequence.metadata[lti_param],
             "sequence": [
                 {

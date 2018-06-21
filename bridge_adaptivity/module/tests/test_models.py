@@ -207,7 +207,7 @@ class TestActivityModel(TestCase):
             name='test', collection=self.collection1, tags='test', atype='G', stype='problem'
         )
         mock_apply_async.assert_called_once_with(
-            kwargs={'collection_id': self.collection1.id, 'created_at': self.collection1.updated_at},
+            kwargs={'collection_slug': self.collection1.slug, 'created_at': self.collection1.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
         sequence_item = SequenceItem.objects.create(
