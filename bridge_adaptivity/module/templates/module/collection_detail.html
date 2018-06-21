@@ -6,7 +6,7 @@
   <h3>
     {% if sync_available %}
     <a class="pull-right require-submission"
-       href="{% url 'module:collection-sync' collection.id %}?back_url={{ back_url }}"
+       href="{% url 'module:collection-sync' collection.slug %}?back_url={{ back_url }}"
        data-confirmation-msg="Collection will be synchronized immediately!">
         {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
     </a>
@@ -18,7 +18,7 @@
         {% endif %}">
         {% bootstrap_button "Delete" size='sm' icon='trash' %}
     </a>
-    <a class="pull-right" href="{% url 'module:collection-change' collection.id %}">
+    <a class="pull-right" href="{% url 'module:collection-change' collection.slug %}">
         {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
   </h3>
@@ -51,7 +51,7 @@
                 data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
             >
               <td class="text-left">
-                <a href="{% url 'module:activity-change' activity.pk collection.pk %}">
+                <a href="{% url 'module:activity-change' activity.pk collection.slug %}">
                   {{ activity.name }}
                   <div>
                     {% if activity.atype == 'A' %}
@@ -80,7 +80,7 @@
                   {% endif %} pull-right" data-id="{{ activity.id }}">
                     {% bootstrap_button "" size='sm' icon='trash' %}
                   </a>
-                  <a class="pull-right" href="{% url 'module:activity-change' activity.pk collection.pk %}">
+                  <a class="pull-right" href="{% url 'module:activity-change' activity.pk collection.slug %}">
                     {% bootstrap_button "" size='sm' icon='edit' %}
                   </a>
                   {% ifnotequal activity.atype 'G' %}

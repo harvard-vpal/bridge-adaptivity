@@ -104,7 +104,7 @@ class EngineVPAL(EngineInterface):
         reco_url = urllib.parse.urljoin(
             "{}/".format(self.activity_url), "recommend"
         )
-        payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.id, "sequence": []}
+        payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.slug, "sequence": []}
         if sequence.metadata:
             payload.update(sequence.metadata)  # payload is updated with the lti parameters
         for sequence_item in sequence.items.all():

@@ -120,7 +120,7 @@ class ProviderTest(BridgeTestCase):
         )
         learner_flow(
             mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug, 'marker2'
-        )
+            )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 2)
 
         # Ensure that only one LTI user was created.

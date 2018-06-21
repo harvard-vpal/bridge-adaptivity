@@ -328,7 +328,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, UpdateView):
                 getattr(activity, kwargs['direction'])()
             except AttributeError:
                 log.exception("Unknown ordering method!")
-            return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
+            return redirect(reverse('module:collection-detail', kwargs={'slug': activity.collection.slug}))
 
         return super().get(request, *args, **kwargs)
 
@@ -339,7 +339,7 @@ class ActivityDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:collection-detail', kwargs={'pk': self.object.collection.id}
+            'module:collection-detail', kwargs={'slug': self.object.collection.slug}
         )
 
     def delete(self, request, *args, **kwargs):

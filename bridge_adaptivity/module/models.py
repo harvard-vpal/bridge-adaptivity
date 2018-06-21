@@ -215,7 +215,8 @@ class Collection(HasLinkedSequenceMixin, models.Model):
         populate_from='name',
         unique=True,
         db_index=True,
-        help_text="Add the slug for the collection. If field empty slug will be created automatically."
+        help_text="Add the slug for the collection. If field empty slug will be created automatically.",
+        verbose_name='slug id'
     )
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)

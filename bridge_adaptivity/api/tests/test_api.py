@@ -34,7 +34,7 @@ class TestCollectionAPI(TestApiBase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.list_url = reverse('api:collection-list')
-        cls.detail_url = reverse('api:collection-detail', args=[cls.collection.id])
+        cls.detail_url = reverse('api:collection-detail', args=[cls.collection.slug])
 
     def test_get_collection(self):
         response = self.client.get(self.list_url)
