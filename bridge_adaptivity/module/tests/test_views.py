@@ -323,7 +323,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collection_edit_back_url(self):
         """Test back_url param is added into context in collection change view."""
         url = (
-            reverse('module:collection-change', kwargs={'pk': self.collection1.id}) +
+            reverse('module:collection-change', kwargs={'slug': self.collection1.slug}) +
             '?back_url={}'.format(self.back_url)
         )
         change_response = self.client.get(url)
@@ -333,7 +333,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collection_detail_back_url(self):
         """Test back_url param is added into context navigation from collection detail view."""
         url_detail = (
-            reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) +
+            reverse('module:collection-detail', kwargs={'slug': self.collection1.slug}) +
             '?back_url={}'.format(self.back_url)
         )
         detail_response = self.client.get(url_detail)
@@ -477,13 +477,13 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_id = self.collection1.id
-        expected_url = reverse('module:collection-detail', kwargs={'pk': col_id}) + '?back_url=None'
-        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        col_slug = self.collection1.slug
+        expected_url = reverse('module:collection-detail', kwargs={'slug': col_slug}) + '?back_url=None'
+        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(
-            collection_id=str(col_id),
-            created_at=Collection.objects.get(pk=col_id).updated_at
+            collection_slug=str(col_slug),
+            created_at=Collection.objects.get(slug=col_slug).updated_at
         )
         self.assertRedirects(response, expected_url)
 
@@ -493,8 +493,8 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization_incorrect_pk(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_id = 345
-        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        col_slug = 345
+        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -505,9 +505,9 @@ class TestCreateUpdateActivity(BridgeTestCase):
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
         super().setUp()
-        self.back_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
+        self.back_url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
         self.provider = LtiConsumer.objects.get(id=2)
-        self.add_url = reverse('module:activity-add', kwargs={'collection_id': self.collection1.id})
+        self.add_url = reverse('module:activity-add', kwargs={'collection_slug': self.collection1.slug})
         self.create_data = {
             'name': 'Adapt 310',
             'tags': '',
@@ -552,7 +552,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
         }
         data = self.create_data.copy()
         data.update(update_data)
-        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_id': self.collection1.id})
+        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_slug': self.collection1.slug})
         response = self.client.post(url, data)
         self.assertEqual(activity_count, Activity.objects.count())
 
@@ -589,7 +589,7 @@ class TestMultipleContentSources(BridgeTestCase):
         """
         Test count of courses from the multiple source.
         """
-        url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
+        url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
         response = self.client.get(url)
         self.assertIn('source_courses', response.context)
         self.assertTrue(response.context['source_courses'])

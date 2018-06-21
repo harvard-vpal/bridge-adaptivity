@@ -40,7 +40,7 @@ request:
 ```json
 {
     learner: <user_id>,
-    collection: <collection_id>
+    collection: <collection_slug>
     lis_person_sourcedid: <value from the launch LTI request>
     sequence: [ # List of already taken activities
         {

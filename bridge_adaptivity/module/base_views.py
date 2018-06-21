@@ -30,6 +30,6 @@ class BaseGroupView(OnlyMyObjectsMixin, BackURLMixin):
 
 
 class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
-    fields = ['name', 'metadata', 'strict_forward', 'owner']
+    fields = ['name', 'slug', 'metadata', 'strict_forward', 'owner']
     model = Collection
     ordering = ['id']

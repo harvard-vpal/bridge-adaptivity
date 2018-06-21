@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import reverse_lazy
+from django.urls import path, reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
@@ -37,16 +37,15 @@ urlpatterns = ([
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/change/$', CollectionUpdate.as_view(),
-        name='collection-change'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$', CollectionDetail.as_view(),
+    path('collection/<slug:slug>/change/$', CollectionUpdate.as_view(), name='collection-change'),
+    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/$', CollectionDetail.as_view(),
         name='collection-detail'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/delete/?$', CollectionDelete.as_view(),
+    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$', CollectionDelete.as_view(),
         name='collection-delete'),
 
-    url(r'^activity/(?P<collection_id>\d+)/add/$', ActivityCreate.as_view(), name='activity-add'),
+    url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
-        r'^activity/(?P<pk>\d+)/(?P<collection_id>\d+)/change/$',
+        r'^activity/(?P<pk>\d+)/(?P<collection_slug>[\w-]+)/change/$',
         ActivityUpdate.as_view(),
         name='activity-change'
     ),
@@ -69,5 +68,5 @@ urlpatterns = ([
     url(r'^callback_grade/$', callback_sequence_item_grade, name='sequence-item-grade'),
 
     # Sync collection with relative engines
-    url(r'^collection/(?P<pk>\d+)/sync/$', sync_collection, name='collection-sync'),
+    url(r'^collection/(?P<slug>[\w-]+)/sync/$', sync_collection, name='collection-sync'),
 ], 'module')
