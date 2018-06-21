@@ -54,6 +54,7 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
     - The launch data is correctly signed using a known client key/secret pair
     """
     request_post = request.POST
+    log.error(f"LTI request payload: {request_post}")
     tool_provider = get_tool_provider_for_lti(request)
 
     if not tool_provider:
