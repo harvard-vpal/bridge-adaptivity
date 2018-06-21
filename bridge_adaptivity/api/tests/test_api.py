@@ -34,7 +34,7 @@ class TestCollectionAPI(TestApiBase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.list_url = reverse('api:collection-list')
-        cls.detail_url = reverse('api:collection-detail', args=[cls.collection.slug])
+        cls.detail_url = reverse('api:collection-detail', args=[cls.collection.id])
 
     def test_get_collection(self):
         response = self.client.get(self.list_url)
@@ -61,7 +61,7 @@ class TestCollectionAPI(TestApiBase):
         name = 'test_collection'
         data = {
             'name': name,
-            'slug': '{}1'.format(name),
+            'slug': f'{name}1',
             "metadata": None,
             "strict_forward": True,
             "owner": self.user.id
@@ -77,7 +77,7 @@ class TestCollectionAPI(TestApiBase):
         name = 'test_collection'
         data = {
             'name': name,
-            'slug': '{}1'.format(name),
+            'slug': f'{name}1',
             "metadata": None,
             "strict_forward": True,
             "owner": self.user.id

@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import reverse_lazy
+from django.urls import path, reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
@@ -37,8 +37,7 @@ urlpatterns = ([
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/change/$', CollectionUpdate.as_view(),
-        name='collection-change'),
+    path('collection/<slug:slug>/change/$', CollectionUpdate.as_view(), name='collection-change'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/$', CollectionDetail.as_view(),
         name='collection-detail'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$', CollectionDelete.as_view(),

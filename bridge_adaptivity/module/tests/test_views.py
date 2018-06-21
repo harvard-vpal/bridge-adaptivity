@@ -431,13 +431,13 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_id = self.collection1.slug
-        expected_url = reverse('module:collection-detail', kwargs={'slug': col_id}) + '?back_url=None'
-        url = reverse('module:collection-sync', kwargs={'slug': col_id})
+        col_slug = self.collection1.slug
+        expected_url = reverse('module:collection-detail', kwargs={'slug': col_slug}) + '?back_url=None'
+        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(
-            collection_slug=str(col_id),
-            created_at=Collection.objects.get(slug=col_id).updated_at
+            collection_slug=str(col_slug),
+            created_at=Collection.objects.get(slug=col_slug).updated_at
         )
         self.assertRedirects(response, expected_url)
 
@@ -447,8 +447,8 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization_incorrect_pk(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_id = 345
-        url = reverse('module:collection-sync', kwargs={'slug': col_id})
+        col_slug = 345
+        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
