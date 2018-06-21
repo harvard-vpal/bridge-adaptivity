@@ -10,7 +10,7 @@
         <h4 class="modal-title" id="activityModalLabel">Activity configuration</h4>
       </div>
       <div class="modal-body">
-        <form role="form" method="post" action="{% url 'module:activity-add' collection_id=collection.id %}">
+        <form role="form" method="post" action="{% url 'module:activity-add' collection_slug=collection.slug %}">
           {% csrf_token %}
 
           {% for field in activity_form %}

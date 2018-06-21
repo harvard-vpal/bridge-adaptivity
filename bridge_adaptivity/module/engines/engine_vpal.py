@@ -121,7 +121,7 @@ class EngineVPAL(EngineInterface):
 
         :param collection: Collection instance for synchronization
         """
-        sync_url = urllib.parse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.id))
+        sync_url = urllib.parse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.slug))
         payload = []
         for activity in collection.activities.all():
             payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))
@@ -153,8 +153,8 @@ class EngineVPAL(EngineInterface):
         :param sequence: Sequence instance
         :return: grade returned from engine
         """
-        url = urllib.parse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
-            collection_id=sequence.collection.id)
+        url = urllib.parse.urljoin(self.base_url, 'collection/{collection_slug}/grade'.format(
+            collection_slug=sequence.collection.slug)
         )
         response = requests.post(url, json={'learner': sequence.lti_user.id}, headers=self.headers)
         if self.check_engine_response(response.status_code, action='grade', obj='sequence'):

@@ -61,6 +61,7 @@ class TestCollectionAPI(TestApiBase):
         name = 'test_collection'
         data = {
             'name': name,
+            'slug': '{}1'.format(name),
             "metadata": None,
             "strict_forward": True,
             "owner": self.user.id
@@ -76,6 +77,7 @@ class TestCollectionAPI(TestApiBase):
         name = 'test_collection'
         data = {
             'name': name,
+            'slug': '{}1'.format(name),
             "metadata": None,
             "strict_forward": True,
             "owner": self.user.id

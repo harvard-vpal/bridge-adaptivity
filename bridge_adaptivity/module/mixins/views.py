@@ -13,12 +13,12 @@ from module.models import Collection, CollectionGroup, Course, Engine, GRADING_P
 log = logging.getLogger(__name__)
 
 
-class CollectionIdToContextMixin(object):
+class CollectionSlugToContextMixin(object):
     extra_context = {}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['current_collection_id'] = self.kwargs.get('collection_id')
+        context['current_collection_slug'] = self.kwargs.get('collection_slug')
         return context
 
     def form_valid(self, form):

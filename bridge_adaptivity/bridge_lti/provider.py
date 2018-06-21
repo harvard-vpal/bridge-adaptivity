@@ -45,7 +45,7 @@ def get_tool_provider_for_lti(request):
 
 
 @csrf_exempt
-def lti_launch(request, collection_id=None, group_slug='', unique_marker=''):
+def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -54,6 +54,7 @@ def lti_launch(request, collection_id=None, group_slug='', unique_marker=''):
     - The launch data is correctly signed using a known client key/secret pair
     """
     request_post = request.POST
+    log.error(f"LTI request payload: {request_post}")
     tool_provider = get_tool_provider_for_lti(request)
 
     if not tool_provider:
@@ -63,7 +64,7 @@ def lti_launch(request, collection_id=None, group_slug='', unique_marker=''):
     roles = request_post.get('roles')
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
-        return instructor_flow(request, collection_id=collection_id)
+        return instructor_flow(request, collection_slug=collection_slug)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
@@ -71,25 +72,25 @@ def lti_launch(request, collection_id=None, group_slug='', unique_marker=''):
             request,
             lti_consumer,
             tool_provider,
-            collection_id=collection_id,
+            collection_slug=collection_slug,
             group_slug=group_slug,
             unique_marker=unique_marker
         )
 
 
-def instructor_flow(request, collection_id=None):
+def instructor_flow(request, collection_slug=None):
     """Define logic flow for Instructor."""
-    if not request.user.is_authenticated or not collection_id or not Collection.objects.filter(
-        owner=request.user, id=collection_id
+    if not request.user.is_authenticated or not collection_slug or not Collection.objects.filter(
+        owner=request.user, slug=collection_slug
     ):
         return redirect(reverse('module:collection-list'))
 
-    return redirect(reverse('module:collection-detail', kwargs={'pk': collection_id}))
+    return redirect(reverse('module:collection-detail', kwargs={'slug': collection_slug}))
 
 
-def get_collection_collectiongroup_engine(collection_id, group_slug):
-    """Return collection and collection group by collection_id and group_slug."""
-    collection = Collection.objects.filter(id=collection_id).first()
+def get_collection_collectiongroup_engine(collection_slug, group_slug):
+    """Return collection and collection group by collection_slug and group_slug."""
+    collection = Collection.objects.filter(slug=collection_slug).first()
     if not collection:
         log.exception("Collection with provided ID does not exist. Check configured launch url.")
         raise Http404('Bad launch_url collection ID.')
@@ -104,8 +105,8 @@ def get_collection_collectiongroup_engine(collection_id, group_slug):
 
     if collection not in collection_group.collections.all():
         raise Http404(
-            'The launch URL is not correctly configured. Collection with the ID `{}` is not in group with slug `{}`'
-            .format(collection_id, group_slug)
+            'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
+            .format(collection_slug, group_slug)
         )
 
     if collection_group:
@@ -154,14 +155,14 @@ def announcement_page(request):
     )
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_id=None, group_slug=None, unique_marker=''):
+def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, group_slug=None, unique_marker=''):
     """
     Define logic flow for Learner.
     """
-    if not collection_id:
+    if not collection_slug:
         return announcement_page(request)
 
-    collection, collection_group, engine = get_collection_collectiongroup_engine(collection_id, group_slug)
+    collection, collection_group, engine = get_collection_collectiongroup_engine(collection_slug, group_slug)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],

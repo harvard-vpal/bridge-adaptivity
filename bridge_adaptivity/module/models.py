@@ -15,6 +15,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 import shortuuid
+from slugger import AutoSlugField
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
@@ -210,6 +211,12 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
+    slug = AutoSlugField(
+        populate_from='name',
+        unique=True,
+        db_index=True,
+        help_text="Add the slug for the collection. If field empty slug will be created automatically."
+    )
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     strict_forward = fields.BooleanField(default=True)
@@ -226,7 +233,7 @@ class Collection(HasLinkedSequenceMixin, models.Model):
         initial_id = self.id
         super().save(*args, **kwargs)
         tasks.sync_collection_engines.apply_async(
-            kwargs={'collection_id': self.id, 'created_at': self.updated_at},
+            kwargs={'collection_slug': self.slug, 'created_at': self.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
 
@@ -247,7 +254,7 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     def get_launch_url(self, group):
         return "{}{}".format(
             settings.BRIDGE_HOST,
-            reverse("lti:launch", kwargs={'collection_id': self.id, 'group_slug': group.slug}))
+            reverse("lti:launch", kwargs={'collection_slug': self.slug, 'group_slug': group.slug}))
 
 
 @python_2_unicode_compatible
@@ -382,7 +389,7 @@ class Activity(OrderedModel):
         return '<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.collection.pk})
+        return reverse('module:collection-detail', kwargs={'slug': self.collection.slug})
 
     def save(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is created/updated."""
