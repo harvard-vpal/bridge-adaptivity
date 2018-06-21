@@ -22,14 +22,14 @@ class TestTask(TestCase):
     def test_collection_engine_sync(self, mock_sync_collection_activities, mock_apply_async):
         collection = Collection.objects.create(name='test_col', owner=self.user)
         mock_apply_async.assert_called_once_with(
-            kwargs={'collection_id': collection.id, 'created_at': collection.updated_at},
+            kwargs={'collection_slug': collection.slug, 'created_at': collection.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
         self.collection_group.collections.add(collection)
         self.activity = Activity.objects.create(name='testA1', collection=collection)
         mock_apply_async.assert_called_with(
-            kwargs={'collection_id': collection.id, 'created_at': collection.updated_at},
+            kwargs={'collection_slug': collection.slug, 'created_at': collection.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
-        sync_collection_engines(collection_id=collection.id, created_at=collection.updated_at)
+        sync_collection_engines(collection_slug=collection.slug, created_at=collection.updated_at)
         mock_sync_collection_activities.assert_called_once_with(collection)
