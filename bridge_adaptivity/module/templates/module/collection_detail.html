@@ -191,7 +191,7 @@
   {% include "module/modals/activity_modal.html" with collection=object %}
   {% include "module/modals/engine_failure_modal.html" %}
 
-  {% url 'module:collection-delete' pk=object.id as delete_url %}
+  {% url 'module:collection-delete' slug=object.slug as delete_url %}
 
   {% if collection.has_linked_active_sequences %}
     {% with message="At least one student is still working on the collection: " %}
