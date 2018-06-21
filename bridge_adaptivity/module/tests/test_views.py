@@ -43,7 +43,7 @@ class BridgeTestCase(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mockEngine')
-        self.test_cg = self.create_group(name='TestColGroup')
+        self.test_cg = self.create_group(name='TestColGroup', grading_policy=self.points_earned)
         self.test_cg.collections.add(self.collection1)
         self.test_cg.collections.add(self.collection3)
 
