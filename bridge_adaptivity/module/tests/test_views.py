@@ -1,6 +1,5 @@
 import datetime
 import uuid
-from datetime import timedelta
 
 from django.test import TestCase
 from django.urls.base import reverse
@@ -44,7 +43,7 @@ class BridgeTestCase(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mockEngine')
-        self.test_cg = self.create_group(name='TestColGroup');
+        self.test_cg = self.create_group(name='TestColGroup')
         self.test_cg.collections.add(self.collection1)
         self.test_cg.collections.add(self.collection3)
 
@@ -67,7 +66,7 @@ class BridgeTestCase(TestCase):
             consumer_name='consumer_name',
             consumer_key='consumer_key',
             consumer_secret='consumer_secret',
-            expiration_date=datetime.datetime.today() + timedelta(days=1),
+            expiration_date=datetime.datetime.today() + datetime.timedelta(days=1),
             lms_metadata='lms_metadata'
         )
 
@@ -230,8 +229,6 @@ class TestCollectionGroup(BridgeTestCase):
                 })
         )
         self.assertIsNone(CollectionGroup.objects.get(id=group.id).course)
-
-
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
@@ -578,7 +575,7 @@ class TestMultipleContentSources(BridgeTestCase):
         super().setUp()
 
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
-           return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
+           return_value=('some_token', datetime.datetime.now() + datetime.timedelta(days=1)))
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses',
            return_value=[{'name': 'name'} for _ in range(10)])
     @patch('api.backends.base_api_client.BaseApiClient.get_provider_courses',
