@@ -66,9 +66,9 @@ class BaseGradingPolicy(object, metaclass=ABCMeta):
         :return: nothing.
         """
         if with_request:
-            update_lms_grades(self.context.get('request'), sequence=self.sequence, user_id=self.context['user_id'])
+            update_lms_grades(self.context.get('request'), sequence=self.sequence)
         else:
-            update_lms_grades(sequence=self.sequence, user_id=self.context['user_id'])
+            update_lms_grades(sequence=self.sequence)
 
     def send_grade(self):
         return self._send_grade()
