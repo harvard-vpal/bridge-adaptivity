@@ -1,0 +1,18 @@
+$(function () {
+    const buttons = $('.preview-assessment-buttons');
+    const assessmentContent = $('#assessment-content');
+    $('.preview-assessment-back-btn').click(() => {
+        window.history.back()
+    });
+    if (buttons.length === 0) return;
+
+    const toogleTask = button => {
+        buttons.removeClass('btn-primary');
+        button.addClass('btn-primary');
+        assessmentContent.attr('src', button.data().previewUrl)
+    };
+
+    buttons.on("click", ev => toogleTask($(ev.target)));
+    toogleTask($(buttons[0]))
+
+}).call(this);

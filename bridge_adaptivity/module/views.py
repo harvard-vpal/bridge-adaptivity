@@ -532,7 +532,7 @@ def preview_collection(request, slug):
         {
             'url': f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={a.name}&source_lti_url='
                    f'{a.source_launch_url}&content_source_id={a.lti_consumer_id}',
-            'pos': pos,
+            'pos': pos+1,
         }
         for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug))
     ]

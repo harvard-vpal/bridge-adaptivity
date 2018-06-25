@@ -3,15 +3,28 @@
 
 
 {% block bootstrap3_content %}
+    {% bootstrap_javascript jquery=True %}
+    <script src="{% static 'module/js/sequence_preview.js' %}"></script>
 
-<div class="container-fluid toolbar">
-{% for activity in activities %}
-    <div>
-    {{ activity }}
-    </div>
-{% endfor %}
-</div>
-{% bootstrap_javascript jquery=True %}
-  <script src="{% static 'module/js/module.js' %}"></script>
+    {% bootstrap_button 'Close preview' extra_classes="preview-assessment-back-btn" button_class="btn btn-warning" %}
+
+    {% buttons %}
+        {% for activity in activities %}
+            <button
+                    type="submit"
+                    class="btn pull-left btn-default preview-assessment-buttons"
+                    data-preview-url="{{ activity.url }}"
+            >
+                {{ activity.pos }}
+            </button>
+        {% endfor %}
+    {% endbuttons %}
+    <iframe id="assessment-content"
+            style="width:100%;height:640px;%;display:block;border:0px;" id="modal-source-preview" title="Checkboxes"
+            class="ltiLaunchFrame" name="4"
+            allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+            sandbox="allow-same-origin allow-forms allow-scripts"></iframe>
+
 
 {% endblock bootstrap3_content %}
+btn btn-default
