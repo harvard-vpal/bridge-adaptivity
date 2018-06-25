@@ -136,7 +136,6 @@ class EngineVPAL(EngineInterface):
 
         for sequence_item in sequence.items.all():
             payload["sequence"].append(self.fulfill_payload(payload={}, instance_to_parse=sequence_item))
-        log.error(f"Payload is {payload}")
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
         if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
             choose = chosen_activity.json()
