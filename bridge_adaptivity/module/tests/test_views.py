@@ -75,20 +75,6 @@ class BridgeTestCase(TestCase):
             lms_metadata='lms_metadata'
         )
 
-    def create_grading_policy(self, name=None, public_name=None, threshold=None, engine=None, is_default=True):
-        name = name or str(uuid.uuid4())
-        public_name = public_name or str(uuid.uuid4())
-        threshold = threshold or 1
-        engine = engine or self.engine
-
-        return GradingPolicy.objects.create(
-            name=name,
-            public_name=public_name,
-            threshold=threshold,
-            engine=engine,
-            is_default=is_default,
-        )
-
 
 class TestCollectionList(BridgeTestCase):
     def test_without_group_slug(self):
