@@ -3,7 +3,7 @@ import urllib.parse
 from django.test import TestCase
 from mock import Mock, patch
 
-from bridge_lti.models import BridgeUser, LtiProvider, LtiUser
+from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.engines import engine_vpal
 from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem
 
@@ -50,10 +50,16 @@ class TestVPALEngine(TestCase):
         )
         self.group.collections.add(self.collection)
 
+        self.outcome_service = OutcomeService.objects.create(
+            lis_outcome_service_url='http://test.outcome_service.net',
+            lms_lti_connection=self.lti_consumer,
+        )
+
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
-            group=self.group
+            group=self.group,
+            outcome_service=self.outcome_service,
         )
         self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a1, score=0.4)
         self.sequence_item_2 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a2, score=0.6)
@@ -70,7 +76,7 @@ class TestVPALEngine(TestCase):
             'repetition': 2,
             'source_launch_url': 'test_url_act1',
             'tags': None,
-            'type': 'generic'
+            'type': 'generic',
         }
 
         payload = self.engine.engine_driver.fulfill_payload(payload={}, instance_to_parse=self.a1)
@@ -86,9 +92,94 @@ class TestVPALEngine(TestCase):
             "{}/".format(self.engine.engine_driver.activity_url), "recommend"
         )
         expected_payload = {
-            "learner": self.sequence.lti_user.id,
+            "learner": {
+                'user_id': self.sequence.lti_user.id,
+                # NOTE(idegtiarov) `tool_consumer_instance_guid` is equal to the LTIProvider.consumer_name if it is not
+                # add to the Engine.lti_parameters or not found in received lti_launch parameters.
+                'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
+            },
             "collection": self.sequence.collection.slug,
             lti_param: self.sequence.metadata[lti_param],
+            "sequence": [
+                {
+                    'activity': self.a1.source_launch_url,
+                    'score': self.sequence_item_1.score,
+                    'is_problem': False
+                },
+                {
+                    'activity': self.a2.source_launch_url,
+                    'score': self.sequence_item_2.score,
+                    'is_problem': True
+                },
+            ]
+        }
+        response = mock_post.return_value
+        response.json.return_value = {'source_launch_url': expected_source_url}
+        result = self.engine.engine_driver.select_activity(self.sequence)
+        mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
+        self.assertEqual(result, expected_source_url)
+
+    @patch('requests.post', return_value=Mock(status_code=200))
+    def test_tool_consumer_instance_guid_added_to_select_activity_payload(self, mock_post):
+        """
+        Test tool_consumer_instance_guid is added to the 'learner' parameter in the recommended request.
+
+        For this test `tool_consumer_instance_guid` param should be added to the Engine.lti_parameter and received in
+        the lti_launch request.
+        """
+        expected_source_url = 'very_new_activity_source_url'
+        expected_tool_consumer_instance_guid = "lms.edx.net"
+        self.engine.lti_parameters = "tool_consumer_instance_guid, unknown_param"
+        launch_params = {
+            "tool_consumer_instance_guid": expected_tool_consumer_instance_guid,
+        }
+        self.sequence.fulfil_sequence_metadata(self.engine.lti_params, launch_params)
+        test_url = urllib.parse.urljoin(
+            "{}/".format(self.engine.engine_driver.activity_url), "recommend"
+        )
+        expected_payload = {
+            "learner": {
+                'user_id': self.sequence.lti_user.id,
+                'tool_consumer_instance_guid': expected_tool_consumer_instance_guid,
+            },
+            "collection": self.sequence.collection.slug,
+            "sequence": [
+                {
+                    'activity': self.a1.source_launch_url,
+                    'score': self.sequence_item_1.score,
+                    'is_problem': False
+                },
+                {
+                    'activity': self.a2.source_launch_url,
+                    'score': self.sequence_item_2.score,
+                    'is_problem': True
+                },
+            ]
+        }
+        response = mock_post.return_value
+        response.json.return_value = {'source_launch_url': expected_source_url}
+        result = self.engine.engine_driver.select_activity(self.sequence)
+        mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
+        self.assertEqual(result, expected_source_url)
+
+    @patch('requests.post', return_value=Mock(status_code=200))
+    def test_no_sequence_metadata_in_select_activity_payload(self, mock_post):
+        """
+        Test tool_consumer_instance_guid is added to the 'learner' parameter with the default LTIProvider.comsumer_name.
+
+        `tool_consumer_instance_guid` is taken with the default value and no metadata is added to the sequence from the
+        received lti parameters.
+        """
+        expected_source_url = 'very_new_activity_source_url'
+        test_url = urllib.parse.urljoin(
+            "{}/".format(self.engine.engine_driver.activity_url), "recommend"
+        )
+        expected_payload = {
+            "learner": {
+                'user_id': self.sequence.lti_user.id,
+                'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
+            },
+            "collection": self.sequence.collection.slug,
             "sequence": [
                 {
                     'activity': self.a1.source_launch_url,
