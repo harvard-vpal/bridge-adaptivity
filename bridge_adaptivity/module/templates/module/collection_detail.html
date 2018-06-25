@@ -21,6 +21,9 @@
     <a class="pull-right" href="{% url 'module:collection-change' collection.slug %}">
         {% bootstrap_button 'Edit' size='sm' icon='edit' %}
     </a>
+    <a class="pull-right" href="{% url 'module:collection-preview' collection.slug %}">
+        {% bootstrap_button 'Show sequance preview' size='sm' icon='glyphicon glyphicon-eye-open' %}
+    </a>
   </h3>
 {% endblock title %}
 

@@ -1,0 +1,17 @@
+{% extends "module/base.html" %}
+{% load staticfiles bootstrap3 %}
+
+
+{% block bootstrap3_content %}
+
+<div class="container-fluid toolbar">
+{% for activity in activities %}
+    <div>
+    {{ activity }}
+    </div>
+{% endfor %}
+</div>
+{% bootstrap_javascript jquery=True %}
+  <script src="{% static 'module/js/module.js' %}"></script>
+
+{% endblock bootstrap3_content %}

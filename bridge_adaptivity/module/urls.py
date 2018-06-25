@@ -8,7 +8,7 @@ from module.views import (
     CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
     GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate, sequence_item_next,
     SequenceComplete, SequenceItemDetail, sync_collection,
-)
+    preview_collection)
 
 urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
@@ -69,4 +69,6 @@ urlpatterns = ([
 
     # Sync collection with relative engines
     url(r'^collection/(?P<slug>[\w-]+)/sync/$', sync_collection, name='collection-sync'),
+
+    path('collection/<slug:slug>/preview/', preview_collection, name='collection-preview'),
 ], 'module')
