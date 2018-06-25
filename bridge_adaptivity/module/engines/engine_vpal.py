@@ -112,7 +112,7 @@ class EngineVPAL(EngineInterface):
             "learner": {
                 'user_id': sequence.lti_user.id,
                 'tool_consumer_instance_guid': (
-                    tool_consumer_instance_guid or sequence.outcome_service.lms_lti_connection.consumer_name
+                    tool_consumer_instance_guid or sequence.lti_user.lti_consumer.consumer_name
                 ),
             }
         })
@@ -136,6 +136,7 @@ class EngineVPAL(EngineInterface):
 
         for sequence_item in sequence.items.all():
             payload["sequence"].append(self.fulfill_payload(payload={}, instance_to_parse=sequence_item))
+        log.error(f"Payload is {payload}")
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
         if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
             choose = chosen_activity.json()
