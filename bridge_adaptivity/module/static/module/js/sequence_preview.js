@@ -9,7 +9,7 @@ $(function () {
     const toogleTask = button => {
         buttons.removeClass('btn-primary');
         button.addClass('btn-primary');
-        assessmentContent.attr('src', button.data().previewUrl)
+        assessmentContent[0].contentWindow.location.replace(button.data().previewUrl);
     };
 
     buttons.on("click", ev => toogleTask($(ev.target)));
