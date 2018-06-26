@@ -27,7 +27,7 @@ urlpatterns = ([
     url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
 
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<pk>\d+)?$', CollectionGroupDelete.as_view(),
+    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<slug>[\w-]+)?$', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
 
     url(r'group(?:/(?P<group_slug>[\w-]*))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
