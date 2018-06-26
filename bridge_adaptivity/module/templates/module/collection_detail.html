@@ -3,34 +3,39 @@
 
 {% block title %}
   Collection: <span class="label label-default">{{ collection.name }}</span>
-  <h3 class="collection-detail-toolpanel">
-    <a class="pull-right" href="{% url 'module:collection-change' collection.slug %}">
-        {% bootstrap_button 'Edit' size='sm' icon='edit' %}
-    </a>
-    <a class="pull-right delete-object
-        {% if collection.has_linked_sequences %}
-          {% if collection.has_linked_active_sequences %} show-alarm
-            {% else %} show-warning{% endif %}
-        {% endif %}">
-        {% bootstrap_button "Delete" size='sm' icon='trash' %}
-    </a>
-    <a class="pull-right" href="{% url 'module:collection-preview' collection.slug %}">
-        {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success"%}
-    </a>
-    {% if sync_available %}
-    <a class="pull-right require-submission"
-       href="{% url 'module:collection-sync' collection.slug %}?back_url={{ back_url }}"
-       data-confirmation-msg="Collection will be synchronized immediately!">
-        {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
-    </a>
-    {% endif %}
-  </h3>
+
 {% endblock title %}
 
 <hr>
 
 {% block content %}
+
+
   <div class="row">
+      <div class="col-md-8">
+        <h3 class="collection-detail-toolpanel">
+            <a class="pull-right" href="{% url 'module:collection-change' collection.slug %}">
+                {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+            </a>
+            <a class="pull-right delete-object
+        {% if collection.has_linked_sequences %}
+          {% if collection.has_linked_active_sequences %} show-alarm
+            {% else %} show-warning{% endif %}
+        {% endif %}">
+                {% bootstrap_button "Delete" size='sm' icon='trash' %}
+            </a>
+            <a class="pull-right" href="{% url 'module:collection-preview' collection.slug %}">
+                {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success" %}
+            </a>
+            {% if sync_available %}
+                <a class="pull-right require-submission"
+                   href="{% url 'module:collection-sync' collection.slug %}?back_url={{ back_url }}"
+                   data-confirmation-msg="Collection will be synchronized immediately!">
+                    {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
+                </a>
+            {% endif %}
+        </h3>
+    </div>
     <div id="activities" data-engine="{{ engine }}" class="col-md-8">
       {% if activities %}
         <table class="table table-hover">
