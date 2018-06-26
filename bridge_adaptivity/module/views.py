@@ -297,7 +297,7 @@ class CollectionGroupDelete(DeleteView):
     def get_object(self, queryset=None):
         return self.model.objects.get(
             collection__owner=self.request.user,
-            collection__id=self.kwargs['pk'],
+            collection__slug=self.kwargs['slug'],
             collectiongroup__slug=self.kwargs['group_slug']
         )
 
