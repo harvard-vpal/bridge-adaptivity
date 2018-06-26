@@ -6,9 +6,8 @@ from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
     CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
-    GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate, sequence_item_next,
-    SequenceComplete, SequenceItemDetail, sync_collection,
-    preview_collection)
+    GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate, preview_collection,
+    sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection)
 
 urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
