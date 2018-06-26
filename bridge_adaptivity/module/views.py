@@ -532,15 +532,13 @@ def preview_collection(request, slug):
         {
             'url': f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={a.name}&source_lti_url='
                    f'{a.source_launch_url}&content_source_id={a.lti_consumer_id}',
-            'pos': pos + 1,
+            'pos': pos,
         }
-        for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug))
+        for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug), start=1)
     ]
 
     return render(
         request,
         template_name="module/sequence_preview.html",
-        context={
-            'activities': acitvities
-        }
+        context={'activities': acitvities}
     )
