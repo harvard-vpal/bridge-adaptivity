@@ -66,3 +66,15 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
  text-align: right;
 }
 
+.preview-assessment-buttons {
+    margin: 2px;
+}
+
+.preview-assessment-back-btn {
+    margin: 2px;
+}
+
+.collection-detail-toolpanel {
+    display: flex;
+    justify-content: flex-end;
+}
