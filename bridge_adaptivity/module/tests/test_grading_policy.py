@@ -172,7 +172,6 @@ class TestPolicySendGradeMethod(TestCase):
         )
         default_kw = {
             'sequence': self.sequence,
-            'user_id': self.lti_user.user_id,
         }
         policy.send_grade()
         mock_update_lms_grades.assert_called_with(*(request,), **default_kw)
@@ -187,7 +186,6 @@ class TestPolicySendGradeMethod(TestCase):
             )
             default_kw = {
                 'sequence': self.sequence,
-                'user_id': self.lti_user.user_id,
             }
             policy.send_grade()
             mock_update_lms_grades.assert_called_with(**default_kw)

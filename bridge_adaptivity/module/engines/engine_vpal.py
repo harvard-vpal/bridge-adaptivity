@@ -1,3 +1,4 @@
+import copy
 import logging
 import urllib.parse
 
@@ -82,13 +83,39 @@ class EngineVPAL(EngineInterface):
             if param == 'type':
                 atype = TYPES.get(getattr(instance_to_parse, 'atype'), 'generic')
                 payload[param] = atype
-            elif param == 'learner':
-                learner = instance_to_parse.sequence.lti_user.id
-                payload[param] = learner
+            elif param == 'learner':  # instance_to_parse == SequenceItem
+                self.add_learner_to_payload(instance_to_parse.sequence, payload)
             elif param == 'activity':
                 payload[param] = getattr(instance_to_parse, param).source_launch_url
             else:
                 payload[param] = getattr(instance_to_parse, param)
+        return payload
+
+    @staticmethod
+    def add_learner_to_payload(sequence, payload, add_metadata=True):
+        """
+        Update payload with the 'learner' parameter.
+
+        :param sequence: Sequence instance
+        :param payload: payload to update
+        :param add_metadata: boolean flag to add sequence's metadata to the payload, default is True
+        :return: updated payload
+        """
+        metadata = copy.deepcopy(sequence.metadata)
+        tool_consumer_instance_guid = None
+        if metadata:
+            # NOTE(idegtiarov) Check metadata for the `tool_consumer_instance_guid` if it is found pop it to update
+            # `learner` param in the payload in accordance with the documentation
+            tool_consumer_instance_guid = metadata.pop('tool_consumer_instance_guid', None)
+            payload.update(metadata if add_metadata else {})  # payload is updated with the lti parameters
+        payload.update({
+            "learner": {
+                'user_id': sequence.lti_user.id,
+                'tool_consumer_instance_guid': (
+                    tool_consumer_instance_guid or sequence.lti_user.lti_consumer.consumer_name
+                ),
+            }
+        })
         return payload
 
     def combine_activity_url(self, activity):
@@ -104,9 +131,9 @@ class EngineVPAL(EngineInterface):
         reco_url = urllib.parse.urljoin(
             "{}/".format(self.activity_url), "recommend"
         )
-        payload = {"learner": sequence.lti_user.id, "collection": sequence.collection.slug, "sequence": []}
-        if sequence.metadata:
-            payload.update(sequence.metadata)  # payload is updated with the lti parameters
+        payload = {"collection": sequence.collection.slug, "sequence": []}
+        self.add_learner_to_payload(sequence, payload)
+
         for sequence_item in sequence.items.all():
             payload["sequence"].append(self.fulfill_payload(payload={}, instance_to_parse=sequence_item))
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
@@ -138,6 +165,7 @@ class EngineVPAL(EngineInterface):
         """
         submit_url = urllib.parse.urljoin(self.base_url, 'score')
         payload = self.fulfill_payload(instance_to_parse=sequence_item, score=True)
+        self.add_learner_to_payload(sequence_item.sequence, payload, add_metadata=False)
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
         return self.check_engine_response(
             submit_activity_score.status_code,
@@ -156,7 +184,7 @@ class EngineVPAL(EngineInterface):
         url = urllib.parse.urljoin(self.base_url, 'collection/{collection_slug}/grade'.format(
             collection_slug=sequence.collection.slug)
         )
-        response = requests.post(url, json={'learner': sequence.lti_user.id}, headers=self.headers)
+        response = requests.post(url, json=self.add_learner_to_payload(sequence, {}), headers=self.headers)
         if self.check_engine_response(response.status_code, action='grade', obj='sequence'):
             grade = response.json().get('grade')
             if 0 <= grade <= 1:

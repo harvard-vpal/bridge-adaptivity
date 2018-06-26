@@ -1,5 +1,4 @@
 import datetime
-from datetime import timedelta
 
 from django.test import TestCase
 from django.urls.base import reverse
@@ -8,7 +7,6 @@ from mock import patch
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
 from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy
-
 
 GRADING_POLICIES = (
     # value, display_name
@@ -72,7 +70,7 @@ class BridgeTestCase(TestCase):
             consumer_name='consumer_name',
             consumer_key='consumer_key',
             consumer_secret='consumer_secret',
-            expiration_date=datetime.datetime.today() + timedelta(days=1),
+            expiration_date=datetime.datetime.today() + datetime.timedelta(days=1),
             lms_metadata='lms_metadata'
         )
 
@@ -183,6 +181,28 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertNotEqual(test_g.name, self.test_cg.name)
         self.assertNotEqual(test_g.description, self.test_cg.description)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
+
+    def test_add_group_to_course(self):
+        self.assertIsNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+        self.client.post(
+            path=reverse('module:add-group-to-course', kwargs={'course_slug': self.course.slug}),
+            data={'groups': self.test_cg.id}
+        )
+        self.assertIsNotNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+
+    def test_remove_group_from_course(self):
+        self.test_cg.course = self.course
+        self.test_cg.save()
+        self.assertIsNotNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+        self.client.post(
+            path=reverse(
+                'module:rm-group-from-course',
+                kwargs={
+                    'course_slug': self.course.slug,
+                    'group_slug': self.test_cg.slug,
+                })
+        )
+        self.assertIsNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
@@ -529,7 +549,7 @@ class TestMultipleContentSources(BridgeTestCase):
         super().setUp()
 
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
-           return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
+           return_value=('some_token', datetime.datetime.now() + datetime.timedelta(days=1)))
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_provider_courses',
            return_value=[{'name': 'name'} for _ in range(10)])
     @patch('api.backends.base_api_client.BaseApiClient.get_provider_courses',
