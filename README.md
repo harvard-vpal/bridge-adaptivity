@@ -105,7 +105,7 @@ Staging deployment contains five containers:
 
 - nginx_BFA -- container with nginx server
 
-- bridge_adaptivity_bridge -- container with celery worker
+- bridge_adaptivity_worker -- container with celery worker
 
 - rabbitmq -- container with rabbitmq
 
@@ -131,7 +131,7 @@ Production deployment contains three containers:
 
 - nginx_BFA -- container with nginx server
 
-- bridge_adaptivity_bridge -- container with celery worker
+- bridge_adaptivity_worker -- container with celery worker
 
 - rabbitmq -- container with rabbitmq
 
