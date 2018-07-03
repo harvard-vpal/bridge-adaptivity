@@ -96,7 +96,7 @@ Please ensure that file in `nginx/sites_enabled/bridge-stage.conf` exists and
 is configured in proper way.
 
 Run docker-compose up command with `docker-compose-stage.yml` file
-to start production deployment:
+to start staging deployment:
 
     [sudo] docker-compose -f ./docker-compose-stage.yml up
 
