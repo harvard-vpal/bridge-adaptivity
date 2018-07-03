@@ -26,6 +26,18 @@ Visit our [github wiki](https://github.com/harvard-vpal/bridge-adaptivity/wiki)
 or the [ALOSI Labs site](http://www.alosilabs.org/) for more information about
 our group and our work.
 
+## Containers list
+
+- Container with Bridge for Adaptivity application
+
+- Container with postgressql database
+
+- Container with celery worker
+
+- Container with rabbitmq message queue
+
+- Container with nginx (doesn't exist for local deployment)
+
 ## Getting started
 
 ### Deployment
@@ -50,11 +62,6 @@ console:
 
     [sudo] docker-compose -f docker-compose_local.yml up
 
-Local deployment contains two containers:
-
-- BFA_local -- container with the Bridge for Adaptivity.
-
-- postgresql_BFA -- container with the postgresql database.
 
   Volume "pgs" is added to the the database container.
 
@@ -93,21 +100,6 @@ to start production deployment:
 
     [sudo] docker-compose -f ./docker-compose-stage.yml up
 
-Staging deployment contains five containers:
-
-- BFA -- container with the the Bridge for Adaptivity.
-
-  Bridge for Adaptivity application is running on gunicorn server.
-
-- postgresql_BFA -- container with the postgresql database.
-
-  Volume "pgs" is added to the the database container.
-
-- nginx_BFA -- container with nginx server
-
-- bridge_adaptivity_worker -- container with celery worker
-
-- rabbitmq -- container with rabbitmq
 
 ### Production deployment
 
@@ -119,21 +111,6 @@ to start production deployment:
 
     sudo docker-compose up -d
 
-Production deployment contains three containers:
-
-- BFA -- container with the the Bridge for Adaptivity.
-
-  Bridge for Adaptivity application is running on gunicorn server.
-
-- postgresql_BFA -- container with the postgresql database.
-
-  Volume "pgs" is added to the the database container.
-
-- nginx_BFA -- container with nginx server
-
-- bridge_adaptivity_worker -- container with celery worker
-
-- rabbitmq -- container with rabbitmq
 
 ### Additional notes
 
