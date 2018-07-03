@@ -93,7 +93,7 @@ to start production deployment:
 
     [sudo] docker-compose -f ./docker-compose-stage.yml up
 
-Production deployment contains three containers:
+Staging deployment contains five containers:
 
 - BFA -- container with the the Bridge for Adaptivity.
 
@@ -104,6 +104,10 @@ Production deployment contains three containers:
   Volume "pgs" is added to the the database container.
 
 - nginx_BFA -- container with nginx server
+
+- bridge_adaptivity_bridge -- container with celery worker
+
+- rabbitmq -- container with rabbitmq
 
 ### Production deployment
 
@@ -126,6 +130,10 @@ Production deployment contains three containers:
   Volume "pgs" is added to the the database container.
 
 - nginx_BFA -- container with nginx server
+
+- bridge_adaptivity_bridge -- container with celery worker
+
+- rabbitmq -- container with rabbitmq
 
 ### Additional notes
 
