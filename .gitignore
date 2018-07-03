@@ -19,3 +19,14 @@ secure.config
 ***.log.*
 ***.egg*
 .idea
+
+bridge_adaptivity/nginx/ssl/
+static/
+
+***.pytest_cache/
+
+***/coverage.xml
+
+.tox/
+
+ChangeLog

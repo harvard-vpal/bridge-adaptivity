@@ -1,0 +1,61 @@
+version: '2'
+services:
+  postgres:
+    container_name: postgresql_BFA
+    image: postgres
+    env_file: ./envs/pg.env
+    volumes:
+      - pgs:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+  bridge:
+    container_name: BFA
+    build:
+      context: .
+      dockerfile: Dockerfile_stage
+    command: bash -c "./prod_run.sh"
+    volumes:
+      - .:/bridge_adaptivity
+      - static:/www/static
+    ports:
+      - "8000:8000"
+    links:
+      - postgres
+  # Celery worker
+  worker:
+    image: bridge_adaptivity_bridge
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    command: bash -c "sleep 5 && celery -A config worker -l info"
+    volumes:
+      - .:/bridge_adaptivity
+    links:
+      - rabbit
+      - postgres
+    depends_on:
+      - bridge
+
+  rabbit:
+    container_name: rabbitmq
+    image: rabbitmq
+    env_file: ./envs/rabbit.env
+
+  nginx:
+    container_name: nginx_BFA
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile-stage
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes_from:
+      - bridge
+    volumes:
+      - /etc/nginx/ssl/:/etc/nginx/ssl/
+    links:
+      - bridge
+
+volumes:
+  pgs:
+  static: {}
