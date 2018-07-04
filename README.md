@@ -26,6 +26,18 @@ Visit our [github wiki](https://github.com/harvard-vpal/bridge-adaptivity/wiki)
 or the [ALOSI Labs site](http://www.alosilabs.org/) for more information about
 our group and our work.
 
+## Containers list
+
+- Container with Bridge for Adaptivity application
+
+- Container with postgressql database
+
+- Container with celery worker
+
+- Container with rabbitmq message queue
+
+- Container with nginx (doesn't exist for local deployment)
+
 ## Getting started
 
 ### Deployment
@@ -50,11 +62,6 @@ console:
 
     [sudo] docker-compose -f docker-compose_local.yml up
 
-Local deployment contains two containers:
-
-- BFA_local -- container with the Bridge for Adaptivity.
-
-- postgresql_BFA -- container with the postgresql database.
 
   Volume "pgs" is added to the the database container.
 
@@ -83,6 +90,17 @@ You can run tests locally (directly on your host), or on the docker machine.
           and after that retry running the tests: `docker exec -it BFA_local pytest`
 
 
+### Staging deployment
+
+Please ensure that file in `nginx/sites_enabled/bridge-stage.conf` exists and
+is configured in proper way.
+
+Run docker-compose up command with `docker-compose-stage.yml` file
+to start staging deployment:
+
+    [sudo] docker-compose -f ./docker-compose-stage.yml up
+
+
 ### Production deployment
 
 Please ensure that file in `nginx/sites_enabled/bridge.conf` exists and
@@ -93,17 +111,6 @@ to start production deployment:
 
     sudo docker-compose up -d
 
-Production deployment contains three containers:
-
-- BFA -- container with the the Bridge for Adaptivity.
-
-  Bridge for Adaptivity application is running on gunicorn server.
-
-- postgresql_BFA -- container with the postgresql database.
-
-  Volume "pgs" is added to the the database container.
-
-- nginx_BFA -- container with nginx server
 
 ### Additional notes
 
