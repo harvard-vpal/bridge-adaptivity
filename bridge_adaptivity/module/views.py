@@ -185,9 +185,8 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'bridge_host': settings.BRIDGE_HOST,
-        })
+        context['bridge_host'] = settings.BRIDGE_HOST
+        context['grade_update_available'] = self.object.sequence_set.exists()
         return context
 
 
@@ -426,9 +425,7 @@ def sequence_item_next(request, pk):
         update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.group.grading_policy.policy_instance(
-                sequence=sequence, user_id=sequence.lti_user.user_id,
-            )
+            policy = sequence.group.grading_policy.policy_instance(sequence=sequence)
             policy.send_grade()
             if not activity:
                 return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
@@ -525,6 +522,17 @@ def sync_collection(request, slug):
         collection_slug=slug, created_at=collection.updated_at
     )
     return redirect(reverse('module:collection-detail', kwargs={'slug': slug}) + '?back_url={}'.format(back_url))
+
+
+def update_students_grades(request, group_slug):
+    """
+    Mandatory update students grade related to the collection-group.
+    """
+    back_url = request.GET.get('back_url')
+    group = get_object_or_404(CollectionGroup, slug=group_slug)
+    tasks.update_students_grades.delay(group_id=group.id)
+    log.debug(f"Task with updating students grades related to the group {group.name} is started.")
+    return redirect(reverse('module:group-detail', kwargs={'group_slug': group_slug}) + '?back_url={}'.format(back_url))
 
 
 def preview_collection(request, slug):

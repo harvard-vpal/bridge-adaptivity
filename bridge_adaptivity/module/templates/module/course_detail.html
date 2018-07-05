@@ -63,7 +63,7 @@
       <tr>
         {% with undone=True id=group.id object=group %}
           {% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug as action_url %}
-          {% include "module/modals/delete_object_modal.html" with title="You are about unlink <CollectionGroup:"|add:group.name|add:"> from <Course:"|add:group.name|add:">" %}
+          {% include "module/modals/confirmation_modal.html" with title="You are about unlink <CollectionGroup:"|add:group.name|add:"> from <Course:"|add:group.name|add:">" %}
         {% endwith %}
       {% endfor %}
     </table>
@@ -111,7 +111,7 @@
 {% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url title='Link group with course' %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
-{% include "module/modals/delete_object_modal.html" with object=course action_url=delete_url title="You are about deleting course " %}
+{% include "module/modals/confirmation_modal.html" with object=course action_url=delete_url title="You are about deleting course " %}
 
 {% endblock content %}
 

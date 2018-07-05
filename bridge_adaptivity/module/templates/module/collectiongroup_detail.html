@@ -3,156 +3,174 @@
 
 {% block title %}
   Group: <span class="label label-default">{{ group.name }}</span>
-  <h3>
-    <a class="pull-right" href="{% url 'module:group-change' group.slug %}?back_url={{ group.get_absolute_url}}">
-      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
-    </a>
-    <a class="pull-right delete-object
-        {% if group.has_linked_active_sequences %} show-alarm
-        {% elif group.has_linked_sequences %} show-warning{% endif %}"
-       href="{% url 'module:group-delete' group.slug %}?back_url={{ group.get_absolute_url}}">
-      {% bootstrap_button 'Delete' size='sm' icon='trash' %}
-    </a>
-  </h3>
 {% endblock title %}
 
 {% block content %}
-<div class="col-md-9">
-  {% if group.collections.all %}
-    <table class="table table-hover">
-      <tr>
-        <th>collection name</th>
-        <th>strict forward</th>
-        <th>options</th>
-      </tr>
-      {% for collection in group.collections.all %}
+
+<div class="row">
+  <div class="col-md-9">
+    <h3 class="detail-toolpanel">
+        <a class="pull-right" href="{% url 'module:group-change' group.slug %}">
+            {% bootstrap_button 'Edit' size='sm' icon='edit' %}
+        </a>
+        <a class="pull-right delete-object
+      {% if group.has_linked_active_sequences %} show-alarm
+        {% else %} show-warning{% endif %}">
+            {% bootstrap_button 'Delete' size='sm' icon='trash' %}
+        </a>
+        {% if grade_update_available %}
+            <a class="pull-right show-warning">
+                {% bootstrap_button 'Update Students Grades' size='sm' icon='refresh' button_class="btn-primary" %}
+            </a>
+        {% endif %}
+    </h3>
+  </div>
+
+  <div class="col-md-9">
+    {% if group.collections.all %}
+      <table class="table table-hover">
         <tr>
-          <td>
-            <a href="{% url 'module:collection-detail' collection.slug %}?back_url={{ group.get_absolute_url}}">
-            {{ collection.name }} :
-            {{ collection.activities.count }}
-            {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
-          <td>{% if collection.strict_forward %}
-            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
-          {% else %}
-            <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-          {% endif %}
-          </td>
-          <td>
-            <div>
-              <a id="launch-url-fetcher" class=""
-                 data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' %}">
-                <button class="btn btn-default btn-sm">
-                    <span class="glyphicon glyphicon-link"></span>
-                    copy Launch URL
-                    <span data-toggle="popover"
-                       data-placement="right"
-                       id="launch_url_help"
-                       content="bla bla bla"
-                       class="glyphicon glyphicon-info-sign"
-                    ></span>
-                </button>
-
-              </a>
-
-              {% with undone=True %}
-
-                {% url 'module:collection-group-delete' slug=collection.slug group_slug=group.slug as delete_url %}
-
-                {% with title="You are about unlink <Collection:"|add:collection.name|add:"> from <CollectionGroup:"|add:group.name|add:">" %}
-                  {% if collection.has_linked_active_sequences %}
-                    {% with message="At least one student is still working on the Collection "  %}
-                      {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.slug %}
-                    {% endwith %}
-                  {% elif collection.has_linked_sequences %}
-                    {% with message="At least one student is linked to the Collection " %}
-                      {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.slug %}
-                    {% endwith %}
-                  {% else %}
-                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.slug %}
-                  {% endif %}
-                {% endwith %}
-              {% endwith %}
-
-              <a class="move-down"
-                 href="{% url 'module:collection-change' collection.slug %}?back_url={{ group.get_absolute_url}}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
-              </a>
-              <a
-                  class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
-                      {% elif collection.has_linked_sequences %} show-warning{% endif %}"
-                  href=""
-                  data-id="{{ collection.slug }}">
-                <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
-              </a>
-            </div>
-          </td>
+          <th>collection name</th>
+          <th>strict forward</th>
+          <th>options</th>
         </tr>
-      {% endfor %}
-    </table>
-  {% else %}
-    <div class="alert alert-info" role="alert">
-      You have no collections for now.
-    </div>
-  {% endif %}
+        {% for collection in group.collections.all %}
+          <tr>
+            <td>
+              <a href="{% url 'module:collection-detail' collection.slug %}?back_url={{ group.get_absolute_url}}">
+              {{ collection.name }} :
+              {{ collection.activities.count }}
+              {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
+            <td>{% if collection.strict_forward %}
+              <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
+            {% else %}
+              <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
+            {% endif %}
+            </td>
+            <td>
+              <div>
+                <a id="launch-url-fetcher" class=""
+                   data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' %}">
+                  <button class="btn btn-default btn-sm">
+                      <span class="glyphicon glyphicon-link"></span>
+                      copy Launch URL
+                      <span data-toggle="popover"
+                         data-placement="right"
+                         id="launch_url_help"
+                         content="bla bla bla"
+                         class="glyphicon glyphicon-info-sign"
+                      ></span>
+                  </button>
 
-  <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">
-    <span class="fa fa-chain"></span>
-    Link collection with group
-  </button>
+                </a>
 
-  <hr>
-      <h3>
-        <small>Tips:</small>
-      </h3>
-      <ul>
-        <li class="text-muted">to copy LTI launch URL - click <i>copy launch URL</i> button</li>
-        <li class="text-muted">to add the collection into the group - click <i class="fa fa-chain"> Link collection with group</i> button</li>
-        <li class="text-muted">to remove collection from the group - click <i class="fa fa-chain-broken">Unlink</i> button</li>
-      </ul>
+                {% with undone=True %}
+
+                  {% url 'module:collection-group-delete' slug=collection.slug group_slug=group.slug as delete_url %}
+
+                  {% with title="You are about unlink <Collection: "|add:collection.name|add:"> from <CollectionGroup: "|add:group.name|add:">" %}
+                    {% if collection.has_linked_active_sequences %}
+                      {% with message="At least one student is still working on the Collection " %}
+                        {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                      {% endwith %}
+                    {% elif collection.has_linked_sequences %}
+                      {% with message="At least one student is linked to the Collection " %}
+                        {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                      {% endwith %}
+                    {% else %}
+                      {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                    {% endif %}
+                  {% endwith %}
+                {% endwith %}
+
+                <a class="move-down"
+                   href="{% url 'module:collection-change' collection.slug %}?back_url={{ group.get_absolute_url}}">
+                  {% bootstrap_button "" size='sm' icon='edit' %}
+                </a>
+                <a
+                    class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
+                        {% elif collection.has_linked_sequences %} show-warning{% endif %}"
+                    href=""
+                    data-id="{{ collection.slug }}">
+                  <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
+                </a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <div class="alert alert-info" role="alert">
+        You have no collections for now.
+      </div>
+    {% endif %}
+
+    <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">
+      <span class="fa fa-chain"></span>
+      Link collection with group
+    </button>
 
     <hr>
+        <h3>
+          <small>Tips:</small>
+        </h3>
+        <ul>
+          <li class="text-muted">to copy LTI launch URL - click <i>copy launch URL</i> button</li>
+          <li class="text-muted">to add the collection into the group - click <i class="fa fa-chain"> Link collection
+                                                                                                     with group</i> button</li>
+          <li class="text-muted">to remove collection from the group - click <i class="fa fa-chain-broken">Unlink</i>
+                                button</li>
+        </ul>
 
-{% url 'module:group-detail' group_slug=group.slug as back_url %}
-{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
-{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
+      <hr>
 
-</div>
-<div class="col-md-3">
-  <div class="row">
-    <h3 class="text-center">Group Info</h3>
-    <div class="alert alert-warning text-center" role="alert">
-      Engine - {{ group.engine.engine_name }}
-    </div>
-    <div class="alert alert-warning text-center" role="alert">
-      Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
-      {% if group.grading_policy.threshold %}
-        <p>Threshold: {{ group.grading_policy.threshold }}</p>
+  {% url 'module:group-detail' group_slug=group.slug as back_url %}
+  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
+  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link
+   collection with group' %}
+
+  </div>
+  <div class="col-md-3">
+    <div class="row">
+      <h3 class="text-center">Group Info</h3>
+      <div class="alert alert-warning text-center" role="alert">
+        Engine - {{ group.engine.engine_name }}
+      </div>
+      <div class="alert alert-warning text-center" role="alert">
+        Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
+        {% if group.grading_policy.threshold %}
+          <p>Threshold: {{ group.grading_policy.threshold }}</p>
+        {% endif %}
+      </div>
+      {% if group.description %}
+      <div class="alert alert-info text-center">
+        <h4 class="text-center">Description</h4>
+        <p class="text-left">
+          {{ group.description }}
+        </p>
+      </div>
       {% endif %}
     </div>
-    {% if group.description %}
-    <div class="alert alert-info text-center">
-      <h4 class="text-center">Description</h4>
-      <p class="text-left">
-        {{ group.description }}
-      </p>
-    </div>
-    {% endif %}
   </div>
 </div>
 
 {% url 'module:group-delete' group_slug=group.slug as delete_url %}
+{% url 'module:update_grades' group_slug=group.slug as update_grades %}
+
+{% with title="Force update of students grades" message="Students grades related to the current group will be updated!" %}
+  {% include "module/modals/confirmation_modal.html" with object='' action_url=update_grades %}
+{% endwith %}
 
 {% if group.has_linked_active_sequences %}
   {% with message="At least one student is still working on the Collection which is in Collection Group " %}
-    {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+    {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url %}
   {% endwith %}
 {% elif group.has_linked_sequences %}
   {% with message="At least one student is linked to the Collection which is in Collection Group " %}
-    {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+    {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url %}
   {% endwith %}
 {% else %}
-  {% include "module/modals/delete_object_modal.html" with object=group action_url=delete_url %}
+  {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url %}
 {% endif %}
 
 {% endblock content %}
