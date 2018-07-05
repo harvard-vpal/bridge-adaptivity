@@ -185,8 +185,10 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['bridge_host'] = settings.BRIDGE_HOST
-        context['grade_update_available'] = self.object.sequence_set.exists()
+        context.update({
+            'bridge_host': settings.BRIDGE_HOST,
+            'grade_update_available': self.object.sequence_set.exists(),
+        })
         return context
 
 
