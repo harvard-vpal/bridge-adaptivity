@@ -17,7 +17,7 @@
       </div>
       <div class="modal-body">
         {% if message %}
-        <h4 class="text-center">{{ message }} {{ object }}</h4>
+        <h4 class="text-center">{{ message }} {% if object %}{{ object }}{% endif %}</h4>
         {% endif %}
         <h4 class="text-center">Are you really sure?</h4>
 

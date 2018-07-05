@@ -62,8 +62,7 @@ class BaseGradingPolicy(object, metaclass=ABCMeta):
     def _send_grade(self, with_request=False):
         """Send grade to LMS system.
 
-        Call update_lms_grades(self.context['request'], sequence=self.sequence, user_id=self.context['user_id'])
-        :return: nothing.
+        Call update_lms_grades(self.context['request'], sequence=self.sequence)
         """
         if with_request:
             update_lms_grades(self.context.get('request'), sequence=self.sequence)

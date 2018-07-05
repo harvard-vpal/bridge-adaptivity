@@ -51,14 +51,14 @@
               {% with title="You are about deleting " add_obj_in_title=True %}
                 {% if collection.has_linked_active_sequences %}
                   {% with message="At least one student is still working on the collection: " %}
-                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                    {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
                   {% endwith %}
                 {% elif collection.has_linked_sequences %}
                   {% with message="At least one student is linked to the collection: " %}
-                    {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                    {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
                   {% endwith %}
                 {% else %}
-                  {% include "module/modals/delete_object_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                  {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
                 {% endif %}
               {% endwith %}
             </div>

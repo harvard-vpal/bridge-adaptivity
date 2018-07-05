@@ -270,23 +270,6 @@
             return this;
         };
 
-
-        jQuery.fn.requireUserSubmit = function() {
-            $(this).on('click', function(e) {
-                var $elem =$(this);
-                var confirmMsg = (
-                    $elem.data('confirmation-msg') || 'Are you really sure? \n\nThis action is not reversible!'
-                ).replace(/\\n/g, '\n');
-
-                if (!confirm(confirmMsg)) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                }
-            });
-
-            return this;
-        };
-
         var getDataForWarning = function (elem) {
             $elem = $(elem);
             return $elem.closest('a').data();
@@ -304,7 +287,6 @@
 
         });
 
-        $('.require-submission').requireUserSubmit();
         $('form').preventDoubleSubmission();
 
         $('.activity-show-advanced-options').on('click', function(e){

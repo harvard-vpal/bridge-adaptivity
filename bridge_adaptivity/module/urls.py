@@ -7,7 +7,7 @@ from module.views import (
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
     CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
     GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate, preview_collection,
-    sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection)
+    sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection, update_students_grades)
 
 urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
@@ -68,6 +68,9 @@ urlpatterns = ([
 
     # Sync collection with relative engines
     url(r'^collection/(?P<slug>[\w-]+)/sync/$', sync_collection, name='collection-sync'),
+
+    # Manually update students grades related to the collection-group
+    path('group/<slug:group_slug>/update_grades/', update_students_grades, name='update_grades'),
 
     path('collection/<slug:slug>/preview/', preview_collection, name='collection-preview'),
 ], 'module')

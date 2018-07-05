@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 from django.test import TestCase
 from django.urls.base import reverse
@@ -469,6 +470,24 @@ class TestManualSync(BridgeTestCase):
     ):
         col_slug = 345
         url = reverse('module:collection-sync', kwargs={'slug': col_slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class TestManualGradeUpdate(BridgeTestCase):
+
+    @patch('module.tasks.update_students_grades.delay')
+    def test_mandatory_students_grade_update(self, mock_delay):
+        group_slug = self.test_cg.slug
+        expected_url = reverse('module:group-detail', kwargs={'group_slug': group_slug}) + '?back_url=None'
+        url = reverse('module:update_grades', kwargs={'group_slug': group_slug})
+        response = self.client.get(url)
+        mock_delay.assert_called_once_with(group_id=self.test_cg.id)
+        self.assertRedirects(response, expected_url)
+
+    def test_grade_update_with_incorect_group_slug(self):
+        group_slug = uuid.uuid4()
+        url = reverse('module:update_grades', kwargs={'group_slug': group_slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
