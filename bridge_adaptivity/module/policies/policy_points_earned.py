@@ -30,11 +30,14 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
         items_result = self.sequence.items.exclude(is_problem=False).aggregate(
             points_earned=Sum('score'), trials_count=Count('score')
         )
-        return items_result['trials_count'], items_result['points_earned']
+        # Note(idegtiarov) With the default 0 threshold and first non-problem activity in the sequence item_result
+        # returns None, None which are not appropriate for the grade calculation method, default values are provided to
+        # fix this issue
+        return (items_result['trials_count'] or 1), (items_result['points_earned'] or 0)
 
     def _calculate(self):
         trials_count, points_earned = self._get_points_earned_trials_count()
-        return round(float(points_earned if points_earned else 0) / max(self.policy.threshold, trials_count), 4)
+        return round(float(points_earned) / max(self.policy.threshold, trials_count), 4)
 
     @classmethod
     def get_form_class(cls):
