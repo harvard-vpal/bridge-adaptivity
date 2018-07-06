@@ -23,8 +23,8 @@ from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
     BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
-    LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin,
-    ModalFormMixin)
+    LtiSessionMixin, ModalFormMixin, OnlyMyObjectsMixin, SetUserInFormMixin
+)
 from module.models import (
     Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
 )

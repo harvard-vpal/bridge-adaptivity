@@ -130,11 +130,15 @@ class SetUserInFormMixin(object):
 
 
 class ModalFormMixin(object):
+    """
+    Mixin for overwriting form validation response for modal form and specifying default modal form template suffix.
+    """
+
     template_name_suffix = '_modal_form'
 
     def form_valid(self, form):
         super().form_valid(form)
-        return JsonResponse(status=200,data={'status':'ok'})
+        return JsonResponse(status=200, data={'status': 'ok'})
 
 
 class LinkObjectsMixin(object):
