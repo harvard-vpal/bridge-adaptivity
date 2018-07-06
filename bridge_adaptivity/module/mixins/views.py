@@ -129,6 +129,14 @@ class SetUserInFormMixin(object):
         return form
 
 
+class ModalFormMixin(object):
+    template_name_suffix = '_modal_form'
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        return JsonResponse(status=200,data={'status':'ok'})
+
+
 class LinkObjectsMixin(object):
     """
     This mixin add possibility to link objects using form.

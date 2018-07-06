@@ -6,6 +6,9 @@
 <hr>
 
 {% block content %}
+    <div id="self-user-data" data-self-user="{{ self_id }}" style="display: none"></div>
+    {% include "module/modals/modal_wrapper.html" %}
+    {% url "module:collection-add" as collection_add %}
   {% if collections %}
     <table class="table table-hover">
       <tr>
@@ -36,10 +39,8 @@
           </td>
           <td>
             <div>
-              <a class="move-down"
-                 href="{% url 'module:collection-change' collection.slug %}?back_url={{ collection.get_absolute_url }}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
-              </a>
+                {% url 'module:collection-change' collection.slug as collection_edit %}
+                {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
               {% url 'module:collection-delete' slug=collection.slug as delete_url %}
               <a
                   class="move-down delete-object
@@ -73,9 +74,7 @@
   {% endif %}
 
   <hr>
-  <a href="{% url 'module:collection-add' %}">
-    {% bootstrap_button 'Add Collection' size='lg' icon='plus' %}
-  </a>
+        {% bootstrap_button 'Add Collection' size='lg' icon='plus' extra_classes='modal_launcher' value=collection_add%}
 
 {% endblock content %}
 

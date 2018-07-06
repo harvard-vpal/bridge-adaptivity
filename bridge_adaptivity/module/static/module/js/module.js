@@ -318,5 +318,54 @@
              html: true
 
          });
+
+        function patchModalForm(modal, url = undefined) {
+            const form = modal.find('form');
+            url = url || form[0].action;
+            form.submit(function (e) {
+                $.ajax({
+                    type: form[0].method,
+                    url: url,
+                    data: form.serialize(),
+                    success: modalSuccessListener(url),
+                });
+                e.preventDefault();
+                return false;
+            });
+        }
+
+        const modalSuccessListener = (url) => {
+            return result => {
+                let modal = $('#modal-wrapper');
+                if (result.status !== undefined) {
+                    if (result.status === 'ok') {
+                        window.location.reload();
+                        return;
+                    }
+                }
+                modal.find('.modal-body').html(result);
+                let title = modal.find('.modal-body').find('#title');
+                modal.find('.modal-title').text(title.length > 0 ? title.data().title : '');
+                patchModalForm(modal, url);
+                modal.modal('show')
+            }
+        };
+
+        $('.modal_launcher').click(e => {
+            const url = $(e.currentTarget).attr('value');
+            if (url === undefined) {
+                console.log("Can not display modal window with undefined url");
+                return true;
+            }
+
+            console.log(url);
+            $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: modalSuccessListener(url)
+                }
+            );
+            return false;
+        });
     });
 }(jQuery));
