@@ -7,6 +7,13 @@
 
 {% block content %}
 
+{% url 'module:group-detail' group_slug=group.slug as back_url %}
+{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
+{% url "module:collection-add" group_slug=group.slug as add_new_collection_url %}
+
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url  add_new_object_url=add_new_collection_url title='Link collection with group' %}
+{% include "module/modals/modal_wrapper.html" %}
+
 <div class="row">
   <div class="col-md-9">
     <h3 class="detail-toolpanel">
@@ -123,11 +130,6 @@
         </ul>
 
       <hr>
-
-  {% url 'module:group-detail' group_slug=group.slug as back_url %}
-  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
-  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link
-   collection with group' %}
 
   </div>
   <div class="col-md-3">

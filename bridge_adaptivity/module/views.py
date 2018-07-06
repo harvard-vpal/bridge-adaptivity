@@ -228,7 +228,12 @@ class CollectionList(BaseCollectionView, ListView):
 
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, CreateView):
-    pass
+
+    def form_valid(self, form):
+        result = super().form_valid(form)
+        if 'group_slug' in self.kwargs:
+            CollectionGroup.objects.get(slug=self.kwargs['group_slug']).collections.add(self.object)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')
