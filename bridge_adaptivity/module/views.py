@@ -23,7 +23,7 @@ from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
     BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
-    LtiSessionMixin, OnlyMyObjectsMixin, SetUserInFormMixin
+    LtiSessionMixin, ModalFormMixin, OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
@@ -227,12 +227,12 @@ class CollectionList(BaseCollectionView, ListView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionCreate(BaseCollectionView, SetUserInFormMixin, CreateView):
+class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, CreateView):
     pass
 
 
 @method_decorator(login_required, name='dispatch')
-class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, UpdateView):
+class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, UpdateView):
     pass
 
 
@@ -275,6 +275,7 @@ class CollectionDelete(DeleteView):
     def get_queryset(self):
         return super().get_queryset().filter(owner=self.request.user)
 
+    # TODO check it
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
 

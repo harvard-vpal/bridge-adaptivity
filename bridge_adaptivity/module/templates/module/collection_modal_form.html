@@ -1,0 +1,15 @@
+{% load bootstrap3 %}
+
+
+<div
+        id="title"
+        data-title="{% if not collection.id %}New Collection configuration{% else %}Edit collection: {{ collection.name }}{% endif %}"
+        style="display: none"></div>
+
+<form role="form" method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    <button class="btn btn-primary" type="submit">
+        {% if collection.id %}Update{% else %}Create{% endif %}</button>
+</form>
+
