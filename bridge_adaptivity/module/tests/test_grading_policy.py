@@ -132,7 +132,7 @@ class TestPolicySendGradeMethod(TestCase):
             name='testactivity1', collection=self.collection, source_launch_url=self.source_launch_url
         )
         self.activity2 = Activity.objects.create(
-            name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url
+            name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url, stype='problem'
         )
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
@@ -209,4 +209,20 @@ class TestPolicyCalculateMethod(TestPolicySendGradeMethod):
         policy_model = GradingPolicy.objects.get(name='points_earned')
         policy = policy_model.policy_instance(sequence=self.sequence)
         grade = policy._calculate()
-        self.assertEqual(grade, 0)
+        self.assertEqual(0, grade)
+
+    def test_points_earned_calculation_two_activities(self):
+        """
+        Test issue when the non-problem activity appear to be the first at the sequence.
+
+        Additional case is tested when points_earned policy with the threshold set with default value 0, value is set in
+        the fixture.
+        """
+        policy_model = GradingPolicy.objects.get(name='points_earned')
+        policy = policy_model.policy_instance(sequence=self.sequence)
+        SequenceItem.objects.create(sequence=self.sequence, activity=self.activity2, position=2, score=1)
+        grade = policy._calculate()
+        self.assertEqual(1, grade)
+        SequenceItem.objects.create(sequence=self.sequence, activity=self.activity2, position=3, score=0)
+        grade = policy._calculate()
+        self.assertEqual(.5, grade)

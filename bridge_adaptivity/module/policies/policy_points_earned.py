@@ -1,4 +1,5 @@
 from django.db.models.aggregates import Count, Sum
+from django.db.models.functions import Coalesce, Greatest
 
 from .base import BaseGradingPolicy
 
@@ -27,13 +28,13 @@ class PointsEarnedGradingPolicy(BaseGradingPolicy):
 
         :return tuple([trials_count, points_earned])
         """
+        # Note(idegtiarov) With the first non-problem activity in the sequence and default value of the threshold
+        # item_result returns None, 0 which are not appropriate for the grade calculation method, valid default values
+        # are provided to fix this issue.
         items_result = self.sequence.items.exclude(is_problem=False).aggregate(
-            points_earned=Sum('score'), trials_count=Count('score')
+            points_earned=Coalesce(Sum('score'), 0), trials_count=Greatest(Count('score'), 1)
         )
-        # Note(idegtiarov) With the default 0 threshold and first non-problem activity in the sequence item_result
-        # returns None, None which are not appropriate for the grade calculation method, default values are provided to
-        # fix this issue
-        return (items_result['trials_count'] or 1), (items_result['points_earned'] or 0)
+        return items_result['trials_count'], items_result['points_earned']
 
     def _calculate(self):
         trials_count, points_earned = self._get_points_earned_trials_count()
