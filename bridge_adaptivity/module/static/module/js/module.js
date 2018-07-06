@@ -337,11 +337,9 @@
         const modalSuccessListener = (url) => {
             return result => {
                 let modal = $('#modal-wrapper');
-                if (result.status !== undefined) {
-                    if (result.status === 'ok') {
-                        window.location.reload();
-                        return;
-                    }
+                if (result.status !== undefined && result.status === 'ok') {
+                    window.location.reload();
+                    return;
                 }
                 modal.find('.modal-body').html(result);
                 let title = modal.find('.modal-body').find('#title');
