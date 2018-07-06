@@ -1,9 +1,13 @@
 {% load bootstrap3 static %}
 
-<div
-    id="title"
-    data-title="{% if not group.id %}New Collection Group configuration{% else %}Update {{ group.name }}{% endif %}"
-    style="display: none"></div>
+{% block title %}
+{% if not group.id %}
+    New Collection Group configuration
+{% else %}
+    Update {{ group.name }}
+{% endif %}
+{% endblock title %}
+
 
 <form role="form" method="post" id="group_form" data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
   {% csrf_token %}

@@ -6,6 +6,9 @@
 <hr>
 
 {% block content %}
+{% include "module/modals/modal_wrapper.html" %}
+{% url 'module:course-add' as course_add %}
+
   {% if courses %}
     <table class="table table-hover">
       <tr>
@@ -28,10 +31,8 @@
           </td>
           <td>
             <div>
-             <a class="move-down"
-                 href="{% url 'module:course-change' course.slug %}?back_url={% url 'module:course-list' %}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
-              </a>
+            {% url 'module:course-change' course.slug as course_edit %}
+            {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=course_edit %}
               <a class="move-down delete-object"
                  href="{% url 'module:course-delete' course_slug=course.slug %}"
                  data-id="{{ course.id }}">
@@ -55,9 +56,7 @@
   {% endif %}
 
   <hr>
-  <a href="{% url 'module:course-add' %}">
-    {% bootstrap_button 'Add Course' size='lg' icon='plus' %}
-  </a>
+  {% bootstrap_button 'Add Course' size='lg' icon='plus' extra_classes='modal_launcher' value=course_add %}
 
 {% endblock content %}
 

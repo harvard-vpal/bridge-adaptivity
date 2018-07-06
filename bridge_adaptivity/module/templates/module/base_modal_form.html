@@ -1,15 +1,10 @@
-{% extends "module/base_modal_form.html" %}
-
 {% load bootstrap3 %}
 
-{% block title %}
-{%if not collection.id %}
-    New Collection configuration
-{% else %}
-    Edit collection: {{ collection.name }}
-{% endif %}
-{% endblock title %}
 
+<div
+        id="title"
+        data-title="{% block title %}{% endblock title %}"
+        style="display: none"></div>
 
 <form role="form" method="post">
     {% csrf_token %}

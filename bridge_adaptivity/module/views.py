@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseCreate(BaseCourseView, SetUserInFormMixin, CreateView):
+class CourseCreate(BaseCourseView, SetUserInFormMixin, ModalFormMixin, CreateView):
     fields = 'owner', 'name', 'description'
 
 
@@ -59,7 +59,7 @@ class CourseDetail(LinkObjectsMixin, BaseCourseView, DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
+class CourseUpdate(BaseCourseView, SetUserInFormMixin, ModalFormMixin, UpdateView):
     fields = 'name', 'description'
     context_object_name = 'course'
 
