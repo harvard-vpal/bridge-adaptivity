@@ -351,12 +351,12 @@
 
         $('.modal_launcher').click(e => {
             const url = $(e.currentTarget).attr('value');
+            // NOTE: fix for handling event from the parent or child items
             if (url === undefined) {
                 console.log("Can not display modal window with undefined url");
                 return true;
             }
 
-            console.log(url);
             $.ajax({
                     type: "GET",
                     url: url,
