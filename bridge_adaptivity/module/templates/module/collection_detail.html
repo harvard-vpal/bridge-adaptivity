@@ -9,14 +9,14 @@
 <hr>
 
 {% block content %}
-
+  {% include "module/modals/modal_wrapper.html" %}
 
   <div class="row">
       <div class="col-md-8">
         <h3 class="detail-toolpanel">
-            <a class="pull-right" href="{% url 'module:collection-change' collection.slug %}">
-                {% bootstrap_button 'Edit' size='sm' icon='edit' %}
-            </a>
+
+            {% url 'module:collection-change' collection.slug as collection_edit %}
+            {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
             <a class="pull-right delete-object
         {% if collection.has_linked_sequences %}
           {% if collection.has_linked_active_sequences %} show-alarm
