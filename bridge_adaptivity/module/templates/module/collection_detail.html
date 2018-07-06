@@ -18,18 +18,19 @@
                 {% bootstrap_button 'Edit' size='sm' icon='edit' %}
             </a>
             <a class="pull-right delete-object
-        {% if collection.has_linked_sequences %}
-          {% if collection.has_linked_active_sequences %} show-alarm
-            {% else %} show-warning{% endif %}
-        {% endif %}">
+                     {% if collection.has_linked_sequences %}
+                       {% if collection.has_linked_active_sequences %}
+                         show-alarm {% else %} show-warning
+                       {% endif %}
+                     {% endif %}"
+               data-id="{{ collection.slug }}">
                 {% bootstrap_button "Delete" size='sm' icon='trash' %}
             </a>
             <a class="pull-right" href="{% url 'module:collection-preview' collection.slug %}">
                 {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success" %}
             </a>
             {% if sync_available %}
-                <a class="pull-right show-warning"
-                   data-confirmation-msg="Collection will be synchronized immediately!">
+                <a class="pull-right show-warning">
                     {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
                 </a>
             {% endif %}
@@ -207,14 +208,14 @@
 
   {% if collection.has_linked_active_sequences %}
     {% with message="At least one student is still working on the collection: " %}
-      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url %}
+      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.slug %}
     {% endwith %}
   {% elif collection.has_linked_sequences %}
     {% with message="At least one student is linked to the collection: " %}
-      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url %}
+      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.slug %}
     {% endwith %}
   {% else %}
-    {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url %}
+    {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.slug %}
   {% endif %}
 
 {% endblock content %}
