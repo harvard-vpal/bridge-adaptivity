@@ -17,9 +17,8 @@
 <div class="row">
   <div class="col-md-9">
     <h3 class="detail-toolpanel">
-        <a class="pull-right" href="{% url 'module:group-change' group.slug %}">
-            {% bootstrap_button 'Edit' size='sm' icon='edit' %}
-        </a>
+        {% url 'module:group-change' group.slug as group_edit %}
+        {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
         <a class="pull-right delete-object
       {% if group.has_linked_active_sequences %} show-alarm
         {% else %} show-warning{% endif %}">
