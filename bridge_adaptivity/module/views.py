@@ -164,7 +164,7 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, CreateView):
+class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
     pass
 
 
@@ -207,7 +207,7 @@ class AddCollectionInGroup(JsonResponseMixin, FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, UpdateView):
+class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, UpdateView):
     form_class = GroupForm
     context_object_name = 'group'
 
