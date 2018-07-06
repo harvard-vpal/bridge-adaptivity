@@ -168,7 +168,7 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        if 'course_slug' in self.kwargs:
+        if 'course_slug' in self.kwargs and self.kwargs['course_slug']:
             Course.objects.get(slug=self.kwargs['course_slug']).course_groups.add(self.object)
         return result
 
@@ -236,7 +236,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        if 'group_slug' in self.kwargs:
+        if 'group_slug' in self.kwargs and self.kwargs['group_slug']:
             CollectionGroup.objects.get(slug=self.kwargs['group_slug']).collections.add(self.object)
         return result
 
