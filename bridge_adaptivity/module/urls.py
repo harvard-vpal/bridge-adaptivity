@@ -20,7 +20,7 @@ urlpatterns = ([
         name='rm-group-from-course'),
 
     url(r'^group/$', GroupList.as_view(), name='group-list'),
-    url(r'^group/add/?$', GroupCreate.as_view(), name='group-add'),
+    url(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
     url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
     url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
     url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),

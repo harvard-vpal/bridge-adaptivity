@@ -165,7 +165,12 @@ class GetGradingPolicyForm(FormView):
 
 @method_decorator(login_required, name='dispatch')
 class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
-    pass
+
+    def form_valid(self, form):
+        result = super().form_valid(form)
+        if 'course_slug' in self.kwargs:
+            Course.objects.get(slug=self.kwargs['course_slug']).course_groups.add(self.object)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')

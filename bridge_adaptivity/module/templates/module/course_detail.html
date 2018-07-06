@@ -107,8 +107,10 @@
   </div>
 </div>
 
+{% url "module:group-add" course.slug as add_new_group %}
 {% url "module:add-group-to-course" course_slug=course.slug as add_group_url %}
-{% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url title='Link group with course' %}
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url add_new_object_url=add_new_group title='Link group with course' %}
+{% include "module/modals/modal_wrapper.html" %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
 {% include "module/modals/confirmation_modal.html" with object=course action_url=delete_url title="You are about deleting course " %}
