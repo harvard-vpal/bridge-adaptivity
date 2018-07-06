@@ -15,7 +15,7 @@
     "fields": {
         "name": "points_earned",
         "public_name": "Points Earned Grading policy",
-        "threshold": 1,
+        "threshold": 0,
         "is_default": false
     }
 },
