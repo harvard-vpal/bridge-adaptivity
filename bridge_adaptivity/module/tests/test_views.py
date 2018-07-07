@@ -107,7 +107,8 @@ class TestCollectionGroup(BridgeTestCase):
         data.update(policy_data)
         response = self.client.post(url, data=data)
         self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.content, b'{"status": "ok"}')
 
     def test_cg_with_not_correct_policy_engine_pair(self):
         """
@@ -173,7 +174,6 @@ class TestCollectionGroup(BridgeTestCase):
         if response.status_code == 200:
             print((dict(response.context['form'].errors)))
 
-        self.assertRedirects(response, reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}))
         self.assertEqual(groups_count, CollectionGroup.objects.count())
         test_g = CollectionGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(test_g.name, self.group_update_data['name'])
@@ -240,8 +240,6 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         self.assertEqual(self.group_post_data[self.group_prefix + '-name'], self.test_cg.name)
         self.assertEqual(self.test_cg.grading_policy, self.points_earned)
         self.assertNotEqual(self.test_cg.grading_policy, self.trials_count)
-
-        self.assertRedirects(response, reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}))
 
     def test_update_grading_policy(self):
         """Test update grading policy (positive flow).
@@ -392,7 +390,6 @@ class TestCourseViews(BridgeTestCase):
         response = self.client.post(url, data=data)
         new_course = Course.objects.exclude(id=self.course.id).get(**data)
         self.assertNotEqual(Course.objects.count(), courses_count)
-        self.assertRedirects(response, reverse('module:course-detail', kwargs={'course_slug': new_course.slug}))
 
     def test_update_course(self):
         url = reverse('module:course-change', kwargs={'course_slug': self.course.slug})
@@ -405,7 +402,6 @@ class TestCourseViews(BridgeTestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(Course.objects.count(), courses_count)
         course = Course.objects.get(id=self.course.id)
-        self.assertRedirects(response, reverse('module:course-detail', kwargs={'course_slug': course.slug}))
         self.assertEqual(course.name, data['name'])
         self.assertEqual(course.description, data['description'])
 
@@ -527,7 +523,6 @@ class TestCreateUpdateActivity(BridgeTestCase):
         if response.status_code == 200:
             # form errors
             print((response.context['form'].errors))
-        self.assertRedirects(response, self.back_url)
         self.assertEqual(activity_count + 1, Activity.objects.count())
 
     @patch('module.tasks.sync_collection_engines.delay')
@@ -554,7 +549,6 @@ class TestCreateUpdateActivity(BridgeTestCase):
             print((response.context['form'].errors))
 
         new_activity = Activity.objects.get()
-        self.assertRedirects(response, self.back_url)
         self.assertEqual(new_activity.name, update_data['name'])
         self.assertEqual(new_activity.tags, update_data['tags'])
         self.assertEqual(new_activity.stype, update_data['stype'])
