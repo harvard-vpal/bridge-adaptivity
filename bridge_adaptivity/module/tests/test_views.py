@@ -230,6 +230,7 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
 
     def check_update_group(self, data):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        self.client.post(url, data=data)
         grading_policy_count = GradingPolicy.objects.all().count()
 
         self.assertEqual(grading_policy_count, GradingPolicy.objects.all().count())
@@ -386,6 +387,7 @@ class TestCourseViews(BridgeTestCase):
             'owner': self.user.id
         }
         courses_count = Course.objects.count()
+        self.client.post(url, data=data)
         self.assertNotEqual(Course.objects.count(), courses_count)
 
     def test_update_course(self):
@@ -396,6 +398,7 @@ class TestCourseViews(BridgeTestCase):
             'owner': self.user.id
         }
         courses_count = Course.objects.count()
+        self.client.post(url, data=data)
         self.assertEqual(Course.objects.count(), courses_count)
         course = Course.objects.get(id=self.course.id)
         self.assertEqual(course.name, data['name'])
