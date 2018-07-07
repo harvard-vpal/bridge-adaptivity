@@ -10,11 +10,13 @@
 {% endif %}
 {% endblock title %}
 
-
-<form role="form" method="post">
+{% block body %}
+    <form role="form" method="post">
     {% csrf_token %}
     {% bootstrap_form form %}
     <button class="btn btn-primary" type="submit">
         {% if collection.id %}Update{% else %}Create{% endif %}</button>
 </form>
+{% endblock body %}
+
 

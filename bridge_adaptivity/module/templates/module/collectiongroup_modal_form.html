@@ -1,25 +1,26 @@
 {% load bootstrap3 static %}
 
 {% block title %}
-{% if not group.id %}
-    New Collection Group configuration
-{% else %}
-    Update {{ group.name }}
-{% endif %}
+    {% if not group.id %}
+        New Collection Group configuration
+    {% else %}
+        Update {{ group.name }}
+    {% endif %}
 {% endblock title %}
 
+{% block body %}
 
-<form role="form" method="post" id="group_form" data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
-  {% csrf_token %}
-  {% bootstrap_form form %}
-  <div class="grading_policy">
-    {% bootstrap_form grading_policy_form %}
-  </div>
-  <button class="btn btn-primary" type="submit">
-    {% if group.id %}Update{% else %}Create{% endif %}</button>
+    <script src="{% static 'module/js/collectiongroup.js' %}"></script>
+    <form role="form" method="post" id="group_form"
+          data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <div class="grading_policy">
+            {% bootstrap_form grading_policy_form %}
+        </div>
+        <button class="btn btn-primary" type="submit">
+            {% if group.id %}Update{% else %}Create{% endif %}</button>
 
-</form>
+    </form>
 
-{% block js %}
-<script src="{% static 'module/js/collectiongroup.js' %}"></script>
-{% endblock %}
+{% endblock body %}

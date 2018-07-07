@@ -10,6 +10,13 @@
 
 {% block content %}
   {% include "module/modals/modal_wrapper.html" %}
+  {%  url 'module:activity-add' collection_slug=collection.slug  as activity_add %}
+
+    <div
+            id="activity-add-url-holder"
+            data-url = '{{ activity_add }}'
+            style="display: none">
+    </div>
 
   <div class="row">
       <div class="col-md-8">
@@ -57,8 +64,10 @@
                 data-content_source_id="{{ activity.lti_consumer.id }}"
                 data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
             >
-              <td class="text-left">
-                <a href="{% url 'module:activity-change' activity.pk collection.slug %}">
+                {% url 'module:activity-change' activity.pk collection.slug as activity_edit %}
+              <td class="text-left modal_launcher" value="{{ activity_edit }}">
+
+                <a href="#" >
                   {{ activity.name }}
                   <div>
                     {% if activity.atype == 'A' %}
@@ -87,9 +96,8 @@
                   {% endif %} pull-right" data-id="{{ activity.id }}">
                     {% bootstrap_button "" size='sm' icon='trash' %}
                   </a>
-                  <a class="pull-right" href="{% url 'module:activity-change' activity.pk collection.slug %}">
-                    {% bootstrap_button "" size='sm' icon='edit' %}
-                  </a>
+
+                  {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=activity_edit %}
                   {% ifnotequal activity.atype 'G' %}
                     {% ifnotequal activity.order 0 %}
                     <a class="move-up pull-right"
@@ -195,7 +203,6 @@
   </div>
 
   {% include "module/modals/source_modal.html" %}
-  {% include "module/modals/activity_modal.html" with collection=object %}
   {% include "module/modals/engine_failure_modal.html" %}
 
   {% url 'module:collection-delete' slug=object.slug as delete_url %}

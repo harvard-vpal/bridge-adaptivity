@@ -1,0 +1,41 @@
+{% extends "module/base_modal_form.html" %}
+{% load bootstrap3 static %}
+
+
+{% block title %}
+    Activity configuration
+{% endblock title %}
+
+{% block body %}
+    <form role="form" method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            {% if field.name not in form.advanced_fields %}
+                {% bootstrap_field field %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="advanced_fields">
+            {% for field in form %}
+                {% if field.name in form.advanced_fields %}
+                    {% bootstrap_field field %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <button
+                class="btn btn-default activity-show-advanced-options"
+                data-toggle=".advanced_fields"
+                onclick="$($(this).data('toggle')).toggle('slow'); event.preventDefault();">
+            {% bootstrap_icon "plus" %} Show advanced options
+        </button>
+
+
+        <button class="btn btn-primary" type="submit">{% if activity %}Update{% else %}Create{% endif %}</button>
+        {% if activity %}
+            <a href="{% url 'module:activity-delete' object.id %}" class="btn btn-default" role="button"
+               type="reset">Delete</a>
+        {% endif %}
+    </form>
+{% endblock body %}

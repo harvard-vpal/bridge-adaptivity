@@ -315,26 +315,38 @@ class CollectionGroupDelete(DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, CreateView):
+class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin, CreateView):
     model = Activity
     form_class = ActivityForm
 
+    def get_initial(self):
+        result =  super().get_initial()
+        if self.request.method == 'GET':
+            result.update({
+                'name': self.request.GET.get('name'),
+                'source_name': self.request.GET.get('source_name'),
+                'source_launch_url': self.request.GET.get('source_launch_url').replace(' ','+'),
+                'source_context_id': self.request.GET.get('source_context_id').replace(' ','+'),
+                'lti_consumer': self.request.GET.get('lti_consumer'),
+                'source_stype': self.request.GET.get('source_stype'),
+            })
+        return result
+
     def form_valid(self, form):
-        activity = form.save(commit=False)
-        collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
-        activity.collection = collection
-        return super().form_valid(form)
+        form.instance.collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
+        result = super().form_valid(form)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityUpdate(CollectionSlugToContextMixin, UpdateView):
+class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
     context_object_name = 'activity'
 
     def get(self, request, *args, **kwargs):
         activity = self.get_object()
-        if 'direction' in kwargs:
+        if 'direction' in kwargs and kwargs['direction']:
             try:
                 # NOTE(wowkalucky): expects 'up', 'down' (also possible: 'top', 'bottom')
                 getattr(activity, kwargs['direction'])()
