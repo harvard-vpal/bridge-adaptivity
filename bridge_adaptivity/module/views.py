@@ -320,13 +320,13 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
     form_class = ActivityForm
 
     def get_initial(self):
-        result =  super().get_initial()
+        result = super().get_initial()
         if self.request.method == 'GET':
             result.update({
                 'name': self.request.GET.get('name'),
                 'source_name': self.request.GET.get('source_name'),
-                'source_launch_url': self.request.GET.get('source_launch_url').replace(' ','+'),
-                'source_context_id': self.request.GET.get('source_context_id').replace(' ','+'),
+                'source_launch_url': self.request.GET.get('source_launch_url').replace(' ', '+'),
+                'source_context_id': self.request.GET.get('source_context_id').replace(' ', '+'),
                 'lti_consumer': self.request.GET.get('lti_consumer'),
                 'source_stype': self.request.GET.get('source_stype'),
             })
