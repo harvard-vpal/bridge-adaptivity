@@ -19,6 +19,8 @@
     </div>
 
   <div class="row">
+ {% include "module/modals/toast.html" with id='no-preview-warning' message='There is no preview for the empty group' %}
+
       <div class="col-md-8">
         <h3 class="detail-toolpanel">
 
@@ -33,7 +35,11 @@
                data-id="{{ collection.slug }}">
                 {% bootstrap_button "Delete" size='sm' icon='trash' %}
             </a>
-            <a class="pull-right" href="{% url 'module:collection-preview' collection.slug %}">
+            <a
+                    class="pull-right"
+                    id="collection-preview-button"
+                    href="{% url 'module:collection-preview' collection.slug %}"
+            >
                 {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success" %}
             </a>
             {% if sync_available %}
