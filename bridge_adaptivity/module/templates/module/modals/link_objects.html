@@ -28,11 +28,7 @@
         {% if has_available_objects %}
           {% bootstrap_button "Add selected" size='md' icon='link' id='link-objects' button_class='btn-success pull-left' %}
         {% endif %}
-        <a href="{{ add_new_object_url }}"
-           class="btn btn-primary pull-left">
-          {% bootstrap_icon "plus" size='md' %}
-          Add new {{ add_new_object_name }}
-        </a>
+       {% bootstrap_button "Add new "|add:add_new_object_name size='md' icon='plus' extra_classes='pull-left modal_launcher' value=add_new_object_url%}
       </div>
     </div>
   </div>

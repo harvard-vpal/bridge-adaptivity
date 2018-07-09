@@ -128,8 +128,9 @@
 
         function renderCourseBlocks(courseData, container) {
             console.log("Rendering course...");
-            var usedLtiUrls = $.map(activitiesData, function(data) { return data.launch_url });
-            var sourcesList = $("<div/>").addClass("list-group");
+            const usedLtiUrls = $.map(activitiesData, function(data) { return data.launch_url });
+            let sourcesList = $("<div/>").addClass("list-group");
+            const addActivityUrl=$('#activity-add-url-holder').data().url;
             $.each(courseData, function (i, item) {
                 var listItem = $("<button/>")
                     .addClass("list-group-item")
@@ -150,12 +151,16 @@
                         .css("text-decoration", "line-through")
                         .addClass("bg-info");
                 } else {
+                    const url = `${addActivityUrl}?`
+                        +`name=${item["display_name"]}&`
+                        +`source_name=${item["display_name"]}&`
+                        +`source_launch_url=${item["lti_url"]}&`
+                        +`source_context_id=${item["context_id"]}&`
+                        +`lti_consumer=${item["content_source_id"]}&`
+                        +`source_stype=${item["type"]}`;
                     listItem
-                        .attr("data-toggle", "modal")
-                        .attr("data-target", "#activityModal")
-                        .on("click", function (e) {
-                            setInitialActivityData(item);
-                        });
+                        .attr("value", url)
+                        .addClass("modal_launcher")
                 }
                 // if title is empty => set default title:
                 if (!item["display_name"].length) {
@@ -220,16 +225,6 @@
                 .attr("name", sourceId);
         }
 
-        function setInitialActivityData(source) {
-            // prepopulate Activity creation modal form:
-            $("#id_name").val(source["display_name"]);
-            $("#id_source_name").val(source["display_name"]);
-            $("#id_source_launch_url").val(source["lti_url"]);
-            $("#id_source_context_id").val(source["context_id"]);
-            $("#id_lti_consumer").val(source["content_source_id"]);
-            $("#id_stype").val(source['type']);
-        }
-
         // Launch URL fetching:
         const launchUrlFetcher = new Clipboard(
             '#launch-url-fetcher',
@@ -289,10 +284,7 @@
 
         $('form').preventDoubleSubmission();
 
-        $('.activity-show-advanced-options').on('click', function(e){
-            $($(this).data('toggle')).toggle('slow');
-            e.preventDefault();
-        })
+
 
         $('#link-objects-modal').on('click', function(e){
             $('#sourceModal').modal('show');
@@ -363,7 +355,7 @@
                     success: modalSuccessListener(url)
                 }
             );
-            return false;
+            // return false;
         });
     });
 }(jQuery));

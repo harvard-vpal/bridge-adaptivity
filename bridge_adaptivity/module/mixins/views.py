@@ -138,7 +138,8 @@ class ModalFormMixin(object):
 
     def form_valid(self, form):
         super().form_valid(form)
-        return JsonResponse(status=200, data={'status': 'ok'})
+        # Return status code as Accepted and json {'status': 'ok}
+        return JsonResponse(status=202, data={'status': 'ok'})
 
 
 class LinkObjectsMixin(object):
