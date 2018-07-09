@@ -24,7 +24,7 @@ class BaseApiClient(slumber.API):
             course_id=course_id,
             all_blocks=True,
             depth='all',
-            requested_fields='lti_url',
+            requested_fields='lti_url,visible_to_staff_only',
             return_type='list'
         )
         return resource

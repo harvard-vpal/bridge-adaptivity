@@ -147,20 +147,24 @@
                 var sourceButton = $("<span/>");
                 // if item already is used by some Activity => block and highlight:
                 if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
-                    sourceButton
-                        .css("text-decoration", "line-through")
-                        .addClass("bg-info");
+                    sourceButton.css("text-decoration", "line-through").addClass("bg-info");
                 } else {
-                    const url = `${addActivityUrl}?`
-                        +`name=${item["display_name"]}&`
-                        +`source_name=${item["display_name"]}&`
-                        +`source_launch_url=${item["lti_url"]}&`
-                        +`source_context_id=${item["context_id"]}&`
-                        +`lti_consumer=${item["content_source_id"]}&`
-                        +`source_stype=${item["type"]}`;
-                    listItem
-                        .attr("value", url)
-                        .addClass("modal_launcher")
+                    if (item['visible_to_staff_only']) {
+                        sourceButton.css("text-decoration", "line-through").addClass("bg-info");
+                        listItem.click(() => $('#not-avalible-for-student').modal('show'));
+                    } else {
+                        const url = `${addActivityUrl}?`
+                            + `name=${item["display_name"]}&`
+                            + `source_name=${item["display_name"]}&`
+                            + `source_launch_url=${item["lti_url"]}&`
+                            + `source_context_id=${item["context_id"]}&`
+                            + `lti_consumer=${item["content_source_id"]}&`
+                            + `source_stype=${item["type"]}`;
+                        listItem.attr("value", url);
+                        // Used direct listener binding because automatic binding generated only for static page items.
+                        listItem.click(modal_form_launcher);
+
+                    }
                 }
                 // if title is empty => set default title:
                 if (!item["display_name"].length) {
@@ -341,7 +345,7 @@
             }
         };
 
-        $('.modal_launcher').click(e => {
+        function modal_form_launcher(e){
             const url = $(e.currentTarget).attr('value');
             // NOTE: fix for handling event from the parent or child items
             if (url === undefined) {
@@ -356,7 +360,9 @@
                 }
             );
             // return false;
-        });
+        }
+
+        $('.modal_launcher').click(modal_form_launcher);
 
         $('#collection-preview-button').click(e => {
             if($('.activity').length === 0) {
