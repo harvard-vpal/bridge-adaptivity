@@ -4,9 +4,8 @@
 {% block title %}
 <div>Course: <span class="label label-default">{{ course.name }}</span></div>
   <h3>
-    <a class="pull-right" href="{% url 'module:course-change' course.slug %}?back_url={{ course.get_absolute_url}}">
-      {% bootstrap_button 'Edit' size='sm' icon='edit' %}
-    </a>
+    {% url 'module:course-change' course.slug as course_edit %}
+    {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='pull-right modal_launcher' value=course_edit %}
     <a class="pull-right delete-object" href="{% url 'module:course-delete' course.slug %}?back_url={{ course.get_absolute_url}}">
       {% bootstrap_button 'Delete' size='sm' icon='trash' %}
     </a>
@@ -54,9 +53,8 @@
                 <!--{% bootstrap_button "" size='sm' icon='trash' %}-->
               </a>
               <!--Update group-->
-              <a class="pull-right" href="{% url 'module:group-change' group_slug=group.slug %}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
-              </a>
+                {% url 'module:group-change' group_slug=group.slug as group_edit %}
+                {% bootstrap_button '' size='sm' icon='edit' extra_classes='pull-right modal_launcher' value=group_edit %}
             </div>
           </td>
         </tr>
@@ -107,8 +105,10 @@
   </div>
 </div>
 
+{% url "module:group-add" course.slug as add_new_group %}
 {% url "module:add-group-to-course" course_slug=course.slug as add_group_url %}
-{% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url title='Link group with course' %}
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_group_url add_new_object_url=add_new_group title='Link group with course' %}
+{% include "module/modals/modal_wrapper.html" %}
 
 {% url 'module:course-delete' course_slug=course.slug as delete_url %}
 {% include "module/modals/confirmation_modal.html" with object=course action_url=delete_url title="You are about deleting course " %}
