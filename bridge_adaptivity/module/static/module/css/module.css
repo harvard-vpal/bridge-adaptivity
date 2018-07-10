@@ -78,3 +78,7 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
     display: flex;
     justify-content: flex-end;
 }
+
+.unreachable-activity {
+    background: rgba(255, 184, 0, 0.28);
+}

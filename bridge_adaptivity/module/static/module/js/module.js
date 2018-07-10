@@ -146,25 +146,24 @@
 
                 var sourceButton = $("<span/>");
                 // if item already is used by some Activity => block and highlight:
+
+                if (item['visible_to_staff_only']) {
+                    listItem.addClass("unreachable-activity");
+                }
                 if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
                     sourceButton.css("text-decoration", "line-through").addClass("bg-info");
                 } else {
-                    if (item['visible_to_staff_only']) {
-                        sourceButton.css("text-decoration", "line-through").addClass("bg-info");
-                        listItem.click(() => $('#not-avalible-for-student').modal('show'));
-                    } else {
-                        const url = `${addActivityUrl}?`
-                            + `name=${item["display_name"]}&`
-                            + `source_name=${item["display_name"]}&`
-                            + `source_launch_url=${item["lti_url"]}&`
-                            + `source_context_id=${item["context_id"]}&`
-                            + `lti_consumer=${item["content_source_id"]}&`
-                            + `source_stype=${item["type"]}`;
-                        listItem.attr("value", url);
-                        // Used direct listener binding because automatic binding generated only for static page items.
-                        listItem.click(modal_form_launcher);
+                    const url = `${addActivityUrl}?`
+                        + `name=${item["display_name"]}&`
+                        + `source_name=${item["display_name"]}&`
+                        + `source_launch_url=${item["lti_url"]}&`
+                        + `source_context_id=${item["context_id"]}&`
+                        + `lti_consumer=${item["content_source_id"]}&`
+                        + `source_stype=${item["type"]}`;
+                    listItem.attr("value", url);
+                    // Used direct listener binding because automatic binding generated only for static page items.
+                    listItem.click(modal_form_launcher);
 
-                    }
                 }
                 // if title is empty => set default title:
                 if (!item["display_name"].length) {
