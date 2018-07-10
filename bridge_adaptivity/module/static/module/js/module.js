@@ -126,23 +126,26 @@
             }
         }
 
+        function getActivityCreationUrl(item) {
+            return `${$('#activity-add-url-holder').data().url}?`
+                + `name=${item["display_name"]}&`
+                + `source_name=${item["display_name"]}&`
+                + `source_launch_url=${item["lti_url"]}&`
+                + `source_context_id=${item["context_id"]}&`
+                + `lti_consumer=${item["content_source_id"]}&`
+                + `source_stype=${item["type"]}`;
+        }
+
         function renderCourseBlocks(courseData, container) {
             console.log("Rendering course...");
             const usedLtiUrls = $.map(activitiesData, function(data) { return data.launch_url });
             let sourcesList = $("<div/>").addClass("list-group");
-            const addActivityUrl=$('#activity-add-url-holder').data().url;
             $.each(courseData, function (i, item) {
-                var listItem = $("<button/>")
-                    .addClass("list-group-item")
-                    .attr("type", "button")
-                    .appendTo(sourcesList);
-                $("<span/>")
-                    .data("toggle", "tooltip")
-                    .attr("title", item.type)
-                    .addClass(`badge pull-left glyphicon ${typeToIcon(item.type)}`)
-                    .text(" ")
-                    .css("margin-right", "5px")
-                    .appendTo(listItem);
+                var listItem = $("<button class='list-group-item' type='button' />").appendTo(sourcesList);
+                $(
+                    `<span data-toggle='type' title="${item.type}" `+
+                    `class="badge pull-left glyphicon ${typeToIcon(item.type)} style:'margin-right"> </span>`
+                ).appendTo(listItem);
 
                 var sourceButton = $("<span/>");
                 // if item already is used by some Activity => block and highlight:
@@ -153,17 +156,7 @@
                 if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
                     sourceButton.css("text-decoration", "line-through").addClass("bg-info");
                 } else {
-                    const url = `${addActivityUrl}?`
-                        + `name=${item["display_name"]}&`
-                        + `source_name=${item["display_name"]}&`
-                        + `source_launch_url=${item["lti_url"]}&`
-                        + `source_context_id=${item["context_id"]}&`
-                        + `lti_consumer=${item["content_source_id"]}&`
-                        + `source_stype=${item["type"]}`;
-                    listItem.attr("value", url);
-                    // Used direct listener binding because automatic binding generated only for static page items.
-                    listItem.click(modal_form_launcher);
-
+                    listItem.attr("value", getActivityCreationUrl(item)).click(modal_form_launcher);
                 }
                 // if title is empty => set default title:
                 if (!item["display_name"].length) {
@@ -176,16 +169,9 @@
                         listItem.remove()
                     }
                 }
-                sourceButton
-                    .appendTo(listItem);
+                sourceButton.appendTo(listItem);
                 // Cource block preview:
-                createPreviewButton(
-                    item["display_name"],
-                    item["lti_url"],
-                    item,
-                    listItem,
-                    modalContentFrame
-                )
+                createPreviewButton(item["display_name"], item["lti_url"], item, listItem, modalContentFrame)
             });
             container.html(sourcesList);
         }
@@ -358,7 +344,6 @@
                     success: modalSuccessListener(url)
                 }
             );
-            // return false;
         }
 
         $('.modal_launcher').click(modal_form_launcher);

@@ -137,9 +137,11 @@ class ModalFormMixin(object):
     template_name_suffix = '_modal_form'
 
     def form_valid(self, form):
+        """
+        Return status code as Accepted and JSON {'status': 'ok} as submission result of the valid form.
+        """
         super().form_valid(form)
-        # Return status code as Accepted and json {'status': 'ok}
-        return JsonResponse(status=202, data={'status': 'ok'})
+        return JsonResponse(status=200, data={'status': 'ok'})
 
 
 class LinkObjectsMixin(object):
