@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import path, reverse_lazy, re_path
+from django.urls import path, re_path, reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
