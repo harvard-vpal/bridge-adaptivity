@@ -50,7 +50,7 @@ class EngineVPAL(EngineInterface):
 
     def __init__(self, **kwargs):
         self.host = kwargs.get('HOST')
-        self.api_url = 'engine/api/'
+        self.api_url = 'api/v2/'
         self.base_url = urllib.parse.urljoin(self.host, self.api_url)
         self.activity_url = urllib.parse.urljoin(self.base_url, "activity")
         token = kwargs.get('TOKEN')
