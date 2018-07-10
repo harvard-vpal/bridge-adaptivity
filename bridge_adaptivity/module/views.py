@@ -236,7 +236,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        if 'group_slug' in self.kwargs and self.kwargs['group_slug']:
+        if self.kwargs.get('group_slug'):
             CollectionGroup.objects.get(slug=self.kwargs['group_slug']).collections.add(self.object)
         return result
 
@@ -325,8 +325,8 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
             result.update({
                 'name': self.request.GET.get('name'),
                 'source_name': self.request.GET.get('source_name'),
-                'source_launch_url': self.request.GET.get('source_launch_url').replace(' ', '+'),
-                'source_context_id': self.request.GET.get('source_context_id').replace(' ', '+'),
+                'source_launch_url': self.request.GET.get('source_launch_url','').replace(' ', '+'),
+                'source_context_id': self.request.GET.get('source_context_id','').replace(' ', '+'),
                 'lti_consumer': self.request.GET.get('lti_consumer'),
                 'source_stype': self.request.GET.get('source_stype'),
             })
@@ -346,7 +346,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         activity = self.get_object()
-        if 'direction' in kwargs and kwargs['direction']:
+        if kwargs.get('direction'):
             try:
                 # NOTE(wowkalucky): expects 'up', 'down' (also possible: 'top', 'bottom')
                 getattr(activity, kwargs['direction'])()

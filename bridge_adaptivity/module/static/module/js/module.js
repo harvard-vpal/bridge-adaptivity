@@ -342,7 +342,6 @@
                     success: modalSuccessListener(url)
                 }
             );
-            // return false;
         });
     });
 }(jQuery));

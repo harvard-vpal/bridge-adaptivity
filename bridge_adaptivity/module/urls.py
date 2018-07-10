@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import path, reverse_lazy
+from django.urls import path, reverse_lazy, re_path
 from django.views.generic import RedirectView
 
 from module.views import (
@@ -20,7 +20,7 @@ urlpatterns = ([
         name='rm-group-from-course'),
 
     url(r'^group/$', GroupList.as_view(), name='group-list'),
-    url(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
+    re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
     url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
     url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
     url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
