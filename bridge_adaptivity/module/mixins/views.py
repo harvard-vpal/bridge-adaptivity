@@ -141,7 +141,7 @@ class ModalFormMixin(object):
         Return status code as Accepted and JSON {'status': 'ok} as submission result of the valid form.
         """
         super().form_valid(form)
-        return JsonResponse(status=200, data={'status': 'ok'})
+        return JsonResponse(status=202, data={'status': 'ok'})
 
 
 class LinkObjectsMixin(object):
