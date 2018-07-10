@@ -6,6 +6,10 @@
 <hr>
 
 {% block content %}
+
+    {% include "module/modals/modal_wrapper.html" %}
+    {% url "module:group-add" as group_add %}
+
   {% if groups %}
     <table class="table table-hover">
       <tr>
@@ -32,10 +36,9 @@
           <td class="text-center">{% if group.grading_policy.policy_cls.require.threshold %}{{ group.grading_policy.threshold }}{% endif %}</td>
           <td class="text-right" style="min-width: 90px;">
             <div>
-              <a class="move-down"
-                 href="{% url 'module:group-change' group_slug=group.slug %}?back_url={% url 'module:group-list' %}">
-                {% bootstrap_button "" size='sm' icon='edit' %}
-              </a>
+
+              {% url 'module:group-change' group_slug=group.slug as group_edit %}
+              {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
 
               <a class="move-down delete-object
                   {% if group.has_linked_active_sequences %} show-alarm
@@ -71,9 +74,8 @@
   {% endif %}
 
   <hr>
-  <a href="{% url 'module:group-add' %}">
-    {% bootstrap_button 'Add Group' size='lg' icon='plus' %}
-  </a>
+  {% bootstrap_button 'Add Group' size='lg' icon='plus' extra_classes='modal_launcher' value=group_add %}
+
 
 {% endblock content %}
 

@@ -1,0 +1,19 @@
+{% extends "module/base_modal_form.html" %}
+{% load bootstrap3 %}
+
+{% block title %}
+    {% if course.id %}
+        Update {{ course.name }}
+    {% else %}
+        New Course configuration
+    {% endif %}
+{% endblock title %}
+
+{% block body %}
+    <form role="form" method="post">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <button class="btn btn-primary" type="submit">
+            {% if course.id %}Update{% else %}Create{% endif %}</button>
+    </form>
+{% endblock body %}

@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseCreate(BaseCourseView, SetUserInFormMixin, CreateView):
+class CourseCreate(BaseCourseView, SetUserInFormMixin, ModalFormMixin, CreateView):
     fields = 'owner', 'name', 'description'
 
 
@@ -59,7 +59,7 @@ class CourseDetail(LinkObjectsMixin, BaseCourseView, DetailView):
 
 
 @method_decorator(login_required, name='dispatch')
-class CourseUpdate(BaseCourseView, SetUserInFormMixin, UpdateView):
+class CourseUpdate(BaseCourseView, SetUserInFormMixin, ModalFormMixin, UpdateView):
     fields = 'name', 'description'
     context_object_name = 'course'
 
@@ -164,8 +164,13 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, CreateView):
-    pass
+class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
+
+    def form_valid(self, form):
+        result = super().form_valid(form)
+        if 'course_slug' in self.kwargs and self.kwargs['course_slug']:
+            Course.objects.get(slug=self.kwargs['course_slug']).course_groups.add(self.object)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')
@@ -207,7 +212,7 @@ class AddCollectionInGroup(JsonResponseMixin, FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, UpdateView):
+class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, UpdateView):
     form_class = GroupForm
     context_object_name = 'group'
 
@@ -228,7 +233,12 @@ class CollectionList(BaseCollectionView, ListView):
 
 @method_decorator(login_required, name='dispatch')
 class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, CreateView):
-    pass
+
+    def form_valid(self, form):
+        result = super().form_valid(form)
+        if self.kwargs.get('group_slug'):
+            CollectionGroup.objects.get(slug=self.kwargs['group_slug']).collections.add(self.object)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')
@@ -305,26 +315,38 @@ class CollectionGroupDelete(DeleteView):
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, CreateView):
+class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin, CreateView):
     model = Activity
     form_class = ActivityForm
 
+    def get_initial(self):
+        result = super().get_initial()
+        if self.request.method == 'GET':
+            result.update({
+                'name': self.request.GET.get('name'),
+                'source_name': self.request.GET.get('source_name'),
+                'source_launch_url': self.request.GET.get('source_launch_url', '').replace(' ', '+'),
+                'source_context_id': self.request.GET.get('source_context_id', '').replace(' ', '+'),
+                'lti_consumer': self.request.GET.get('lti_consumer'),
+                'source_stype': self.request.GET.get('source_stype'),
+            })
+        return result
+
     def form_valid(self, form):
-        activity = form.save(commit=False)
-        collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
-        activity.collection = collection
-        return super().form_valid(form)
+        form.instance.collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
+        result = super().form_valid(form)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')
-class ActivityUpdate(CollectionSlugToContextMixin, UpdateView):
+class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
     model = Activity
     form_class = ActivityForm
     context_object_name = 'activity'
 
     def get(self, request, *args, **kwargs):
         activity = self.get_object()
-        if 'direction' in kwargs:
+        if kwargs.get('direction'):
             try:
                 # NOTE(wowkalucky): expects 'up', 'down' (also possible: 'top', 'bottom')
                 getattr(activity, kwargs['direction'])()

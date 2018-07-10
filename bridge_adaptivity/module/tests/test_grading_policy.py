@@ -7,7 +7,7 @@ import pytest
 from bridge_lti.models import LtiProvider, OutcomeService
 from module.models import (
     Activity, BridgeUser, Collection, CollectionGroup, Engine, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, LtiUser,
-    Sequence
+    Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -132,7 +132,7 @@ class TestPolicySendGradeMethod(TestCase):
             name='testactivity1', collection=self.collection, source_launch_url=self.source_launch_url
         )
         self.activity2 = Activity.objects.create(
-            name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url
+            name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url, stype='problem'
         )
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
@@ -189,3 +189,40 @@ class TestPolicySendGradeMethod(TestCase):
             }
             policy.send_grade()
             mock_update_lms_grades.assert_called_with(**default_kw)
+
+
+class TestPolicyCalculateMethod(TestPolicySendGradeMethod):
+
+    def setUp(self):
+        super().setUp()
+        self.sequence_item = SequenceItem.objects.create(
+            sequence=self.sequence, activity=self.activity, is_problem=False
+        )
+
+    def test_points_earned_calculation_one_non_problem_activity(self):
+        """
+        Test issue when the non-problem activity appear to be the first at the sequence.
+
+        Additional case is tested when points_earned policy with the threshold set with default value 0, value is set in
+        the fixture.
+        """
+        policy_model = GradingPolicy.objects.get(name='points_earned')
+        policy = policy_model.policy_instance(sequence=self.sequence)
+        grade = policy._calculate()
+        self.assertEqual(0, grade)
+
+    def test_points_earned_calculation_two_activities(self):
+        """
+        Test issue when the non-problem activity appear to be the first at the sequence.
+
+        Additional case is tested when points_earned policy with the threshold set with default value 0, value is set in
+        the fixture.
+        """
+        policy_model = GradingPolicy.objects.get(name='points_earned')
+        policy = policy_model.policy_instance(sequence=self.sequence)
+        SequenceItem.objects.create(sequence=self.sequence, activity=self.activity2, position=2, score=1)
+        grade = policy._calculate()
+        self.assertEqual(1, grade)
+        SequenceItem.objects.create(sequence=self.sequence, activity=self.activity2, position=3, score=0)
+        grade = policy._calculate()
+        self.assertEqual(.5, grade)
