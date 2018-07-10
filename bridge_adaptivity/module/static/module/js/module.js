@@ -350,14 +350,6 @@
 
         $('#collection-preview-button').click(e => {
             if($('.activity').length === 0) {
-                $('#no-preview-warning').modal('show');
-                e.preventDefault();
-                return true;
-            }
-        });
-
-        $('#collection-preview-button').click(e => {
-            if($('.activity').length === 0) {
                 $('#preview-warning').modal('show');
                 e.preventDefault();
                 return true;
