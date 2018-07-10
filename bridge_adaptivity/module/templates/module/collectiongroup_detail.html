@@ -20,8 +20,10 @@
         {% url 'module:group-change' group.slug as group_edit %}
         {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
         <a class="pull-right delete-object
-      {% if group.has_linked_active_sequences %} show-alarm
-        {% else %} show-warning{% endif %}">
+                 {% if group.has_linked_active_sequences %}
+                   show-alarm {% else %} show-warning
+                 {% endif %}"
+           data-id="{{ group.slug }}">
             {% bootstrap_button 'Delete' size='sm' icon='trash' %}
         </a>
         {% if grade_update_available %}
@@ -127,6 +129,10 @@
 
       <hr>
 
+  {% url 'module:group-detail' group_slug=group.slug as back_url %}
+  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
+  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
+        
   </div>
   <div class="col-md-3">
     <div class="row">
@@ -160,15 +166,15 @@
 {% endwith %}
 
 {% if group.has_linked_active_sequences %}
-  {% with message="At least one student is still working on the Collection which is in Collection Group " %}
-    {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url %}
+  {% with message="At least one student is still working on the Collection which is in Collection Group" %}
+    {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url id=group.slug %}
   {% endwith %}
 {% elif group.has_linked_sequences %}
-  {% with message="At least one student is linked to the Collection which is in Collection Group " %}
-    {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url %}
+  {% with message="At least one student is linked to the Collection which is in Collection Group" %}
+    {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url id=group.slug %}
   {% endwith %}
 {% else %}
-  {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url %}
+  {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url id=group.slug %}
 {% endif %}
 
 {% endblock content %}
