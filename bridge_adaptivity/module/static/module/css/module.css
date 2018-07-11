@@ -80,5 +80,9 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
 }
 
 .unreachable-activity {
-    background: rgba(255, 184, 0, 0.28);
+    background: rgba(75, 73, 45, 0.16);
+}
+
+.badge{
+    margin-right: 4px;
 }

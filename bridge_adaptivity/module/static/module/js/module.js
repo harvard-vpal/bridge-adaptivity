@@ -127,6 +127,13 @@
         }
 
         function getActivityCreationUrl(item) {
+            const activityAddUrlHolder =  $('#activity-add-url-holder');
+            // Note(braiko) this method called when state from session storage loaded,
+            // but there no activities on this page.
+            if(activityAddUrlHolder.length == 0)
+            {
+                return "";
+            }
             return `${$('#activity-add-url-holder').data().url}?`
                 + `name=${item["display_name"]}&`
                 + `source_name=${item["display_name"]}&`
