@@ -1,0 +1,30 @@
+{% load bootstrap3 %}
+
+<!-- Modal -->
+<div class="modal fade" id="{{ id }}" tabindex="-1" role="dialog" aria-labelledby="activityModalLabel">
+  <div class="modal-dialog" style="width:60%;" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+          aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="activityModalLabel">Warning</h4>
+      </div>
+      <div class="modal-body">
+          <h3>
+              This activity will not available for the student.
+          </h3>
+
+          <p>It can be caused by next:</p>
+          <ul>
+              <li class="text-muted">Course does not yet started</li>
+              <li class="text-muted">Item hidden for learners</li>
+              <li class="text-muted">Activity below to cohorts content</li>
+          </ul>
+      </div>
+        <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default pull-left add-new-activity modal_launcher" data-dismiss="modal">Add new activity</button>
+      </div>
+    </div>
+  </div>
+</div>

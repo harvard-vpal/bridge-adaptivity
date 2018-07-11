@@ -153,10 +153,19 @@
                 if (item['visible_to_staff_only']) {
                     listItem.addClass("unreachable-activity");
                 }
+
                 if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
                     sourceButton.css("text-decoration", "line-through").addClass("bg-info");
                 } else {
-                    listItem.attr("value", getActivityCreationUrl(item)).click(modal_form_launcher);
+                    if (item['visible_to_staff_only']) {
+                        listItem.click(() => {
+                            let modal = $("#not-available-for-student")
+                            modal.find('.add-new-activity').attr('value',getActivityCreationUrl(item))
+                            modal.modal("show")
+                        })
+                    } else {
+                        listItem.attr("value", getActivityCreationUrl(item)).click(modal_form_launcher);
+                    }
                 }
                 // if title is empty => set default title:
                 if (!item["display_name"].length) {
@@ -355,5 +364,6 @@
                 return true;
             }
         });
+
     });
 }(jQuery));
