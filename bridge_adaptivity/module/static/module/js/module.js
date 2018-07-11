@@ -127,6 +127,13 @@
         }
 
         function getActivityCreationUrl(item) {
+            const activityAddUrlHolder =  $('#activity-add-url-holder');
+            // Note(braiko) this method called when state from session storage loaded,
+            // but there no activities on this page.
+            if(activityAddUrlHolder.length == 0)
+            {
+                return "";
+            }
             return `${$('#activity-add-url-holder').data().url}?`
                 + `name=${item["display_name"]}&`
                 + `source_name=${item["display_name"]}&`
@@ -149,12 +156,23 @@
 
                 var sourceButton = $("<span/>");
                 // if item already is used by some Activity => block and highlight:
+
+                if (item['visible_to_staff_only']) {
+                    listItem.addClass("unreachable-activity");
+                }
+
                 if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
-                    sourceButton
-                        .css("text-decoration", "line-through")
-                        .addClass("bg-info");
+                    sourceButton.css("text-decoration", "line-through").addClass("bg-info");
                 } else {
-                    listItem.attr("value", getActivityCreationUrl(item)).addClass("modal_launcher")
+                    if (item['visible_to_staff_only']) {
+                        listItem.click(() => {
+                            let modal = $("#not-available-for-student")
+                            modal.find('.add-new-activity').attr('value',getActivityCreationUrl(item))
+                            modal.modal("show")
+                        })
+                    } else {
+                        listItem.attr("value", getActivityCreationUrl(item)).click(modal_form_launcher);
+                    }
                 }
                 // if title is empty => set default title:
                 if (!item["display_name"].length) {
@@ -328,7 +346,7 @@
             }
         };
 
-        $('.modal_launcher').click(e => {
+        function modal_form_launcher(e){
             const url = $(e.currentTarget).attr('value');
             // NOTE: fix for handling event from the parent or child items
             if (url === undefined) {
@@ -342,7 +360,9 @@
                     success: modalSuccessListener(url)
                 }
             );
-        });
+        }
+
+        $('.modal_launcher').click(modal_form_launcher);
 
         $('#collection-preview-button').click(e => {
             if($('.activity').length === 0) {
@@ -351,5 +371,6 @@
                 return true;
             }
         });
+
     });
 }(jQuery));

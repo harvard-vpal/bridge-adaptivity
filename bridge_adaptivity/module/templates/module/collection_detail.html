@@ -20,6 +20,8 @@
 
   <div class="row">
  {% include "module/modals/toast.html" with id='preview-warning' message='There is no preview for the empty group' %}
+ {% include "module/modals/no_available_activity.html" with id='not-available-for-student'%}
+
 
       <div class="col-md-8">
         <h3 class="detail-toolpanel">
@@ -142,6 +144,10 @@
         <li class="text-muted">
           <span class="bg-warning">pre-assessments</span> and
           <span class="bg-info">post-assessment</span> activities are marked respectively
+        </li>
+          <li class="text-muted">
+              Unreachable activities from the content source marked
+          <span class="unreachable-activity">gray</span>
         </li>
       </ul>
 

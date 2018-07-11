@@ -63,7 +63,15 @@ def get_available_blocks(source_id, course_id=''):
         all_blocks.extend(
             apply_data_filter(
                 api.get_course_blocks(course_id),
-                filters=['id', 'block_id', 'display_name', 'lti_url', 'type', 'content_source_id'],
+                filters=[
+                    'id',
+                    'block_id',
+                    'display_name',
+                    'lti_url',
+                    'type',
+                    'content_source_id',
+                    'visible_to_staff_only',
+                ],
                 context_id=course_id,
                 content_source_id=content_source.id
             )

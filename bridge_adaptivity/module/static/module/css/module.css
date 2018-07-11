@@ -78,3 +78,11 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
     display: flex;
     justify-content: flex-end;
 }
+
+.unreachable-activity {
+    background: rgba(75, 73, 45, 0.16);
+}
+
+.badge{
+    margin-right: 4px;
+}
