@@ -140,7 +140,7 @@
                 + `source_launch_url=${item["lti_url"]}&`
                 + `source_context_id=${item["context_id"]}&`
                 + `lti_consumer=${item["content_source_id"]}&`
-                + `source_stype=${item["type"]}`;
+                + `stype=${item["type"]}`;
         }
 
         function renderCourseBlocks(courseData, container) {

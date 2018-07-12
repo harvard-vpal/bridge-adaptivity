@@ -328,7 +328,7 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
                 'source_launch_url': self.request.GET.get('source_launch_url', '').replace(' ', '+'),
                 'source_context_id': self.request.GET.get('source_context_id', '').replace(' ', '+'),
                 'lti_consumer': self.request.GET.get('lti_consumer'),
-                'source_stype': self.request.GET.get('source_stype'),
+                'stype': self.request.GET.get('stype'),
             })
         return result
 
