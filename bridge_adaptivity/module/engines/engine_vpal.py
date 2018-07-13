@@ -57,14 +57,15 @@ class EngineVPAL(EngineInterface):
         self.headers = {'Authorization': 'Token {}'.format(token)} if token else {}
 
     @staticmethod
-    def check_engine_response(engine_status, action=None, obj=None, name=None, status=200):
+    def check_engine_response(request, action=None, obj=None, name=None, status=200):
         if obj and name:
             obj += ' {}'.format(name)
-        if engine_status == status:
+        if request.status_code == status:
             log.debug("[VPAL Engine] {} is {}.".format(obj, action))
             return True
         else:
             log.error("[VPAL Engine] {} is not {}.".format(obj, action))
+            log.error("[VPAL Engine] Error response: {}".format(request.text))
             return False
 
     def fulfill_payload(self, payload=None, instance_to_parse=None, score=None):
@@ -137,7 +138,7 @@ class EngineVPAL(EngineInterface):
         for sequence_item in sequence.items.all():
             payload["sequence"].append(self.fulfill_payload(payload={}, instance_to_parse=sequence_item))
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
-        if self.check_engine_response(chosen_activity.status_code, action="chosen", obj='activity'):
+        if self.check_engine_response(chosen_activity, action="chosen", obj='activity'):
             choose = chosen_activity.json()
             return choose.get('source_launch_url')
         return None
@@ -154,7 +155,7 @@ class EngineVPAL(EngineInterface):
             payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))
         sync_collection = requests.post(sync_url, json=payload, headers=self.headers)
         return self.check_engine_response(
-            sync_collection.status_code, action='synchronized', obj='collection', name=collection.name
+            sync_collection, action='synchronized', obj='collection', name=collection.name
         )
 
     def submit_activity_answer(self, sequence_item):
@@ -168,7 +169,7 @@ class EngineVPAL(EngineInterface):
         self.add_learner_to_payload(sequence_item.sequence, payload, add_metadata=False)
         submit_activity_score = requests.post(submit_url, json=payload, headers=self.headers)
         return self.check_engine_response(
-            submit_activity_score.status_code,
+            submit_activity_score,
             action='graded',
             obj='sequence item',
             name=sequence_item.activity.name,
@@ -185,7 +186,7 @@ class EngineVPAL(EngineInterface):
             collection_slug=sequence.collection.slug)
         )
         response = requests.post(url, json=self.add_learner_to_payload(sequence, {}), headers=self.headers)
-        if self.check_engine_response(response.status_code, action='grade', obj='sequence'):
+        if self.check_engine_response(response, action='grade', obj='sequence'):
             grade = response.json().get('grade')
             if 0 <= grade <= 1:
                 return grade
