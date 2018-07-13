@@ -116,12 +116,18 @@
                     course_id: activeCourseId,
                     content_source_id: contentSourceId
                 };
-                $.post(internalUrls.apiSources, requestData, function (responseData) {
-                    console.log("Processing API request...");
-                    state.accordion.courseData[activeCourseIndex] = responseData;
-                    state.accordion.activeCourseId = activeCourseId;
-                    state.save();
-                    renderCourseBlocks(responseData, content_panel);
+                $.ajax({
+                    type: "POST",
+                    url: internalUrls.apiSources,
+                    data: requestData,
+                    success: responseData => {
+                        console.log("Processing API request...");
+                        state.accordion.courseData[activeCourseIndex] = responseData;
+                        state.accordion.activeCourseId = activeCourseId;
+                        state.save();
+                        renderCourseBlocks(responseData, content_panel);
+                    },
+                    error: responseData => console.log("Can load source info " + responseData)
                 });
             }
         }

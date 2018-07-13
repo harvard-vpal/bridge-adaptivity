@@ -241,11 +241,5 @@
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
-  <script type="application/javascript">
-      var internalUrls = {
-          apiSources: "{% url 'api:sources' %}",
-          ltiSourcePreview: "{% url 'lti:source-preview' %}"
-      };
-  </script>
   <script src="{% static 'module/js/module.js' %}"></script>
 {% endblock bootstrap3_extra_script %}
