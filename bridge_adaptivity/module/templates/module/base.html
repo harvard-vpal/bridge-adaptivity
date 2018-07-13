@@ -48,7 +48,14 @@
 {% endblock bootstrap3_content %}
 
 {% if not 'javascript_in_head'|bootstrap_setting %}{% bootstrap_javascript jquery=True %}{% endif %}
-{% block bootstrap3_extra_script %}{% endblock %}
+{% block bootstrap3_extra_script %}
+    <script type="application/javascript">
+        var internalUrls = {
+            apiSources: "{% url 'api:sources' %}",
+            ltiSourcePreview: "{% url 'lti:source-preview' %}"
+        };
+    </script>
+{% endblock %}
 {% block js %}{% endblock %}
 </body>
 
