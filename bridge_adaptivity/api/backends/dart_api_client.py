@@ -16,7 +16,7 @@ class DartApiClient(BaseApiClient):
         BaseApiClient.__init__(self, content_source=content_source)
         log.debug("Creating new Dart API client...")
 
-        slumber.API.__init__(self, self.url, auth=self.auth_request_decorator,append_slash=False)
+        slumber.API.__init__(self, self.url, auth=self.auth_request_decorator, append_slash=False)
 
     @property
     def auth_request_decorator(self):
@@ -32,7 +32,7 @@ class DartApiClient(BaseApiClient):
     def get_provider_courses(self):
         request = self.collections.get()
         data = request['data']
-        result =[
+        result = [
             {
                 'course_id':collection['uid'],
                 'name':collection['title'],
@@ -61,10 +61,10 @@ class DartApiClient(BaseApiClient):
             else:
                 content_type = asset_request['asset']['content_type']
             result.append({
-                'block_id':asset,
-                'display_name':title,
-                'lti_url':lti_url,
-                'type':content_type,
-                'visible_to_staff_only':False,
+                'block_id': asset,
+                'display_name': title,
+                'lti_url': lti_url,
+                'type': content_type,
+                'visible_to_staff_only': False,
             })
         return result
