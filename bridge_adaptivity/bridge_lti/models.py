@@ -81,7 +81,6 @@ class LtiConsumer(models.Model):
             raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client with credentials type')})
 
 
-
 @python_2_unicode_compatible
 class LtiUser(models.Model):
     """Model to manage LTI users."""

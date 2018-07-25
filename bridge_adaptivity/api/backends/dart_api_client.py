@@ -34,9 +34,9 @@ class DartApiClient(BaseApiClient):
         data = request['data']
         result = [
             {
-                'course_id':collection['uid'],
-                'name':collection['title'],
-                'org':collection['content_creator'],
+                'course_id': collection['uid'],
+                'name': collection['title'],
+                'org': collection['content_creator'],
             }
             for collection in data
         ]
