@@ -12,8 +12,6 @@ class DartApiClient(BaseApiClient):
     API client to interact with DART.
     """
 
-    TOKEN_URL = "/oauth2/access_token"
-
     def __init__(self, content_source):
         BaseApiClient.__init__(self, content_source=content_source)
         log.debug("Creating new Dart API client...")
