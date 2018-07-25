@@ -78,7 +78,7 @@ class LtiConsumer(models.Model):
         if self.source_type == self.EDX_SOURCE and self.o_auth_client.grant_type != OAuthClient.CREDENTIALS:
             raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client with credentials type')})
         if self.source_type == self.DART and self.o_auth_client.grant_type != OAuthClient.AUTH_CODE:
-            raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client with credentials type')})
+            raise ValidationError({'o_auth_client': _('DART content source needs Auth client with grant type')})
 
 
 @python_2_unicode_compatible

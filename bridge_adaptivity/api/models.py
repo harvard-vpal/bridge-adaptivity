@@ -12,15 +12,10 @@ class OAuthClient(models.Model):
     Content source API connections.
     """
 
-    # Note (braiko) commented grant types are types that can exist, but now not used.
     AUTH_CODE = "code"
-    # IMPLICIT = "implicit"
-    # PASSWORD = "password"
     CREDENTIALS = "credentials"
     GRANT_TYPES = (
         (AUTH_CODE, 'authorization code'),
-        # (IMPLICIT, 'implicit'),
-        # (PASSWORD, 'resource owner password-based'),
         (CREDENTIALS, 'client credentials'),
     )
 
@@ -29,7 +24,7 @@ class OAuthClient(models.Model):
     client_secret = models.CharField(max_length=255)
     grant_type = fields.CharField(
         choices=GRANT_TYPES, default=CREDENTIALS, max_length=255, null=True, blank=True,
-        help_text='OAuth grant type which is used by OpenEdx API.'
+        help_text='OAuth grant type which is used by Client API.'
     )
 
     class Meta:

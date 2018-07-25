@@ -16,6 +16,7 @@ class DartApiClient(BaseApiClient):
         BaseApiClient.__init__(self, content_source=content_source)
         log.debug("Creating new Dart API client...")
 
+        # Pass to the slumber additional parameters: auth and append_slash
         slumber.API.__init__(self, self.url, auth=self.auth_request_decorator, append_slash=False)
 
     @property
