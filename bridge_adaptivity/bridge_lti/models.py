@@ -5,6 +5,7 @@ from django.db.models import fields
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
+from api.models import OAuthClient
 from .utils import short_token
 
 
@@ -41,10 +42,12 @@ class LtiConsumer(models.Model):
 
     BASE_SOURCE = "base"
     EDX_SOURCE = "edx"
+    DART = "dart"
 
     SOURCE_TYPE_CHOICES = (
         (BASE_SOURCE, "Base Source"),
-        (EDX_SOURCE, "edX Source")
+        (EDX_SOURCE, "edX Source"),
+        (DART, "Dart Source"),
     )
 
     name = fields.CharField(max_length=255, blank=True, null=True, unique=True)
@@ -72,6 +75,10 @@ class LtiConsumer(models.Model):
         super().clean()
         if self.source_type == self.EDX_SOURCE and not self.o_auth_client:
             raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client')})
+        if self.source_type == self.EDX_SOURCE and self.o_auth_client.grant_type != OAuthClient.CREDENTIALS:
+            raise ValidationError({'o_auth_client': _('Edx content source needs OAuth client with credentials type')})
+        if self.source_type == self.DART and self.o_auth_client.grant_type != OAuthClient.AUTH_CODE:
+            raise ValidationError({'o_auth_client': _('DART content source needs Auth client with grant type')})
 
 
 @python_2_unicode_compatible

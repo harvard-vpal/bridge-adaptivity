@@ -4,6 +4,7 @@ from django.utils.translation import ugettext as _
 from slumber.exceptions import HttpClientError, HttpNotFoundError
 
 from api.backends.base_api_client import BaseApiClient
+from api.backends.dart_api_client import DartApiClient
 from api.backends.edx_api_client import OpenEdxApiClient
 from bridge_lti.models import LtiConsumer
 
@@ -15,9 +16,12 @@ def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
     """
     Return API client for the given content source.
     """
-    if content_source.source_type == LtiConsumer.EDX_SOURCE:
-        return OpenEdxApiClient(content_source)
-    return BaseApiClient(content_source)
+    api_clients = {
+        LtiConsumer.EDX_SOURCE: OpenEdxApiClient,
+        LtiConsumer.DART: DartApiClient,
+        LtiConsumer.BASE_SOURCE: BaseApiClient,
+    }
+    return api_clients[content_source.source_type](content_source)
 
 
 def get_active_content_sources(source_id=None, not_allow_empty_source_id=True):
