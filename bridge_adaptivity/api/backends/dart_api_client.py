@@ -8,7 +8,9 @@ log = logging.getLogger(__name__)
 
 
 class DartApiClient(BaseApiClient):
-    """API client to interact with OpenEdx Course API."""
+    """
+    API client to interact with DART.
+    """
 
     TOKEN_URL = "/oauth2/access_token"
 
