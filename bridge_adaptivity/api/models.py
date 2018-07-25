@@ -33,13 +33,13 @@ class OAuthClient(models.Model):
 
     def clean(self):
         """
-        Check is model valid.
+        Check model is valid.
 
-        Rise validation exception when we try to set edx as a source type without a auth client
+        Rise validation exception when the source type is set without an auth client.
         """
         super().clean()
         if self.grant_type == self.CREDENTIALS and not self.client_id:
-            raise ValidationError({'client_id': 'Client credentials needs client id'})
+            raise ValidationError({'client_id': 'Client credentials need client id'})
 
     def __str__(self):
         return '<OAuthClient: {}>'.format(self.name or self.client_id)
