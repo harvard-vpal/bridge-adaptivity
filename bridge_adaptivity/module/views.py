@@ -17,7 +17,7 @@ from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
-from api.backends.api_client import get_available_courses, get_active_content_sources
+from api.backends.api_client import get_active_content_sources, get_available_courses
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
@@ -251,7 +251,7 @@ class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
 
     def get_context_data(self, **kwargs):
-        selected_content_sources = list(map(int,self.request.GET.getlist('content_source',[])))
+        selected_content_sources = list(map(int, self.request.GET.getlist('content_source', [])))
         activities = Activity.objects.filter(collection=self.object)
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
