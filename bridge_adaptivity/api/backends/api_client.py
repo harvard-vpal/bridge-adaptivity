@@ -8,7 +8,6 @@ from api.backends.dart_api_client import DartApiClient
 from api.backends.edx_api_client import OpenEdxApiClient
 from bridge_lti.models import LtiConsumer
 
-
 log = logging.getLogger(__name__)
 
 
@@ -24,21 +23,21 @@ def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
     return api_clients[content_source.source_type](content_source)
 
 
-def get_active_content_sources(source_id=None, not_allow_empty_source_id=True):
+def get_active_content_sources(source_ids=None, not_allow_empty_source_id=True):
     """
     Check that passed source_id parameter is valid.
 
     If there's only one active source provider - source_id parameter is not required, it will get first active.
-    :param source_id: LtiConsumer object id
+    :param source_ids: LtiConsumer object id or list of this objects
     :param not_allow_empty_source_id: if True - it will not allow empty source_id, if False - source_id could be None
     :return: queryset of content_sources
     :raise HttpClientError: if provided parameters are not valid
     """
-    if not_allow_empty_source_id and not source_id:
+    if not_allow_empty_source_id and not source_ids:
         # if source_id is not provided and more than one active content_provider
         raise HttpClientError(_("Parameter source_id is mandatory if there's more than one active content source."))
 
-    content_sources = get_content_providers(source_id=source_id)
+    content_sources = get_content_providers(source_ids=source_ids)
 
     if not content_sources:
         # if no active content sources
@@ -88,14 +87,14 @@ def get_available_blocks(source_id, course_id=''):
     return all_blocks
 
 
-def get_available_courses(source_id=None):
+def get_available_courses(source_ids=None):
     """
     Fetch all available courses from all sources of from source with provided ID.
 
-    :param source_id: content provider's ID
+    :param source_ids: content provider's ID or list of the IDs
     :return: (list) course_ids
     """
-    content_sources = get_active_content_sources(source_id, not_allow_empty_source_id=False)
+    content_sources = get_active_content_sources(source_ids, not_allow_empty_source_id=False)
 
     all_courses = []
 
@@ -144,21 +143,24 @@ def apply_data_filter(data, filters=None, **kwargs):
     return filtered_data
 
 
-def get_content_providers(source_id=None):
+def get_content_providers(source_ids=None):
     """
     Pick active (enabled) content Sources (aka Providers).
 
     LTI Providers which expose courses content blocks to use in adaptive collections.
-    :param source_id: LtiConsumer ID or None
+    :param source_ids: LtiConsumer ID or list of the LtiConsumer ID or None
     :return: content_sources queryset
     """
     q_kw = {
         'is_active': True
     }
-    if source_id:
-        q_kw['id'] = source_id
+    if source_ids:
+        if isinstance(source_ids, list):
+            q_kw['id__in'] = source_ids
+        else:
+            q_kw['id'] = source_ids
     content_source = LtiConsumer.objects.filter(**q_kw)
     log.debug('Picked content Source(s){}: {}'.format(
-        " with content_source_id={}".format(source_id),
+        " with content_source_id={}".format(source_ids),
         ", ".join(content_source.values_list('name', flat=True))))
     return content_source

@@ -9,7 +9,8 @@
         "lti_metadata": null,
         "host_url": "https://some-staging-vpal.raccoongang.com",
         "o_auth_client": 2,
-        "is_active": true
+        "is_active": true,
+        "source_type": "edx"
     }
 },
 {
@@ -22,7 +23,8 @@
         "lti_metadata": null,
         "host_url": "https://edx-staging-vpal.raccoongang.com",
         "o_auth_client": 3,
-        "is_active": true
+        "is_active": true,
+        "source_type": "edx"
     }
 },
 {
