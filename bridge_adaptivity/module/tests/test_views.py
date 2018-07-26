@@ -17,7 +17,7 @@ GRADING_POLICIES = (
 
 
 class BridgeTestCase(TestCase):
-    fixtures = ['gradingpolicy', 'engine']
+    fixtures = ['gradingpolicy', 'engine', 'api', 'bridge']
     group_prefix = GroupEditFormMixin.prefix
     grading_prefix = GroupEditFormMixin.grading_prefix
 
@@ -303,7 +303,8 @@ class TestBackURLMixin(BridgeTestCase):
         self.assertIn('back_url', change_response.context)
         self.assertEqual(change_response.context['back_url'], self.back_url)
 
-    def test_collection_detail_back_url(self):
+    @patch('module.views.get_available_courses', return_value=[])
+    def test_collection_detail_back_url(self, available_course_mock):
         """Test back_url param is added into context navigation from collection detail view."""
         url_detail = (
             reverse('module:collection-detail', kwargs={'slug': self.collection1.slug}) +
