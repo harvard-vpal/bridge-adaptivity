@@ -276,7 +276,8 @@ class CollectionDetail(BaseCollectionView, DetailView):
             )
             return []
 
-    def get_content_source_list(self, selected_content_sources):
+    @staticmethod
+    def get_content_source_list(selected_content_sources):
         return [
             {
                 'name': source.name,
