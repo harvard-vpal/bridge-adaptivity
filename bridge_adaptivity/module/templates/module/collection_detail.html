@@ -157,6 +157,23 @@
       <div class="row">
         <h3 class="text-center">Available content courses</h3>
       </div>
+
+        {% if content_sources %}
+            <form>
+                {% for source in content_sources %}
+                    <div class="input-group content-source-select">
+                    <span class="input-group-addon">
+                        <input type="checkbox" name="content_source" value="{{ source.id }}" {{ source.checked }}>
+                    </span>
+                        <span class="form-control">{{ source.name }}</span>
+                    </div>
+                    {% if back_url %}
+                        <input type="hidden" name="back_url" value="{{ back_url }}">
+                    {% endif %}
+                {% endfor %}
+                <button type="submit" class="btn btn-default content-source-filter-btn">Filter</button>
+            </form>
+        {% endif %}
       <div class="raw panel-heading">
         <label for="filter">Filter Activities:</label>
         <input id="filter" type="search">

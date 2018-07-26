@@ -86,3 +86,11 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
 .badge{
     margin-right: 4px;
 }
+
+.content-source-select {
+    margin-top: 3px;
+}
+
+.content-source-filter-btn {
+    margin-top: 7px;
+}

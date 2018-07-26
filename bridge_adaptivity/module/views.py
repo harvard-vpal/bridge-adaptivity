@@ -17,7 +17,7 @@ from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
-from api.backends.api_client import get_available_courses
+from api.backends.api_client import get_available_courses, get_active_content_sources
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
@@ -251,11 +251,13 @@ class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
 
     def get_context_data(self, **kwargs):
+        selected_content_sources = list(map(int,self.request.GET.getlist('content_source',[])))
         activities = Activity.objects.filter(collection=self.object)
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
-        context['source_courses'] = self.get_content_courses()
+        context['content_sources'] = self.get_content_source_list(selected_content_sources)
+        context['source_courses'] = self.get_content_courses(selected_content_sources)
         context['activity_form'] = ActivityForm(initial={'collection': self.object})
         context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
@@ -264,15 +266,25 @@ class CollectionDetail(BaseCollectionView, DetailView):
         return context
 
     @staticmethod
-    def get_content_courses():
+    def get_content_courses(selected_content_sources):
         try:
-            return get_available_courses()
+            return get_available_courses(selected_content_sources)
         except HttpClientError:
             log.exception(
                 "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
                 "LtiConsumer.is_active=True."
             )
             return []
+
+    def get_content_source_list(self, selected_content_sources):
+        return [
+            {
+                'name': source.name,
+                'id': source.id,
+                'checked': 'checked' if not selected_content_sources or source.id in selected_content_sources else ''
+            }
+            for source in get_active_content_sources(not_allow_empty_source_id=False)
+        ]
 
 
 @method_decorator(login_required, name='dispatch')
