@@ -91,7 +91,7 @@ def get_available_courses(source_ids=None):
     """
     Fetch all available courses from all sources of from source with provided ID.
 
-    :param source_ids: content provider's ID or IDs
+    :param source_ids: content provider's ID or list of the IDs
     :return: (list) course_ids
     """
     content_sources = get_active_content_sources(source_ids, not_allow_empty_source_id=False)
