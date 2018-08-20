@@ -510,8 +510,6 @@ class TestCreateUpdateActivity(BridgeTestCase):
             'points': '0.5',
             'repetition': 1,
             'lti_consumer': self.provider.id,
-            'source_context_id': 'course-v1:MSFT+DAT222x+4T2017'
-
         }
 
     @patch('module.tasks.sync_collection_engines.delay')

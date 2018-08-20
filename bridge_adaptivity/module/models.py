@@ -365,7 +365,6 @@ class Activity(OrderedModel):
     lti_consumer = models.ForeignKey(LtiConsumer, null=True, on_delete=models.CASCADE)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
-    source_context_id = fields.CharField(max_length=255, blank=True, null=True)
     # NOTE(wowkalucky): extra field 'order' is available (inherited from OrderedModel)
 
     # `stype` - means source_type or string_type.
