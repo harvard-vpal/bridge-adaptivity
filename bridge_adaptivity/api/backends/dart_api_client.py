@@ -49,6 +49,9 @@ class DartApiClient(BaseApiClient):
         result = []
         for asset in assets_list:
             asset_request = self.assets(asset).get()
+            content_type = asset_request['asset']['content_type']
+            if content_type == 'vertical':
+                continue
             lti_url = None
             for data_source in asset_request['asset']['content_embed']:
                 if data_source['protocol'] == 'lti':
@@ -61,7 +64,7 @@ class DartApiClient(BaseApiClient):
                 'block_id': asset,
                 'display_name': title,
                 'lti_url': lti_url,
-                'type': asset_request['asset']['content_type'],
+                'type': content_type,
                 'visible_to_staff_only': False,
             })
         return result
