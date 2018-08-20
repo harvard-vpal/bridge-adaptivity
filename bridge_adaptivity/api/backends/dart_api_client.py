@@ -57,15 +57,11 @@ class DartApiClient(BaseApiClient):
             if not lti_url:
                 continue
             title = asset_request['asset']['title']
-            if asset_request['asset']['graded']:
-                content_type = 'problem'
-            else:
-                content_type = asset_request['asset']['content_type']
             result.append({
                 'block_id': asset,
                 'display_name': title,
                 'lti_url': lti_url,
-                'type': content_type,
+                'type': asset_request['asset']['content_type'],
                 'visible_to_staff_only': False,
             })
         return result
