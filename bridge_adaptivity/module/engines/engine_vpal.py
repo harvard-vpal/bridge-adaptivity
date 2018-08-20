@@ -111,7 +111,7 @@ class EngineVPAL(EngineInterface):
             payload.update(metadata if add_metadata else {})  # payload is updated with the lti parameters
         payload.update({
             "learner": {
-                'user_id': sequence.lti_user.id,
+                'user_id': sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': (
                     tool_consumer_instance_guid or sequence.lti_user.lti_consumer.consumer_name
                 ),

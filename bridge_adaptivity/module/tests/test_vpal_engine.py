@@ -93,7 +93,7 @@ class TestVPALEngine(TestCase):
         )
         expected_payload = {
             "learner": {
-                'user_id': self.sequence.lti_user.id,
+                'user_id': self.sequence.lti_user.user_id,
                 # NOTE(idegtiarov) `tool_consumer_instance_guid` is equal to the LTIProvider.consumer_name if it is not
                 # add to the Engine.lti_parameters or not found in received lti_launch parameters.
                 'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
@@ -139,7 +139,7 @@ class TestVPALEngine(TestCase):
         )
         expected_payload = {
             "learner": {
-                'user_id': self.sequence.lti_user.id,
+                'user_id': self.sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': expected_tool_consumer_instance_guid,
             },
             "collection": self.sequence.collection.slug,
@@ -176,7 +176,7 @@ class TestVPALEngine(TestCase):
         )
         expected_payload = {
             "learner": {
-                'user_id': self.sequence.lti_user.id,
+                'user_id': self.sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
             },
             "collection": self.sequence.collection.slug,
