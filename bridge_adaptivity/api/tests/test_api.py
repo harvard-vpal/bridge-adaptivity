@@ -112,7 +112,6 @@ class TestActivityAPI(TestApiBase):
             "points": 1.0,
             "source_launch_url": "http://testa.net/launch/url",
             "source_name": "",
-            "source_context_id": "",
             "stype": "",
             "collection": cls.collection.id,
             "lti_consumer": None

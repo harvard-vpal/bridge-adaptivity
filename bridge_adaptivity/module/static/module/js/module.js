@@ -144,7 +144,6 @@
                 + `name=${item["display_name"]}&`
                 + `source_name=${item["display_name"]}&`
                 + `source_launch_url=${item["lti_url"]}&`
-                + `source_context_id=${item["context_id"]}&`
                 + `lti_consumer=${item["content_source_id"]}&`
                 + `stype=${item["type"]}`;
         }
