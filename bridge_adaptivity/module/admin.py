@@ -20,7 +20,7 @@ class ActivityStackedInline(OrderedTabularInline):
     model = Activity
     fields = [
         'order', 'move_up_down_links', 'name', 'atype', 'difficulty', 'points', 'source_launch_url',
-        'source_name', 'source_context_id'
+        'source_name',
     ]
     readonly_fields = ('order', 'move_up_down_links',)
     extra = 0
