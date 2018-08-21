@@ -5,9 +5,8 @@ from django.test import TestCase
 from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
-from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence
+from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem
 from module.utils import choose_activity
-
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +56,20 @@ class TestUtilities(TestCase):
             group=self.test_cg,
             outcome_service=self.outcome_service
         )
+        self.vpal_engine = Engine.objects.get(engine='engine_vpal')
+
+        self.vpal_group = CollectionGroup.objects.create(
+            name='TestVpalGroup',
+            owner=self.user,
+            engine=self.vpal_engine,
+        )
+        self.vpal_group.collections.add(self.collection)
+        self.vpal_sequence = Sequence.objects.create(
+            lti_user=self.lti_user,
+            collection=self.collection,
+            group=self.vpal_group,
+            outcome_service=self.outcome_service
+        )
 
     def test_choose_activity(self):
         try:
@@ -70,3 +83,23 @@ class TestUtilities(TestCase):
             collection=self.sequence.collection, source_launch_url=self.source_launch_url
         )
         self.assertEqual(chosen_activity, expected_activity)
+
+    @patch('module.engines.engine_vpal.EngineVPAL.select_activity', return_value=None)
+    def test_choose_activity_with_unconfigured_engine(self, mock_choose_activity_by_engine):
+        """
+        Test sequence is deleted if after creating first activity is not chosen for any reason.
+        """
+        choose_activity(sequence=self.vpal_sequence)
+        sequence_is_exists = Sequence.objects.filter(group=self.vpal_group)
+        self.assertFalse(sequence_is_exists)
+
+    @patch('module.engines.engine_vpal.EngineVPAL.select_activity', return_value={'complete': True})
+    def test_choose_activity_from_completed_collection(self, mock_choose_activity_by_engine):
+        """
+        Test sequence becomes completed if at least one sequence_item exists and there no new activity chosen.
+        """
+        sequence_item = SequenceItem.objects.create(sequence=self.vpal_sequence, activity=self.activity)
+        choose_activity(sequence_item=sequence_item)
+        completed_sequence = Sequence.objects.filter(group=self.vpal_group).first()
+        self.assertEqual(completed_sequence, self.vpal_sequence)
+        self.assertTrue(completed_sequence.completed)
