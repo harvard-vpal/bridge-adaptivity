@@ -238,8 +238,13 @@
   {% url 'module:collection-delete' slug=object.slug as delete_url %}
   {% url 'module:collection-sync' slug=object.slug as sync_url %}
 
+
   {% with title="Sync Collection with the Engines" message="Collection will be synchronized immediately!" %}
-    {% include "module/modals/confirmation_modal.html" with object='' action_url=sync_url undone=True %}
+      {% if back_url %}
+          {% include "module/modals/confirmation_modal.html" with object='' action_url=sync_url|add:"?back_url="|add:back_url undone=True %}
+      {% else %}
+          {% include "module/modals/confirmation_modal.html" with object='' action_url=sync_url undone=True %}
+      {% endif %}
   {% endwith %}
 
   {% if collection.has_linked_active_sequences %}
