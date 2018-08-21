@@ -364,7 +364,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
                 getattr(activity, kwargs['direction'])()
             except AttributeError:
                 log.exception("Unknown ordering method!")
-            return redirect(reverse('module:collection-detail', kwargs={'slug': activity.collection.slug}))
+            return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
 
         return super().get(request, *args, **kwargs)
 
@@ -375,7 +375,7 @@ class ActivityDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:collection-detail', kwargs={'slug': self.object.collection.slug}
+            'module:collection-detail', kwargs={'pk': self.object.collection.id}
         )
 
     def delete(self, request, *args, **kwargs):
@@ -558,7 +558,7 @@ def sync_collection(request, slug):
     tasks.sync_collection_engines.delay(
         collection_slug=slug, created_at=collection.updated_at
     )
-    return redirect(reverse('module:collection-detail', kwargs={'slug': slug}) + '?back_url={}'.format(back_url))
+    return redirect(reverse('module:collection-detail', kwargs={'pk': collection.id}) + '?back_url={}'.format(back_url))
 
 
 def update_students_grades(request, group_slug):

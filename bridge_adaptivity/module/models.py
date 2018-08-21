@@ -389,7 +389,7 @@ class Activity(OrderedModel):
         return '<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:collection-detail', kwargs={'slug': self.collection.slug})
+        return reverse('module:collection-detail', kwargs={'pk': self.collection.id})
 
     def save(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is created/updated."""

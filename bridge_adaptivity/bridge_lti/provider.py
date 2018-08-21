@@ -82,9 +82,14 @@ def instructor_flow(request, collection_slug=None):
     if not request.user.is_authenticated or not collection_slug or not Collection.objects.filter(
         owner=request.user, slug=collection_slug
     ):
-        return redirect(reverse('module:collection-list'))
+           return redirect(reverse('module:collection-list'))
 
-    return redirect(reverse('module:collection-detail', kwargs={'slug': collection_slug}))
+    return redirect(
+        reverse(
+            'module:collection-detail',
+            kwargs={'pk': Collection.objects.get(owner=request.user, slug=collection_slug).id}
+        )
+    )
 
 
 def get_collection_collectiongroup_engine(collection_slug, group_slug):
