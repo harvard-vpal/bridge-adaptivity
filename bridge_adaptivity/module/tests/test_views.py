@@ -449,7 +449,7 @@ class TestManualSync(BridgeTestCase):
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
         col_slug = self.collection1.slug
-        expected_url = reverse('module:collection-detail', kwargs={'pk':  self.collection1.id}) + '?back_url=None'
+        expected_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) + '?back_url=None'
         url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(

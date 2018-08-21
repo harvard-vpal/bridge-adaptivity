@@ -82,7 +82,7 @@ def instructor_flow(request, collection_slug=None):
     if not request.user.is_authenticated or not collection_slug or not Collection.objects.filter(
         owner=request.user, slug=collection_slug
     ):
-           return redirect(reverse('module:collection-list'))
+        return redirect(reverse('module:collection-list'))
 
     return redirect(
         reverse(
