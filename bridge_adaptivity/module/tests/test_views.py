@@ -307,7 +307,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collection_detail_back_url(self, available_course_mock):
         """Test back_url param is added into context navigation from collection detail view."""
         url_detail = (
-            reverse('module:collection-detail', kwargs={'slug': self.collection1.slug}) +
+            reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) +
             '?back_url={}'.format(self.back_url)
         )
         detail_response = self.client.get(url_detail)
@@ -449,7 +449,7 @@ class TestManualSync(BridgeTestCase):
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
         col_slug = self.collection1.slug
-        expected_url = reverse('module:collection-detail', kwargs={'slug': col_slug}) + '?back_url=None'
+        expected_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) + '?back_url=None'
         url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(
@@ -494,7 +494,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
         super().setUp()
-        self.back_url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
+        self.back_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
         self.provider = LtiConsumer.objects.get(id=2)
         self.add_url = reverse('module:activity-add', kwargs={'collection_slug': self.collection1.slug})
         self.create_data = {
@@ -574,7 +574,7 @@ class TestMultipleContentSources(BridgeTestCase):
         """
         Test count of courses from the multiple source.
         """
-        url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
+        url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
         response = self.client.get(url)
         self.assertIn('source_courses', response.context)
         self.assertTrue(response.context['source_courses'])

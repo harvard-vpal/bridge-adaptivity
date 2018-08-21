@@ -45,7 +45,7 @@
         {% for collection in group.collections.all %}
           <tr>
             <td>
-              <a href="{% url 'module:collection-detail' collection.slug %}?back_url={{ group.get_absolute_url}}">
+              <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">
               {{ collection.name }} :
               {{ collection.activities.count }}
               {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>

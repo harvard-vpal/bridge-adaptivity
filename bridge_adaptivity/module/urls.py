@@ -37,10 +37,16 @@ urlpatterns = ([
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/$', CollectionDetail.as_view(),
-        name='collection-detail'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$', CollectionDelete.as_view(),
-        name='collection-delete'),
+    re_path(
+        r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
+        CollectionDetail.as_view(),
+        name='collection-detail'
+    ),
+    url(
+        r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$',
+        CollectionDelete.as_view(),
+        name='collection-delete'
+    ),
 
     url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
