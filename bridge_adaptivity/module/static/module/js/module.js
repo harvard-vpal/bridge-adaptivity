@@ -377,8 +377,8 @@
             }
         });
 
-        window.onbeforeunload = ()=> {
-            if(performance.navigation.type ===   PerformanceNavigation.TYPE_RELOAD)
+        window.onbeforeunload = () => {
+            if(performance.navigation.type === PerformanceNavigation.TYPE_RELOAD)
                 sessionStorage.clear();
         }
     });
