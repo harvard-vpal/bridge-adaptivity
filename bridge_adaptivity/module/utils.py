@@ -1,5 +1,7 @@
 from logging import getLogger
 
+from requests.packages.urllib3.exceptions import MaxRetryError
+
 from module.models import Activity
 
 log = getLogger(__name__)
@@ -19,7 +21,7 @@ def choose_activity(sequence_item=None, sequence=None):
             return Activity.objects.filter(
                 collection=sequence.collection, source_launch_url=activity_source_launch_url
             ).first()
-    except AttributeError:
+    except (AttributeError, MaxRetryError):
         log.exception("[Engine] Cannot get activity from the engine")
 
     # If all checks passed and sequence_item is not set. We are on the step sequence is created but activity is
