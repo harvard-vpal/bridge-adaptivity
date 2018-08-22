@@ -1,1 +1,22 @@
-[{"model": "module.engine", "pk": 1, "fields": {"engine": "engine_mock", "engine_name": "mock", "host": "", "token": "", "is_default": true}}]
+[
+    {
+        "model": "module.engine",
+        "pk": 1,
+        "fields": {
+            "engine": "engine_mock",
+            "engine_name": "mock",
+            "host": "",
+            "token": "",
+            "is_default": true
+        }
+    },
+    {
+        "model": "module.engine",
+        "pk": 2,
+        "fields": {
+            "engine": "engine_vpal",
+            "engine_name": "vpal",
+            "host": "https://test_host.net"
+        }
+    }
+]

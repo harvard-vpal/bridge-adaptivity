@@ -117,7 +117,7 @@ class TestVPALEngine(TestCase):
         response.json.return_value = {'source_launch_url': expected_source_url}
         result = self.engine.engine_driver.select_activity(self.sequence)
         mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
-        self.assertEqual(result, expected_source_url)
+        self.assertEqual(result.get('source_launch_url'), expected_source_url)
 
     @patch('requests.post', return_value=Mock(status_code=200))
     def test_tool_consumer_instance_guid_added_to_select_activity_payload(self, mock_post):
@@ -160,7 +160,7 @@ class TestVPALEngine(TestCase):
         response.json.return_value = {'source_launch_url': expected_source_url}
         result = self.engine.engine_driver.select_activity(self.sequence)
         mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
-        self.assertEqual(result, expected_source_url)
+        self.assertEqual(result.get('source_launch_url'), expected_source_url)
 
     @patch('requests.post', return_value=Mock(status_code=200))
     def test_no_sequence_metadata_in_select_activity_payload(self, mock_post):
@@ -197,4 +197,4 @@ class TestVPALEngine(TestCase):
         response.json.return_value = {'source_launch_url': expected_source_url}
         result = self.engine.engine_driver.select_activity(self.sequence)
         mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
-        self.assertEqual(result, expected_source_url)
+        self.assertEqual(result.get('source_launch_url'), expected_source_url)

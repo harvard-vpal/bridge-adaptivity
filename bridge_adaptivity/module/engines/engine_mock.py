@@ -53,7 +53,7 @@ class EngineMock(EngineInterface):
         elif post_assessment:
             chosen_activity_url = post_assessment.first().source_launch_url
         log.debug("Chosen activity is: {}".format(chosen_activity_url))
-        return chosen_activity_url
+        return {'source_launch_url': chosen_activity_url} if chosen_activity_url else {'complete': True}
 
     def sync_collection_activities(self, collection):
         """Mock engine works with data stored on the Bridge and do not need to implement method."""

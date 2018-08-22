@@ -140,8 +140,7 @@ class EngineVPAL(EngineInterface):
         chosen_activity = requests.post(reco_url, headers=self.headers, json=payload)
         if self.check_engine_response(chosen_activity, action="chosen", obj='activity'):
             choose = chosen_activity.json()
-            return choose.get('source_launch_url')
-        return None
+            return choose
 
     def sync_collection_activities(self, collection):
         """
