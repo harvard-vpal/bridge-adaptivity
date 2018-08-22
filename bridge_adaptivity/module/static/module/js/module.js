@@ -377,5 +377,9 @@
             }
         });
 
+        window.onbeforeunload = ()=> {
+            if(performance.navigation.type ===   PerformanceNavigation.TYPE_RELOAD)
+                sessionStorage.clear();
+        }
     });
 }(jQuery));
