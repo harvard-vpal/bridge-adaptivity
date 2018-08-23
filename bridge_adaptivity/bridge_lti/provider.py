@@ -144,7 +144,7 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def stub_page(request, title='announcement', message='coming soon!', tip='this adaptivity sequence is about to start.'):
+def stub_page(request, title=None, message=None, tip=None):
     """
     Render stub page, announcement page is default.
     """
@@ -152,9 +152,9 @@ def stub_page(request, title='announcement', message='coming soon!', tip='this a
         request,
         template_name="bridge_lti/announcement.html",
         context={
-            'title': title,
-            'message': message,
-            'tip': tip,
+            'title': title or 'announcement',
+            'message': message or 'coming soon!',
+            'tip': tip or 'this adaptivity sequence is about to start.',
         }
     )
 
