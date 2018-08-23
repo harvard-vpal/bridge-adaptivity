@@ -340,7 +340,7 @@
             return result => {
                 let modal = $('#modal-wrapper');
                 if (result.status !== undefined && result.status === 'ok') {
-                    window.location.reload();
+                    window.location.href = window.location.href ;
                     return;
                 }
                 modal.find('.modal-body').html(result);
