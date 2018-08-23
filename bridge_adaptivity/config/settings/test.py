@@ -9,7 +9,8 @@ try:
     from . import secure
 except ImportError:
     from . import secure_example as secure
-    UPDATE_DATABASE['HOST'] = 'localhost'
+    # UPDATE_DATABASE.update({'HOST': 'localhost', 'PORT': 5430})
+UPDATE_DATABASE.update({'HOST': 'localhost', 'PORT': 5430})
 
 DATABASES = secure.DATABASES
 DATABASES['default'].update(UPDATE_DATABASE)
