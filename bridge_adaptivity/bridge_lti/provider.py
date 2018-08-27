@@ -24,7 +24,7 @@ def _error_msg(s):
 def find_last_sequence_item(sequence, strict_forward):
     sequence_items = sequence.items.all()
     if strict_forward and sequence_items.count() > 1:
-        sequence_items = sequence_items.filter(score__isnull=False)
+        sequence_items = sequence_items.filter(score__isnull=False) or sequence_items
     return sequence_items.last()
 
 
@@ -144,17 +144,17 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def announcement_page(request):
+def stub_page(request, title='announcement', message='coming soon!', tip='this adaptivity sequence is about to start.'):
     """
-    Render announcement page.
+    Render stub page, announcement page is default.
     """
     return render(
         request,
         template_name="bridge_lti/announcement.html",
         context={
-            'title': 'announcement',
-            'message': 'coming soon!',
-            'tip': 'this adaptivity sequence is about to start.',
+            'title': title,
+            'message': message,
+            'tip': tip,
         }
     )
 
@@ -164,7 +164,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
     Define logic flow for Learner.
     """
     if not collection_slug:
-        return announcement_page(request)
+        return stub_page(request)
 
     collection, collection_group, engine = get_collection_collectiongroup_engine(collection_slug, group_slug)
 
@@ -198,7 +198,12 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
         start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
-            return announcement_page(request)
+            return stub_page(
+                request,
+                title="Warning",
+                message="Cannot get the first question to start.",
+                tip="Please try again later"
+            )
         sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer
         )
@@ -206,6 +211,11 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
         sequence_item = find_last_sequence_item(sequence, strict_forward)
     sequence_item_id = sequence_item.id if sequence_item else None
     if not sequence_item_id:
-        return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence.id}))
+        return stub_page(
+            request,
+            title="Warning",
+            message="Cannot find sequence item to start from.",
+            tip="Ask help from the site admins."
+        )
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_id}))
