@@ -18,6 +18,7 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
+from bridge_lti.utils import stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
@@ -392,13 +393,19 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        item_filter = {'sequence': self.object.sequence}
-        if self.request.session.get('Lti_update_activity') and self.object.sequence.items.all().count() > 1:
-            item_filter.update({'score__isnull': False})
+        sequence_items = SequenceItem.objects.filter(sequence=self.object.sequence)
+        last_item = sequence_items.last()
+        if (
+            self.request.session.get('Lti_update_activity') and
+            len(sequence_items) > 1 and
+            last_item.is_problem and
+            not last_item.score
+        ):
+            sequence_items = sequence_items[:len(sequence_items) - 1]
         if self.request.GET.get('forbidden'):
             context['forbidden'] = True
-        context['sequence_items'] = SequenceItem.objects.filter(**item_filter)
-        log.debug("Sequence Items on the page: {}".format(context['sequence_items'].count()))
+        context['sequence_items'] = sequence_items
+        log.debug("Sequence Items on the page: {}".format(len(sequence_items)))
 
         Log.objects.create(
             sequence_item=self.object,
@@ -465,7 +472,15 @@ def sequence_item_next(request, pk):
             policy = sequence.group.grading_policy.policy_instance(sequence=sequence)
             policy.send_grade()
             if not activity:
-                return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
+                if sequence.completed:
+                    return redirect(reverse('module:sequence-complete', kwargs={'pk': sequence_item.sequence_id}))
+                return stub_page(
+                    request,
+                    title="Warning",
+                    message="Cannot get next activity from the engine.",
+                    tip="Try again later or connect with the instructor."
+                )
+
             next_sequence_item = SequenceItem.objects.create(
                 sequence=sequence_item.sequence,
                 activity=activity,
