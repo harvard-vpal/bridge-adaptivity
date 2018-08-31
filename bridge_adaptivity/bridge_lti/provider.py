@@ -2,7 +2,7 @@ import logging
 
 from django.core.cache import cache
 from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from lti import InvalidLTIRequestError
@@ -10,6 +10,7 @@ from lti.contrib.django import DjangoToolProvider
 from oauthlib import oauth1
 
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
+from bridge_lti.utils import stub_page
 from bridge_lti.validator import SignatureValidator
 from module import utils as module_utils
 from module.models import Collection, CollectionGroup, Engine, Sequence, SequenceItem
@@ -23,9 +24,10 @@ def _error_msg(s):
 
 def find_last_sequence_item(sequence, strict_forward):
     sequence_items = sequence.items.all()
-    if strict_forward and sequence_items.count() > 1:
-        sequence_items = sequence_items.filter(score__isnull=False) or sequence_items
-    return sequence_items.last()
+    last = sequence_items.last()
+    if strict_forward and sequence_items.count() > 1 and last.is_problem and not last.score:
+        return sequence_items[len(sequence_items) - 2]
+    return last
 
 
 def get_tool_provider_for_lti(request):
@@ -142,21 +144,6 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
         position=1
     )
     return sequence_item
-
-
-def stub_page(request, title='announcement', message='coming soon!', tip='this adaptivity sequence is about to start.'):
-    """
-    Render stub page, announcement page is default.
-    """
-    return render(
-        request,
-        template_name="bridge_lti/announcement.html",
-        context={
-            'title': title,
-            'message': message,
-            'tip': tip,
-        }
-    )
 
 
 def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, group_slug=None, unique_marker=''):
