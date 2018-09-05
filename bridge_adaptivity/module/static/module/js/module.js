@@ -152,48 +152,56 @@
             console.log("Rendering course...");
             const usedLtiUrls = $.map(activitiesData, function(data) { return data.launch_url });
             let sourcesList = $("<div/>").addClass("list-group");
-            $.each(courseData, function (i, item) {
-                var listItem = $("<button class='list-group-item' type='button' />").appendTo(sourcesList);
+            if (courseData.length === 0) {
+                console.log("Course is empty! No activities were found.");
                 $(
-                    `<span data-toggle='type' title="${item.type}" `+
-                    `class="badge pull-left glyphicon ${typeToIcon(item.type)} style:'margin-right"> </span>`
-                ).appendTo(listItem);
+                    "<span class='list-group-item unreachable-activity'>" +
+                    "The course is empty, no activities were found!</span>"
+                ).appendTo(sourcesList);
+            } else {
+                $.each(courseData, function (i, item) {
+                    var listItem = $("<button class='list-group-item' type='button' />").appendTo(sourcesList);
+                    $(
+                        `<span data-toggle='type' title="${item.type}" ` +
+                        `class="badge pull-left glyphicon ${typeToIcon(item.type)} style:'margin-right"> </span>`
+                    ).appendTo(listItem);
 
-                var sourceButton = $("<span/>");
-                // if item already is used by some Activity => block and highlight:
+                    var sourceButton = $("<span/>");
+                    // if item already is used by some Activity => block and highlight:
 
-                if (item['visible_to_staff_only']) {
-                    listItem.addClass("unreachable-activity");
-                }
-
-                if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
-                    sourceButton.css("text-decoration", "line-through").addClass("bg-info");
-                } else {
                     if (item['visible_to_staff_only']) {
-                        listItem.click(() => {
-                            let modal = $("#not-available-for-student")
-                            modal.find('.add-new-activity').attr('value',getActivityCreationUrl(item))
+                        listItem.addClass("unreachable-activity");
+                    }
+
+                    if (usedLtiUrls.indexOf(item["lti_url"]) !== -1) {
+                        sourceButton.css("text-decoration", "line-through").addClass("bg-info");
+                    } else {
+                        if (item['visible_to_staff_only']) {
+                            listItem.click(() => {
+                                let modal = $("#not-available-for-student")
+                                modal.find('.add-new-activity').attr('value', getActivityCreationUrl(item))
                             modal.modal("show")
                         })
+                        } else {
+                            listItem.attr("value", getActivityCreationUrl(item)).click(modal_form_launcher);
+                        }
+                    }
+                    // if title is empty => set default title:
+                    if (!item["display_name"].length) {
+                        sourceButton.text(defaultSourceItemTitle);
                     } else {
-                        listItem.attr("value", getActivityCreationUrl(item)).click(modal_form_launcher);
+                        sourceButton.text(item["display_name"]);
                     }
-                }
-                // if title is empty => set default title:
-                if (!item["display_name"].length) {
-                    sourceButton.text(defaultSourceItemTitle);
-                } else {
-                    sourceButton.text(item["display_name"]);
-                }
-                if (regexFilter) {
-                    if (!regexFilter.exec(sourceButton.text())) {
-                        listItem.remove()
+                    if (regexFilter) {
+                        if (!regexFilter.exec(sourceButton.text())) {
+                            listItem.remove()
+                        }
                     }
-                }
-                sourceButton.appendTo(listItem);
-                // Cource block preview:
-                createPreviewButton(item["display_name"], item["lti_url"], item, listItem, modalContentFrame)
-            });
+                    sourceButton.appendTo(listItem);
+                    // Cource block preview:
+                    createPreviewButton(item["display_name"], item["lti_url"], item, listItem, modalContentFrame)
+                });
+            }
             container.html(sourcesList);
         }
 
