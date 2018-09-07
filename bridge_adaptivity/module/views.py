@@ -562,7 +562,7 @@ def callback_sequence_item_grade(request):
     return HttpResponse(xml, content_type="application/xml")
 
 
-def sync_collection(request, slug):
+def sync_collection(request, slug, api_request=None):
     """
     Synchronize collection immediately.
     """
@@ -570,9 +570,11 @@ def sync_collection(request, slug):
     collection = get_object_or_404(Collection, slug=slug)
     collection.save()
     log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
-    tasks.sync_collection_engines.delay(
+    task = tasks.sync_collection_engines.delay(
         collection_slug=slug, created_at=collection.updated_at
     )
+    if api_request:
+        return task.collect(timeout=settings.CELERY_RESULT_TIMEOUT)
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection.id}) + '?back_url={}'.format(back_url))
 
 

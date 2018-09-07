@@ -1,14 +1,17 @@
 import logging
 
+from celery.exceptions import TimeoutError
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework import viewsets
+from rest_framework.decorators import api_view
 from slumber.exceptions import HttpClientError
 
 from api.backends.api_client import get_available_blocks
 from api.serializers import ActivitySerializer, CollectionSerializer
+from module import views as module_views
 from module.models import Activity, Collection
 
 log = logging.getLogger(__name__)
@@ -78,3 +81,26 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
+
+
+@api_view(['GET'])
+def sync_collection(request, slug):
+    """
+    Sync collection - engine API.
+
+    :param slug: collection_slug identifier.
+    :return: JSON response with the sync result
+        {
+            "engines": [
+                 {"<engine_name_1>": {"success": true}},
+                 {"<engine_name_2>": {"success": false, "message": "Message of error description"}}
+            ]
+        }
+    """
+    try:
+        result = [v for obj, v in module_views.sync_collection(request, slug, api_request=True)]
+    except TimeoutError:
+        log.debug(f"The Collection sync task failed because of timeout error.")
+        return HttpResponseBadRequest(reason="Collection sync was failed, the reason is: TimeoutError")
+    log.debug(f"The result of the sync task is: {result}")
+    return JsonResponse(data={'engines': result})
