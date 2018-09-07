@@ -136,12 +136,15 @@ CACHES = {
 
 # Timespan for running sync task in seconds
 CELERY_DELAY_SYNC_TASK = 5 * 60  # default value is equal to 5 minutes
+CELERY_RESULT_TIMEOUT = 30  # default value is equal 0.5 minute
 
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'amqp'
+CELERY_TASK_RESULT_EXPIRES = 300  # 5 minutes
 
 # This settings are related to module/egines and declare gradable problems
 PROBLEM_ACTIVITY_TYPES = (

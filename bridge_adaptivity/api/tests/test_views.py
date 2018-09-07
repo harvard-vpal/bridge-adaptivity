@@ -1,12 +1,19 @@
 import datetime
 from datetime import timedelta
 
+from celery.exceptions import TimeoutError
 from django.urls.base import reverse
 from mock import patch
 
 from api.backends.api_client import get_available_blocks, get_available_courses
 from bridge_lti.models import LtiConsumer
 from module.tests.test_views import BridgeTestCase
+
+
+def mock_timeout(slug):
+    if slug == 'col1':
+        raise TimeoutError
+    return []
 
 
 class TestSourcesView(BridgeTestCase):
@@ -97,3 +104,36 @@ class TestSourcesView(BridgeTestCase):
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 400)
+
+    @patch('module.views.tasks.sync_collection_engines')
+    def test_sync_collection_success(self, mock_sync):
+        mock_sync.delay().collect.return_value = [('Object', {"Mock": {"success": True}})]
+        expected_data = {"engines": [{"Mock": {"success": True}}]}
+        url = reverse('api:sync_collection', kwargs={'slug': self.collection1.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch('module.views.tasks.sync_collection_engines')
+    def test_sync_collection_unsuccess(self, mock_sync):
+        mock_sync.delay().collect.return_value = [
+            ('Object', {"Mocker": {"success": True}}),
+            ('Object', {"Mock": {"success": False, "message": "Message of error description"}}),
+        ]
+        expected_data = {"engines": [
+            {"Mocker": {"success": True}},
+            {"Mock": {"success": False, "message": "Message of error description"}},
+        ]}
+        url = reverse('api:sync_collection', kwargs={'slug': self.collection1.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_data)
+
+    @patch('module.views.tasks.sync_collection_engines')
+    def test_sync_collection_timeout(self, mock_sync):
+        expected_msg = 'Collection sync was failed, the reason is: TimeoutError'
+        mock_sync.delay().collect.side_effect = TimeoutError
+        url = reverse('api:sync_collection', kwargs={'slug': self.collection1.slug})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.reason_phrase, expected_msg)
