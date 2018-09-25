@@ -7,7 +7,8 @@ from mock import patch
 
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
-from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy
+from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy, \
+    CollectionOrder
 
 GRADING_POLICIES = (
     # value, display_name
@@ -49,8 +50,10 @@ class BridgeTestCase(TestCase):
             engine=self.engine,
             grading_policy=self.points_earned
         )
-        self.test_cg.collections.add(self.collection1)
-        self.test_cg.collections.add(self.collection3)
+        # self.test_cg.collections.add(self.collection1)
+        # self.test_cg.collections.add(self.collection3)
+        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
+        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection3)
 
         self.course = Course.objects.create(name='test_course', owner=self.user)
 

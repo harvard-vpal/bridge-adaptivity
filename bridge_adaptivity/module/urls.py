@@ -48,6 +48,12 @@ urlpatterns = ([
         name='collection-delete'
     ),
 
+    url(
+        r'^group/(?P<group_slug>[\w-]+)/collection/(?P<slug>[\w-]+)/move/(?P<direction>(up|down))/$',
+        GroupUpdate.as_view(),
+        name='collection-move'
+    ),
+
     url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
         r'^activity/(?P<pk>\d+)/(?P<collection_slug>[\w-]+)/change/$',

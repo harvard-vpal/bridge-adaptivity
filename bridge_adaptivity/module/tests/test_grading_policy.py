@@ -7,8 +7,8 @@ import pytest
 from bridge_lti.models import LtiProvider, OutcomeService
 from module.models import (
     Activity, BridgeUser, Collection, CollectionGroup, Engine, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, LtiUser,
-    Sequence, SequenceItem
-)
+    Sequence, SequenceItem,
+    CollectionOrder)
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
@@ -152,7 +152,8 @@ class TestPolicySendGradeMethod(TestCase):
             engine=self.engine,
             grading_policy=self.grading_policy
         )
-        self.test_cg.collections.add(self.collection)
+        # self.test_cg.collections.add(self.collection)
+        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,

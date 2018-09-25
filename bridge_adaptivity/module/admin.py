@@ -3,7 +3,8 @@ from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Activity, Collection, CollectionGroup, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem
+from .models import Activity, Collection, CollectionGroup, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem, \
+    CollectionOrder
 
 
 class SequenceItemStackedInline(admin.StackedInline):
@@ -24,6 +25,11 @@ class ActivityStackedInline(OrderedTabularInline):
     ]
     readonly_fields = ('order', 'move_up_down_links',)
     extra = 0
+
+
+@admin.register(CollectionOrder)
+class CollectionOrderAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in CollectionOrder._meta.get_fields()]
 
 
 @admin.register(Collection)

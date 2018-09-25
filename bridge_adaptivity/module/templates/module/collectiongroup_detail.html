@@ -99,6 +99,18 @@
                     data-id="{{ collection.slug }}">
                   <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
                 </a>
+                {% if not forloop.first %}
+                <a class="move-up pull-right"
+                   href="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug direction='up' %}">
+                  {% bootstrap_button "" size='sm' icon='chevron-up' %}
+                </a>
+                {% endif %}
+                {% if not forloop.last  %}
+                  <a class="move-down pull-right"
+                     href="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug direction='down' %}">
+                    {% bootstrap_button "" size='sm' icon='chevron-down' %}
+                  </a>
+                {% endif %}
               </div>
             </td>
           </tr>
@@ -132,7 +144,7 @@
   {% url 'module:group-detail' group_slug=group.slug as back_url %}
   {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
   {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
-        
+
   </div>
   <div class="col-md-3">
     <div class="row">

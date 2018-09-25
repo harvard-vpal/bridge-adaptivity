@@ -308,7 +308,15 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
         return (param.strip() for param in self.lti_parameters.split(','))
 
 
-@python_2_unicode_compatible
+class CollectionOrder(OrderedModel):
+    group = models.ForeignKey('CollectionGroup', on_delete=models.CASCADE)
+    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
+    order_with_respect_to = 'group'
+
+    class Meta:
+        ordering = ('group', 'order')
+
+
 class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     """Represents Collections Group."""
 
@@ -320,7 +328,9 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
-    collections = models.ManyToManyField(Collection, related_name='collection_groups', blank=True)
+    collections = models.ManyToManyField(
+        Collection, related_name='collection_groups', blank=True, through='CollectionOrder'
+    )
 
     engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
 
