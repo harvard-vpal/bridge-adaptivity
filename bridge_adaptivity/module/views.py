@@ -252,8 +252,6 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
     def form_valid(self, form):
         result = super().form_valid(form)
         if self.kwargs.get('group_slug'):
-            # CollectionGroup.objects.get(slug=self.kwargs['group_slug']).collections.add(self.object)
-            # FIXME
             group = CollectionGroup.objects.get(slug=self.kwargs['group_slug'])
             CollectionOrder.objects.create(group=group, collection=self.object)
         return result
@@ -323,8 +321,6 @@ class CollectionDelete(DeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class CollectionGroupDelete(DeleteView):
-    # model = CollectionGroup.collections.through
-    # FIXME
     model = CollectionOrder
 
     def get_success_url(self):
