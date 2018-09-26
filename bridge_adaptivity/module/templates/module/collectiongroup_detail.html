@@ -42,7 +42,7 @@
           <th>strict forward</th>
           <th>options</th>
         </tr>
-        {% for collection in group.collections.all %}
+        {% for collection in group.ordered_collections %}
           <tr>
             <td>
               <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">
@@ -57,6 +57,18 @@
             </td>
             <td>
               <div>
+                {% if not forloop.first %}
+                <a class="move-up pull-left"
+                   href="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug direction='up' %}">
+                  {% bootstrap_button "" size='sm' icon='chevron-up' %}
+                </a>
+                {% endif %}
+                {% if not forloop.last  %}
+                  <a class="move-down pull-left"
+                     href="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug direction='down' %}">
+                    {% bootstrap_button "" size='sm' icon='chevron-down' %}
+                  </a>
+                {% endif %}
                 <a id="launch-url-fetcher" class=""
                    data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' %}">
                   <button class="btn btn-default btn-sm">
@@ -132,7 +144,7 @@
   {% url 'module:group-detail' group_slug=group.slug as back_url %}
   {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
   {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
-        
+
   </div>
   <div class="col-md-3">
     <div class="row">

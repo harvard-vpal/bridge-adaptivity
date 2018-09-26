@@ -8,7 +8,8 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy, Sequence, SequenceItem
+    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy, Sequence,
+    SequenceItem,
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -154,7 +155,9 @@ class TestActivityModel(TestCase):
             engine=self.engine,
             grading_policy=self.points_earned
         )
-        self.test_cg.collections.add(self.collection1)
+
+        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
+
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user, collection=self.collection1, group=self.test_cg, suffix='12345'
         )
@@ -270,7 +273,8 @@ class TestDeleteObjectsSeparately(TestCase):
             grading_policy=self.points_earned,
             course=self.course
         )
-        self.test_cg.collections.add(self.collection1)
+        # self.test_cg.collections.add(self.collection1)
+        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
 
     def test_delete_group(self):
         collections_count = Collection.objects.count()

@@ -4,7 +4,8 @@ from django import forms
 from django.forms import ModelForm
 
 from module.models import (
-    Activity, Collection, CollectionGroup, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+    Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS,
+    GradingPolicy,
 )
 from module.widgets import PolicyChoiceWidget
 
@@ -57,6 +58,17 @@ class GroupForm(ModelForm):
             )
             raise forms.ValidationError({'engine': [engine_err_msg], 'grading_policy_name': [policy_err_msg]})
         return self.cleaned_data
+
+    def save(self):
+        group = super().save(commit=False)
+        group.save()
+        cleaned_collections = self.cleaned_data.get('collections', [])
+        initial_collections = self.initial.get('collections', [])
+        for collection in set(cleaned_collections) - set(initial_collections):
+            CollectionOrder.objects.get_or_create(collection=collection, group=group)
+        for collection in set(initial_collections) - set(cleaned_collections):
+            CollectionOrder.objects.filter(collection=collection, group=group).delete()
+        return group
 
 
 class BaseGradingPolicyForm(ModelForm):
@@ -116,4 +128,4 @@ class AddCollectionGroupForm(forms.Form):
 
     def save(self, **kwargs):
         for collection in self.cleaned_data['collections']:
-            self.group.collections.add(collection)
+            CollectionOrder.objects.create(group=self.group, collection=collection)

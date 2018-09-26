@@ -27,7 +27,8 @@ from module.mixins.views import (
     LtiSessionMixin, ModalFormMixin, OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem
+    Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
+    SequenceItem,
 )
 
 log = logging.getLogger(__name__)
@@ -217,6 +218,19 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
     form_class = GroupForm
     context_object_name = 'group'
 
+    def get(self, request, *args, **kwargs):
+        if kwargs.get('direction'):
+            collection_order = CollectionOrder.objects.get(
+                group__slug=kwargs.get('group_slug'), collection__slug=kwargs.get('slug')
+            )
+            try:
+                # NOTE(idegtiarov): expects 'up', 'down' (also possible: 'top', 'bottom')
+                getattr(collection_order, kwargs['direction'])()
+            except AttributeError:
+                log.exception("Unknown ordering method!")
+            return redirect(reverse('module:group-detail', kwargs={'group_slug': collection_order.group.slug}))
+        return super().get(request, *args, **kwargs)
+
 
 @method_decorator(login_required, name='dispatch')
 class GroupDelete(BaseGroupView, DeleteView):
@@ -238,7 +252,8 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
     def form_valid(self, form):
         result = super().form_valid(form)
         if self.kwargs.get('group_slug'):
-            CollectionGroup.objects.get(slug=self.kwargs['group_slug']).collections.add(self.object)
+            group = CollectionGroup.objects.get(slug=self.kwargs['group_slug'])
+            CollectionOrder.objects.create(group=group, collection=self.object)
         return result
 
 
@@ -306,7 +321,7 @@ class CollectionDelete(DeleteView):
 
 @method_decorator(login_required, name='dispatch')
 class CollectionGroupDelete(DeleteView):
-    model = CollectionGroup.collections.through
+    model = CollectionOrder
 
     def get_success_url(self):
         return (
@@ -322,9 +337,9 @@ class CollectionGroupDelete(DeleteView):
 
     def get_object(self, queryset=None):
         return self.model.objects.get(
-            collection__owner=self.request.user,
+            # collection__owner=self.request.user,
             collection__slug=self.kwargs['slug'],
-            collectiongroup__slug=self.kwargs['group_slug']
+            group__slug=self.kwargs['group_slug']
         )
 
 

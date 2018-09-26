@@ -6,13 +6,12 @@ import pytest
 
 from bridge_lti.models import LtiProvider, OutcomeService
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, Engine, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, LtiUser,
-    Sequence, SequenceItem
+    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS,
+    GradingPolicy, LtiUser, Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
-
 
 GRADING_POLICY_TEST_DATA = (
     {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0,
@@ -113,7 +112,6 @@ class TestGradingPolicyObject(TestCase):
 
 
 class TestPolicySendGradeMethod(TestCase):
-
     fixtures = ['gradingpolicy.json', 'engine.json']
 
     @mock.patch('module.tasks.sync_collection_engines.apply_async')
@@ -152,7 +150,9 @@ class TestPolicySendGradeMethod(TestCase):
             engine=self.engine,
             grading_policy=self.grading_policy
         )
-        self.test_cg.collections.add(self.collection)
+
+        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
+
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
