@@ -7,8 +7,9 @@ from mock import patch
 
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
-from module.models import Activity, BridgeUser, Collection, CollectionGroup, Course, Engine, GradingPolicy, \
-    CollectionOrder
+from module.models import (
+    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy,
+)
 
 GRADING_POLICIES = (
     # value, display_name
@@ -50,8 +51,7 @@ class BridgeTestCase(TestCase):
             engine=self.engine,
             grading_policy=self.points_earned
         )
-        # self.test_cg.collections.add(self.collection1)
-        # self.test_cg.collections.add(self.collection3)
+
         CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
         CollectionOrder.objects.create(group=self.test_cg, collection=self.collection3)
 
@@ -289,6 +289,77 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         self.assertIn('form', response.context)
         self.assertIsNotNone(response.context['form'].errors)
         self.assertIn('grading_policy_name', response.context['form'].errors)
+
+
+class TestCollectionGroupCollectionOrder(BridgeTestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.group_update_data.update({
+            'group-grading_policy_name': 'Bla-Bla',
+        })
+        self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
+        self.group_post_data.update(
+            self.add_prefix(self.grading_prefix, {'threshold': 1, 'name': 'full_credit'})
+        )
+
+    def test_group_collection_added_on_update(self):
+        """
+        Test updated collection group contains all new collections.
+        """
+        data = self.group_post_data
+        # Group is updated with three collections two of which is repeated. Collections will increase by 1
+        expected_group_collection = len(data['group-collections'])
+        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(self.test_cg.collections.count(), expected_group_collection)
+
+    def test_group_collection_removed_on_update(self):
+        """
+        Test updated collection group doesn't contain old collections.
+        """
+        data = self.group_post_data
+        data['group-collections'] = data['group-collections'][:1]
+        # Group is updated with one collection all existing should be removed.
+        expected_group_collection = len(data['group-collections'])
+
+        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(self.test_cg.collections.count(), expected_group_collection)
+
+    def test_group_collection_ordered_up_and_down(self):
+        """
+        Test collections are reordered in the group on up/dowm commands.
+        """
+        expected_url = reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug})
+        expected_collection_order = [self.collection3, self.collection2, self.collection1]
+
+        # After the update -- collections have an order: (collection1, collection3, collection2)
+        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        self.client.post(url, data=self.group_post_data)
+        # Check that initial state is as expected
+
+        self.assertEqual(list(self.test_cg.ordered_collections), [self.collection1, self.collection3, self.collection2])
+
+        # Moving collection3 up, collection1 down and get reordered result as (collection3, collection2, collection1)
+        up_url = reverse('module:collection-move', kwargs={
+            'group_slug': self.test_cg.slug,
+            'slug': self.collection3.slug,
+            'direction': 'up',
+        })
+        response_up = self.client.get(up_url)
+        self.assertRedirects(response_up, expected_url=expected_url)
+        url_down = reverse('module:collection-move', kwargs={
+            'group_slug': self.test_cg.slug,
+            'slug': self.collection1.slug,
+            'direction': 'down',
+        })
+        response_down = self.client.get(url_down)
+        self.assertRedirects(response_down, expected_url=expected_url)
+        ordered_collections = list(self.test_cg.ordered_collections)
+        self.assertEqual(ordered_collections, expected_collection_order)
 
 
 class TestBackURLMixin(BridgeTestCase):

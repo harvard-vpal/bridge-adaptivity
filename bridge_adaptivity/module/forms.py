@@ -4,8 +4,9 @@ from django import forms
 from django.forms import ModelForm
 
 from module.models import (
-    Activity, Collection, CollectionGroup, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS, GradingPolicy,
-    CollectionOrder)
+    Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS,
+    GradingPolicy,
+)
 from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)
@@ -127,6 +128,4 @@ class AddCollectionGroupForm(forms.Form):
 
     def save(self, **kwargs):
         for collection in self.cleaned_data['collections']:
-            # self.group.collections.add(collection)
-            # FIXME
             CollectionOrder.objects.create(group=self.group, collection=collection)

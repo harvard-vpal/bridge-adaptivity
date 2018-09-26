@@ -11,7 +11,6 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import fields
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from ordered_model.models import OrderedModel
 import shortuuid
@@ -68,7 +67,6 @@ variables are used to show popover message with description about each policy (b
 GRADING_POLICY_CHOICES = ((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
 
-@python_2_unicode_compatible
 class Sequence(models.Model):
     """Represents User's problem solving track."""
 
@@ -107,7 +105,6 @@ class Sequence(models.Model):
             self.save()
 
 
-@python_2_unicode_compatible
 class SequenceItem(models.Model):
     """Represents one User's step in problem solving track."""
 
@@ -159,7 +156,6 @@ class SequenceItem(models.Model):
         return f'{self.sequence.lti_user.user_id}{self.sequence.suffix}{self.suffix}'
 
 
-@python_2_unicode_compatible
 class Course(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -174,7 +170,6 @@ class Course(models.Model):
         return "<Course: {}>".format(self.name)
 
 
-@python_2_unicode_compatible
 class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     """
     Predefined set of Grading policy objects. Define how to grade collections.
@@ -206,7 +201,6 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
         )
 
 
-@python_2_unicode_compatible
 class Collection(HasLinkedSequenceMixin, models.Model):
     """Set of Activities (problems) for a module."""
 
@@ -258,7 +252,6 @@ class Collection(HasLinkedSequenceMixin, models.Model):
             reverse("lti:launch", kwargs={'collection_slug': self.slug, 'group_slug': group.slug}))
 
 
-@python_2_unicode_compatible
 class Engine(ModelFieldIsDefaultMixin, models.Model):
     """Defines engine settings."""
 
@@ -334,6 +327,10 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
 
     engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
 
+    @property
+    def ordered_collections(self):
+        return (col_order.collection for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
+
     def __str__(self):
         return "<Group of Collections: {}>".format(self.name)
 
@@ -341,7 +338,6 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
 
-@python_2_unicode_compatible
 class Activity(OrderedModel):
     """General entity which represents problem/text/video material."""
 
@@ -440,7 +436,6 @@ class Activity(OrderedModel):
         return {'collection_id': self.collection_id, 'activity_id': self.id}
 
 
-@python_2_unicode_compatible
 class Log(models.Model):
     """
     Student actions log.

@@ -27,8 +27,9 @@ from module.mixins.views import (
     LtiSessionMixin, ModalFormMixin, OnlyMyObjectsMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionGroup, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence, SequenceItem,
-    CollectionOrder)
+    Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
+    SequenceItem,
+)
 
 log = logging.getLogger(__name__)
 
@@ -179,9 +180,6 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
     context_object_name = 'group'
     link_form_class = AddCollectionGroupForm
     link_object_name = 'collection'
-
-    def get_queryset(self):
-        return super().get_queryset().order_by('collectionorder')
 
     def get_link_form_kwargs(self):
         return dict(user=self.request.user, group=self.object)

@@ -5,8 +5,9 @@ from mock import Mock, patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.engines import engine_vpal
-from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem, \
-    CollectionOrder
+from module.models import (
+    Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+)
 
 
 class TestVPALEngine(TestCase):
@@ -49,7 +50,7 @@ class TestVPALEngine(TestCase):
         self.group = CollectionGroup.objects.create(
             engine=self.engine, grading_policy=self.grading_policy, name='test-group', owner=self.user
         )
-        # self.group.collections.add(self.collection)
+
         CollectionOrder.objects.create(group=self.group, collection=self.collection)
 
         self.outcome_service = OutcomeService.objects.create(

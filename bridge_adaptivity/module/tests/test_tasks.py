@@ -4,7 +4,7 @@ from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser
 from module import tasks
-from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, CollectionOrder
+from module.models import Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence
 from module.tasks import sync_collection_engines
 
 
@@ -41,8 +41,9 @@ class TestTask(TestCase):
             kwargs={'collection_slug': collection.slug, 'created_at': collection.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
-        # self.collection_group.collections.add(collection)
+
         CollectionOrder.objects.create(group=self.collection_group, collection=collection)
+
         self.activity = Activity.objects.create(name='testA1', collection=collection)
         mock_apply_async.assert_called_with(
             kwargs={'collection_slug': collection.slug, 'created_at': collection.updated_at},
@@ -55,8 +56,9 @@ class TestTask(TestCase):
     @patch('module.policies.base.BaseGradingPolicy.send_grade')
     def test_update_students_grades(self, mock_send_grade, mock_apply_async):
         collection = Collection.objects.create(name='test_col', owner=self.user)
-        # self.collection_group.collections.add(collection)
+
         CollectionOrder.objects.create(group=self.collection_group, collection=collection)
+
         Sequence.objects.create(
             lti_user=self.lti_user,
             collection=collection,

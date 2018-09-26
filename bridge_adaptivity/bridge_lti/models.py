@@ -2,14 +2,12 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from api.models import OAuthClient
 from .utils import short_token
 
 
-@python_2_unicode_compatible
 class LtiProvider(models.Model):
     """
     Model to manage LTI consumers.
@@ -32,7 +30,6 @@ class LtiProvider(models.Model):
         return '<LtiProvider: {}>'.format(self.consumer_name)
 
 
-@python_2_unicode_compatible
 class LtiConsumer(models.Model):
     """
     Model to manage LTI source providers.
@@ -81,7 +78,6 @@ class LtiConsumer(models.Model):
             raise ValidationError({'o_auth_client': _('DART content source needs Auth client with grant type')})
 
 
-@python_2_unicode_compatible
 class LtiUser(models.Model):
     """Model to manage LTI users."""
 
@@ -100,7 +96,6 @@ class LtiUser(models.Model):
         return '<LtiUser: {}>'.format(self.user_id)
 
 
-@python_2_unicode_compatible
 class BridgeUser(AbstractUser):
     """Bridge user based on the top of Django User."""
 
@@ -120,7 +115,6 @@ class BridgeUser(AbstractUser):
         return '<BridgeUser: {}>'.format(self.username)
 
 
-@python_2_unicode_compatible
 class OutcomeService(models.Model):
     """
     Model for a single outcome service associated with an LTI consumer.

@@ -5,8 +5,8 @@ from mock.mock import patch
 
 from bridge_lti.models import LtiProvider, LtiUser
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem,
-    CollectionOrder)
+    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem
+)
 
 
 @ddt
@@ -41,7 +41,6 @@ class TestMockEngine(TestCase):
             engine=self.engine,
             grading_policy=self.points_earned
         )
-        # self.test_cg.collections.add(self.collection1)
         CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user, collection=self.collection1, group=self.test_cg

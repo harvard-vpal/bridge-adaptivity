@@ -5,8 +5,9 @@ from django.test import TestCase
 from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
-from module.models import Activity, Collection, CollectionGroup, Engine, GradingPolicy, Sequence, SequenceItem, \
-    CollectionOrder
+from module.models import (
+    Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+)
 from module.utils import choose_activity
 
 log = logging.getLogger(__name__)
@@ -50,8 +51,9 @@ class TestUtilities(TestCase):
             engine=self.engine,
             grading_policy=self.gading_policy
         )
-        # self.test_cg.collections.add(self.collection)
+
         CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
+
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
@@ -65,8 +67,9 @@ class TestUtilities(TestCase):
             owner=self.user,
             engine=self.vpal_engine,
         )
-        # self.vpal_group.collections.add(self.collection)
+
         CollectionOrder.objects.create(group=self.vpal_group, collection=self.collection)
+
         self.vpal_sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,

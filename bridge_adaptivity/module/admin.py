@@ -3,8 +3,9 @@ from django.contrib import admin
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
-from .models import Activity, Collection, CollectionGroup, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem, \
-    CollectionOrder
+from .models import (
+    Activity, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem,
+)
 
 
 class SequenceItemStackedInline(admin.StackedInline):

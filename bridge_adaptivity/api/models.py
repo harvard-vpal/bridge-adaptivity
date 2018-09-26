@@ -1,10 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import fields
-from django.utils.encoding import python_2_unicode_compatible
 
 
-@python_2_unicode_compatible
 class OAuthClient(models.Model):
     """
     Model to manage OAuth API of content source providers.
