@@ -4,7 +4,7 @@ from .base import BaseGradingPolicy
 class TrialsCountGradingPolicy(BaseGradingPolicy):
     public_name = 'Trials count'
     require = {
-        'threshold': True
+        'params': ['threshold'],
     }
 
     summary_text = """ Overall score is the number of attempts made divided by the threshold Q, or 1 if the number of
@@ -20,7 +20,7 @@ class TrialsCountGradingPolicy(BaseGradingPolicy):
 
     def _calculate(self):
         trials_count, _ = self._get_points_earned_trials_count()
-        return round(float(trials_count) / max(self.policy.threshold, trials_count), 4)
+        return round(float(trials_count) / max(self.policy.params["threshold"], trials_count), 4)
 
     @classmethod
     def get_form_class(cls):

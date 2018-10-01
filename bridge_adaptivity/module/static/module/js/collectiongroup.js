@@ -18,8 +18,8 @@ var popover_policy = function(){
             return $('.policy_select option:selected').data().detail;
         },
         trigger: 'hover'
-    })
-}
+    });
+};
 
 $(document).ready(function() {
     update_form();

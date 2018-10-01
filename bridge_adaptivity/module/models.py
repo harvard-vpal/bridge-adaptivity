@@ -179,7 +179,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
 
     name = models.CharField(max_length=20)  # Field name is not editable in admin UI.
     public_name = models.CharField(max_length=255)
-    threshold = models.PositiveIntegerField(blank=True, default=0, help_text="Grade policy: 'Q'")
+    params = JSONField(default={}, blank=True, help_text="Policy parameters in json format.")
     engine = models.ForeignKey('Engine', blank=True, null=True, on_delete=models.CASCADE)
     is_default = models.BooleanField(default=False)
 
@@ -195,8 +195,8 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
         return policy.grade
 
     def __str__(self):
-        return "{}, public_name: {} threshold: {}{}".format(
-            self.name, self.public_name, self.threshold,
+        return "{}, public_name: {} params: {}{}".format(
+            self.name, self.public_name, self.params,
             ", IS DEFAULT POLICY" if self.is_default else ""
         )
 

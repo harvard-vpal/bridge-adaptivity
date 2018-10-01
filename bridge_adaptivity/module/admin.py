@@ -77,7 +77,7 @@ class EngineAdmin(admin.ModelAdmin):
 @admin.register(GradingPolicy)
 class GradingPolicyAdmin(admin.ModelAdmin):
     readonly_fields = ['name']
-    list_display = ['name', 'collectiongroup', 'threshold']
+    list_display = ['name', 'collectiongroup', 'params']
 
 
 @admin.register(Log)
