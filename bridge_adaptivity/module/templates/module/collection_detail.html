@@ -76,7 +76,7 @@
                 {% url 'module:activity-change' activity.pk collection.slug as activity_edit %}
               <td class="text-left modal_launcher" value="{{ activity_edit }}">
 
-                <a href="#" >
+                <a>
                   {{ activity.name }}
                   <div>
                     {% if activity.atype == 'A' %}
