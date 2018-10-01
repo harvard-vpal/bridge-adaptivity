@@ -83,10 +83,24 @@ class BaseGradingPolicyForm(ModelForm):
 class ThresholdGradingPolicyForm(ModelForm):
     class Meta:
         model = GradingPolicy
-        fields = 'threshold', 'name'
+        fields = 'params', 'name'
         widgets = {
+            'params': forms.Textarea(attrs={'rows': '2'}),
             'name': forms.HiddenInput(),
         }
+        help_texts = {
+            'params': '{"threshold": &lt;value&gt;} is required, please use JSON format.',
+        }
+
+    def clean(self):
+        super().clean()
+        policy_name, params = self.cleaned_data.get('name'), self.cleaned_data.get('params')
+        required_params = GRADING_POLICY_NAME_TO_CLS.get(policy_name).require.get('params', [])
+        if required_params:
+            for param in required_params:
+                if not params or param not in params:
+                    raise forms.ValidationError("Not all required parameters are set correctly.")
+        return self.cleaned_data
 
 
 class AddCourseGroupForm(forms.Form):

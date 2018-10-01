@@ -1,4 +1,5 @@
 import datetime
+import json
 import uuid
 
 from django.test import TestCase
@@ -102,7 +103,7 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertIn('form', response.context)
         groups_count = CollectionGroup.objects.count()
         policy_data = self.add_prefix(self.grading_prefix, {
-            'threshold': 1,
+            'params': json.dumps({"threshold": 1}),
             'name': self.trials_count.name,
         })
         data = {}
@@ -166,7 +167,7 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertIn('form', response.context)
 
         policy_data = self.add_prefix(self.grading_prefix, {
-            'threshold': 1,
+            'params': json.dumps({'threshold': 1}),
             'name': self.group_update_data['grading_policy_name'],
         })
         data = {}
@@ -240,7 +241,7 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
 
         self.test_cg = CollectionGroup.objects.get(id=self.test_cg.id)
 
-        self.assertEqual(self.group_post_data[self.group_prefix + '-name'], self.test_cg.name)
+        self.assertEqual(self.group_update_data['name'], self.test_cg.name)
         self.assertEqual(self.test_cg.grading_policy, self.points_earned)
         self.assertNotEqual(self.test_cg.grading_policy, self.trials_count)
 
@@ -254,10 +255,12 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         """
         policies = GRADING_POLICIES
         for policy, _ in policies:
-            self.group_post_data.update({'grading_policy_name': policy})
+            self.group_post_data.update(
+                self.add_prefix(self.group_prefix, {'grading_policy_name': policy})
+            )
 
             policy_data = self.add_prefix(self.grading_prefix, {
-                'threshold': 1,
+                'params': json.dumps({'threshold': 1}),
                 'name': policy
             })
             data = {}
@@ -272,7 +275,7 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         self.group_post_data.update({'group-grading_policy_name': 'BLA_BLA'})
 
         policy_data = self.add_prefix(self.grading_prefix, {
-            'threshold': 1,
+            'params': json.dumps({'threshold': 1}),
             'name': 'BLA_BLA'
         })
         data = {}
@@ -300,7 +303,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         })
         self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
         self.group_post_data.update(
-            self.add_prefix(self.grading_prefix, {'threshold': 1, 'name': 'full_credit'})
+            self.add_prefix(self.grading_prefix, {'params': json.dumps({'threshold': 1}), 'name': 'full_credit'})
         )
 
     def test_group_collection_added_on_update(self):

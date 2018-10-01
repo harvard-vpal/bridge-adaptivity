@@ -1,4 +1,6 @@
 (function ($) {
+    "use strict";
+
     $(function () {
         var defaultSourceItemTitle = "No Title";
         var $filter = $("#filter"),
@@ -26,7 +28,7 @@
                 name: $activityRow.data("activity-name"),
                 content_source_id: $activityRow.data('content_source_id'),
                 launch_url: $activityRow.data("activity-source-launch-url")
-            }
+            };
         });
 
         function typeToIcon(itemType) {
@@ -38,7 +40,7 @@
                 case "video":
                     return "glyphicon-facetime-video";
                 default:
-                    return "glyphicon-option-horizontal"
+                    return "glyphicon-option-horizontal";
             }
         }
 
@@ -85,7 +87,7 @@
                 activity,
                 $("#activity-row-" + i + " td div").last(),
                 modalContentFrame
-            )
+            );
         });
 
         $("#accordion").find("a[data-course-id]").on("click", function () {
@@ -194,12 +196,12 @@
                     }
                     if (regexFilter) {
                         if (!regexFilter.exec(sourceButton.text())) {
-                            listItem.remove()
+                            listItem.remove();
                         }
                     }
                     sourceButton.appendTo(listItem);
                     // Cource block preview:
-                    createPreviewButton(item["display_name"], item["lti_url"], item, listItem, modalContentFrame)
+                    createPreviewButton(item["display_name"], item["lti_url"], item, listItem, modalContentFrame);
                 });
             }
             container.html(sourcesList);
@@ -226,7 +228,7 @@
                 $("#sourceModal").modal("show");
                 $("#sourceModalLabel").text(title);
                 configurePreview(title, ltiUrl, sourceId, contentSourceId, modalFrame);
-            })
+            });
         }
 
         function configurePreview(title, ltiUrl, sourceId, contentSourceId, modalFrame) {
@@ -255,8 +257,8 @@
             var button = $(e.trigger).find(".btn");
             button.addClass("btn-success");
             setTimeout(function() {
-                button.removeClass("btn-success")
-            }, 2000)
+                button.removeClass("btn-success");
+            }, 2000);
         });
 
         var engineFailure = $("#activities").data("engine");
@@ -306,7 +308,7 @@
 
         $('#link-objects-modal').on('click', function(e){
             $('#sourceModal').modal('show');
-        })
+        });
 
         $("#link-objects").on("click", function(e) {
             var $form = $("#link-objects-form");
@@ -316,10 +318,10 @@
                 if(data.success) {
                     window.location.href = data['url'];
                 } else {
-                    $form.html(data.html)
+                    $form.html(data.html);
                 };
             },
-            'json')
+            'json');
         });
 
          $('#launch_url_help').tooltip({

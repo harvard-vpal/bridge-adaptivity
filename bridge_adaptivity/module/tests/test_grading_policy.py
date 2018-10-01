@@ -14,57 +14,190 @@ from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
 
 GRADING_POLICY_TEST_DATA = (
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 1,
-     'sequence': Sequence(), 'er': 1},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 1,
-     'sequence': Sequence(), 'er': 1},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 2, 'trials_count': 1, 'points_earned': 0.5,
-     'sequence': Sequence(), 'er': 0.25},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 2, 'trials_count': 5, 'points_earned': 0.7,
-     'sequence': Sequence(), 'er': 0.14},
-    {'GradingPolicyCls': PointsEarnedGradingPolicy, 'threshold': 40, 'trials_count': 3, 'points_earned': 0.75,
-     'sequence': Sequence(), 'er': 0.0187},
-
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 1},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 1},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 1},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 1, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 1},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 1, 'trials_count': 0, 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 0, 'trials_count': 3., 'points_earned': 0,
-     'sequence': Sequence(), 'er': 1.},
-
-
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 4, 'trials_count': 4., 'points_earned': 0,
-     'sequence': Sequence(), 'er': 1.},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 5, 'trials_count': 4., 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0.8},
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 20, 'trials_count': 10., 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0.5},
-
-    {'GradingPolicyCls': TrialsCountGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
-     'sequence': Sequence(), 'er': 0.75},
-
-    {'GradingPolicyCls': FullCreditOnCompleteGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
-     'sequence': Sequence(completed=False), 'er': 0},
-    {'GradingPolicyCls': FullCreditOnCompleteGradingPolicy, 'threshold': 4, 'trials_count': 3., 'points_earned': 0,
-     'sequence': Sequence(completed=True), 'er': 1},
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 0},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 0,
+        'points_earned': 1,
+        'sequence': Sequence(),
+        'er': 1
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 0},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 0,
+        'points_earned': 1,
+        'sequence': Sequence(),
+        'er': 1
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 2},
+        'trials_count': 1,
+        'points_earned': 0.5,
+        'sequence': Sequence(),
+        'er': 0.25
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 2},
+        'trials_count': 5,
+        'points_earned': 0.7,
+        'sequence': Sequence(),
+        'er': 0.14
+    },
+    {
+        'GradingPolicyCls': PointsEarnedGradingPolicy,
+        'params': {'threshold': 40},
+        'trials_count': 3,
+        'points_earned': 0.75,
+        'sequence': Sequence(),
+        'er': 0.0187
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 0},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 1
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 1
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 0,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 0},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 1
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 1,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 1
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 0,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 1},
+        'trials_count': 0,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 0},
+        'trials_count': 3.,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 1.
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 4},
+        'trials_count': 4.,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 1.
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 5},
+        'trials_count': 4.,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0.8
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 20},
+        'trials_count': 10.,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0.5
+    },
+    {
+        'GradingPolicyCls': TrialsCountGradingPolicy,
+        'params': {'threshold': 4},
+        'trials_count': 3.,
+        'points_earned': 0,
+        'sequence': Sequence(),
+        'er': 0.75
+    },
+    {
+        'GradingPolicyCls': FullCreditOnCompleteGradingPolicy,
+        'params': {'threshold': 4},
+        'trials_count': 3.,
+        'points_earned': 0,
+        'sequence': Sequence(completed=False),
+        'er': 0
+    },
+    {
+        'GradingPolicyCls': FullCreditOnCompleteGradingPolicy,
+        'params': {'threshold': 4},
+        'trials_count': 3.,
+        'points_earned': 0,
+        'sequence': Sequence(completed=True),
+        'er': 1
+    },
 )
 
 
@@ -90,8 +223,8 @@ class TestGradingPolicyObject(TestCase):
     @mock.patch('module.policies.base.BaseGradingPolicy._get_points_earned_trials_count')
     @mock.patch('module.policies.policy_points_earned.PointsEarnedGradingPolicy._get_points_earned_trials_count')
     def test_policy_math(
-            self, mock_points_earned_trials_count, mock_points_earned_get_points_earned_trials_count, GradingPolicyCls,
-            threshold, trials_count, points_earned, sequence, er
+        self, mock_points_earned_trials_count, mock_points_earned_get_points_earned_trials_count, GradingPolicyCls,
+        params, trials_count, points_earned, sequence, er
     ):
         mock_points_earned_get_points_earned_trials_count.return_value = trials_count, points_earned
         mock_points_earned_trials_count.return_value = trials_count, points_earned
@@ -100,7 +233,7 @@ class TestGradingPolicyObject(TestCase):
 
         policy = GradingPolicy.objects.filter(name=POLICY_CLS_TO_NAME[GradingPolicyCls]).first()
         self.assertIsNotNone(policy)
-        policy.threshold = threshold
+        policy.params = params
         # pass sequence = None - this is a stub to not create a lot of objects in DB and test only math here
         if er and type(er) == type and issubclass(er, Exception):
             with pytest.raises(er):
