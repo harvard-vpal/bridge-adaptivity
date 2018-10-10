@@ -1,31 +1,30 @@
 <nav class="navbar navbar-default navbar-fixed-top navbar-inverse">
   <div class="container">
     <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+              data-target="#navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
       <a class="navbar-brand" href="{% url 'index' %}">the BRIDGE</a>
     </div>
-    <div>
+    <div class="collapse navbar-collapse" id="navbar-collapse">
       <ul class="nav navbar-nav">
         <li><a href="{% url 'module:collection-list' %}">Collections</a></li>
-      </ul>
-    </div>
-    <div>
-      <ul class="nav navbar-nav">
         <li><a href="{% url 'module:group-list' %}">Groups</a></li>
-      </ul>
-    </div>
-    <div>
-      <ul class="nav navbar-nav">
         <li><a href="{% url 'module:course-list' %}">Courses</a></li>
       </ul>
-    </div>
-    <div>
+      <ul class="nav navbar-nav navbar-right">
       {% if user.is_authenticated %}
-      <div
-        class="navbar-text navbar-right"><a href="{% url 'logout' %}" class="navbar-link">{{ user.username }}</a></div>
+          <li><a href="{% url 'logout' %}" class="navbar-link">
+          {{ user.username }}</a></li>
       {% else %}
-      <a href="{% url 'login' %}" class="btn btn-default navbar-btn navbar-right" role="button">Sign in</a>
+          <li><a href="{% url 'login' %}" class="btn btn-default navbar-btn navbar-right" role="button">Sign in</a></li>
       {% endif %}
-
+      </ul>
     </div>
+
   </div>
 </nav>
