@@ -266,6 +266,13 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
 class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
 
+    def get(self, request, *args, **kwargs):
+        try:
+            self.get_object()
+        except Http404:
+            return redirect(reverse('module:collection-list'))
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         selected_content_sources = list(map(int, self.request.GET.getlist('content_source', [])))
         activities = Activity.objects.filter(collection=self.object)
