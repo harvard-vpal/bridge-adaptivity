@@ -80,16 +80,15 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
 
 
 def instructor_flow(request, collection_slug=None):
-    """Define logic flow for Instructor."""
-    if not request.user.is_authenticated or not collection_slug or not Collection.objects.filter(
-        owner=request.user, slug=collection_slug
-    ):
+    """
+    Define logic flow for Instructor.
+    """
+    if not collection_slug:
         return redirect(reverse('module:collection-list'))
-
     return redirect(
         reverse(
             'module:collection-detail',
-            kwargs={'pk': Collection.objects.get(owner=request.user, slug=collection_slug).id}
+            kwargs={'pk': Collection.objects.get(slug=collection_slug).id}
         )
     )
 
