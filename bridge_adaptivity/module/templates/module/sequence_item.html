@@ -19,6 +19,13 @@
     </div>
   </div>
   <div class="row">
+    <div class="col-md-6">
+      <a href="{% url 'module:sequence-item-next' sequence_item.id %}">
+        {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+      </a>
+    </div>
+  </div>
+  <div class="row">
     <iframe
       style="width:100%;height:640px;%;display:block;border:0px;"
       title="{{ sequence_item.activity.id }}"
@@ -32,7 +39,6 @@
     </iframe>
   </div>
   <div class="row">
-    <div class="col-md-6"></div>
     <div id="next-button" data-forbidden="{{ forbidden }}" class="col-md-6">
       <a href="{% url 'module:sequence-item-next' sequence_item.id %}">
         {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
