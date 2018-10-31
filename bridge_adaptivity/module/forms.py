@@ -36,7 +36,7 @@ class GroupForm(ModelForm):
 
     class Meta:
         model = CollectionGroup
-        fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name'
+        fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name', 'ui_option'
 
     def clean(self):
         super().clean()

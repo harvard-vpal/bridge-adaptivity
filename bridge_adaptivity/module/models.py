@@ -104,6 +104,23 @@ class Sequence(models.Model):
             self.metadata = meta_dict
             self.save()
 
+    def sequence_ui_details(self):
+        """
+        Create the context for the optional label on the student view.
+
+        Context depends on the CollectionGroup's OPTION value.
+        :return: str with the text for injecting into the label.
+        """
+        ui_option = self.group.ui_option
+        title = self.group.get_ui_option_display()
+        # NOTE(idegtiarov) conditions dependus on CollectionGroup's OPTIONS
+        if ui_option == CollectionGroup.OPTIONS[0][0]:
+            details = f"{title}: {self.items.filter().count()}/{self.collection.activities.count()}"
+        else:
+            details = f"{title}: {self.group.grading_policy.calculate_grade(self)}"
+
+        return details
+
 
 class SequenceItem(models.Model):
     """Represents one User's step in problem solving track."""
@@ -311,8 +328,14 @@ class CollectionOrder(OrderedModel):
 
 
 class CollectionGroup(HasLinkedSequenceMixin, models.Model):
-    """Represents Collections Group."""
+    """
+    Represents Collections Group.
+    """
 
+    OPTIONS = (
+        ('AT', _('Questions viewed/total')),
+        ('EP', _('Earned grade')),
+    )
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
@@ -326,6 +349,10 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     )
 
     engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
+
+    ui_option = models.CharField(
+        choices=OPTIONS, max_length=2, blank=True, help_text="Add an optional UI block to the student view"
+    )
 
     @property
     def ordered_collections(self):
