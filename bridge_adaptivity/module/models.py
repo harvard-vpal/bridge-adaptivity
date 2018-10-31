@@ -112,12 +112,14 @@ class Sequence(models.Model):
         :return: str with the text for injecting into the label.
         """
         ui_option = self.group.ui_option
-        title = self.group.get_ui_option_display()
+        details = f"{self.group.get_ui_option_display()}: "
         # NOTE(idegtiarov) conditions dependus on CollectionGroup's OPTIONS
         if ui_option == CollectionGroup.OPTIONS[0][0]:
-            details = f"{title}: {self.items.filter().count()}/{self.collection.activities.count()}"
+            details += f"{self.items.count()}/{self.collection.activities.count()}"
+        elif ui_option == CollectionGroup.OPTIONS[1][0]:
+            details += f"{self.group.grading_policy.calculate_grade(self)}"
         else:
-            details = f"{title}: {self.group.grading_policy.calculate_grade(self)}"
+            details += f"{self.items.filter(score__gt=0).count()}/{self.items.filter(score=0).count()}"
 
         return details
 
@@ -335,6 +337,7 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     OPTIONS = (
         ('AT', _('Questions viewed/total')),
         ('EP', _('Earned grade')),
+        ('RW', _('Answers right/wrong'))
     )
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
