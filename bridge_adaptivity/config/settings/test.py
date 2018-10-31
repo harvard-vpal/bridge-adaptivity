@@ -3,13 +3,13 @@ from config.settings.local import *  # noqa: F401,F403
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
-UPDATE_DATABASE = {'NAME': 'traviscidb'}
+UPDATE_DATABASE = {'NAME': 'traviscidb', 'HOST': 'localhost'}
 
 try:
     from . import secure
+    UPDATE_DATABASE['PORT'] = 5430
 except ImportError:
     from . import secure_example as secure
-    UPDATE_DATABASE['HOST'] = 'localhost'
 
 DATABASES = secure.DATABASES
 DATABASES['default'].update(UPDATE_DATABASE)
