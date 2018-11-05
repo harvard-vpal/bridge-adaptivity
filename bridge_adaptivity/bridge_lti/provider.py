@@ -10,24 +10,16 @@ from lti.contrib.django import DjangoToolProvider
 from oauthlib import oauth1
 
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
-from bridge_lti.utils import stub_page
 from bridge_lti.validator import SignatureValidator
+from common.utils import find_last_sequence_item, get_collection_collectiongroup_engine, stub_page
 from module import utils as module_utils
-from module.models import Collection, CollectionGroup, Engine, Sequence, SequenceItem
+from module.models import Collection, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 
 
 def _error_msg(s):
     return "LTI: provided wrong consumer {}.".format(s)
-
-
-def find_last_sequence_item(sequence, strict_forward):
-    sequence_items = sequence.items.all()
-    last = sequence_items.last()
-    if strict_forward and sequence_items.count() > 1 and last.is_problem and not last.score:
-        return sequence_items[len(sequence_items) - 2]
-    return last
 
 
 def get_tool_provider_for_lti(request):
@@ -91,35 +83,6 @@ def instructor_flow(request, collection_slug=None):
             kwargs={'pk': Collection.objects.get(slug=collection_slug).id}
         )
     )
-
-
-def get_collection_collectiongroup_engine(collection_slug, group_slug):
-    """Return collection and collection group by collection_slug and group_slug."""
-    collection = Collection.objects.filter(slug=collection_slug).first()
-    if not collection:
-        log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        raise Http404('Bad launch_url collection ID.')
-
-    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
-
-    if collection_group is None:
-        raise Http404(
-            'The launch URL is not correctly configured. The group with the slug `{}` cannot be found.'
-            .format(group_slug)
-        )
-
-    if collection not in collection_group.collections.all():
-        raise Http404(
-            'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
-            .format(collection_slug, group_slug)
-        )
-
-    if collection_group:
-        engine = collection_group.engine or Engine.get_default()
-    else:
-        engine = Engine.get_default()
-
-    return collection, collection_group, engine
 
 
 def create_sequence_item(request, sequence, start_activity, tool_provider, lti_consumer):

@@ -7,18 +7,19 @@
 
 {% block content %}
 
-{% url 'module:group-detail' group_slug=group.slug as back_url %}
 {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
 {% url "module:collection-add" group_slug=group.slug as add_new_collection_url %}
 
-{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url  add_new_object_url=add_new_collection_url title='Link collection with group' %}
+{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url add_new_object_url=add_new_collection_url title='Link collection with group' %}
 {% include "module/modals/modal_wrapper.html" %}
 
 <div class="row">
   <div class="col-md-9">
-    <h3 class="detail-toolpanel">
+    <div class="detail-toolpanel">
         {% url 'module:group-change' group.slug as group_edit %}
+        <a>
         {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
+        </a>
         <a class="pull-right delete-object
                  {% if group.has_linked_active_sequences %}
                    show-alarm {% else %} show-warning
@@ -31,7 +32,7 @@
                 {% bootstrap_button 'Update Students Grades' size='sm' icon='refresh' button_class="btn-primary" %}
             </a>
         {% endif %}
-    </h3>
+    </div>
   </div>
 
   <div class="col-md-9">
@@ -69,6 +70,19 @@
                     {% bootstrap_button "" size='sm' icon='chevron-down' %}
                   </a>
                 {% endif %}
+                <a id="launch-demo" class=""
+                   href="{% url 'module:demo' collection_slug=collection.slug group_slug=group.slug %}?back_url={% url 'module:group-list' %}">
+                  <button class="btn btn-warning btn-sm">
+                      <span class="glyphicon glyphicon-education"></span>
+                      Demo
+                      <span data-toggle="popover"
+                         data-placement="right"
+                         id="demo_help"
+                         content="bla bla bla"
+                         class="glyphicon glyphicon-info-sign"
+                      ></span>
+                  </button>
+                </a>
                 <a id="launch-url-fetcher" class=""
                    data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' %}">
                   <button class="btn btn-default btn-sm">
@@ -103,7 +117,7 @@
                   {% endwith %}
                 {% endwith %}
                 {% url 'module:collection-change' collection.slug as collection_edit %}
-                {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
                 <a
                     class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
                         {% elif collection.has_linked_sequences %} show-warning{% endif %}"

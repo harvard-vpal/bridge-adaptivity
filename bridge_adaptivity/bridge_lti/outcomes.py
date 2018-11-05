@@ -10,6 +10,9 @@ def update_lms_grades(request=None, sequence=None):
     outcome_request = OutcomeRequest().from_post_request(request) if request else OutcomeRequest()
 
     outcome_service = sequence.outcome_service
+    if outcome_service is None:
+        log.info(f"Sequence: {sequence} doesn't contain an outcome service, grade is not sent.")
+        return
     consumer = outcome_service.lms_lti_connection
 
     outcome_request.consumer_key = consumer.consumer_key

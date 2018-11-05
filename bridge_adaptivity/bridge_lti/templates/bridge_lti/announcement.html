@@ -4,8 +4,16 @@
 
 {% block bootstrap3_content %}
 
+
 <div class="container-fluid toolbar">
-  <div class="row">
+    <div class="row">
+    {% if demo %}
+    <a
+        href="{% url 'module:delete_sequence' sequence.id %}?return_url={% url 'module:group-detail' sequence.group.slug %}?back_url={{ back_url }}">
+        <button class="btn btn-warning ">Close Demo</button>
+    </a>
+
+    {% endif %}
     <div class="jumbotron">
       <h2>{{ title|capfirst }}</h2>
       <p>{{ message|capfirst }}</p>

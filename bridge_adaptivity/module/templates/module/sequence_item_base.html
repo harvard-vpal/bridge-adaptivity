@@ -1,0 +1,45 @@
+{% extends "module/base.html" %}
+{% load staticfiles bootstrap3 %}
+
+
+{% block bootstrap3_content %}
+
+
+<div class="container-fluid toolbar">
+  {% if demo %}
+    <a
+        href="{% url 'module:delete_sequence' sequence_pk %}?return_url={% url 'module:group-detail' group_slug %}?back_url={{ back_url }}">
+        <button class="btn btn-warning ">Close Demo</button>
+    </a>
+
+  {% endif %}
+  <div class="row">
+    <div class="col-md-{% if demo %}12{% else %}6{% endif %}">
+      <div class="btn-group" role="group">
+        {% for item in sequence_items %}
+        <a href="
+          {% if demo %}
+              {% url 'module:demo' group_slug=item.sequence.group.slug collection_slug=item.sequence.collection.slug %}?sequence_item_id={{ item.id }}&position={{ item.position }}
+          {% else %}
+              {% url 'module:sequence-item' item.id %}
+          {% endif %}
+        ">
+          <button class="btn btn-default {% if item == sequence_item %} active {% endif %}">
+            {{ forloop.counter }}
+          </button>
+        </a>
+        {% endfor %}
+      </div>
+      {% if sequence_item.sequence.group.ui_option %}
+        <h4 class="pull-right">
+            <span class="label label-success">{{ sequence_item.sequence.sequence_ui_details }}</span>
+        </h4>
+      {% endif %}
+    </div>
+  </div>
+
+  {% block main_content %}{% endblock %}
+
+</div>
+
+{% endblock bootstrap3_content %}
