@@ -18,7 +18,8 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 from slumber.exceptions import HttpClientError
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
-from bridge_lti.utils import stub_page
+from bridge_lti.models import LtiProvider, LtiUser
+from common.utils import get_collection_collectiongroup_engine, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
@@ -32,6 +33,8 @@ from module.models import (
 )
 
 log = logging.getLogger(__name__)
+
+DEMO_USER = 'demo_lti_user'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -437,6 +440,27 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
         return context
 
 
+@method_decorator(login_required, name='dispatch')
+class SequenceDelete(DeleteView):
+    model = Sequence
+
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or reverse(
+            'module:group-detail', kwargs={'group_slug': self.object.group.slug}
+        )
+
+    def delete(self, request, *args, **kwargs):
+        # NOTE(idegtiarov) ensure that sequence corresponds to the demo_user before deleting
+        # if self.get_object().lti_user.user_id == DEMO_USER:
+        if Sequence.objects.filter(id=self.kwargs.get('pk'), lti_user__user_id=DEMO_USER).exists():
+            return super().delete(request, *args, **kwargs)
+        else:
+            return redirect(self.get_success_url())
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request=request, *args, **kwargs)
+
+
 def _check_next_forbidden(pk):
     """
     Check if next sequence item is forbidden to be shown to the student.
@@ -458,7 +482,7 @@ def _check_next_forbidden(pk):
         sequence_item.sequence.collection.strict_forward and
         sequence_item.score is None
     )
-    log.debug("Next item is forbidden: {}".format(next_forbidden))
+    log.debug(f"Next item forbidden: {next_forbidden}, last_item: {last_item}, sequence_item_id: {sequence_item.id}")
     return next_forbidden, last_item, sequence_item
 
 
@@ -625,4 +649,98 @@ def preview_collection(request, slug):
         request,
         template_name="module/sequence_preview.html",
         context={'activities': acitvities}
+    )
+
+
+def demo_collection(request, group_slug, collection_slug):
+    """
+    View for the demonstration and testing of the adaptivity behaviour.
+    """
+    collection, collection_group, __ = get_collection_collectiongroup_engine(collection_slug, group_slug)
+    lti_consumer = LtiProvider.objects.first()
+    test_lti_user, created = LtiUser.objects.get_or_create(
+        user_id=DEMO_USER,
+        lti_consumer=lti_consumer,
+    )
+
+    test_sequence, created = Sequence.objects.get_or_create(
+        lti_user=test_lti_user,
+        collection=collection,
+        group=collection_group,
+    )
+
+    strict_forward = collection.strict_forward
+    request.session['Lti_sequence'] = test_sequence.id
+    request.session['Lti_strict_forward'] = strict_forward
+
+    back_url = request.GET.get('back_url', '')
+
+    context = {
+        'group_slug': group_slug,
+        'sequence_pk': test_sequence.id,
+        'back_url': back_url,
+        'forbidden': request.GET.get('forbidden', ''),
+    }
+
+    if created or not test_sequence.items.exists():
+        log.debug("Sequence {} was created".format(test_sequence))
+        start_activity = utils.choose_activity(sequence_item=None, sequence=test_sequence)
+        if not start_activity:
+            log.warning('Instructor configured empty Collection.')
+            return stub_page(
+                request,
+                title="Warning",
+                message="Cannot get the first question to start.",
+                tip="Please try again later",
+                demo=True,
+                sequence=test_sequence,
+                back_url=back_url,
+            )
+        sequence_item = SequenceItem.objects.create(
+            sequence=test_sequence,
+            activity=start_activity,
+            position=1
+        )
+    else:
+        s_item_id = request.GET.get('sequence_item_id') or test_sequence.items.last().id
+        log.debug(f'SequienceItem id: {s_item_id}')
+        next_forbidden, last_item, sequence_item = _check_next_forbidden(s_item_id)
+        position = int(request.GET.get('position') or 1)
+        if next_forbidden and position > sequence_item.position:
+            return redirect(
+                f"{reverse('module:demo', kwargs={'collection_slug': collection_slug, 'group_slug': group_slug})}"
+                f"?forbidden=true&back_url={back_url}&position={sequence_item.position}"
+            )
+        update_activity = request.session.pop('Lti_update_activity', None)
+        sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
+            sequence_item, update_activity, last_item, position
+        )
+
+        if sequence_complete:
+            context.update({'sequence_items': test_sequence.items.all(), 'demo': True, 'sequence_item': sequence_item})
+            return render(
+                request,
+                template_name='module/sequence_complete.html',
+                context=context)
+        elif stub:
+            return stub_page(
+                request,
+                title="Warning",
+                message="Cannot get next activity from the engine.",
+                tip="Try again later or connect with the instructor.",
+                demo=True,
+                sequence=test_sequence,
+                back_url=back_url,
+            )
+
+    context.update({
+        'sequence_item': sequence_item,
+        'sequence_items': test_sequence.items.all(),
+        'demo': True,
+        'position': sequence_item.position + 1
+    })
+    return render(
+        request,
+        template_name="module/sequence_item.html",
+        context=context
     )

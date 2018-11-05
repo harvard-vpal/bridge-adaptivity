@@ -1,5 +1,6 @@
 import logging
 
+import ddt
 from django.core.exceptions import MultipleObjectsReturned
 from django.test import TestCase
 from mock import patch
@@ -8,11 +9,12 @@ from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.models import (
     Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
 )
-from module.utils import choose_activity
+from module.utils import choose_activity, select_next_sequence_item
 
 log = logging.getLogger(__name__)
 
 
+@ddt.ddt
 class TestUtilities(TestCase):
     fixtures = ['gradingpolicy', 'engine']
 
@@ -32,6 +34,21 @@ class TestUtilities(TestCase):
         )
         self.activity2 = Activity.objects.create(
             name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url
+        )
+        self.activity3 = Activity.objects.create(
+            name='testactivity3', collection=self.collection, source_launch_url=f"{self.source_launch_url}3",
+        )
+        self.activity4 = Activity.objects.create(
+            name='testactivity4',
+            collection=self.collection,
+            source_launch_url=f"{self.source_launch_url}4",
+            stype='problem',
+        )
+        self.activity5 = Activity.objects.create(
+            name='testactivity5',
+            collection=self.collection,
+            source_launch_url=f"{self.source_launch_url}5",
+            stype='problem',
         )
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
@@ -58,7 +75,6 @@ class TestUtilities(TestCase):
             lti_user=self.lti_user,
             collection=self.collection,
             group=self.test_cg,
-            outcome_service=self.outcome_service
         )
         self.vpal_engine = Engine.objects.get(engine='engine_vpal')
 
@@ -76,6 +92,12 @@ class TestUtilities(TestCase):
             group=self.vpal_group,
             outcome_service=self.outcome_service
         )
+        self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity, score=0.4)
+        self.sequence_item_2 = SequenceItem.objects.create(
+            sequence=self.sequence, activity=self.activity2, score=0.6, position=2
+        )
+        self.sequence_item_3 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity3, position=3)
+        self.sequence_item_4 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity4, position=4)
 
     def test_choose_activity(self):
         try:
@@ -86,7 +108,7 @@ class TestUtilities(TestCase):
             log.error(Activity.ojbects.all().values('collection', 'source_launch_url'))
             self.fail(e)
         expected_activity = Activity.objects.get(
-            collection=self.sequence.collection, source_launch_url=self.source_launch_url
+            collection=self.sequence.collection, source_launch_url=f"{self.source_launch_url}5"
         )
         self.assertEqual(chosen_activity, expected_activity)
 
@@ -109,3 +131,54 @@ class TestUtilities(TestCase):
         completed_sequence = Sequence.objects.filter(group=self.vpal_group).first()
         self.assertEqual(completed_sequence, self.vpal_sequence)
         self.assertTrue(completed_sequence.completed)
+
+    @ddt.unpack
+    @ddt.data(
+        {
+            'item_index': 1,
+            'update_activity': False,
+            'last_item': 4,
+            'position': 2,
+            'pre_expected_result': (2, None, None)
+        },
+        {
+            'item_index': 3,
+            'update_activity': False,
+            'last_item': 4,
+            'position': 4,
+            'pre_expected_result': (4, None, None)
+        },
+        {
+            'item_index': 3,
+            'update_activity': True,
+            'last_item': 4,
+            'position': 4,
+            'pre_expected_result': (5, None, None)
+        },
+        {
+            'item_index': 4,
+            'update_activity': False,
+            'last_item': 4,
+            'position': 5,
+            'pre_expected_result': (4, None, None)
+        },
+    )
+    def test_select_next_sequence_item(self, item_index, update_activity, last_item, position, pre_expected_result):
+        next_item = getattr(self, f"sequence_item_{pre_expected_result[0]}", None)
+        result = select_next_sequence_item(
+            getattr(self, f"sequence_item_{item_index}"),
+            update_activity,
+            last_item,
+            position,
+        )
+        if position > last_item or update_activity:
+            next_item = self.sequence.items.last()
+        expected_result = (next_item, *pre_expected_result[1:])
+        self.assertEqual(expected_result, result)
+
+    def test_sequence_completed_in_select_next_sequence_item(self):
+        self.sequence_item_5 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity5, position=5)
+        sequence_item = self.sequence_item_5
+        expected_result = (sequence_item, True, None)
+        result = select_next_sequence_item(sequence_item, update_activity=False, last_item=5, position=6)
+        self.assertEqual(expected_result, result)

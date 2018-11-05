@@ -1,58 +1,53 @@
-{% extends "module/base.html" %}
+{% extends "module/sequence_item_base.html" %}
 {% load staticfiles bootstrap3 %}
 
 
-{% block bootstrap3_content %}
+{% block main_content %}
 
-<div class="container-fluid toolbar">
-  <div class="row">
-    <div class="col-md-6">
-      <div class="btn-group" role="group">
-        {% for item in sequence_items %}
-        <a href="{% url 'module:sequence-item' item.id %}">
-          <button class="btn btn-default {% if item == sequence_item %} active {% endif %}">
-            {{ forloop.counter }}
-          </button>
-        </a>
-        {% endfor %}
-      </div>
-      {% if sequence_item.sequence.group.ui_option %}
-        <h4 class="pull-right">
-            <span class="label label-success">{{ sequence_item.sequence.sequence_ui_details }}</span>
-        </h4>
-      {% endif %}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-6">
-      <a href="{% url 'module:sequence-item-next' sequence_item.id %}">
-        {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
-      </a>
-    </div>
-  </div>
-  <div class="row">
-    <iframe
-      style="width:100%;height:640px;%;display:block;border:0px;"
-      title="{{ sequence_item.activity.id }}"
-      name="ltiFrame-{{ sequence_item.activity.id }}"
-      src="{% url 'lti:source-preview' %}?sequence_item_id={{ sequence_item.id }}"
-      allowfullscreen="true"
-      webkitallowfullscreen="true"
-      mozallowfullscreen="true"
-      sandbox="allow-same-origin allow-forms allow-scripts"
-    >
-    </iframe>
-  </div>
-  <div class="row">
-    <div id="next-button" data-forbidden="{{ forbidden }}" class="col-md-6">
-      <a href="{% url 'module:sequence-item-next' sequence_item.id %}">
-        {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
-      </a>
-    </div>
+<div class="row">
+  <div class="col-md-{% if demo %}12{% else %}6{% endif %}">
+        <a href="
+          {% if demo %}
+            {% url 'module:demo' group_slug=sequence_item.sequence.group.slug collection_slug=sequence_item.sequence.collection.slug %}?back_url={{ back_url }}sequence_item_id={{ sequence_item.id }}&position={{ position }}
+          {% else %}
+            {% url 'module:sequence-item-next' sequence_item.id %}
+          {% endif %}
+        ">
+      {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+    </a>
   </div>
 </div>
+<div class="row">
+  <iframe
+    style="width:100%;height:640px;%;display:block;border:0px;"
+    title="{{ sequence_item.activity.id }}"
+    name="ltiFrame-{{ sequence_item.activity.id }}"
+    src="{% url 'lti:source-preview' %}?sequence_item_id={{ sequence_item.id }}"
+    allowfullscreen="true"
+    webkitallowfullscreen="true"
+    mozallowfullscreen="true"
+    sandbox="allow-same-origin allow-forms allow-scripts"
+  >
+  </iframe>
+</div>
+<div class="row">
+<div id="next-button" data-forbidden="{{ forbidden }}"
+     data-url="{% url 'module:demo' group_slug=sequence_item.sequence.group.slug collection_slug=sequence_item.sequence.collection.slug %}" data-sequence_item_id="{{ item.id }}"
+     class="col-md-{% if demo %}12{% else %}6{% endif %}?sequence_item_id={{ item.id }}">
+  <a href="
+    {% if demo %}
+      {% url 'module:demo' group_slug=sequence_item.sequence.group.slug collection_slug=sequence_item.sequence.collection.slug %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}
+    {% else %}
+      {% url 'module:sequence-item-next' sequence_item.id %}
+    {% endif %}
+  ">
+  {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+  </a>
+</div>
+</div>
+
 {% include "module/modals/forbid_next_modal.html" %}
 {% bootstrap_javascript jquery=True %}
 <script src="{% static 'module/js/forbid_next.js' %}"></script>
 
-{% endblock bootstrap3_content %}
+{% endblock main_content %}

@@ -331,6 +331,12 @@
 
          });
 
+         $('#demo_help').tooltip({
+             title: "<b>Demo adaptivity</b> shows the adaptivity behavior for the provided answers",
+             html: true
+
+         });
+
         function patchModalForm(modal, url = undefined) {
             const form = modal.find('form');
             url = url || form[0].action;

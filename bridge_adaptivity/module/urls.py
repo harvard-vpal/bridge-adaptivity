@@ -6,8 +6,9 @@ from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
     CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
-    GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate, preview_collection,
-    sequence_item_next, SequenceComplete, SequenceItemDetail, sync_collection, update_students_grades)
+    demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
+    preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection,
+    update_students_grades)
 
 urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
@@ -47,6 +48,10 @@ urlpatterns = ([
         CollectionDelete.as_view(),
         name='collection-delete'
     ),
+
+    path('group/<slug:group_slug>/collection/<slug:collection_slug>/demo', demo_collection, name="demo"),
+
+    path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
 
     url(
         r'^group/(?P<group_slug>[\w-]+)/collection/(?P<slug>[\w-]+)/move/(?P<direction>(up|down))/$',
