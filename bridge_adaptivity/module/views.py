@@ -1,8 +1,10 @@
+import datetime
 import logging
 from xml.sax.saxutils import escape
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
@@ -453,6 +455,7 @@ class SequenceDelete(DeleteView):
         # NOTE(idegtiarov) ensure that sequence corresponds to the demo_user before deleting
         # if self.get_object().lti_user.user_id == DEMO_USER:
         if Sequence.objects.filter(id=self.kwargs.get('pk'), lti_user__user_id=DEMO_USER).exists():
+            cache.delete(settings.TEST_SEQUENCE_SUFFIX)
             return super().delete(request, *args, **kwargs)
         else:
             return redirect(self.get_success_url())
@@ -683,6 +686,10 @@ def demo_collection(request, group_slug, collection_slug):
     }
 
     if created or not test_sequence.items.exists():
+        suffix = int(datetime.datetime.now().timestamp())
+        cache.set(settings.TEST_SEQUENCE_SUFFIX, suffix)
+        test_sequence.suffix = suffix
+        test_sequence.save()
         log.debug("Sequence {} was created".format(test_sequence))
         start_activity = utils.choose_activity(sequence_item=None, sequence=test_sequence)
         if not start_activity:

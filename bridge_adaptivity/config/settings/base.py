@@ -163,3 +163,6 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
+
+# Demo functionality
+TEST_SEQUENCE_SUFFIX = 'test_sequence_suffix'
