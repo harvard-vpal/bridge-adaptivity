@@ -95,11 +95,24 @@ class ThresholdGradingPolicyForm(ModelForm):
     def clean(self):
         super().clean()
         policy_name, params = self.cleaned_data.get('name'), self.cleaned_data.get('params')
-        required_params = GRADING_POLICY_NAME_TO_CLS.get(policy_name).require.get('params', [])
+        required_params = GRADING_POLICY_NAME_TO_CLS.get(policy_name).require.get('params')
         if required_params:
-            for param in required_params:
-                if not params or param not in params:
-                    raise forms.ValidationError("Not all required parameters are set correctly.")
+            if params is None:
+                params = self.cleaned_data['params'] = {}
+            for param, default in required_params.items():
+                if param not in params:
+                    params[param] = default
+                    continue
+                # TODO(idegtiarov) `threshold` parameter validation is hardcoded.
+                # It should be rewritten when some new parameter appears.
+                if param == 'threshold':
+                    try:
+                        threshold = int(params[param])
+                    except ValueError:
+                        threshold = default
+                    threshold = threshold if threshold > 0 else default
+                    params[param] = threshold
+
         return self.cleaned_data
 
 
