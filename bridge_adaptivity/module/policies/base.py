@@ -6,7 +6,8 @@ from bridge_lti.outcomes import update_lms_grades
 
 
 class BaseGradingPolicy(object, metaclass=ABCMeta):
-    """Base grading policy class defines methods and variables of grading policy.
+    """
+    Base grading policy class defines methods and variables of grading policy.
 
     >>> gp =  BaseGradingPolicy(sequence=1, policy=2, b=3)
     >>> gp.sequence
@@ -24,6 +25,9 @@ class BaseGradingPolicy(object, metaclass=ABCMeta):
     """
 
     public_name = 'Grading Policy'
+
+    # NOTE(idegtiarov) require dict contains parameters required for the policy for example
+    # params - in the required dict is a dict with key - required parameter and value - default magnitude
     require = {}
 
     """Next 2 fields (summary_text, detail_text) should be defined in inherited classes
