@@ -36,7 +36,20 @@ class GroupForm(ModelForm):
 
     class Meta:
         model = CollectionGroup
-        fields = 'name', 'description', 'owner', 'course', 'collections', 'engine', 'grading_policy_name', 'ui_option'
+        fields = (
+            'name',
+            'description',
+            'owner',
+            'course',
+            'collections',
+            'engine',
+            'grading_policy_name',
+            'ui_option',
+            'ui_next',
+        )
+        labels = {
+            'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button',
+        }
 
     def clean(self):
         super().clean()

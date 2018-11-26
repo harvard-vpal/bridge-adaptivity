@@ -13,7 +13,9 @@
             {% url 'module:sequence-item-next' sequence_item.id %}
           {% endif %}
         ">
-      {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+      {% if sequence_item.sequence.group.ui_next %}
+        {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+      {% endif %}
     </a>
   </div>
 </div>
