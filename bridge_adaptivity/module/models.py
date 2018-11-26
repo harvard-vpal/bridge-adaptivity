@@ -34,7 +34,9 @@ def _discover_applicable_modules(folder_name='engines', file_startswith='engine_
 
 
 def _load_cls_from_applicable_module(module_path, mod_name, class_startswith=None, class_endswith=None):
-    """Load class from module."""
+    """
+    Load class from module.
+    """
     module = None
     try:
         cls_module = importlib.import_module('{}.{}'.format(module_path, mod_name))
@@ -68,7 +70,9 @@ GRADING_POLICY_CHOICES = ((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items())
 
 
 class Sequence(models.Model):
-    """Represents User's problem solving track."""
+    """
+    Represents User's problem solving track.
+    """
 
     lti_user = models.ForeignKey(LtiUser, on_delete=models.CASCADE)
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
@@ -113,7 +117,7 @@ class Sequence(models.Model):
         """
         ui_option = self.group.ui_option
         details = f"{self.group.get_ui_option_display()}: "
-        # NOTE(idegtiarov) conditions dependus on CollectionGroup's OPTIONS
+        # NOTE(idegtiarov) conditions depend on CollectionGroup's OPTIONS
         if ui_option == CollectionGroup.OPTIONS[0][0]:
             details += f"{self.items.count()}/{self.collection.activities.count()}"
         elif ui_option == CollectionGroup.OPTIONS[1][0]:
@@ -125,7 +129,9 @@ class Sequence(models.Model):
 
 
 class SequenceItem(models.Model):
-    """Represents one User's step in problem solving track."""
+    """
+    Represents one User's step in problem solving track.
+    """
 
     sequence = models.ForeignKey('Sequence', related_name='items', null=True, on_delete=models.CASCADE)
     activity = models.ForeignKey('Activity', null=True, on_delete=models.CASCADE)
@@ -158,7 +164,9 @@ class SequenceItem(models.Model):
         self.suffix = hashlib.sha1(shortuuid.uuid().encode('utf-8')).hexdigest()[::4]  # Return 10 character uuid suffix
 
     def save(self, *args, **kwargs):
-        """Extension sending notification to the Adaptive engine that score is changed."""
+        """
+        Extension sending notification to the Adaptive engine that score is changed.
+        """
         if self.score != self.__origin_score:
             engine = self.sequence.group.engine.engine_driver
             engine.submit_activity_answer(self)
@@ -355,6 +363,10 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
 
     ui_option = models.CharField(
         choices=OPTIONS, max_length=2, blank=True, help_text="Add an optional UI block to the student view"
+    )
+
+    ui_next = models.BooleanField(
+        default=False, help_text="Add an optional NEXT button under the embedded unit."
     )
 
     @property
