@@ -56,7 +56,9 @@ class CollectionAdmin(admin.ModelAdmin):
 class GroupForm(forms.ModelForm):
     class Meta:
         model = CollectionGroup
-        fields = ('name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine')
+        fields = (
+            'name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine', 'ui_option', 'ui_next'
+        )
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
         }
@@ -66,7 +68,7 @@ class GroupForm(forms.ModelForm):
 class CollectionGroupAdmin(admin.ModelAdmin):
     form = GroupForm
     readonly_fields = ('slug',)
-    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine')
+    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine', 'ui_option', 'ui_next')
 
 
 @admin.register(Engine)

@@ -1,7 +1,9 @@
 from ddt import data, ddt, unpack
 from django.conf import settings
 from django.test import TestCase
+from django.utils.translation import ugettext_lazy as _
 from mock.mock import patch
+from multiselectfield.db.fields import MSFList
 
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from module import models
@@ -14,6 +16,12 @@ from module.models import (
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
 from module.policies.policy_trials_count import TrialsCountGradingPolicy
+
+OPTIONS = {
+    'AT': _('Questions viewed/total'),
+    'EP': _('Earned grade'),
+    'RW': _('Answers right/wrong'),
+}
 
 
 class TestEngineUtilityFunction(TestCase):
@@ -244,7 +252,6 @@ class TestCollectionGroupModel(TestCase):
 
 
 class TestDeleteObjectsSeparately(TestCase):
-
     fixtures = ['gradingpolicy.json', 'engine.json']
 
     @patch('module.tasks.sync_collection_engines.apply_async')
@@ -361,12 +368,16 @@ class TestSequence(TestCase):
 
     @unpack
     @data(
-        {'option': 'AT', 'expected_result': 'Questions viewed/total: 4/5'},
-        {'option': 'EP', 'expected_result': 'Earned grade: 0.3'},
-        {'option': 'RW', 'expected_result': 'Answers right/wrong: 2/1'},
+        # NOTE(idegtiarov) because of switching to using of MultiSelectField - option should be saved as MSFList
+        #  from the multiselectfield.db.fields
+        {'option': MSFList(OPTIONS, ['AT']), 'expected_result': ['Questions viewed/total: 4/5']},
+        {'option': MSFList(OPTIONS, ['EP', 'AT', 'RW']), 'expected_result': [
+            'Earned grade: 0.3', 'Questions viewed/total: 4/5', 'Answers right/wrong: 2/1'
+        ]},
+        {'option': MSFList(OPTIONS, []), 'expected_result': []},
     )
     def test_sequence_ui_details(self, option, expected_result):
         self.test_cg.ui_option = option
         self.test_cg.save()
         details = self.sequence.sequence_ui_details()
-        self.assertEqual(details, expected_result)
+        self.assertEqual(expected_result, details)
