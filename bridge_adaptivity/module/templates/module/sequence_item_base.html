@@ -32,7 +32,9 @@
       </div>
       {% if sequence_item.sequence.group.ui_option %}
         <h4 class="pull-right">
-            <span class="label label-success">{{ sequence_item.sequence.sequence_ui_details }}</span>
+            {% for details in  sequence_item.sequence.sequence_ui_details %}
+                <span class="label label-success column">{{ details }}</span>
+            {% endfor %}
         </h4>
       {% endif %}
     </div>

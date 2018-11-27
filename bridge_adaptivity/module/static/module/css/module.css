@@ -101,3 +101,9 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
 a > button {
     margin: 3px 0;
 }
+
+.column {
+    display: block;
+    float: none;
+    margin-bottom: 3px;
+}

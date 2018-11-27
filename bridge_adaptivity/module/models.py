@@ -12,6 +12,7 @@ from django.db import models
 from django.db.models import fields
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from multiselectfield import MultiSelectField
 from ordered_model.models import OrderedModel
 import shortuuid
 from slugger import AutoSlugField
@@ -115,17 +116,23 @@ class Sequence(models.Model):
         Context depends on the CollectionGroup's OPTION value.
         :return: str with the text for injecting into the label.
         """
-        ui_option = self.group.ui_option
-        details = f"{self.group.get_ui_option_display()}: "
-        # NOTE(idegtiarov) conditions depend on CollectionGroup's OPTIONS
-        if ui_option == CollectionGroup.OPTIONS[0][0]:
-            details += f"{self.items.count()}/{self.collection.activities.count()}"
-        elif ui_option == CollectionGroup.OPTIONS[1][0]:
-            details += f"{self.group.grading_policy.calculate_grade(self)}"
-        else:
-            details += f"{self.items.filter(score__gt=0).count()}/{self.items.filter(score=0).count()}"
+        ui_options = self.group.ui_option
 
-        return details
+        details_list = []
+        for ui_option in ui_options:
+            # NOTE(idegtiarov) conditions depend on CollectionGroup's OPTIONS
+            if ui_option == CollectionGroup.OPTIONS[0][0]:
+                details = f"{CollectionGroup.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
+            elif ui_option == CollectionGroup.OPTIONS[1][0]:
+                details = f"{CollectionGroup.OPTIONS[1][1]}: {self.group.grading_policy.calculate_grade(self)}"
+            else:
+                details = (
+                    f"{CollectionGroup.OPTIONS[2][1]}: "
+                    f"{self.items.filter(score__gt=0).count()}/{self.items.filter(score=0).count()}"
+                )
+            details_list.append(details)
+
+        return details_list
 
 
 class SequenceItem(models.Model):
@@ -361,8 +368,8 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
 
     engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
 
-    ui_option = models.CharField(
-        choices=OPTIONS, max_length=2, blank=True, help_text="Add an optional UI block to the student view"
+    ui_option = MultiSelectField(
+        choices=OPTIONS, blank=True, help_text="Add an optional UI block to the student view"
     )
 
     ui_next = models.BooleanField(
