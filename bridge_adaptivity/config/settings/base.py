@@ -122,7 +122,7 @@ AUTH_USER_MODEL = 'bridge_lti.BridgeUser'
 
 LOGIN_URL = 'login'
 
-LOGIN_REDIRECT_URL = 'module:collection-list'
+LOGIN_REDIRECT_URL = 'module:group-list'
 
 
 CACHES = {

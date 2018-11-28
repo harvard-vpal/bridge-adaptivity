@@ -17,7 +17,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', views.health),
 
-    path('', login_required(RedirectView.as_view(pattern_name='module:collection-list')), name='index'),
+    path('', login_required(RedirectView.as_view(pattern_name='module:group-list')), name='index'),
     path('lti/', include(lti)),
     path('module/', include(module)),
     path('api/', include(api)),
