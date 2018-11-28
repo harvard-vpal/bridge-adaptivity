@@ -40,7 +40,9 @@
           <td>
             <div>
                 {% url 'module:collection-change' collection.slug as collection_edit %}
+                <a>
                 {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                </a>
               {% url 'module:collection-delete' slug=collection.slug as delete_url %}
               <a
                   class="move-down delete-object
