@@ -32,7 +32,9 @@
           <td>
             <div>
             {% url 'module:course-change' course.slug as course_edit %}
+            <a>
             {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=course_edit %}
+            </a>
               <a class="move-down delete-object"
                  href="{% url 'module:course-delete' course_slug=course.slug %}"
                  data-id="{{ course.id }}">
