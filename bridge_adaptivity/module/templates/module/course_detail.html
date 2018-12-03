@@ -37,7 +37,7 @@
             {{ group.collections.count }}
           </td>
           <td>
-            <a href="{% url 'module:group-change' group_slug=group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.grading_policy.policy_cls.public_name }}</a>
+            <p>{{ group.grading_policy.policy_cls.public_name }}</p>
           </td>
           <td class="text-center">
             {% if group.grading_policy.threshold is not None %}

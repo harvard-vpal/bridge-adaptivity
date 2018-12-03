@@ -77,6 +77,7 @@ table.table tr td:last-child:not(.text-center):not(.text-left) {
 .detail-toolpanel {
     display: flex;
     justify-content: flex-end;
+    margin-bottom: 4px;
 }
 
 .unreachable-activity {
@@ -106,4 +107,54 @@ a > button {
     display: block;
     float: none;
     margin-bottom: 3px;
+}
+
+.options .btn,
+h3 .pull-right .btn {
+	margin-left: 4px;
+}
+
+#accordion .panel-body {
+	position: relative;
+}
+
+#accordion .panel-body:before{
+	content: " ";
+	position: absolute;
+	top: calc(50% - 10px);
+	left: calc(50% - 10px);
+	z-index: 2;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	margin: 1px;
+	border-radius: 50%;
+	border: 5px solid #777;
+	border-color: #777 transparent #777 transparent;
+	animation: lds-dual-ring 1.2s linear infinite;
+}
+
+#accordion .list-group {
+	position: relative;
+	z-index: 3;
+	background: #fff;
+}
+
+@keyframes lds-dual-ring {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+
+table.table tr td:last-child:not(.text-center):not(.text-left) a:hover {
+	text-decoration: none;
+}
+
+.table .move-up + .move-down {
+	margin-left: 4px;
 }
