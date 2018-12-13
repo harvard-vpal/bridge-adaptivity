@@ -14,6 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile_stage
+    image: bridge_adaptivity
     command: bash -c "./prod_run.sh"
     volumes:
       - .:/bridge_adaptivity
@@ -24,7 +25,7 @@ services:
       - postgres
   # Celery worker
   worker:
-    image: bridge_adaptivity_bridge
+    image: bridge_adaptivity
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod
     command: bash -c "sleep 5 && celery -A config worker -l info"
