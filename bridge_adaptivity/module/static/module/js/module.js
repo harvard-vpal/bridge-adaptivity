@@ -286,7 +286,7 @@
         };
 
         var getDataForWarning = function (elem) {
-            $elem = $(elem);
+            let $elem = $(elem);
             return $elem.closest('a').data();
         };
 
