@@ -332,11 +332,10 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         self.assertEqual(response.status_code, 202)
         self.assertEqual(self.test_cg.collections.count(), expected_group_collection)
 
-    def test_group_collection_ordered_up_and_down(self):
+    def test_group_collection_reordered(self):
         """
-        Test collections are reordered in the group on up/dowm commands.
+        Test collections are reordered in the group on move to different positions command.
         """
-        expected_url = reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug})
         expected_collection_order = [self.collection3, self.collection2, self.collection1]
 
         # After the update -- collections have an order: (collection1, collection3, collection2)
@@ -347,20 +346,20 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         self.assertEqual(list(self.test_cg.ordered_collections), [self.collection1, self.collection3, self.collection2])
 
         # Moving collection3 up, collection1 down and get reordered result as (collection3, collection2, collection1)
-        up_url = reverse('module:collection-move', kwargs={
+        move_to_index_0 = reverse('module:collection-move', kwargs={
             'group_slug': self.test_cg.slug,
             'slug': self.collection3.slug,
-            'direction': 'up',
+            'order': 0,
         })
-        response_up = self.client.get(up_url)
-        self.assertRedirects(response_up, expected_url=expected_url)
-        url_down = reverse('module:collection-move', kwargs={
+        response_up = self.client.get(move_to_index_0)
+        self.assertEqual(response_up.status_code, 201)
+        move_to_index_2 = reverse('module:collection-move', kwargs={
             'group_slug': self.test_cg.slug,
             'slug': self.collection1.slug,
-            'direction': 'down',
+            'order': 2,
         })
-        response_down = self.client.get(url_down)
-        self.assertRedirects(response_down, expected_url=expected_url)
+        response_down = self.client.get(move_to_index_2)
+        self.assertEqual(response_down.status_code, 201)
         ordered_collections = list(self.test_cg.ordered_collections)
         self.assertEqual(ordered_collections, expected_collection_order)
 
