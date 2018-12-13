@@ -224,16 +224,15 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
     context_object_name = 'group'
 
     def get(self, request, *args, **kwargs):
-        if kwargs.get('direction'):
+        if kwargs.get('order'):
             collection_order = CollectionOrder.objects.get(
                 group__slug=kwargs.get('group_slug'), collection__slug=kwargs.get('slug')
             )
             try:
-                # NOTE(idegtiarov): expects 'up', 'down' (also possible: 'top', 'bottom')
-                getattr(collection_order, kwargs['direction'])()
+                getattr(collection_order, 'to')(int(kwargs['order']))
             except AttributeError:
                 log.exception("Unknown ordering method!")
-            return redirect(reverse('module:group-detail', kwargs={'group_slug': collection_order.group.slug}))
+            return HttpResponse(status=201)
         return super().get(request, *args, **kwargs)
 
 
@@ -349,7 +348,6 @@ class CollectionGroupDelete(DeleteView):
 
     def get_object(self, queryset=None):
         return self.model.objects.get(
-            # collection__owner=self.request.user,
             collection__slug=self.kwargs['slug'],
             group__slug=self.kwargs['group_slug']
         )

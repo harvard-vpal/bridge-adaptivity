@@ -22,6 +22,7 @@
         <th>options</th>
       </tr>
       {% for group in groups %}
+        <tr>
           <td><a href="{{ group.get_absolute_url }}?back_url={% url 'module:group-list' %}">{{ group.name }}</a></td>
           <td class="text-left">
             {% if group.description %}

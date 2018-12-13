@@ -54,7 +54,7 @@ urlpatterns = ([
     path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
 
     url(
-        r'^group/(?P<group_slug>[\w-]+)/collection/(?P<slug>[\w-]+)/move/(?P<direction>(up|down))/$',
+        r'^group/(?P<group_slug>[\w-]+)/collection/(?P<slug>[\w-]+)/move/(?P<order>\d+)?$',
         GroupUpdate.as_view(),
         name='collection-move'
     ),
