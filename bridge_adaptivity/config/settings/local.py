@@ -97,7 +97,7 @@ LOGGING = {
         },
     }
 }
-APPS_TO_LOG = ['bridge_lti', 'module', 'api']
+APPS_TO_LOG = ['bridge_lti', 'module', 'api', 'config']
 APP_LOGGERS = {}
 for app in APPS_TO_LOG:
     APP_LOGGERS[app] = {

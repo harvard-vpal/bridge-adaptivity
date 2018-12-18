@@ -57,7 +57,7 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
     roles = request_post.get('roles')
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
-        return instructor_flow(request, collection_slug=collection_slug)
+        return instructor_flow(request, collection_slug=collection_slug, group_slug=group_slug)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
@@ -71,12 +71,14 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
         )
 
 
-def instructor_flow(request, collection_slug=None):
+def instructor_flow(request, collection_slug=None, group_slug=''):
     """
     Define logic flow for Instructor.
     """
     if not collection_slug:
         return redirect(reverse('module:collection-list'))
+    request.session['read_only_collection'] = True
+    log.debug(f'What about session now? {request.session.get("read_only_collection")}')
     return redirect(
         reverse(
             'module:collection-detail',
