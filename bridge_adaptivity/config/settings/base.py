@@ -152,6 +152,11 @@ PROBLEM_ACTIVITY_TYPES = (
     'problem',
 )
 
+# NOTE(idegtiarov) `SESSION_COOKIE_SAMESITE` and `CSRF_COOKIE_SAMESITE` was added in Django 2.1 and has broken current
+#  LTI session flow. The parameter is set to None to revert the previous behavior.
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
+
 # Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
