@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls.base import reverse
 from mock import patch
 
+from oauthlib.common import generate_token
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
 from module.models import (
@@ -73,7 +74,7 @@ class BridgeTestCase(TestCase):
         # LtiProvider
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='consumer_name',
-            consumer_key='consumer_key',
+            consumer_key=generate_token(length=25),
             consumer_secret='consumer_secret',
             expiration_date=datetime.datetime.today() + datetime.timedelta(days=1),
             lms_metadata='lms_metadata'

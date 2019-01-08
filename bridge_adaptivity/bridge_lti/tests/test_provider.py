@@ -15,6 +15,7 @@ from module.models import Sequence
 from module.tests.test_views import BridgeTestCase
 
 from django.test.client import Client
+from lti import ToolConsumer
 log = logging.getLogger(__name__)
 
 
@@ -130,36 +131,24 @@ class ProviderTest(BridgeTestCase):
 
     @mock.patch('bridge_lti.provider.instructor_flow')
     @mock.patch('bridge_lti.provider.learner_flow')
-    @data('Instructor',)
+    @data('Instructor', 'Administrator', 'Learner', 'Student')
     def test_lti_launch_correct_query(
         self, role,  mock_learner_flow, mock_instructor_flow,
     ):
-        # Checking only list of property or use validator?
-        # @mock.patch('bridge_lti.validator.SignatureValidator.validate_access_token')
-        # @mock.patch('bridge_lti.validator.SignatureValidator.validate_timestamp_and_nonce')
-        # @data('Instructor', 'Administrator', 'Learner', 'Student')
-        
         mock_instructor_flow.return_value = HttpResponse(status=200)
         mock_learner_flow.return_value = HttpResponse(status=200)
-
-        # 'collection_slug': self.collection1.slug,
-        # 'group_slug': str(self.test_cg.slug),
         
         consumer_prams = {
             'consumer_key': self.lti_provider.consumer_key,
             'consumer_secret': self.lti_provider.consumer_secret,
             'launch_url': 'http://localhost' + reverse(
-                'lti:launch',
-                kwargs={
-                    'collection_slug': self.collection1.slug,
-                    'group_slug': str(self.test_cg.slug),
-
-                }),
+                'lti:launch', kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
+            ),
             'params': {
                 # Required parameters
                 'lti_message_type': 'basic-lti-launch-request',
                 'lti_version': 'LTI-1p0',
-                'resource_link_id': '-881cb88b68e34194959b3038cd5f918f',
+                'resource_link_id': '-523523423423423423423423423',
                 # Recommended parameters
                 'user_id': 'bridge_user',
                 'roles': role,
@@ -167,19 +156,14 @@ class ProviderTest(BridgeTestCase):
                 'context_id': 'bridge_collection'
             },
         }
-        from lti import ToolConfig, ToolConsumer
         consumer = ToolConsumer(**consumer_prams)
-        data = consumer.generate_launch_data()
         response = self.client.post(
             consumer.launch_url,
-            data=data,
-            headers={
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-
+            HTTP_HOST='localhost',
+            data=consumer.generate_launch_data(),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-        # mock_instructor_flow.assert_called_once_with(mock.ANY, collection_slug=mock_collection_slug)
-        # mock_learner_flow.assert_not_called()
+        self.assertEqual(response.status_code, 200)
 
     @data('Lax', None)
     def test_lti_launch_csrf_token(
@@ -202,9 +186,7 @@ class ProviderTest(BridgeTestCase):
                 csrf_client.cookies.clear()
                 response_status = 403
             response = csrf_client.post(
-                reverse(
-                    'login'
-                ),
+                reverse('login'),
                 data={
                     'username': 'test',
                     'password': "test",
@@ -226,17 +208,8 @@ class ProviderTest(BridgeTestCase):
         mock_collection_slug = '3'
         with override_settings(SESSION_COOKIE_SAMESITE=session_cookie_samsite):
             self.client.post(
-                reverse(
-                    'lti:launch',
-                    kwargs={
-                        'collection_slug': mock_collection_slug,
-                        'group_slug': 'group-slug',
-                    }
-                ),
-                data={
-                    'oauth_nonce': 'oauth_nonce',
-                    'oauth_consumer_key': self.lti_provider.consumer_key,
-                }
+                reverse('lti:launch', kwargs={'collection_slug': mock_collection_slug, 'group_slug': 'group-slug'}),
+                data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_provider.consumer_key}
             )
             response_status = 200
             if session_cookie_samsite:
