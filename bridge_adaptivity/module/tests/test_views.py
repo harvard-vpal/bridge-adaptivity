@@ -5,8 +5,8 @@ import uuid
 from django.test import TestCase
 from django.urls.base import reverse
 from mock import patch
-
 from oauthlib.common import generate_token
+
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
 from module.models import (
@@ -74,6 +74,8 @@ class BridgeTestCase(TestCase):
         # LtiProvider
         self.lti_provider = LtiProvider.objects.create(
             consumer_name='consumer_name',
+            # This method generates a valid consumer_key.
+            # The valid consumer_key is used in the test for checking LTI query.
             consumer_key=generate_token(length=25),
             consumer_secret='consumer_secret',
             expiration_date=datetime.datetime.today() + datetime.timedelta(days=1),
