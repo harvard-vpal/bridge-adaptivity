@@ -1,6 +1,7 @@
 import logging
 
 from ddt import data, ddt
+from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponse
 from django.test import override_settings, RequestFactory
@@ -144,7 +145,7 @@ class ProviderTest(BridgeTestCase):
         consumer_prams = {
             'consumer_key': self.lti_provider.consumer_key,
             'consumer_secret': self.lti_provider.consumer_secret,
-            'launch_url': 'http://localhost' + reverse(
+            'launch_url': 'http://{}'.format(settings.BRIDGE_HOST) + reverse(
                 'lti:launch', kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
             ),
             'params': {
@@ -163,7 +164,7 @@ class ProviderTest(BridgeTestCase):
         consumer = ToolConsumer(**consumer_prams)
         response = self.client.post(
             consumer.launch_url,
-            HTTP_HOST='localhost',
+            HTTP_HOST=settings.BRIDGE_HOST,
             data=consumer.generate_launch_data(),
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
