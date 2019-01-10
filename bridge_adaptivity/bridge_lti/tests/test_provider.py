@@ -145,14 +145,14 @@ class ProviderTest(BridgeTestCase):
         consumer_prams = {
             'consumer_key': self.lti_provider.consumer_key,
             'consumer_secret': self.lti_provider.consumer_secret,
-            'launch_url': 'http://{}'.format(settings.BRIDGE_HOST) + reverse(
+            'launch_url': f"http://{settings.BRIDGE_HOST}" + reverse(
                 'lti:launch', kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
             ),
             'params': {
                 # Required parameters
                 'lti_message_type': 'basic-lti-launch-request',
                 'lti_version': 'LTI-1p0',
-                # It's random value. It's normal for test.
+                # The random value is used for the test purpose
                 'resource_link_id': '-523523423423423423423423423',
                 # Recommended parameters
                 'user_id': 'bridge_user',
@@ -179,6 +179,7 @@ class ProviderTest(BridgeTestCase):
         """
         with override_settings(CSRF_COOKIE_SAMESITE=csrf_cookie_samsite):
             csrf_client = Client(enforce_csrf_checks=True)
+            csrf_cookie_expected_result = csrf_cookie_samsite or ''
             # Get csrf_token
             response_get = csrf_client.get(reverse('login'))
             cookies_item = {}
@@ -186,9 +187,7 @@ class ProviderTest(BridgeTestCase):
                 cookies_item[key] = value
             csrftoken = cookies_item['csrftoken']
             csrftoken_id, samesite = csrftoken.coded_value, csrftoken.get('samesite')
-            # csrf_cookie_samsite or ''
-            # because '' is default value for 'samesite' and None is default for 'CSRF_COOKIE_SAMESITE'
-            self.assertEqual(samesite, csrf_cookie_samsite or '')
+            self.assertEqual(samesite, csrf_cookie_expected_result)
 
             response_status = 200
             if samesite:
