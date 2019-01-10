@@ -1,10 +1,13 @@
 import logging
 
 from ddt import data, ddt
+from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import HttpResponse
-from django.test import RequestFactory
+from django.test import override_settings, RequestFactory
+from django.test.client import Client
 from django.urls import reverse
+from lti import ToolConsumer
 from lti.contrib.django import DjangoToolProvider
 import mock
 
@@ -125,3 +128,113 @@ class ProviderTest(BridgeTestCase):
 
         # Ensure that only one LTI user was created.
         self.assertEqual(LtiUser.objects.all().count(), count_of_lti_users + 1)
+
+    @mock.patch('bridge_lti.provider.instructor_flow')
+    @mock.patch('bridge_lti.provider.learner_flow')
+    @data('Instructor', 'Administrator', 'Learner', 'Student')
+    def test_lti_launch_correct_query(self, role, mock_learner_flow, mock_instructor_flow):
+        """
+        Test for checking LTI query.
+
+        :param role: String identifier for role in platform
+        :param mock_learner_flow: mocking method of bridge_lti.provider.learner_flow
+        :param mock_instructor_flow: mocking method of bridge_lti.provider.instructor_flow
+        """
+        mock_instructor_flow.return_value = HttpResponse(status=200)
+        mock_learner_flow.return_value = HttpResponse(status=200)
+        consumer_prams = {
+            'consumer_key': self.lti_provider.consumer_key,
+            'consumer_secret': self.lti_provider.consumer_secret,
+            'launch_url': f"http://{settings.BRIDGE_HOST}" + reverse(
+                'lti:launch', kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
+            ),
+            'params': {
+                # Required parameters
+                'lti_message_type': 'basic-lti-launch-request',
+                'lti_version': 'LTI-1p0',
+                # The random value is used for the test purpose
+                'resource_link_id': '-523523423423423423423423423',
+                # Recommended parameters
+                'user_id': 'bridge_user',
+                'roles': role,
+                'oauth_callback': 'about:blank',
+                'context_id': 'bridge_collection'
+            },
+        }
+        consumer = ToolConsumer(**consumer_prams)
+        response = self.client.post(
+            consumer.launch_url,
+            HTTP_HOST=settings.BRIDGE_HOST,
+            data=consumer.generate_launch_data(),
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @data('Lax', None)
+    def test_lti_launch_csrf_token(self, csrf_cookie_samsite):
+        """
+        Test for checking csrf token in post request.
+
+        :param csrf_cookie_samsite: value for CSRF_COOKIE_SAMESITE variable
+        """
+        with override_settings(CSRF_COOKIE_SAMESITE=csrf_cookie_samsite):
+            csrf_client = Client(enforce_csrf_checks=True)
+            csrf_cookie_expected_result = csrf_cookie_samsite or ''
+            # Get csrf_token
+            response_get = csrf_client.get(reverse('login'))
+            cookies_item = {}
+            for key, value in response_get.cookies.items():
+                cookies_item[key] = value
+            csrftoken = cookies_item['csrftoken']
+            csrftoken_id, samesite = csrftoken.coded_value, csrftoken.get('samesite')
+            self.assertEqual(samesite, csrf_cookie_expected_result)
+
+            response_status = 200
+            if samesite:
+                csrf_client.cookies.clear()
+                response_status = 403
+            response = csrf_client.post(
+                reverse('login'),
+                data={
+                    'username': self.user.username,
+                    'password': self.user.password,
+                    'csrfmiddlewaretoken': csrftoken_id
+                }
+            )
+            self.assertEqual(response.status_code, response_status)
+
+    @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
+    @mock.patch('bridge_lti.provider.learner_flow')
+    @mock.patch('module.views.SequenceComplete.get_object')
+    @data('Lax', None)
+    def test_lti_launch_session_check(
+        self, session_cookie_samsite, mock_module_get_object, mock_learner_flow, mock_get_tool_provider_for_lti
+    ):
+        """
+        Test for checking session variables in request.
+
+        Session's variables need to be in each query.
+        :param session_cookie_samsite: value for SESSION_COOKIE_SAMESITE variable
+        :param mock_module_get_object: mocking method of module.views.Sequence Complete.get_object
+        :param mock_learner_flow: mocking method of bridge_lti.provider.learner_flow
+        :param mock_get_tool_provider_for_lti: mocking method of bridge_lti.provider.get_tool_provider_for_lti
+        """
+        mock_get_tool_provider_for_lti.return_value = True
+        mock_learner_flow.return_value = HttpResponse(status=200)
+        mock_module_get_object.__name__ = 'get_object'
+        with override_settings(SESSION_COOKIE_SAMESITE=session_cookie_samsite):
+            # Get session variables
+            self.client.post(
+                reverse(
+                    'lti:launch',
+                    kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
+                ),
+                data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_provider.consumer_key}
+            )
+            response_status = 200
+            if session_cookie_samsite:
+                # delete session. It's the same if we send get query without sessionid.
+                self.client.session.flush()
+                response_status = 403
+            response = self.client.get(reverse('module:sequence-complete', kwargs={'pk': self.collection1.pk}))
+            self.assertEqual(response.status_code, response_status)
