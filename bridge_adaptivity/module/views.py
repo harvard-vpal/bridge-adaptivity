@@ -384,14 +384,12 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         activity = self.get_object()
-        if kwargs.get('direction'):
+        if kwargs.get('order'):
             try:
-                # NOTE(wowkalucky): expects 'up', 'down' (also possible: 'top', 'bottom')
-                getattr(activity, kwargs['direction'])()
+                getattr(activity, 'to')(int(kwargs['order']))
             except AttributeError:
                 log.exception("Unknown ordering method!")
-            return redirect(reverse('module:collection-detail', kwargs={'pk': activity.collection.id}))
-
+            return HttpResponse(status=201)
         return super().get(request, *args, **kwargs)
 
 
