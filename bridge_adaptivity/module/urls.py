@@ -66,7 +66,7 @@ urlpatterns = ([
         name='activity-change'
     ),
     url(
-        r'^activity/(?P<pk>\d+)/move/(?P<order>\d+)?$$',
+        r'^activity/(?P<pk>\d+)/move/(?P<order>\d+)?$',
         ActivityUpdate.as_view(),
         name='activity-move'
     ),
