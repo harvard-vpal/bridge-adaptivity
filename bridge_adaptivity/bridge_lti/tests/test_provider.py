@@ -11,7 +11,7 @@ from lti import ToolConsumer
 from lti.contrib.django import DjangoToolProvider
 import mock
 
-from bridge_lti.models import LtiUser
+from bridge_lti.models import BridgeUser, LtiUser
 from bridge_lti.provider import learner_flow
 from module.models import Sequence
 from module.tests.test_views import BridgeTestCase
@@ -27,18 +27,19 @@ class ProviderTest(BridgeTestCase):
     @mock.patch('bridge_lti.provider.learner_flow')
     @data('Instructor', 'Administrator')
     def test_lti_launch_instructor_flow(
-            self, role, mock_learner_flow, mock_instructor_flow, mock_get_tool_provider_for_lti
+        self, role, mock_learner_flow, mock_instructor_flow, mock_get_tool_provider_for_lti
     ):
         mock_get_tool_provider_for_lti.return_value = True
         mock_instructor_flow.return_value = HttpResponse(status=200)
         mock_learner_flow.return_value = HttpResponse(status=200)
         mock_collection_slug = '1'
+        mock_grop_slug = 'group-slug'
         self.client.post(
             reverse(
                 'lti:launch',
                 kwargs={
                     'collection_slug': mock_collection_slug,
-                    'group_slug': 'group-slug',
+                    'group_slug': mock_grop_slug,
                 }),
             data={
                 'oauth_nonce': 'oauth_nonce',
@@ -46,7 +47,9 @@ class ProviderTest(BridgeTestCase):
                 'roles': role,
             }
         )
-        mock_instructor_flow.assert_called_once_with(mock.ANY, collection_slug=mock_collection_slug)
+        mock_instructor_flow.assert_called_once_with(
+            mock.ANY, collection_slug=mock_collection_slug, group_slug=mock_grop_slug
+        )
         mock_learner_flow.assert_not_called()
 
     @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
@@ -129,10 +132,9 @@ class ProviderTest(BridgeTestCase):
         # Ensure that only one LTI user was created.
         self.assertEqual(LtiUser.objects.all().count(), count_of_lti_users + 1)
 
-    @mock.patch('bridge_lti.provider.instructor_flow')
     @mock.patch('bridge_lti.provider.learner_flow')
     @data('Instructor', 'Administrator', 'Learner', 'Student')
-    def test_lti_launch_correct_query(self, role, mock_learner_flow, mock_instructor_flow):
+    def test_lti_launch_correct_query(self, role, mock_learner_flow):
         """
         Test for checking LTI query.
 
@@ -140,7 +142,6 @@ class ProviderTest(BridgeTestCase):
         :param mock_learner_flow: mocking method of bridge_lti.provider.learner_flow
         :param mock_instructor_flow: mocking method of bridge_lti.provider.instructor_flow
         """
-        mock_instructor_flow.return_value = HttpResponse(status=200)
         mock_learner_flow.return_value = HttpResponse(status=200)
         consumer_prams = {
             'consumer_key': self.lti_provider.consumer_key,
@@ -161,6 +162,10 @@ class ProviderTest(BridgeTestCase):
                 'context_id': 'bridge_collection'
             },
         }
+        # Check read-only user do not exists
+        read_only_user = BridgeUser.objects.filter(username='read_only')
+        self.assertFalse(read_only_user)
+
         consumer = ToolConsumer(**consumer_prams)
         response = self.client.post(
             consumer.launch_url,
@@ -168,7 +173,13 @@ class ProviderTest(BridgeTestCase):
             data=consumer.generate_launch_data(),
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )
-        self.assertEqual(response.status_code, 200)
+
+        if role in ['Instructor', 'Administrator']:
+            read_only_user = BridgeUser.objects.filter(username='read_only')
+            self.assertTrue(read_only_user)
+            self.assertEqual(response.status_code, 302)
+        else:
+            self.assertEqual(response.status_code, 200)
 
     @data('Lax', None)
     def test_lti_launch_csrf_token(self, csrf_cookie_samsite):

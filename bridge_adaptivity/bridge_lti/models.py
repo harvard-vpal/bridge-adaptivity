@@ -1,3 +1,6 @@
+import logging
+
+from django.contrib.auth import login
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -6,6 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from api.models import OAuthClient
 from .utils import short_token
+
+log = logging.getLogger(__name__)
 
 
 class LtiProvider(models.Model):
@@ -79,7 +84,9 @@ class LtiConsumer(models.Model):
 
 
 class LtiUser(models.Model):
-    """Model to manage LTI users."""
+    """
+    Model to manage LTI users.
+    """
 
     user_id = fields.CharField(max_length=255, db_index=True)
     course_id = fields.CharField(max_length=255, blank=True, null=True)
@@ -97,7 +104,9 @@ class LtiUser(models.Model):
 
 
 class BridgeUser(AbstractUser):
-    """Bridge user based on the top of Django User."""
+    """
+    Bridge user based on the top of Django User.
+    """
 
     roles = fields.CharField(
         max_length=255,
@@ -113,6 +122,15 @@ class BridgeUser(AbstractUser):
 
     def __str__(self):
         return '<BridgeUser: {}>'.format(self.username)
+
+    def login(self, request):
+        """
+        Login connected SCB user.
+        """
+        self.backend = 'django.contrib.auth.backends.ModelBackend'
+        log.debug(f"Bridge user backend User {self.backend} login process...")
+        login(request, self)
+        log.debug(f"Check User is authenticated: {request.user.is_authenticated}")
 
 
 class OutcomeService(models.Model):

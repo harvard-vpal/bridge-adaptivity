@@ -10,7 +10,7 @@
 
 {% block content %}
   {% include "module/modals/modal_wrapper.html" %}
-  {%  url 'module:activity-add' collection_slug=collection.slug  as activity_add %}
+  {%  url 'module:activity-add' collection_slug=collection.slug as activity_add %}
 
     <div
             id="activity-add-url-holder"
@@ -26,19 +26,26 @@
       <div class="col-md-8">
         <h3 class="detail-toolpanel">
 
-            {% url 'module:collection-change' collection.slug as collection_edit %}
-            <a class="pull-right">
-            {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
-            </a>
-            <a class="pull-right delete-object
-                     {% if collection.has_linked_sequences %}
-                       {% if collection.has_linked_active_sequences %}
-                         show-alarm {% else %} show-warning
-                       {% endif %}
-                     {% endif %}"
-               data-id="{{ collection.slug }}">
-                {% bootstrap_button "Delete" size='sm' icon='trash' %}
-            </a>
+            {% if not request.session.read_only_data %}
+                {% url 'module:collection-change' collection.slug as collection_edit %}
+                <a class="pull-right">
+                {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                </a>
+                <a class="pull-right delete-object
+                         {% if collection.has_linked_sequences %}
+                           {% if collection.has_linked_active_sequences %}
+                             show-alarm {% else %} show-warning
+                           {% endif %}
+                         {% endif %}"
+                   data-id="{{ collection.slug }}">
+                    {% bootstrap_button "Delete" size='sm' icon='trash' %}
+                </a>
+                {% if sync_available %}
+                    <a class="pull-right show-warning">
+                        {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
+                    </a>
+                {% endif %}
+            {% endif %}
             <a
                     class="pull-right"
                     id="collection-preview-button"
@@ -46,11 +53,6 @@
             >
                 {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success" %}
             </a>
-            {% if sync_available %}
-                <a class="pull-right show-warning">
-                    {% bootstrap_button 'Sync with Engines' size='sm' icon='refresh' button_class="btn-info" %}
-                </a>
-            {% endif %}
         </h3>
     </div>
     <div id="activities" data-engine="{{ engine }}" class="col-md-8">
@@ -101,15 +103,17 @@
               <td class="text-center">{{ activity.source_name|default:"-" }}</td>
               <td class="text-right">
                 <div class="options">
-                  <a class="trash delete-object
-                  {% if collection.has_linked_active_sequences %} show-alarm
-                  {% elif collection.has_linked_sequences %} show-warning
-                  {% endif %} pull-right" data-id="{{ activity.id }}">
-                    {% bootstrap_button "" size='sm' icon='trash' %}
-                  </a>
-                  <a class="pull-right">
-                  {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=activity_edit %}
-                  </a>
+                  {% if not request.session.read_only_data %}
+                      <a class="trash delete-object
+                      {% if collection.has_linked_active_sequences %} show-alarm
+                      {% elif collection.has_linked_sequences %} show-warning
+                      {% endif %} pull-right" data-id="{{ activity.id }}">
+                        {% bootstrap_button "" size='sm' icon='trash' %}
+                      </a>
+                      <a class="pull-right">
+                      {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=activity_edit %}
+                      </a>
+                  {% endif %}
                   {% ifnotequal activity.atype 'G' %}
                     {% ifnotequal activity.order 0 %}
                     <a class="move-up pull-right"
@@ -153,9 +157,9 @@
           <span class="unreachable-activity">gray</span>
         </li>
       </ul>
-
       {# Right accordion panel #}
     </div>
+    {% if not request.session.read_only_data %}
     <div class="col-md-4">
       <div class="row">
         <h3 class="text-center">Available content courses</h3>
@@ -233,6 +237,7 @@
       </div>
 
     </div>
+    {% endif %}
   </div>
 
   {% include "module/modals/source_modal.html" %}

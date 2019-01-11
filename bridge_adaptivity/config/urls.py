@@ -11,7 +11,6 @@ from config.views import BridgeLoginView
 from module.urls import urlpatterns as module
 from . import views
 
-
 urlpatterns = [
     path('login/', BridgeLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),

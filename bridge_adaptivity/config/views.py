@@ -1,6 +1,7 @@
+from logging import getLogger
+
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
-from logging import getLogger
 
 log = getLogger(__name__)
 
