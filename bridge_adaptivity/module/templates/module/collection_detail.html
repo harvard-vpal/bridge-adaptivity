@@ -76,12 +76,12 @@
                 data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
 
                 draggable="{% if activity.atype != 'G' %}true{% endif %}"
-              ondrop="drop_handler(event, this);"
-              ondragstart="dragstart_handler(event);"
-              ondragover="dragover_handler(event);"
-              data-index="{{ forloop.counter0 }}"
-              data-move_url="{% url 'module:activity-move' pk=activity.pk  %}?back_url={{ activity.get_absolute_url}}"
-               data-atype="{{activity.atype}}"
+                ondrop="drop_handler(event, this);"
+                ondragstart="dragstart_handler(event);"
+                ondragover="dragover_handler(event);"
+                data-index="{{ forloop.counter0 }}"
+                data-move_url="{% url 'module:activity-move' pk=activity.pk  %}?back_url={{ activity.get_absolute_url}}"
+                data-atype="{{activity.atype}}"
 
             >
                 {% url 'module:activity-change' activity.pk collection.slug as activity_edit %}
@@ -261,5 +261,5 @@
 {% block bootstrap3_extra_script %}
   {{ block.super }}
   <script src="{% static 'module/js/module.js' %}"></script>
-    <script src="{% static 'module/js/collection_drag_drop.js' %}"></script>
+  <script src="{% static 'module/js/collection_drag_drop.js' %}"></script>
 {% endblock bootstrap3_extra_script %}
