@@ -70,21 +70,22 @@
           </tr>
           {% for activity in activities %}
             <tr id="activity-row-{{ forloop.counter0 }}"
-                class="activity  droppable {% if activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
+                class="activity droppable {% if activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
                 data-activity-name="{{ activity.name }}"
                 data-id="{{ activity.id }}"
                 data-activity-source-launch-url="{{ activity.source_launch_url }}"
                 data-content_source_id="{{ activity.lti_consumer.id }}"
                 data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
-
-                draggable="{% if activity.atype != 'G' %}true{% endif %}"
-                ondrop="drop_handler(event, this);"
-                ondragstart="dragstart_handler(event);"
-                ondragover="dragover_handler(event);"
-                data-index="{{ forloop.counter0 }}"
-                data-move_url="{% url 'module:activity-move' pk=activity.pk  %}?back_url={{ activity.get_absolute_url}}"
-                data-atype="{{activity.atype}}"
-                labelstring="{% if activity.atype == 'A' %}PRE:{% elif activity.atype == 'Z' %}POST:{% endif %}"
+                {% if not request.session.read_only_data %}
+                    draggable="{% if activity.atype != 'G' %}true{% endif %}"
+                    ondrop="drop_handler(event, this);"
+                    ondragstart="dragstart_handler(event);"
+                    ondragover="dragover_handler(event);"
+                    data-index="{{ forloop.counter0 }}"
+                    data-move_url="{% url 'module:activity-move' pk=activity.pk  %}?back_url={{ activity.get_absolute_url}}"
+                    data-atype="{{activity.atype}}"
+                    labelstring="{% if activity.atype == 'A' %}PRE:{% elif activity.atype == 'Z' %}POST:{% endif %}"
+                {% endif %}
 
             >
                 {% url 'module:activity-change' activity.pk collection.slug as activity_edit %}
@@ -124,20 +125,6 @@
                       {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=activity_edit %}
                       </a>
                   {% endif %}
-                  {% ifnotequal activity.atype 'G' %}
-                    {% ifnotequal activity.order 0 %}
-                    <a class="move-up pull-right"
-                       href="{% url 'module:activity-move' pk=activity.pk direction='up' %}">
-                      {% bootstrap_button "" size='sm' icon='chevron-up' %}
-                    </a>
-                    {% endifnotequal %}
-                    {% if not forloop.last and not activity.last_pre  %}
-                      <a class="move-down pull-right"
-                         href="{% url 'module:activity-move' pk=activity.pk direction='down' %}">
-                        {% bootstrap_button "" size='sm' icon='chevron-down' %}
-                      </a>
-                    {% endif %}
-                  {% endifnotequal %}
                 </div>
               </td>
             </tr>
@@ -282,6 +269,8 @@
 {% block bootstrap3_extra_script %}
   {{ block.super }}
   <script src="{% static 'module/js/module.js' %}"></script>
-  <script src="{% static 'module/js/base_drag_drop.js' %}"></script>
-  <script src="{% static 'module/js/collection_drag_drop.js' %}"></script>
+  {% if not request.session.read_only_data %}
+    <script src="{% static 'module/js/base_drag_drop.js' %}"></script>
+    <script src="{% static 'module/js/collection_drag_drop.js' %}"></script>
+  {% endif %}
 {% endblock bootstrap3_extra_script %}
