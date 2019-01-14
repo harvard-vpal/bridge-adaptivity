@@ -25,7 +25,7 @@ services:
     stdin_open: true
     tty: true
 
-   # Celery worker
+  # Celery worker
   worker:
     image: bridge_adaptivity
     environment:

@@ -41,9 +41,15 @@
       <input type="hidden" name="next" value="{{ next }}"/>
     </div>
     <div class="submit-row">
-      <input class="btn btn-default" type="submit" value="{% trans 'Log in' %}"/>
+      <input class="btn btn-info" type="submit" value="{% trans 'Log in' %}"/>
+        {% if read_only_available %}
+      <div class="btn btn-success">
+        <span>Read-only view</span>
+      </div>
+        {% endif %}
     </div>
   </form>
+
 
 </div>
 

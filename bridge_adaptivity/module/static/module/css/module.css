@@ -158,3 +158,8 @@ table.table tr td:last-child:not(.text-center):not(.text-left) a:hover {
 .table .move-up + .move-down {
 	margin-left: 4px;
 }
+
+.read-only {
+    display: flex;
+    justify-content: center;
+}

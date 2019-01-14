@@ -19,7 +19,9 @@
         <th>engine</th>
         <th>policy</th>
         <th>threshold</th>
-        <th>options</th>
+        {% if not request.session.read_only_data %}
+          <th>options</th>
+        {% endif %}
       </tr>
       {% for group in groups %}
         <tr>
@@ -36,22 +38,23 @@
           <td class="text-center">{{ group.grading_policy.policy_cls.public_name }}</td>
           <td class="text-center">{% if 'threshold' in group.grading_policy.policy_cls.require.params %}
                                   {{ group.grading_policy.params.threshold }}{% endif %}</td>
-          <td class="text-right" style="min-width: 90px;">
-            <div>
+            {% if not request.session.read_only_data %}
+            <td class="text-right" style="min-width: 90px;">
+              <div>
+                  {% url 'module:group-change' group_slug=group.slug as group_edit %}
+                    <a>
+                  {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
+                    </a>
 
-              {% url 'module:group-change' group_slug=group.slug as group_edit %}
-                <a>
-              {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
-                </a>
-
-              <a class="move-down delete-object
-                  {% if group.has_linked_active_sequences %} show-alarm
-                  {% elif group.has_linked_sequences %} show-warning
-                  {% endif %}"
-                  href="{% url 'module:group-delete' group_slug=group.slug %}"
-                  data-id="{{ group.id }}">
-                  {% bootstrap_button "" size='sm' icon='trash' %}
-              </a>
+                  <a class="move-down delete-object
+                      {% if group.has_linked_active_sequences %} show-alarm
+                      {% elif group.has_linked_sequences %} show-warning
+                      {% endif %}"
+                      href="{% url 'module:group-delete' group_slug=group.slug %}"
+                      data-id="{{ group.id }}">
+                      {% bootstrap_button "" size='sm' icon='trash' %}
+                  </a>
+              {% endif %}
 
               {% url 'module:group-delete' group_slug=group.slug as delete_url %}
 
@@ -65,9 +68,9 @@
                 {% endwith %}
               {% else %}
                 {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url id=group.id %}
-              {% endif %}
             </div>
-          </td>
+            </td>
+            {% endif %}
         </tr>
       {% endfor %}
     </table>
@@ -76,10 +79,10 @@
       You have no groups for now.
     </div>
   {% endif %}
-
-  <hr>
-  {% bootstrap_button 'Add Group' size='lg' icon='plus' extra_classes='modal_launcher' value=group_add %}
-
+  {% if not request.session.read_only_data %}
+      <hr>
+      {% bootstrap_button 'Add Group' size='lg' icon='plus' extra_classes='modal_launcher' value=group_add %}
+  {% endif %}
 
 {% endblock content %}
 
