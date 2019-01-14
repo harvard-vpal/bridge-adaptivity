@@ -39,6 +39,11 @@
         </a>
       </div>
     {% endif%}
+    {% if request.session.read_only_data %}
+      <div class="btn-danger read-only">
+          READ ONLY MODE (to do any changes please login to the Bridge with your account)
+      </div>
+    {% endif %}
     <h1>{% block title %}{% endblock %}</h1>
 
       {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}

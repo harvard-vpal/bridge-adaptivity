@@ -9,7 +9,7 @@ from lti import InvalidLTIRequestError
 from lti.contrib.django import DjangoToolProvider
 from oauthlib import oauth1
 
-from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from common.utils import find_last_sequence_item, get_collection_collectiongroup_engine, stub_page
 from module import utils as module_utils
@@ -57,7 +57,7 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
     roles = request_post.get('roles')
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
-        return instructor_flow(request, collection_slug=collection_slug)
+        return instructor_flow(request, collection_slug=collection_slug, group_slug=group_slug)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
@@ -71,12 +71,19 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
         )
 
 
-def instructor_flow(request, collection_slug=None):
+def instructor_flow(request, collection_slug=None, group_slug=''):
     """
     Define logic flow for Instructor.
     """
     if not collection_slug:
         return redirect(reverse('module:collection-list'))
+    request.session['read_only_data'] = {'collection': collection_slug, 'group': group_slug}
+    read_only_user, _ = BridgeUser.objects.get_or_create(
+        username='read_only',
+        password='fake_pass'
+    )
+    read_only_user.login(request)
+
     return redirect(
         reverse(
             'module:collection-detail',

@@ -15,7 +15,9 @@
         <th>collection name</th>
         <th>strict forward</th>
         <th>groups</th>
-        <th>options</th>
+        {% if not request.session.read_only_data %}
+          <th>options</th>
+        {% endif %}
       </tr>
       {% for collection in collections %}
         <tr>
@@ -37,35 +39,37 @@
               <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group.get_absolute_url }}">{{ group.name }}</a>
             {% endfor %}
           </td>
-          <td>
-            <div>
-                {% url 'module:collection-change' collection.slug as collection_edit %}
-                <a>
-                {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
-                </a>
-              {% url 'module:collection-delete' slug=collection.slug as delete_url %}
-              <a
-                  class="move-down delete-object
-                  {% if collection.has_linked_active_sequences %} show-alarm
-                  {% elif collection.has_linked_sequences %} show-warning{% endif %}"
-                  data-id="{{ collection.slug }}">
-                  {% bootstrap_button "" size='sm' icon='trash' %}
-              </a>
-              {% with title="You are about deleting " add_obj_in_title=True %}
-                {% if collection.has_linked_active_sequences %}
-                  {% with message="At least one student is still working on the collection: " %}
-                    {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+            {% if not request.session.read_only_data %}
+            <td>
+              <div>
+                    {% url 'module:collection-change' collection.slug as collection_edit %}
+                    <a>
+                    {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                    </a>
+                  {% url 'module:collection-delete' slug=collection.slug as delete_url %}
+                  <a
+                      class="move-down delete-object
+                      {% if collection.has_linked_active_sequences %} show-alarm
+                      {% elif collection.has_linked_sequences %} show-warning{% endif %}"
+                      data-id="{{ collection.slug }}">
+                      {% bootstrap_button "" size='sm' icon='trash' %}
+                  </a>
+                  {% with title="You are about deleting " add_obj_in_title=True %}
+                    {% if collection.has_linked_active_sequences %}
+                      {% with message="At least one student is still working on the collection: " %}
+                        {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                      {% endwith %}
+                    {% elif collection.has_linked_sequences %}
+                      {% with message="At least one student is linked to the collection: " %}
+                        {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                      {% endwith %}
+                    {% else %}
+                      {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                    {% endif %}
                   {% endwith %}
-                {% elif collection.has_linked_sequences %}
-                  {% with message="At least one student is linked to the collection: " %}
-                    {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
-                  {% endwith %}
-                {% else %}
-                  {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
-                {% endif %}
-              {% endwith %}
             </div>
-          </td>
+            </td>
+            {% endif %}
         </tr>
       {% endfor %}
     </table>
@@ -75,8 +79,11 @@
     </div>
   {% endif %}
 
+  {% if not request.session.read_only_data %}
+
   <hr>
   {% bootstrap_button 'Add Collection' size='lg' icon='plus' extra_classes='modal_launcher' value=collection_add%}
+  {% endif %}
 
 {% endblock content %}
 

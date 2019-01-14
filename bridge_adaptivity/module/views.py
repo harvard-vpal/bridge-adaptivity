@@ -27,7 +27,7 @@ from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
     BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
-    LtiSessionMixin, ModalFormMixin, OnlyMyObjectsMixin, SetUserInFormMixin
+    LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
@@ -130,10 +130,10 @@ class CourseRmGroup(UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupList(OnlyMyObjectsMixin, ListView):
-    model = CollectionGroup
+class GroupList(BaseGroupView, ListView):
     context_object_name = 'groups'
     ordering = ['slug']
+    filter = 'group'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -185,6 +185,7 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
     context_object_name = 'group'
     link_form_class = AddCollectionGroupForm
     link_object_name = 'collection'
+    filter = 'group'
 
     def get_link_form_kwargs(self):
         return dict(user=self.request.user, group=self.object)
@@ -248,6 +249,7 @@ class GroupDelete(BaseGroupView, DeleteView):
 @method_decorator(login_required, name='dispatch')
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
+    filter = 'collection'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -269,6 +271,7 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
+    filter = 'collection'
 
     def get(self, request, *args, **kwargs):
         try:
