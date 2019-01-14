@@ -125,7 +125,7 @@ class BridgeUser(AbstractUser):
 
     def login(self, request):
         """
-        Login connected SCB user.
+        Login read-only bridge user.
         """
         self.backend = 'django.contrib.auth.backends.ModelBackend'
         log.debug(f"Bridge user backend User {self.backend} login process...")

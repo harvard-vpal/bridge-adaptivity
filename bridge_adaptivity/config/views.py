@@ -11,10 +11,13 @@ def health(request):
 
 
 class BridgeLoginView(LoginView):
+    """
+    OverLoad Login Class view to make available read-only mode.
+    """
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        log.error(f'Do we have a session: {self.request.session.values()}')
         if self.request.session.get('read_only_collection'):
+            log.debug('Read-only view is active.')
             context['read_only_available'] = True
         return context
