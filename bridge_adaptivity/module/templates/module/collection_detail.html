@@ -268,8 +268,8 @@
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
-  <script src="{% static 'module/js/module.js' %}"></script>
-  {% if not request.session.read_only_data %}
+{% if not request.session.read_only_data %}
+    <script src="{% static 'module/js/module.js' %}"></script>
     <script src="{% static 'module/js/base_drag_drop.js' %}"></script>
     <script src="{% static 'module/js/collection_drag_drop.js' %}"></script>
   {% endif %}
