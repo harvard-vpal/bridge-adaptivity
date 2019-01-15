@@ -49,12 +49,14 @@
           {% if request.session.read_only_data and collection.slug != request.session.read_only_data.collection %}
             {# Continue #}
           {% else %}
-              <tr draggable="true" class="droppable"
-                  ondrop="drop_handler(event, this);"
-                  ondragstart="dragstart_handler(event);"
-                  ondragover="dragover_handler(event);"
-                  data-index="{{ forloop.counter0 }}"
-                  data-move_url="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug %}?back_url={{ group.get_absolute_url}}"
+              <tr {% if not request.session.read_only_data %}
+                      draggable="true" class="droppable"
+                      ondrop="drop_handler(event, this);"
+                      ondragstart="dragstart_handler(event);"
+                      ondragover="dragover_handler(event);"
+                      data-index="{{ forloop.counter0 }}"
+                      data-move_url="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug %}?back_url={{ group.get_absolute_url}}"
+                  {% endif %}
               >
                 <td>
                   <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">
@@ -212,6 +214,9 @@
 
 {% block bootstrap3_extra_script %}
   {{ block.super }}
-  <script src="{% static 'module/js/module.js' %}"></script>
-  <script src="{% static 'module/js/drag_drop.js' %}"></script>
+  {% if not request.session.read_only_data %}
+    <script src="{% static 'module/js/module.js' %}"></script>
+    <script src="{% static 'module/js/base_drag_drop.js' %}"></script>
+    <script src="{% static 'module/js/drag_drop.js' %}"></script>
+  {% endif %}
 {% endblock bootstrap3_extra_script %}
