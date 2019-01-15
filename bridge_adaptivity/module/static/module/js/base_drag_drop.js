@@ -6,7 +6,7 @@ function updateElement(element, index) {
 
 
 function before_add_element(element, index) {
-    //Write script that will run before add ellement to table
+    // Write a script that will be run before adding an ellement to the table
 }
 
 function is_forbidden_to_chage(dataset, data) {
@@ -73,7 +73,7 @@ function dragover_handler(event, drop_effect="move") {
 
 function set_event_data_transfer_from_event_target_dataset(event_data_transfer, event_target_dataset) {
     // Function that work with event.dataTransfer and event_target_dataset. Example:
-    //  event_data_transfer.setData("text/plain", event_target_dataset.index + ',' + event_target_dataset.move_url);
+    // event_data_transfer.setData("text/plain", event_target_dataset.index + ',' + event_target_dataset.move_url);
 }
 
 // Handler function of the drag start process
