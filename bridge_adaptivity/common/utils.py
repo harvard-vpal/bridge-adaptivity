@@ -7,7 +7,7 @@ from module.models import Collection, CollectionGroup, Engine
 
 log = getLogger(__name__)
 
-
+# NOTE : Add new parametr - order.
 def get_collection_collectiongroup_engine(collection_slug, group_slug):
     """
     Return collection and collection group by collection_slug and group_slug.
@@ -30,6 +30,7 @@ def get_collection_collectiongroup_engine(collection_slug, group_slug):
             'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
             .format(collection_slug, group_slug)
         )
+    # NOTE(AnadreyLikhoman): use CollectionOrder (collection, group)
 
     if collection_group:
         engine = collection_group.engine or Engine.get_default()

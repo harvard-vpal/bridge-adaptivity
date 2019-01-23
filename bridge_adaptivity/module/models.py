@@ -338,6 +338,8 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
 class CollectionOrder(OrderedModel):
     group = models.ForeignKey('CollectionGroup', on_delete=models.CASCADE)
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
+    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
+    engine = models.ForeignKey(Engine, blank=True, null=True, on_delete=models.CASCADE)
     order_with_respect_to = 'group'
 
     class Meta:
