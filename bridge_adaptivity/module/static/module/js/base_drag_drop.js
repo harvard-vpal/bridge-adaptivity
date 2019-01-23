@@ -5,8 +5,12 @@ function updateElement(element, index) {
 }
 
 
-function before_add_element(element, index) {
+function before_add_element(element) {
     // Write a script that will be run before adding an ellement to the table
+}
+
+function after_add_elements() {
+    // Write a script that will be run after adding all ellements to the table
 }
 
 function is_forbidden_to_chage(dataset, data) {
@@ -35,6 +39,9 @@ function get_ordering_elements_list(moveIndex, elIndex) {
     return newCollectionList
 }
 
+function initialize_scripts() {
+
+}
 // Function processing drop of the element
 function drop_handler(event, el) {
     event.preventDefault();
@@ -53,6 +60,8 @@ function drop_handler(event, el) {
             before_add_element(element, index)
             $("table").append(element);
         });
+        after_add_elements();
+        initialize_scripts();
         $.ajax({
             type: "GET",
             url: moveUrl,

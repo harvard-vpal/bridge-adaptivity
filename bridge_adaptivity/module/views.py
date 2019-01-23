@@ -397,12 +397,17 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         activity = self.get_object()
-        base_activity = activity.atype
+        is_change_atype = request.POST.get("atype") != activity.atype
         result = super().post(request, *args, **kwargs)
-        activity = self.get_object()
-        if base_activity != activity.atype:
-            last = activity.get_ordering_queryset().aggregate(Max(activity.order_field_name)).get(activity.order_field_name + '__max')
-            getattr(activity, 'to')(last +1)
+        if is_change_atype:
+            activity = self.get_object()
+            ordering_queryset = activity.get_ordering_queryset()
+            ordering_queryset = ordering_queryset.exclude(pk=activity.pk)
+            if ordering_queryset.exists():
+                last = ordering_queryset.aggregate(Max(activity.order_field_name)).get(activity.order_field_name + '__max')
+                getattr(activity, 'to')(last + 1)
+            else:
+                getattr(activity, 'to')(0)
         return result
 
 @method_decorator(login_required, name='dispatch')

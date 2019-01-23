@@ -1,13 +1,24 @@
 // include base_drag_drop.js before this script
 
-function before_add_element(element, index) {
+before_add_element = function(){
     // Write a script that will be run before adding an ellement to the table
-    label = element.getElementsByClassName("label");
-    if (label.length !== 0){
-        labelItem = label.item(0);
-        labelItem.innerHTML = element.getAttribute("labelstring") + index;
+    atype = '';
+    index = 0;
+    return function (element) {
+        label = element.getElementsByClassName("label");
+        if (label.length !== 0){
+            labelstring = element.getAttribute("data-atype")
+            if (atype !== labelstring){
+                atype = labelstring;
+                index = 0;
+            } else {
+                index++;
+            }
+            labelItem = label.item(0);
+            labelItem.innerHTML = element.getAttribute("labelstring") + index;
+        }
     }
-}
+}();
 
 function is_forbidden_to_chage(dataset, data) {
     elAtype = dataset.atype;
