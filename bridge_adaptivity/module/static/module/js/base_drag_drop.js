@@ -39,9 +39,9 @@ function get_ordering_elements_list(moveIndex, elIndex) {
 function drop_handler(event, el) {
     event.preventDefault();
     let data = event.dataTransfer.getData("text/plain").split(','),
-        elIndex = el.dataset.index, // index of the target element
+        elIndex = parseInt(el.dataset.index), // index of the target element
         moveUrl = data[1], // move URL of the dropped element
-        moveIndex = data[0], // initial index of the dropped element
+        moveIndex = parseInt(data[0]), // initial index of the dropped element
     is_forbidden_extra_cheack = is_forbidden_to_chage(el.dataset, data)
     if (moveIndex === elIndex || is_forbidden_extra_cheack) {
         console.log("Item doesn't change the order");

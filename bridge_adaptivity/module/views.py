@@ -395,6 +395,15 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
             return HttpResponse(status=201)
         return super().get(request, *args, **kwargs)
 
+    def post(self, request, *args, **kwargs):
+        activity = self.get_object()
+        base_activity = activity.atype
+        result = super().post(request, *args, **kwargs)
+        activity = self.get_object()
+        if base_activity != activity.atype:
+            last = activity.get_ordering_queryset().aggregate(Max(activity.order_field_name)).get(activity.order_field_name + '__max')
+            getattr(activity, 'to')(last +1)
+        return result
 
 @method_decorator(login_required, name='dispatch')
 class ActivityDelete(DeleteView):
