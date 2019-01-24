@@ -1,7 +1,8 @@
-// include base_drag_drop.js before this script
+// WARNING(AndreyLykhoman):include base_drag_drop.js before this script
 
 before_add_element = function(){
     // Write a script that will be run before adding an ellement to the table
+    // NOTE(AndreyLykhoman): Checking atype of elements and increase index or starting from zero
     atype = '';
     index = 0;
     return function (element) {

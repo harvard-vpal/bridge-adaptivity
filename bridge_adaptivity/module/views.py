@@ -386,7 +386,15 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
     context_object_name = 'activity'
 
     def get(self, request, *args, **kwargs):
+        """
+        Updating activity by a GET request.
+
+        Updating activities order and running update method
+        in the superclass. The drag and drop feature uses this view.
+        """
         activity = self.get_object()
+        # NOTE(AndreyLykhoman): Changing activity's order
+        #  if kwargs contains the 'order' params.
         if kwargs.get('order'):
             try:
                 getattr(activity, 'to')(int(kwargs['order']))
@@ -396,15 +404,31 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        Updating activity by a POST request.
+
+        Updating activity and changing the activity's order if activity changed the type.
+        """
         activity = self.get_object()
+        # NOTE(AndreyLykhoman): 'is_change_type' is the indicator of changing activity type.
+        #    If the 'is_change_type' is True,
+        #    we will have to change the activiry's order.
         is_change_atype = request.POST.get("atype") != activity.atype
         result = super().post(request, *args, **kwargs)
         if is_change_atype:
+            # NOTE(AndreyLykhoman): Getting updated activity.
             activity = self.get_object()
             ordering_queryset = activity.get_ordering_queryset()
             ordering_queryset = ordering_queryset.exclude(pk=activity.pk)
+            # NOTE(AndreyLykhoman): if the ordering_queryset contains one
+            #  or more activities, we can get last element's index,
+            #  increase by one and set to updating activity's order.
+            #  if the ordering_queryset is empty,
+            #  we need to set zero to updating activity's order
             if ordering_queryset.exists():
-                last = ordering_queryset.aggregate(Max(activity.order_field_name)).get(activity.order_field_name + '__max')
+                last = ordering_queryset\
+                    .aggregate(Max(activity.order_field_name))\
+                    .get(activity.order_field_name + '__max')
                 getattr(activity, 'to')(last + 1)
             else:
                 getattr(activity, 'to')(0)
