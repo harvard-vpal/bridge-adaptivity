@@ -380,7 +380,7 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
 
     @property
     def ordered_collections(self):
-        return (col_order.collection for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
+        return ((col_order.collection, col_order.order) for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
 
     def __str__(self):
         return "<Group of Collections: {}>".format(self.name)

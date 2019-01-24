@@ -3,12 +3,12 @@ from logging import getLogger
 from django.http import Http404
 from django.shortcuts import render
 
-from module.models import Collection, CollectionGroup, Engine
+from module.models import Collection, CollectionGroup, Engine, CollectionOrder
 
 log = getLogger(__name__)
 
 # NOTE : Add new parametr - order.
-def get_collection_collectiongroup_engine(collection_slug, group_slug):
+def get_collection_collectiongroup_engine(collection_slug, group_slug, order):
     """
     Return collection and collection group by collection_slug and group_slug.
     """
@@ -30,10 +30,11 @@ def get_collection_collectiongroup_engine(collection_slug, group_slug):
             'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
             .format(collection_slug, group_slug)
         )
-    # NOTE(AnadreyLikhoman): use CollectionOrder (collection, group)
+    # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine (collection, group, order)
+    collection_order = CollectionOrder.objects.filter(collection=collection, group=collection_group, order=order).first()
 
     if collection_group:
-        engine = collection_group.engine or Engine.get_default()
+        engine = collection_order.engine or Engine.get_default()
     else:
         engine = Engine.get_default()
 

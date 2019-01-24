@@ -19,7 +19,7 @@
         {% for item in sequence_items %}
         <a href="
           {% if demo %}
-              {% url 'module:demo' group_slug=item.sequence.group.slug collection_slug=item.sequence.collection.slug %}?sequence_item_id={{ item.id }}&position={{ item.position }}
+              {% url 'module:demo' group_slug=item.sequence.group.slug collection_slug=item.sequence.collection.slug collection_order=collection_order%}?sequence_item_id={{ item.id }}&position={{ item.position }}
           {% else %}
               {% url 'module:sequence-item' item.id %}
           {% endif %}

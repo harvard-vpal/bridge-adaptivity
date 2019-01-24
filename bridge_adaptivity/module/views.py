@@ -654,11 +654,11 @@ def preview_collection(request, slug):
     )
 
 
-def demo_collection(request, group_slug, collection_slug):
+def demo_collection(request, group_slug, collection_slug, collection_order):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    collection, collection_group, __ = get_collection_collectiongroup_engine(collection_slug, group_slug)
+    collection, collection_group, __ = get_collection_collectiongroup_engine(collection_slug, group_slug, collection_order)
     lti_consumer = LtiProvider.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,
@@ -682,6 +682,7 @@ def demo_collection(request, group_slug, collection_slug):
         'sequence_pk': test_sequence.id,
         'back_url': back_url,
         'forbidden': request.GET.get('forbidden', ''),
+        'collection_order': collection_order
     }
 
     if created or not test_sequence.items.exists():
@@ -714,7 +715,7 @@ def demo_collection(request, group_slug, collection_slug):
         position = int(request.GET.get('position') or 1)
         if next_forbidden and position > sequence_item.position:
             return redirect(
-                f"{reverse('module:demo', kwargs={'collection_slug': collection_slug, 'group_slug': group_slug})}"
+                f"{reverse('module:demo', kwargs={'collection_slug': collection_slug, 'group_slug': group_slug, 'collection_order': collection_order})}"
                 f"?forbidden=true&back_url={back_url}&position={sequence_item.position}"
             )
         update_activity = request.session.pop('Lti_update_activity', None)

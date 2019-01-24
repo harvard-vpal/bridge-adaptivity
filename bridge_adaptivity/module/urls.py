@@ -49,7 +49,7 @@ urlpatterns = ([
         name='collection-delete'
     ),
 
-    path('group/<slug:group_slug>/collection/<slug:collection_slug>/demo', demo_collection, name="demo"),
+    path('group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>/demo', demo_collection, name="demo"),
 
     path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
 

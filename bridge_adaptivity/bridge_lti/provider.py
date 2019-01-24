@@ -39,7 +39,7 @@ def get_tool_provider_for_lti(request):
 
 
 @csrf_exempt
-def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
+def lti_launch(request, collection_slug=None, group_slug='', unique_marker='', collection_order=None):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -67,7 +67,8 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker=''):
             tool_provider,
             collection_slug=collection_slug,
             group_slug=group_slug,
-            unique_marker=unique_marker
+            unique_marker=unique_marker,
+            collection_order=collection_order
         )
 
 
@@ -115,14 +116,14 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, group_slug=None, unique_marker=''):
+def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, group_slug=None, unique_marker='', collection_order=None):
     """
     Define logic flow for Learner.
     """
     if not collection_slug:
         return stub_page(request)
 
-    collection, collection_group, engine = get_collection_collectiongroup_engine(collection_slug, group_slug)
+    collection, collection_group, engine = get_collection_collectiongroup_engine(collection_slug, group_slug, collection_order)
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],

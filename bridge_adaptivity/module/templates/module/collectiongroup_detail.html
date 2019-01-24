@@ -45,7 +45,7 @@
           <th>strict forward</th>
           <th>options</th>
         </tr>
-        {% for collection in group.ordered_collections %}
+        {% for collection, order in group.ordered_collections %}
           {% if request.session.read_only_data and collection.slug != request.session.read_only_data.collection %}
             {# Continue #}
           {% else %}
@@ -73,7 +73,7 @@
                   <div>
 
                     <a id="launch-demo" class=""
-                       href="{% url 'module:demo' collection_slug=collection.slug group_slug=group.slug %}?back_url={% url 'module:group-list' %}">
+                       href="{% url 'module:demo' collection_slug=collection.slug group_slug=group.slug collection_order=order %}?back_url={% url 'module:group-list' %}">
                       <button class="btn btn-warning btn-sm">
                           <span class="glyphicon glyphicon-education"></span>
                           Demo
@@ -86,7 +86,7 @@
                       </button>
                     </a>
                     <a id="launch-url-fetcher" class=""
-                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' %}">
+                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' collection_order=order  %}">
                       <button class="btn btn-default btn-sm">
                           <span class="glyphicon glyphicon-link"></span>
                           copy Launch URL
