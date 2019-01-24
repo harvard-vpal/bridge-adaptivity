@@ -684,11 +684,14 @@ def preview_collection(request, slug):
         }
         for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug), start=1)
     ]
-
     return render(
         request,
         template_name="module/sequence_preview.html",
-        context={'activities': acitvities}
+        context={
+            'activities': acitvities,
+            'back_url': f"{reverse('module:collection-detail', kwargs={'pk':Collection.objects.get(slug=slug).pk})}"
+                        f"?back_url={request.GET.get('back_url')}"
+        }
     )
 
 
