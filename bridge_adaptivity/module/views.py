@@ -387,7 +387,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
 
     def get(self, request, *args, **kwargs):
         """
-        Updating activity by a GET request.
+        To Update activity by a GET request.
 
         Updating activities order and running update method
         in the superclass. The drag and drop feature uses this view.
@@ -405,7 +405,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
 
     def post(self, request, *args, **kwargs):
         """
-        Updating activity by a POST request.
+        To Update activity by a POST request.
 
         Updating activity and changing the activity's order if activity changed the type.
         """
