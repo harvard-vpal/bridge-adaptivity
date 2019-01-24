@@ -434,6 +434,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
                 getattr(activity, 'to')(0)
         return result
 
+
 @method_decorator(login_required, name='dispatch')
 class ActivityDelete(DeleteView):
     model = Activity
