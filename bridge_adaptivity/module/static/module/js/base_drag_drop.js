@@ -35,7 +35,6 @@ function get_ordering_elements_list(moveIndex, elIndex) {
                 newCollectionList[index] = updateElement(collectionList[index + shift], index);
             }
         });
-    collectionList.remove();
     return newCollectionList
 }
 
