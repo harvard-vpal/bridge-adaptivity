@@ -295,10 +295,9 @@ class CollectionDetail(BaseCollectionView, DetailView):
             context['engine'] = engine_failure
         return context
 
-    @staticmethod
-    def get_content_courses(selected_content_sources):
+    def get_content_courses(self, selected_content_sources):
         try:
-            return get_available_courses(selected_content_sources)
+            return get_available_courses(self.request, selected_content_sources)
         except HttpClientError:
             log.exception(
                 "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
@@ -306,15 +305,14 @@ class CollectionDetail(BaseCollectionView, DetailView):
             )
             return []
 
-    @staticmethod
-    def get_content_source_list(selected_content_sources):
+    def get_content_source_list(self, selected_content_sources):
         return [
             {
                 'name': source.name,
                 'id': source.id,
                 'checked': 'checked' if not selected_content_sources or source.id in selected_content_sources else ''
             }
-            for source in get_active_content_sources(not_allow_empty_source_id=False)
+            for source in get_active_content_sources(request=self.request, not_allow_empty_source_id=False)
         ]
 
 
