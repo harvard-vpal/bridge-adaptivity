@@ -1,8 +1,8 @@
 $(function () {
     const buttons = $('.preview-assessment-buttons');
     const assessmentContent = $('#assessment-content');
-    $('.preview-assessment-back-btn').click(() => {
-        window.history.back()
+    $('.preview-assessment-back-btn').click((e) => {
+        window.location = e.currentTarget.value;
     });
     if (buttons.length === 0) return;
 

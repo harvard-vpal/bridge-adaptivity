@@ -5,8 +5,12 @@ function updateElement(element, index) {
 }
 
 
-function before_add_element(element, index) {
+function before_add_element(element) {
     // Write a script that will be run before adding an ellement to the table
+}
+
+function after_add_elements() {
+    // Write a script that will be run after adding all ellements to the table
 }
 
 function is_forbidden_to_chage(dataset, data) {
@@ -31,7 +35,6 @@ function get_ordering_elements_list(moveIndex, elIndex) {
                 newCollectionList[index] = updateElement(collectionList[index + shift], index);
             }
         });
-    collectionList.remove();
     return newCollectionList
 }
 
@@ -39,9 +42,9 @@ function get_ordering_elements_list(moveIndex, elIndex) {
 function drop_handler(event, el) {
     event.preventDefault();
     let data = event.dataTransfer.getData("text/plain").split(','),
-        elIndex = el.dataset.index, // index of the target element
+        elIndex = parseInt(el.dataset.index), // index of the target element
         moveUrl = data[1], // move URL of the dropped element
-        moveIndex = data[0], // initial index of the dropped element
+        moveIndex = parseInt(data[0]), // initial index of the dropped element
     is_forbidden_extra_cheack = is_forbidden_to_chage(el.dataset, data)
     if (moveIndex === elIndex || is_forbidden_extra_cheack) {
         console.log("Item doesn't change the order");
@@ -53,6 +56,7 @@ function drop_handler(event, el) {
             before_add_element(element, index)
             $("table").append(element);
         });
+        after_add_elements();
         $.ajax({
             type: "GET",
             url: moveUrl,

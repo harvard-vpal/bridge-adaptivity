@@ -6,8 +6,7 @@
     {% bootstrap_javascript jquery=True %}
     <script src="{% static 'module/js/sequence_preview.js' %}"></script>
 
-    {% bootstrap_button 'Close preview' extra_classes="preview-assessment-back-btn" button_class="btn btn-warning" %}
-
+    {% bootstrap_button 'Close preview' extra_classes="preview-assessment-back-btn" button_class="btn btn-warning" value=back_url %}
     {% buttons %}
         {% for activity in activities %}
             <button
