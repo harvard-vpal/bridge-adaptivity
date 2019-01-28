@@ -688,7 +688,7 @@ def preview_collection(request, slug):
         context={
             'activities': acitvities,
             'back_url': (
-                f"{reverse('module:collection-detail', kwargs={'pk':Collection.objects.get(slug=slug).pk})}"
+                f"{reverse('module:collection-detail', kwargs={'pk': Collection.objects.get(slug=slug).pk})}"
                 f"?back_url={request.GET.get('back_url')}"
             )
         }

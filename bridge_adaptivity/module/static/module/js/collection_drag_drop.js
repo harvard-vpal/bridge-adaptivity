@@ -8,7 +8,7 @@ before_add_element = function() {
     return function (element) {
         label = element.getElementsByClassName("label");
         if (label.length !== 0) {
-            labelstring = element.getAttribute("data-atype")
+            labelstring = element.getAttribute("data-atype");
             if (atype !== labelstring) {
                 atype = labelstring;
                 index = 0;
