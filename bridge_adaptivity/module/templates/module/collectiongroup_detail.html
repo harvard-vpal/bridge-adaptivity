@@ -43,9 +43,11 @@
         <tr>
           <th>collection name</th>
           <th>strict forward</th>
+          <th>grading_policy</th>
+          <th>engine</th>
           <th>options</th>
         </tr>
-        {% for collection, order in group.ordered_collections %}
+        {% for collection, order, grading_policy, engine in group.ordered_collections %}
           {% if request.session.read_only_data and collection.slug != request.session.read_only_data.collection %}
             {# Continue #}
           {% else %}
@@ -69,6 +71,17 @@
                   <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
                 {% endif %}
                 </td>
+                <td>
+                    {% if grading_policy.name %}
+                        {{ grading_policy.policy_cls.public_name|default:'Not selected'}}
+                    {% else %}
+                        Not selected
+                    {% endif %}
+                    {% if grading_policy.threshold %}
+                     <p>Threshold: {{ grading_policy.threshold }}</p>
+                    {% endif %}
+                </td>
+                <td>{{ engine.engine_name }}</td>
                 <td>
                   <div>
 

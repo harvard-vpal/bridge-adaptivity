@@ -88,13 +88,13 @@ class GroupEditFormMixin(object):
         collections = Collection.objects.filter(
             owner=self.request.user
         )
-        form.fields['engine'].initial = Engine.get_default()
+        #form.fields['engine'].initial = Engine.get_default()
         form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
-        form.fields['collections'].queryset = collections
+        #form.fields['collections'].queryset = collections
         if self.kwargs.get('group_slug'):
             group = get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
-            if group.grading_policy:
-                form.fields['grading_policy_name'].initial = group.grading_policy.name
+            # if group.grading_policy:
+            #     form.fields['grading_policy_name'].initial = group.grading_policy.name
         return form
 
 
