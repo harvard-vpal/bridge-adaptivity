@@ -10,6 +10,10 @@ admin.site.unregister(Group)
 
 
 class GroupForm(ModelForm):
+    """
+    Form for updating ManyToMany related fields from the Group Admin object.
+    """
+
     group_source = ModelMultipleChoiceField(
         label='Content Sources granted access',
         queryset=LtiConsumer.objects.all(),

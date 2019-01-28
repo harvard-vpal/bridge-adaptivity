@@ -65,11 +65,11 @@ class TestSourcesView(BridgeTestCase):
 
         We use the id of the content source equal to 5 because in fixture this source has type `base`
         """
-        get_available_blocks(self.request, 5)
+        get_available_blocks(self.request, 5)  # Second parameter is source id, which is taken from the fixtures
         mock_base_get_course_blocks.assert_called_once()
         mock_edx_get_course_blocks.assert_not_called()
 
-        get_available_courses(self.request, 5)
+        get_available_courses(self.request, 5)  # Second parameter is source id, which is taken from the fixtures
         mock_base_get_provider_courses.assert_called_once()
         mock_edx_get_provider_courses.assert_not_called()
 
@@ -90,10 +90,10 @@ class TestSourcesView(BridgeTestCase):
 
         We use the id of the content source equal to 5 because in fixture this source has type `edx`
         """
-        get_available_blocks(self.request, 4)
+        get_available_blocks(self.request, 4)  # Second parameter is source id, which is taken from the fixtures
         mock_edx_get_course_blocks.assert_called_once()
 
-        get_available_courses(self.request, 4)
+        get_available_courses(self.request, 4)  # Second parameter is source id, which is taken from the fixtures
         mock_edx_get_provider_courses.assert_called_once()
 
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',

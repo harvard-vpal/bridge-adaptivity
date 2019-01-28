@@ -23,7 +23,7 @@ def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
     return api_clients[content_source.source_type](content_source)
 
 
-def get_active_content_sources(request=None, source_ids=None, not_allow_empty_source_id=True):
+def get_active_content_sources(request, source_ids=None, not_allow_empty_source_id=True):
     """
     Check that passed source_id parameter is valid.
 
@@ -146,7 +146,7 @@ def apply_data_filter(data, filters=None, **kwargs):
     return filtered_data
 
 
-def get_content_providers(request=None, source_ids=None):
+def get_content_providers(request, source_ids=None):
     """
     Pick active (enabled) content Sources (aka Providers).
 
