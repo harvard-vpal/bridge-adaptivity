@@ -84,7 +84,16 @@ class GradingPolicyAdmin(admin.ModelAdmin):
 
 @admin.register(Log)
 class LogAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = (
+        'sequence_item',  # populating dropdown may not be feasible for large number of available sequence items
+    )
+    # reduces number of db queries
+    list_select_related = (
+        'sequence_item',
+        'sequence_item__activity',
+        'sequence_item__sequence',
+        'sequence_item__sequence__lti_user',
+    )
 
 
 class GroupStackedInline(admin.StackedInline):
