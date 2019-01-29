@@ -11,6 +11,10 @@ STATIC_ROOT = 'static/'
 ALLOWED_HOSTS = ['localhost']  # add bridge host in production
 BRIDGE_HOST = 'localhost:8008'
 
+# SENTRY contains sentry dsn string. If dsn is not empty, then all exceptions from the application will be
+# forwarded to this url.
+SENTRY_DSN = ''
+
 # related to `bridge_adaptivity/envs/pg.env`
 DATABASES = {
     'default': {
