@@ -88,7 +88,7 @@ class TestSourcesView(BridgeTestCase):
         """
         Check that get_course_blocks and get_provider_courses called from the edx api client.
 
-        We use the id of the content source equal to 5 because in fixture this source has type `edx`
+        We use the id of the content source equal to 4 because in fixture this source has type `edx`
         """
         get_available_blocks(self.request, 4)  # Second parameter is source id, which is taken from the fixtures
         mock_edx_get_course_blocks.assert_called_once()
