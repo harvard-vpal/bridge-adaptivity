@@ -23,11 +23,12 @@ def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
     return api_clients[content_source.source_type](content_source)
 
 
-def get_active_content_sources(source_ids=None, not_allow_empty_source_id=True):
+def get_active_content_sources(request, source_ids=None, not_allow_empty_source_id=True):
     """
     Check that passed source_id parameter is valid.
 
     If there's only one active source provider - source_id parameter is not required, it will get first active.
+    :param request: Request object
     :param source_ids: LtiConsumer object id or list of this objects
     :param not_allow_empty_source_id: if True - it will not allow empty source_id, if False - source_id could be None
     :return: queryset of content_sources
@@ -37,7 +38,7 @@ def get_active_content_sources(source_ids=None, not_allow_empty_source_id=True):
         # if source_id is not provided and more than one active content_provider
         raise HttpClientError(_("Parameter source_id is mandatory if there's more than one active content source."))
 
-    content_sources = get_content_providers(source_ids=source_ids)
+    content_sources = get_content_providers(request, source_ids=source_ids)
 
     if not content_sources:
         # if no active content sources
@@ -46,17 +47,18 @@ def get_active_content_sources(source_ids=None, not_allow_empty_source_id=True):
     return content_sources
 
 
-def get_available_blocks(source_id, course_id=''):
+def get_available_blocks(request, source_id, course_id=''):
     """
     Content Source API requester.
 
     Fetches all source blocks from the course with the given ID.
     Blocks data is filtered by `apply_data_filter`.
+    :param request: Request object
     :param course_id: Course id
     :param source_id: LtiConsumer id
     :return: (list) blocks data
     """
-    content_source = get_active_content_sources(source_id).first()
+    content_source = get_active_content_sources(request, source_id).first()
     all_blocks = []
 
     # Get API client instance:
@@ -87,14 +89,15 @@ def get_available_blocks(source_id, course_id=''):
     return all_blocks
 
 
-def get_available_courses(source_ids=None):
+def get_available_courses(request, source_ids=None):
     """
     Fetch all available courses from all sources of from source with provided ID.
 
+    :param request: Request object
     :param source_ids: content provider's ID or list of the IDs
     :return: (list) course_ids
     """
-    content_sources = get_active_content_sources(source_ids, not_allow_empty_source_id=False)
+    content_sources = get_active_content_sources(request, source_ids, not_allow_empty_source_id=False)
 
     all_courses = []
 
@@ -143,16 +146,18 @@ def apply_data_filter(data, filters=None, **kwargs):
     return filtered_data
 
 
-def get_content_providers(source_ids=None):
+def get_content_providers(request, source_ids=None):
     """
     Pick active (enabled) content Sources (aka Providers).
 
     LTI Providers which expose courses content blocks to use in adaptive collections.
+    :param request: Request object
     :param source_ids: LtiConsumer ID or list of the LtiConsumer ID or None
     :return: content_sources queryset
     """
     q_kw = {
-        'is_active': True
+        'is_active': True,
+        'available_in_groups__in': list(request.user.groups.all()),
     }
     if source_ids:
         if isinstance(source_ids, list):

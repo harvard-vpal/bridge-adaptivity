@@ -2,6 +2,7 @@ import datetime
 from datetime import timedelta
 
 from celery.exceptions import TimeoutError
+from django.test import RequestFactory
 from django.urls.base import reverse
 from mock import patch
 
@@ -22,6 +23,9 @@ class TestSourcesView(BridgeTestCase):
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
         super().setUp()
+        self.factory = RequestFactory()
+        self.request = self.factory.get('/')
+        self.request.user = self.user
 
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',
            return_value=('some_token', datetime.datetime.now() + timedelta(days=1)))
@@ -61,11 +65,11 @@ class TestSourcesView(BridgeTestCase):
 
         We use the id of the content source equal to 5 because in fixture this source has type `base`
         """
-        get_available_blocks(5)
+        get_available_blocks(self.request, 5)  # Second parameter is source id, which is taken from the fixtures
         mock_base_get_course_blocks.assert_called_once()
         mock_edx_get_course_blocks.assert_not_called()
 
-        get_available_courses(5)
+        get_available_courses(self.request, 5)  # Second parameter is source id, which is taken from the fixtures
         mock_base_get_provider_courses.assert_called_once()
         mock_edx_get_provider_courses.assert_not_called()
 
@@ -84,12 +88,12 @@ class TestSourcesView(BridgeTestCase):
         """
         Check that get_course_blocks and get_provider_courses called from the edx api client.
 
-        We use the id of the content source equal to 5 because in fixture this source has type `edx`
+        We use the id of the content source equal to 4 because in fixture this source has type `edx`
         """
-        get_available_blocks(4)
+        get_available_blocks(self.request, 4)  # Second parameter is source id, which is taken from the fixtures
         mock_edx_get_course_blocks.assert_called_once()
 
-        get_available_courses(4)
+        get_available_courses(self.request, 4)  # Second parameter is source id, which is taken from the fixtures
         mock_edx_get_provider_courses.assert_called_once()
 
     @patch('api.backends.edx_api_client.OpenEdxApiClient.get_oauth_access_token',

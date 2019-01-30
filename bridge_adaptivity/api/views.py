@@ -52,7 +52,7 @@ def sources(request):
     if error:
         return error
     try:
-        sources_list = get_available_blocks(source_id=source_id, course_id=course_id)
+        sources_list = get_available_blocks(request, source_id=source_id, course_id=course_id)
     except ObjectDoesNotExist as exc:
         return HttpResponseBadRequest(reason={"error": exc.message})
     except HttpClientError as exc:
