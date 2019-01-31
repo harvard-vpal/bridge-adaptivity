@@ -15,6 +15,9 @@ before_add_element = function() {
             } else {
                 index++;
             }
+            // NOTE(AndreyLykhoman): Setting up a right index to 'data-index' attribute in the element. It's needed for
+            //  correct working drag-and-drop in the next usage.
+            element.dataset.index = index;
             labelItem = label.item(0);
             labelItem.innerHTML = element.getAttribute("labelstring") + index;
         }
