@@ -1,5 +1,6 @@
 import urllib.parse
 
+from ddt import data, ddt
 from django.test import TestCase
 from mock import Mock, patch
 
@@ -10,6 +11,7 @@ from module.models import (
 )
 
 
+@ddt
 class TestVPALEngine(TestCase):
     fixtures = ['gradingpolicy', 'engine']
 
@@ -85,8 +87,8 @@ class TestVPALEngine(TestCase):
         payload = self.engine.engine_driver.fulfill_payload(payload={}, instance_to_parse=self.a1)
         self.assertEqual(payload, expected)
 
-    @patch('requests.post', return_value=Mock(status_code=200))
-    def test_select_activity(self, mock_post):
+    @data(200, 201)
+    def test_select_activity(self, mock_status):
         expected_source_url = 'new_activity_source_url'
         lti_param = "lis_person_sourcedid"
         launch_params = {lti_param: "test_lis_person_sourcedid"}
@@ -116,14 +118,17 @@ class TestVPALEngine(TestCase):
                 },
             ]
         }
-        response = mock_post.return_value
-        response.json.return_value = {'source_launch_url': expected_source_url}
-        result = self.engine.engine_driver.select_activity(self.sequence)
-        mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
-        self.assertEqual(result.get('source_launch_url'), expected_source_url)
+        with patch('requests.post', return_value=Mock(status_code=mock_status)) as mock_post:
+            response = mock_post.return_value
+            response.json.return_value = {'source_launch_url': expected_source_url}
+            result = self.engine.engine_driver.select_activity(self.sequence)
+            mock_post.assert_called_once_with(
+                test_url, headers=self.engine.engine_driver.headers, json=expected_payload
+            )
+            self.assertEqual(result.get('source_launch_url'), expected_source_url)
 
-    @patch('requests.post', return_value=Mock(status_code=200))
-    def test_tool_consumer_instance_guid_added_to_select_activity_payload(self, mock_post):
+    @data(200, 201)
+    def test_tool_consumer_instance_guid_added_to_select_activity_payload(self, mock_status):
         """
         Test tool_consumer_instance_guid is added to the 'learner' parameter in the recommended request.
 
@@ -159,14 +164,17 @@ class TestVPALEngine(TestCase):
                 },
             ]
         }
-        response = mock_post.return_value
-        response.json.return_value = {'source_launch_url': expected_source_url}
-        result = self.engine.engine_driver.select_activity(self.sequence)
-        mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
-        self.assertEqual(result.get('source_launch_url'), expected_source_url)
+        with patch('requests.post', return_value=Mock(status_code=mock_status)) as mock_post:
+            response = mock_post.return_value
+            response.json.return_value = {'source_launch_url': expected_source_url}
+            result = self.engine.engine_driver.select_activity(self.sequence)
+            mock_post.assert_called_once_with(
+                test_url, headers=self.engine.engine_driver.headers, json=expected_payload
+            )
+            self.assertEqual(result.get('source_launch_url'), expected_source_url)
 
-    @patch('requests.post', return_value=Mock(status_code=200))
-    def test_no_sequence_metadata_in_select_activity_payload(self, mock_post):
+    @data(200, 201)
+    def test_no_sequence_metadata_in_select_activity_payload(self, mock_status):
         """
         Test tool_consumer_instance_guid is added to the 'learner' parameter with the default LTIProvider.comsumer_name.
 
@@ -196,8 +204,11 @@ class TestVPALEngine(TestCase):
                 },
             ]
         }
-        response = mock_post.return_value
-        response.json.return_value = {'source_launch_url': expected_source_url}
-        result = self.engine.engine_driver.select_activity(self.sequence)
-        mock_post.assert_called_once_with(test_url, headers=self.engine.engine_driver.headers, json=expected_payload)
-        self.assertEqual(result.get('source_launch_url'), expected_source_url)
+        with patch('requests.post', return_value=Mock(status_code=mock_status)) as mock_post:
+            response = mock_post.return_value
+            response.json.return_value = {'source_launch_url': expected_source_url}
+            result = self.engine.engine_driver.select_activity(self.sequence)
+            mock_post.assert_called_once_with(
+                test_url, headers=self.engine.engine_driver.headers, json=expected_payload
+            )
+            self.assertEqual(result.get('source_launch_url'), expected_source_url)
