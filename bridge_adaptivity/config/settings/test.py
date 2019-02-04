@@ -1,6 +1,8 @@
 # coding: utf-8
 from config.settings.local import *  # noqa: F401,F403
 
+BRIDGE_HOST = 'localhost'
+
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
 UPDATE_DATABASE = {'NAME': 'traviscidb', 'HOST': 'localhost'}

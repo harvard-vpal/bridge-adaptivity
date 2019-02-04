@@ -6,8 +6,8 @@ from rest_framework import routers
 from api.views import ActivityViewSet, CollectionViewSet, sources, sync_collection
 
 router = routers.DefaultRouter(trailing_slash=True)
-router.register('activity', ActivityViewSet)
-router.register('collection', CollectionViewSet)
+router.register('activity', ActivityViewSet, base_name='activity')
+router.register('collection', CollectionViewSet, base_name='collection')
 
 urls_list = [
     url(r'^', include(router.urls)),

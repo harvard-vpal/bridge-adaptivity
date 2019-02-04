@@ -1,11 +1,6 @@
 # flake8: noqa: F405
 from config.settings.base import *  # noqa: F403
 
-try:
-    from . import secure
-except ImportError:
-    from . import secure_example as secure
-
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
 SECRET_KEY = secure.SECRET_KEY
@@ -107,13 +102,3 @@ for app in APPS_TO_LOG:
     }
 LOGGING['loggers'].update(APP_LOGGERS)
 
-# Sentry monitoring initialization
-if secure.SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-
-    sentry_sdk.init(
-        dsn=secure.SENTRY_DSN,
-        integrations=[DjangoIntegration(), CeleryIntegration()]
-    )

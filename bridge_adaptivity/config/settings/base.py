@@ -13,6 +13,22 @@ import os
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 
+try:
+    from . import secure
+except ImportError:
+    from . import secure_example as secure
+
+# Sentry monitoring initialization
+if secure.SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
+
+    sentry_sdk.init(
+        dsn=secure.SENTRY_DSN,
+        integrations=[DjangoIntegration(), CeleryIntegration()]
+    )
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Absolute filesystem path to the Django project config directory:

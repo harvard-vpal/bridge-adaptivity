@@ -68,8 +68,14 @@ class ActivityViewSet(viewsets.ModelViewSet):
     Allow programmatically create, read, update, and delete activities.
     """
 
-    queryset = Activity.objects.all()
     serializer_class = ActivitySerializer
+
+    def get_queryset(self):
+        """
+        Filter Activities owned by the user.
+        """
+        user = self.request.user
+        return Activity.objects.filter(collection__owner=user)
 
 
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -79,8 +85,14 @@ class CollectionViewSet(viewsets.ModelViewSet):
     Allow programmatically create, read, update, and delete collections.
     """
 
-    queryset = Collection.objects.all()
     serializer_class = CollectionSerializer
+
+    def get_queryset(self):
+        """
+        Filter Collections owned by the user.
+        """
+        user = self.request.user
+        return Collection.objects.filter(owner=user)
 
 
 @api_view(['GET'])
