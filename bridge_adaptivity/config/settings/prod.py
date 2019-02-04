@@ -4,7 +4,6 @@ docker-compose deployment on production machine
 
 # flake8: noqa: F405
 from .base import *  # noqa: F401,F403
-from . import secure
 
 SECRET_KEY = secure.SECRET_KEY
 ALLOWED_HOSTS = secure.ALLOWED_HOSTS
@@ -39,14 +38,3 @@ LOGGING = {
         'handlers': ['console', 'logfile']
     },
 }
-
-# Sentry monitoring initialization
-if secure.SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.celery import CeleryIntegration
-
-    sentry_sdk.init(
-        dsn=secure.SENTRY_DSN,
-        integrations=[DjangoIntegration(), CeleryIntegration()]
-    )
