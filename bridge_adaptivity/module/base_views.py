@@ -3,7 +3,7 @@ import logging
 
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
 from module.models import (
-    Collection, CollectionGroup, Course
+    Collection, CollectionGroup, Course, CollectionOrder
 )
 
 log = logging.getLogger(__name__)
@@ -33,3 +33,10 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     fields = ['name', 'slug', 'metadata', 'strict_forward', 'owner']
     model = Collection
     ordering = ['id']
+
+
+class BaseCollectionOrderView(BackURLMixin):
+    fields = ['collection', 'grading_policy', 'engine']
+    model = CollectionOrder
+    ordering = ['group', 'order']
+

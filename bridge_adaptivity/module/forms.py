@@ -149,7 +149,7 @@ class AddCourseGroupForm(forms.Form):
         CollectionGroup.objects.filter(id__in=group_ids).update(course=self.course)
 
 
-class AddCollectionGroupForm(forms.Form):
+class CollectionGroupForm(ModelForm):
     """Add collection in group form."""
 
     def __init__(self, *args, **kwargs):
@@ -158,13 +158,48 @@ class AddCollectionGroupForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['collections'].queryset = self.fields['collections'].queryset.filter(
             owner_id=self.user.id
-        ).exclude(collection_groups=self.group)
+        )
 
     collections = forms.ModelMultipleChoiceField(
         label="Choose colections to add into this group:",
         queryset=Collection.objects.filter(),
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.Select()
     )
+
+    grading_policy_name = forms.ChoiceField(
+        choices=((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items()),
+        required=True,
+        widget=PolicyChoiceWidget
+    )
+
+    class Meta:
+        model = CollectionOrder
+        fields = (
+            'collections',
+            'engine',
+            'grading_policy_name',
+        )
+
+    def clean(self):
+        super().clean()
+        engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
+
+        engine_cls = engine.engine_driver
+        policy_cls = GRADING_POLICY_NAME_TO_CLS.get(policy)
+
+        if policy_cls is None:
+            raise forms.ValidationError({'grading_policy_name': ['Not correct policy']})
+
+        required_engine = policy_cls.require.get('engine')
+
+        if required_engine and not isinstance(engine_cls, required_engine):
+            required_engine_names = ", ".join([e.__name__.strip('Engine') for e in required_engine])
+            engine_err_msg = 'This Engine doesn\'t support chosen Policy. Please choose another policy or engine.'
+            policy_err_msg = 'This policy can be used only with {} engine(s). Choose another policy or engine.'.format(
+                required_engine_names,
+            )
+            raise forms.ValidationError({'engine': [engine_err_msg], 'grading_policy_name': [policy_err_msg]})
+        return self.cleaned_data
 
     def save(self, **kwargs):
         for collection in self.cleaned_data['collections']:

@@ -1,4 +1,5 @@
-{% load bootstrap3 %}
+{% load bootstrap3 static%}
+{% bootstrap_javascript jquery=True %}
 <!-- Modal -->
 <div class="modal fade" id="sourceModal" tabindex="-1" role="dialog" aria-labelledby="sourceModalLabel">
   <div class="modal-dialog" style="width:60%;" role="document">
@@ -13,9 +14,13 @@
       <div class="modal-body">
 
         {% if has_available_objects %}
-        <form action="{{ link_action_url }}" method="post" id="link-objects-form">
+        <script src="{% static 'module/js/collectiongroup.js' %}"></script>
+        <form action="{{ link_action_url }}" method="post" id="link-objects-form" data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
           {% bootstrap_form link_objects_form %}
           {% csrf_token %}
+          <div class="grading_policy">
+            {% bootstrap_form grading_policy_form %}
+        </div>
         </form>
 
         {% else %}

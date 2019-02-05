@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
-    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
+    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate, CollectionOrderUpdate,
     CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
     demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
     preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection,
@@ -30,14 +30,17 @@ urlpatterns = ([
 
     url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<slug>[\w-]+)?$', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
-
-    url(r'group(?:/(?P<group_slug>[\w-]*))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
+    # group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>
+    url(r'group/(?P<group_slug>[\w-]+)(?:/collection/(?P<collection_slug>[\w-]*))?(?:/order/(?P<order>\d+))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
         name='grading_policy_form'),
 
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
+    path(
+        'group/<slug:group>/collection_order/<slug:collection_order>/', CollectionOrderUpdate.as_view(), name='collection-order-change'
+    ),
     re_path(
         r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
         CollectionDetail.as_view(),

@@ -23,10 +23,10 @@ from api.backends.api_client import get_active_content_sources, get_available_co
 from bridge_lti.models import LtiProvider, LtiUser
 from common.utils import get_collection_collectiongroup_engine, stub_page
 from module import tasks, utils
-from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
+from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView, BaseCollectionOrderView
+from module.forms import ActivityForm, CollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
+    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, CollectionOrderEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
     LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
@@ -145,29 +145,44 @@ class GetGradingPolicyForm(FormView):
     def get_form_class(self):
         policy_cls = GRADING_POLICY_NAME_TO_CLS.get(self.request.GET.get('grading_policy'), None)
         if policy_cls is None:
-            raise Http404("No such grading policy")
+            # raise Http404("No such grading policy")
+            return next(iter(GRADING_POLICY_NAME_TO_CLS.values())).get_form_class()
         return policy_cls.get_form_class()
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs.get('group_slug'):
-            group = CollectionGroup.objects.filter(
-                slug=self.kwargs.get('group_slug'),
-                grading_policy__name=self.request.GET.get('grading_policy')
-            ).first()
-            if group:
-                kwargs['instance'] = group.grading_policy
+        if self.kwargs.get('collection_slug') and self.kwargs.get('order'):
+
+            collection_order_query = CollectionOrder.objects.filter(
+                collection__slug=self.kwargs.get('collection_slug'),
+                group__slug=self.kwargs.get('group_slug'),
+                order=self.kwargs.get('order'),
+
+            )
+            if self.request.GET.get('grading_policy'):
+                collection_order_query = collection_order_query.filter(
+                    grading_policy__name=self.request.GET.get('grading_policy')
+                )
+            collection_order = collection_order_query.first()
+            if collection_order:
+                kwargs['instance'] = collection_order.grading_policy
         return kwargs
 
     def get_form(self, form_class=None):
         self.form_class = self.get_form_class()
         form = super().get_form()
         gp = self.request.GET.get('grading_policy')
+        # if gp in GRADING_POLICY_NAME_TO_CLS:
+        #     form.fields['name'].initial = self.request.GET.get('grading_policy')
+        #     return form
+        # else:
+        #     raise Http404()
         if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
-            return form
         else:
-            raise Http404()
+            form.fields['name'].initial = next(iter(GRADING_POLICY_NAME_TO_CLS.keys()))
+        return form
+
 
 
 @method_decorator(login_required, name='dispatch')
@@ -181,9 +196,9 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
+class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView, DetailView):
     context_object_name = 'group'
-    link_form_class = AddCollectionGroupForm
+    link_form_class = CollectionGroupForm
     link_object_name = 'collection'
     filter = 'group'
 
@@ -205,9 +220,9 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
         return context
 
 
-class AddCollectionInGroup(JsonResponseMixin, FormView):
+class AddCollectionInGroup(CollectionOrderEditFormMixin, JsonResponseMixin, FormView):
     template_name = 'module/modals/course_add_group.html'
-    form_class = AddCollectionGroupForm
+    form_class = CollectionGroupForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -267,6 +282,11 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, UpdateView):
     pass
 
+@method_decorator(login_required, name='dispatch')
+class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, ModalFormMixin, UpdateView):
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
