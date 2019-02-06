@@ -1,5 +1,6 @@
 // Utility function which exchange element's index
 function updateElement(element, index) {
+    console.log(element.dataset.index, index);
     element.dataset.index = index;
     return element;
 }
@@ -38,6 +39,12 @@ function get_ordering_elements_list(moveIndex, elIndex) {
     return newCollectionList
 }
 
+function change_move_url(moveUrl, element_dataset) {
+    // Change move url
+    elIndex = parseInt(element_dataset.index);
+    return moveUrl.replace("?", elIndex + "?");
+}
+
 // Function processing drop of the element
 function drop_handler(event, el) {
     event.preventDefault();
@@ -45,15 +52,15 @@ function drop_handler(event, el) {
         elIndex = parseInt(el.dataset.index), // index of the target element
         moveUrl = data[1], // move URL of the dropped element
         moveIndex = parseInt(data[0]), // initial index of the dropped element
-    is_forbidden_extra_cheack = is_forbidden_to_chage(el.dataset, data)
+    is_forbidden_extra_cheack = is_forbidden_to_chage(el.dataset, data);
     if (moveIndex === elIndex || is_forbidden_extra_cheack) {
         console.log("Item doesn't change the order");
     } else {
         console.log("Trying change Item " + moveIndex + " order to " + elIndex);
-        moveUrl = moveUrl.replace("?", elIndex + "?");
-        orderingElementsList = get_ordering_elements_list(moveIndex, elIndex)
+        moveUrl = change_move_url(moveUrl, el.dataset)
+        orderingElementsList = get_ordering_elements_list(moveIndex, elIndex);
         $.each(orderingElementsList, function (index, element) {
-            before_add_element(element, index)
+            before_add_element(element, index);
             $("table").append(element);
         });
         after_add_elements();

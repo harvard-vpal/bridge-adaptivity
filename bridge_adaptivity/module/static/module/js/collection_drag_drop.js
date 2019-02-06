@@ -17,12 +17,18 @@ before_add_element = function() {
             }
             // NOTE(AndreyLykhoman): Setting up a right index to 'data-index' attribute in the element. It's needed for
             //  correct working drag-and-drop in the next usage.
-            element.dataset.index = index;
+            element.dataset.index_order = index;
             labelItem = label.item(0);
             labelItem.innerHTML = element.getAttribute("labelstring") + index;
         }
     }
 }();
+
+function change_move_url(moveUrl, element_dataset) {
+    // Change move url specific for collection of activities
+    elIndex = parseInt(element_dataset.index_order);
+    return moveUrl.replace("?", elIndex + "?");
+}
 
 function is_forbidden_to_chage(dataset, data) {
     elAtype = dataset.atype;
@@ -36,5 +42,5 @@ function is_forbidden_to_chage(dataset, data) {
 function set_event_data_transfer_from_event_target_dataset(event_data_transfer, event_target_dataset) {
     // Function that work with event.dataTransfer and event_target_dataset. Example:
     // event_data_transfer.setData("text/plain", event_target_dataset.index + ',' + event_target_dataset.move_url);
-    event_data_transfer.setData("text/plain", event_target_dataset.index + ',' + event_target_dataset.move_url + ',' + event_target_dataset.atype);
+    event_data_transfer.setData("text/plain", event_target_dataset.index + ',' + event_target_dataset.move_url + ',' + event_target_dataset.atype + ',' + event_target_dataset.index_order);
 }
