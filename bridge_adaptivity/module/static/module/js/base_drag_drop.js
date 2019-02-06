@@ -1,6 +1,5 @@
 // Utility function which exchange element's index
 function updateElement(element, index) {
-    console.log(element.dataset.index, index);
     element.dataset.index = index;
     return element;
 }
