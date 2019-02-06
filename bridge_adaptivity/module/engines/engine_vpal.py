@@ -29,6 +29,8 @@ TYPES = {
     'Z': 'post-assessment'
 }
 
+VALID_STATUSES = [200, 201]
+
 
 class EngineVPAL(EngineInterface):
     """
@@ -57,10 +59,10 @@ class EngineVPAL(EngineInterface):
         self.headers = {'Authorization': 'Token {}'.format(token)} if token else {}
 
     @staticmethod
-    def check_engine_response(request, action=None, obj=None, name=None, status=200):
+    def check_engine_response(request, action=None, obj=None, name=None, status=VALID_STATUSES):
         if obj and name:
             obj += ' {}'.format(name)
-        if request.status_code == status:
+        if request.status_code in status:
             log.debug("[VPAL Engine] {} is {}.".format(obj, action))
             return True
         else:

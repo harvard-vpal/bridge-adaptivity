@@ -102,7 +102,7 @@ def source_preview(request):
     sequence_item_id = request.GET.get('sequence_item_id')
     if content_source_id:
         # staff flow
-        content_provider = get_content_providers(content_source_id).first()
+        content_provider = get_content_providers(request, content_source_id).first()
 
         if not content_provider:
             return render(request, 'bridge_lti/stub.html')

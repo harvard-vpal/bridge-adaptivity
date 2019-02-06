@@ -1,11 +1,6 @@
 # flake8: noqa: F405
 from config.settings.base import *  # noqa: F403
 
-try:
-    from . import secure
-except ImportError:
-    from . import secure_example as secure
-
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
 SECRET_KEY = secure.SECRET_KEY
@@ -106,3 +101,4 @@ for app in APPS_TO_LOG:
         'propagate': True,
     }
 LOGGING['loggers'].update(APP_LOGGERS)
+

@@ -1,5 +1,12 @@
 [
 {
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+        "name": "Default"
+    }
+},
+{
     "model": "bridge_lti.lticonsumer",
     "pk": 2,
     "fields": {
@@ -10,7 +17,8 @@
         "host_url": "https://some-staging-vpal.raccoongang.com",
         "o_auth_client": 2,
         "is_active": true,
-        "source_type": "edx"
+        "source_type": "edx",
+        "available_in_groups": [1]
     }
 },
 {
@@ -24,7 +32,8 @@
         "host_url": "https://edx-staging-vpal.raccoongang.com",
         "o_auth_client": 3,
         "is_active": true,
-        "source_type": "edx"
+        "source_type": "edx",
+        "available_in_groups": [1]
     }
 },
 {
@@ -38,7 +47,8 @@
         "host_url": "https://edx-staging-vpal.raccoongang.com",
         "o_auth_client": null,
         "is_active": true,
-        "source_type": "base"
+        "source_type": "base",
+        "available_in_groups": [1]
     }
 }
 ]

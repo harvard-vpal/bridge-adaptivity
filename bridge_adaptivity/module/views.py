@@ -315,10 +315,9 @@ class CollectionDetail(BaseCollectionView, DetailView):
             context['engine'] = engine_failure
         return context
 
-    @staticmethod
-    def get_content_courses(selected_content_sources):
+    def get_content_courses(self, selected_content_sources):
         try:
-            return get_available_courses(selected_content_sources)
+            return get_available_courses(self.request, selected_content_sources)
         except HttpClientError:
             log.exception(
                 "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
@@ -326,15 +325,14 @@ class CollectionDetail(BaseCollectionView, DetailView):
             )
             return []
 
-    @staticmethod
-    def get_content_source_list(selected_content_sources):
+    def get_content_source_list(self, selected_content_sources):
         return [
             {
                 'name': source.name,
                 'id': source.id,
                 'checked': 'checked' if not selected_content_sources or source.id in selected_content_sources else ''
             }
-            for source in get_active_content_sources(not_allow_empty_source_id=False)
+            for source in get_active_content_sources(request=self.request, not_allow_empty_source_id=False)
         ]
 
 
@@ -406,7 +404,13 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
     context_object_name = 'activity'
 
     def get(self, request, *args, **kwargs):
+        """
+        To Update activity by a GET request.
+
+        Updating activities order and running update method in the superclass. The drag and drop feature uses this view.
+        """
         activity = self.get_object()
+        # NOTE(AndreyLykhoman): Changing activity's order if kwargs contains the 'order' param.
         if kwargs.get('order'):
             try:
                 getattr(activity, 'to')(int(kwargs['order']))
@@ -414,6 +418,34 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
                 log.exception("Unknown ordering method!")
             return HttpResponse(status=201)
         return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        """
+        To Update activity by a POST request.
+
+        Updating activity and changing the activity's order if activity changes the type.
+        """
+        activity = self.get_object()
+        # NOTE(AndreyLykhoman): 'is_change_type' is an indicator of the type change in the activity. If the
+        #  'is_change_type' is True, we will have to change the activity's order.
+        is_change_atype = request.POST.get("atype") != activity.atype
+        result = super().post(request, *args, **kwargs)
+        if is_change_atype:
+            # NOTE(AndreyLykhoman): Getting updated activity.
+            activity = self.get_object()
+            ordering_queryset = activity.get_ordering_queryset()
+            ordering_queryset = ordering_queryset.exclude(pk=activity.pk)
+            # NOTE(AndreyLykhoman): if the ordering_queryset contains one or more activities, we can get last element's
+            #  index, increase by one and set to updating activity's order. If the ordering_queryset is empty, we need
+            #  to set zero to updating activity's order
+            if ordering_queryset.exists():
+                last = ordering_queryset.aggregate(Max(activity.order_field_name)).get(
+                    activity.order_field_name + '__max'
+                )
+                getattr(activity, 'to')(last + 1)
+            else:
+                getattr(activity, 'to')(0)
+        return result
 
 
 @method_decorator(login_required, name='dispatch')
@@ -660,17 +692,24 @@ def update_students_grades(request, group_slug):
 def preview_collection(request, slug):
     acitvities = [
         {
-            'url': f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={a.name}&source_lti_url='
-                   f'{a.source_launch_url}&content_source_id={a.lti_consumer_id}',
+            'url': (
+                f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={a.name}&source_lti_url='
+                f'{a.source_launch_url}&content_source_id={a.lti_consumer_id}'
+            ),
             'pos': pos,
         }
         for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug), start=1)
     ]
-
     return render(
         request,
         template_name="module/sequence_preview.html",
-        context={'activities': acitvities}
+        context={
+            'activities': acitvities,
+            'back_url': (
+                f"{reverse('module:collection-detail', kwargs={'pk': Collection.objects.get(slug=slug).pk})}"
+                f"?back_url={request.GET.get('back_url')}"
+            )
+        }
     )
 
 

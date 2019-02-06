@@ -49,7 +49,7 @@
             <a
                     class="pull-right"
                     id="collection-preview-button"
-                    href="{% url 'module:collection-preview' collection.slug %}"
+                    href="{% url 'module:collection-preview' collection.slug %}?back_url={{back_url}}"
             >
                 {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success" %}
             </a>
@@ -81,7 +81,7 @@
                     ondrop="drop_handler(event, this);"
                     ondragstart="dragstart_handler(event);"
                     ondragover="dragover_handler(event);"
-                    data-index="{{ forloop.counter0 }}"
+                    data-index="{{ activity.order }}"
                     data-move_url="{% url 'module:activity-move' pk=activity.pk  %}?back_url={{ activity.get_absolute_url}}"
                     data-atype="{{activity.atype}}"
                     labelstring="{% if activity.atype == 'A' %}PRE:{% elif activity.atype == 'Z' %}POST:{% endif %}"
