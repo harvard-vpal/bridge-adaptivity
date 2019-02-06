@@ -2,11 +2,11 @@ import datetime
 import logging
 from xml.sax.saxutils import escape
 
-from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
