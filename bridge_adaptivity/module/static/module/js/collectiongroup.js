@@ -37,8 +37,8 @@
 
 
 var update_form = function() {
-    var gpFormUrl = $("#link-objects-form").data("policy_url");
-    var gp = $("select[name='grading_policy_name'] option:selected").val();
+    var gpFormUrl = $("#link-objects-form-update").data("policy_url");
+    var gp = $("select[name='collection_group-grading_policy_name'] option:selected").val();
     console.log(gp);
     $.get(gpFormUrl, {
         grading_policy: gp,
@@ -64,7 +64,7 @@ $(document).ready(function() {
     // when page is loaded - we should be ready to show policy popover
     popover_policy();
 
-    $("form select[name=grading_policy_name]").on("change", function() {
+    $("form select[name=collection_group-grading_policy_name]").on("change", function() {
       update_form();
       // when form changed - update policy popover
       popover_policy();

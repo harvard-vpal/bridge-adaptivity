@@ -115,15 +115,15 @@ class CollectionOrderEditFormMixin(object):
     def form_valid(self, form):
         POST = self.request.POST.copy()
         form_kw = self.get_grading_form_kwargs()
-        policy = GRADING_POLICY_NAME_TO_CLS[POST['grading_policy_name']]
+        policy = GRADING_POLICY_NAME_TO_CLS[POST['collection_group-grading_policy_name']]
         GradingPolicyForm = policy.get_form_class()
 
         grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
-            response = super().form_valid(form)
             grading_policy = grading_policy_form.save()
             self.object.grading_policy = grading_policy
-            self.object.save()
+            response = super().form_valid(form)
+            # self.object.save()
         else:
             return self.form_invalid(form)
         return response
@@ -141,11 +141,11 @@ class CollectionOrderEditFormMixin(object):
             owner=self.request.user
         )
         form.fields['engine'].initial = Engine.get_default()
-        form.fields['collections'].queryset = collections
+        form.fields['collection'].queryset = collections
         if self.kwargs.get('collection_order_slug'):
             collection_order = get_object_or_404(CollectionOrder, slug=self.kwargs['collection_order_slug'])
             if collection_order.grading_policy:
-                form.fields['grading_policy_name'].initial = collection_order.grading_policy.name
+                form.fields['collection_group-grading_policy_name'].initial = collection_order.grading_policy.name
         return form
 
 

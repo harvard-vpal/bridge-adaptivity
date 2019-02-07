@@ -2,7 +2,7 @@ import logging
 
 from django import forms
 from django.forms import ModelForm
-
+from django.forms.widgets import HiddenInput
 from module.models import (
     Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS,
     GradingPolicy,
@@ -155,16 +155,21 @@ class CollectionGroupForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         self.group = kwargs.pop('group')
+        read_only = kwargs.pop('read_only') if kwargs.get('read_only') else False
         super().__init__(*args, **kwargs)
-        self.fields['collections'].queryset = self.fields['collections'].queryset.filter(
+        self.fields['collection'].queryset = self.fields['collection'].queryset.filter(
             owner_id=self.user.id
         )
+        # if read_only:
+        #     self.fields['collection'].widget = HiddenInput()
+            #self.fields['collection'].widget.attrs['readonly'] = read_only
 
-    collections = forms.ModelMultipleChoiceField(
-        label="Choose colections to add into this group:",
-        queryset=Collection.objects.filter(),
-        widget=forms.Select()
-    )
+
+    # collections = forms.ModelMultipleChoiceField(
+    #     label="Choose colections to add into this group:",
+    #     queryset=Collection.objects.filter(),
+    #     widget=forms.Select()
+    # )
 
     grading_policy_name = forms.ChoiceField(
         choices=((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items()),
@@ -175,7 +180,7 @@ class CollectionGroupForm(ModelForm):
     class Meta:
         model = CollectionOrder
         fields = (
-            'collections',
+            'collection',
             'engine',
             'grading_policy_name',
         )
@@ -202,5 +207,8 @@ class CollectionGroupForm(ModelForm):
         return self.cleaned_data
 
     def save(self, **kwargs):
-        for collection in self.cleaned_data['collections']:
-            CollectionOrder.objects.create(group=self.group, collection=collection)
+        self.instance.group = self.group
+        self.instance.collection = self.cleaned_data['collection']
+        self.instance.engine = self.cleaned_data['engine']
+        self.instance.save()
+

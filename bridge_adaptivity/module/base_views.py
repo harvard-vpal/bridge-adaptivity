@@ -35,8 +35,15 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     ordering = ['id']
 
 
-class BaseCollectionOrderView(BackURLMixin):
-    fields = ['collection', 'grading_policy', 'engine']
+class BaseCollectionOrderView(OnlyMyObjectsMixin, BackURLMixin):
+    # fields = ['collection', 'grading_policy', 'engine']
     model = CollectionOrder
     ordering = ['group', 'order']
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        model_field_names = [f.name for f in CollectionOrder._meta.fields]
+        filtered_get = {key: value for key, value in self.request.GET.items() if key in model_field_names}
+        if filtered_get and not self.request.POST:
+            kwargs['initial'] = filtered_get
+        return kwargs

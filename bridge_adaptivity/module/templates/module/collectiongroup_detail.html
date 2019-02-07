@@ -174,9 +174,12 @@
 
       <hr>
 
-  {% url 'module:group-detail' group_slug=group.slug as back_url %}
-  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
-  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
+{#  {% url 'module:group-detail' group_slug=group.slug as back_url %}#}
+{#  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}#}
+{#  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}#}
+
+  {% url 'module:collection-order-change' group=group.slug collection_order=0 as collection_add %}
+  {% bootstrap_button "Add" size='sm' icon='add' extra_classes='modal_launcher' value=collection_add %}
 
   </div>
   <div class="col-md-3">

@@ -209,7 +209,7 @@ class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView,
         return reverse('module:collection-add')
 
     def get_has_available_objects(self, form):
-        return form.fields['collections'].queryset.exists()
+        return form.fields['collection'].queryset.exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -283,10 +283,21 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
     pass
 
 @method_decorator(login_required, name='dispatch')
-class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, ModalFormMixin, UpdateView):
+class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, UpdateView):
 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    def get_object(self):
+        return CollectionOrder.objects.get(group__slug=self.kwargs.get("group"), order=self.kwargs.get("collection_order"))
+
+    def get_success_url(self):
+        return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        if self.kwargs.get('collection_order'):
+            kwargs['read_only'] = bool(self.kwargs.get("collection_order"))
+        return kwargs
 
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
