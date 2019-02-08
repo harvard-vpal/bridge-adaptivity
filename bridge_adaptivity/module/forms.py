@@ -28,11 +28,11 @@ class ActivityForm(ModelForm):
 
 
 class GroupForm(ModelForm):
-    grading_policy_name = forms.ChoiceField(
-        choices=GRADING_POLICY_CHOICES,
-        required=True,
-        widget=PolicyChoiceWidget
-    )
+    # grading_policy_name = forms.ChoiceField(
+    #     choices=GRADING_POLICY_CHOICES,
+    #     required=True,
+    #     widget=PolicyChoiceWidget
+    # )
 
     class Meta:
         model = CollectionGroup
@@ -40,7 +40,7 @@ class GroupForm(ModelForm):
             'name',
             'description',
             'owner',
-            'course',
+            # 'course',
             #'collections',
             # 'engine',
             #'grading_policy_name',
@@ -160,16 +160,9 @@ class CollectionGroupForm(ModelForm):
         self.fields['collection'].queryset = self.fields['collection'].queryset.filter(
             owner_id=self.user.id
         )
-        # if read_only:
-        #     self.fields['collection'].widget = HiddenInput()
-            #self.fields['collection'].widget.attrs['readonly'] = read_only
-
-
-    # collections = forms.ModelMultipleChoiceField(
-    #     label="Choose colections to add into this group:",
-    #     queryset=Collection.objects.filter(),
-    #     widget=forms.Select()
-    # )
+        if read_only:
+            self.fields['collection'].widget = HiddenInput()
+            self.fields['collection'].widget.attrs['readonly'] = read_only
 
     grading_policy_name = forms.ChoiceField(
         choices=((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items()),

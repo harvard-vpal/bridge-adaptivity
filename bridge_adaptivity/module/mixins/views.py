@@ -120,6 +120,8 @@ class CollectionOrderEditFormMixin(object):
 
         grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
+            if 'params' not in grading_policy_form.cleaned_data:
+                grading_policy_form.instance.params = {}
             grading_policy = grading_policy_form.save()
             self.object.grading_policy = grading_policy
             response = super().form_valid(form)
@@ -142,10 +144,11 @@ class CollectionOrderEditFormMixin(object):
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections
-        if self.kwargs.get('collection_order_slug'):
-            collection_order = get_object_or_404(CollectionOrder, slug=self.kwargs['collection_order_slug'])
+        if self.kwargs.get('collection_order') and self.kwargs.get('group'):
+            collection_order = get_object_or_404(CollectionOrder, group__slug=self.kwargs['group'], order=self.kwargs['collection_order'])
             if collection_order.grading_policy:
-                form.fields['collection_group-grading_policy_name'].initial = collection_order.grading_policy.name
+                # form.fields['grading_policy_name'].initial = collection_order.grading_policy.name
+                form.initial['grading_policy_name'] = collection_order.grading_policy.name
         return form
 
 

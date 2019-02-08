@@ -235,14 +235,14 @@ class AddCollectionInGroup(CollectionOrderEditFormMixin, JsonResponseMixin, Form
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, UpdateView):
+class GroupUpdate(BaseGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView):
     form_class = GroupForm
     context_object_name = 'group'
 
     def get(self, request, *args, **kwargs):
         if kwargs.get('order'):
             collection_order = CollectionOrder.objects.get(
-                group__slug=kwargs.get('group_slug'), collection__slug=kwargs.get('slug')
+                group__slug=kwargs.get('group_slug'), id=kwargs.get('id')
             )
             try:
                 getattr(collection_order, 'to')(int(kwargs['order']))
@@ -286,7 +286,7 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
 class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, UpdateView):
 
     def get_object(self):
-        return CollectionOrder.objects.get(group__slug=self.kwargs.get("group"), order=self.kwargs.get("collection_order"))
+        return CollectionOrder.objects.get(group__slug=self.kwargs.get("group"), id=self.kwargs.get("collection_id"))
 
     def get_success_url(self):
         return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
@@ -295,8 +295,8 @@ class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, Collect
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
-        if self.kwargs.get('collection_order'):
-            kwargs['read_only'] = bool(self.kwargs.get("collection_order"))
+        if self.kwargs.get('collection_id'):
+            kwargs['read_only'] = True
         return kwargs
 
 @method_decorator(login_required, name='dispatch')

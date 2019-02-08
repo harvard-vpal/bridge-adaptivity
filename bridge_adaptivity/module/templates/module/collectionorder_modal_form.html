@@ -6,13 +6,13 @@
 {%if not collectionorder.collection.id %}
     New Collection configuration
 {% else %}
-    Edit collection: {{ collectionorder.collection.name }}
+    Edit collection (order - {{ collectionorder.order }}): {{ collectionorder.collection.name }}
 {% endif %}
 {% endblock title %}
 
 {% block body %}
     <script src="{% static 'module/js/collectiongroup.js' %}"></script>
-    <form role="form" method="post" id="link-objects-form-update" data-policy_url="{% url 'module:grading_policy_form' group_slug=collectionorder.group.slug %}">
+    <form role="form" method="post" id="link-objects-form-update" data-policy_url="{% url 'module:grading_policy_form' group_slug=collectionorder.group.slug collection_slug=collectionorder.collection.slug order=collectionorder.order %}">
     {% csrf_token %}
     {% bootstrap_form form %}
 

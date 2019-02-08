@@ -39,7 +39,7 @@ urlpatterns = ([
         name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
     path(
-        'group/<slug:group>/collection_order/<slug:collection_order>/', CollectionOrderUpdate.as_view(), name='collection-order-change'
+        'group/<slug:group>/collection_order/<slug:collection_id>/', CollectionOrderUpdate.as_view(), name='collection-order-change'
     ),
     re_path(
         r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
@@ -57,7 +57,7 @@ urlpatterns = ([
     path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
 
     url(
-        r'^group/(?P<group_slug>[\w-]+)/collection/(?P<slug>[\w-]+)/move/(?P<order>\d+)?$',
+        r'^group/(?P<group_slug>[\w-]+)/collection_order/(?P<id>[\w-]+)/move/(?P<order>\d+)?$',
         GroupUpdate.as_view(),
         name='collection-move'
     ),

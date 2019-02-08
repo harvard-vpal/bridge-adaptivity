@@ -7,14 +7,14 @@
 
 {% block content %}
 
-{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
-{% url "module:collection-add" group_slug=group.slug as add_new_collection_url %}
-
-{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url add_new_object_url=add_new_collection_url title='Link collection with group' %}
+{#{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}#}
+{#{% url "module:collection-add" group_slug=group.slug as add_new_collection_url %}#}
+{##}
+{#{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url add_new_object_url=add_new_collection_url title='Link collection with group' %}#}
 {% include "module/modals/modal_wrapper.html" %}
 
 <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-12">
     <div class="detail-toolpanel">
         {% if not request.session.read_only_data %}
             {% url 'module:group-change' group.slug as group_edit %}
@@ -37,7 +37,7 @@
     </div>
   </div>
 
-  <div class="col-md-9">
+  <div class="col-md-12">
     {% if group.collections.all %}
       <table class="table table-hover">
         <tr>
@@ -47,7 +47,7 @@
           <th>engine</th>
           <th>options</th>
         </tr>
-        {% for collection, order, grading_policy, engine in group.ordered_collections %}
+        {% for collection_order in group.ordered_collections %}
           {% if request.session.read_only_data and collection.slug != request.session.read_only_data.collection %}
             {# Continue #}
           {% else %}
@@ -57,36 +57,38 @@
                       ondragstart="dragstart_handler(event);"
                       ondragover="dragover_handler(event);"
                       data-index="{{ forloop.counter0 }}"
-                      data-move_url="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug %}?back_url={{ group.get_absolute_url}}"
+                      data-move_url="{% url 'module:collection-move' group_slug=group.slug id=collection_order.id %}?back_url={{ group.get_absolute_url}}"
                   {% endif %}
               >
                 <td>
-                  <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">
-                  {{ collection.name }} :
-                  {{ collection.activities.count }}
-                  {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
-                <td>{% if collection.strict_forward %}
+                  <a href="{% url 'module:collection-detail' collection_order.collection.id %}?back_url={{ group.get_absolute_url}}">
+                  {{ collection_order.collection.name }} :
+                  {{ collection_order.collection.activities.count }}
+                  {{ collection_order.collection.activities.count|pluralize:'activity,activities' }}</a></td>
+                <td>{% if collection_order.collection.strict_forward %}
                   <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
                 {% else %}
                   <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
                 {% endif %}
                 </td>
                 <td>
-                    {% if grading_policy.name %}
-                        {{ grading_policy.policy_cls.public_name|default:'Not selected'}}
+                    {% if collection_order.grading_policy.name %}
+                        {{ collection_order.grading_policy.policy_cls.public_name|default:'Not selected'}}
                     {% else %}
                         Not selected
                     {% endif %}
-                    {% if grading_policy.threshold %}
-                     <p>Threshold: {{ grading_policy.threshold }}</p>
+                    {% if collection_order.grading_policy.params %}
+                        {% for key, value in collection_order.grading_policy.params.items %}
+                            <p>{{key.title }}: {{ value }}</p>
+                        {% endfor %}
                     {% endif %}
                 </td>
-                <td>{{ engine.engine_name }}</td>
+                <td>{{ collection_order.engine.engine_name }}</td>
                 <td>
                   <div>
 
                     <a id="launch-demo" class=""
-                       href="{% url 'module:demo' collection_slug=collection.slug group_slug=group.slug collection_order=order %}?back_url={% url 'module:group-list' %}">
+                       href="{% url 'module:demo' collection_slug=collection_order.collection.slug group_slug=group.slug collection_order=collection_order.order %}?back_url={% url 'module:group-list' %}">
                       <button class="btn btn-warning btn-sm">
                           <span class="glyphicon glyphicon-education"></span>
                           Demo
@@ -99,7 +101,7 @@
                       </button>
                     </a>
                     <a id="launch-url-fetcher" class=""
-                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' collection_order=order  %}">
+                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection_order.collection.slug group_slug=group.slug unique_marker='set_me_unique' collection_order=collection_order.order  %}">
                       <button class="btn btn-default btn-sm">
                           <span class="glyphicon glyphicon-link"></span>
                           copy Launch URL
@@ -115,30 +117,30 @@
                     {% if not request.session.read_only_data %}
                     {% with undone=True %}
 
-                      {% url 'module:collection-group-delete' slug=collection.slug group_slug=group.slug as delete_url %}
+                      {% url 'module:collection-group-delete' slug=collection_order.collection.slug group_slug=group.slug as delete_url %}
 
-                      {% with title="You are about unlink <Collection: "|add:collection.name|add:"> from <CollectionGroup: "|add:group.name|add:">" %}
+                      {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <CollectionGroup: "|add:group.name|add:">" %}
                         {% if collection.has_linked_active_sequences %}
                           {% with message="At least one student is still working on the Collection " %}
-                            {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                            {% include "module/modals/confirmation_modal.html" with object=collection_order.collection action_url=delete_url id=collection_order.collection.slug %}
                           {% endwith %}
                         {% elif collection.has_linked_sequences %}
                           {% with message="At least one student is linked to the Collection " %}
-                            {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                            {% include "module/modals/confirmation_modal.html" with object=collection_order.collection action_url=delete_url id=collection_order.collection.slug %}
                           {% endwith %}
                         {% else %}
-                          {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                          {% include "module/modals/confirmation_modal.html" with object=collection_order.collection action_url=delete_url id=collection_order.collection.slug %}
                         {% endif %}
                       {% endwith %}
                     {% endwith %}
-                    {% url 'module:collection-order-change' group=group.slug collection_order=order as collection_edit %}
+                    {% url 'module:collection-order-change' group=group.slug collection_id=collection_order.id as collection_edit %}
                     {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
 
                     <a
                         class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
                             {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                         href=""
-                        data-id="{{ collection.slug }}">
+                        data-id="{{ collection_order.collection.slug }}">
                       <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
                     </a>
                     {% endif %}
@@ -155,10 +157,12 @@
     {% endif %}
 
     {% if not request.session.read_only_data %}
-      <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">
-      <span class="fa fa-chain"></span>
-      Link collection with group
-    </button>
+{#      <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">#}
+{#      <span class="fa fa-chain"></span>#}
+{#      Link collection with group#}
+{#    </button>#}
+        {% url 'module:collection-order-change' group=group.slug collection_id=0 as collection_add %}
+  {% bootstrap_button "Add new" size='sm' icon='plus' extra_classes='pull-left modal_launcher' value=collection_add %}
     {% endif %}
 
     <hr>
@@ -174,35 +178,8 @@
 
       <hr>
 
-{#  {% url 'module:group-detail' group_slug=group.slug as back_url %}#}
-{#  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}#}
-{#  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}#}
 
-  {% url 'module:collection-order-change' group=group.slug collection_order=0 as collection_add %}
-  {% bootstrap_button "Add" size='sm' icon='add' extra_classes='modal_launcher' value=collection_add %}
 
-  </div>
-  <div class="col-md-3">
-    <div class="row">
-      <h3 class="text-center">Group Info</h3>
-      <div class="alert alert-warning text-center" role="alert">
-        Engine - {{ group.engine.engine_name }}
-      </div>
-      <div class="alert alert-warning text-center" role="alert">
-        Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
-        {% if group.grading_policy.threshold %}
-          <p>Threshold: {{ group.grading_policy.threshold }}</p>
-        {% endif %}
-      </div>
-      {% if group.description %}
-      <div class="alert alert-info text-center">
-        <h4 class="text-center">Description</h4>
-        <p class="text-left">
-          {{ group.description }}
-        </p>
-      </div>
-      {% endif %}
-    </div>
   </div>
 </div>
 
