@@ -5,6 +5,7 @@ from django.views.generic import RedirectView
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate, CollectionOrderUpdate,
+    CollectionOrderAdd,
     CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
     demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
     preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection,
@@ -28,7 +29,7 @@ urlpatterns = ([
     url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
 
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<slug>[\w-]+)?$', CollectionGroupDelete.as_view(),
+    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<collection_order_id>\d+)$', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
     # group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>
     url(r'group/(?P<group_slug>[\w-]+)(?:/collection/(?P<collection_slug>[\w-]*))?(?:/order/(?P<order>\d+))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
@@ -38,9 +39,14 @@ urlpatterns = ([
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
-    path(
-        'group/<slug:group>/collection_order/<slug:collection_id>/', CollectionOrderUpdate.as_view(), name='collection-order-change'
+    url(
+        r'group/(?P<group>[\w-]+)/collection_order/(?P<collection_id>\d+)/$', CollectionOrderUpdate.as_view(), name='collection-order-change'
     ),
+
+url(
+        r'group/(?P<group>[\w-]+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
+    ),
+
     re_path(
         r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
         CollectionDetail.as_view(),

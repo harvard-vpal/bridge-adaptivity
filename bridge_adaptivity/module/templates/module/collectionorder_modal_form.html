@@ -5,14 +5,23 @@
 {% block title %}
 {%if not collectionorder.collection.id %}
     New Collection configuration
+    {% url 'module:grading_policy_form' group_slug=collectionorder.group.slug as get_grading_policy_form%}
 {% else %}
     Edit collection (order - {{ collectionorder.order }}): {{ collectionorder.collection.name }}
+    {% url 'module:grading_policy_form' group_slug=collectionorder.group.slug collection_slug=collectionorder.collection.slug order=collectionorder.order  as get_grading_policy_form%}
 {% endif %}
 {% endblock title %}
 
 {% block body %}
     <script src="{% static 'module/js/collectiongroup.js' %}"></script>
-    <form role="form" method="post" id="link-objects-form-update" data-policy_url="{% url 'module:grading_policy_form' group_slug=collectionorder.group.slug collection_slug=collectionorder.collection.slug order=collectionorder.order %}">
+
+{%if not collectionorder.collection.id %}
+    {% url 'module:grading_policy_form' group_slug=group.slug as get_grading_policy_form %}
+{% else %}
+    {% url 'module:grading_policy_form' group_slug=collectionorder.group.slug collection_slug=collectionorder.collection.slug order=collectionorder.order  as get_grading_policy_form%}
+{% endif %}
+
+    <form role="form" method="post" id="link-objects-form-update" data-policy_url="{{ get_grading_policy_form }}">
     {% csrf_token %}
     {% bootstrap_form form %}
 

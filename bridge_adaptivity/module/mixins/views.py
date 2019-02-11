@@ -123,11 +123,15 @@ class CollectionOrderEditFormMixin(object):
             if 'params' not in grading_policy_form.cleaned_data:
                 grading_policy_form.instance.params = {}
             grading_policy = grading_policy_form.save()
-            self.object.grading_policy = grading_policy
+            form.cleaned_data['grading_policy'] = grading_policy
             response = super().form_valid(form)
             # self.object.save()
         else:
-            return self.form_invalid(form)
+            response = self.form_invalid(form)
+            response.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+            if 'params' in grading_policy_form.cleaned_data:
+                response.context_data['grading_policy_form'] = grading_policy_form
+            return response
         return response
 
     def get_context_data(self, **kwargs):
@@ -144,8 +148,8 @@ class CollectionOrderEditFormMixin(object):
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections
-        if self.kwargs.get('collection_order') and self.kwargs.get('group'):
-            collection_order = get_object_or_404(CollectionOrder, group__slug=self.kwargs['group'], order=self.kwargs['collection_order'])
+        if self.kwargs.get('collection_id') and self.kwargs.get('group'):
+            collection_order = get_object_or_404(CollectionOrder, group__slug=self.kwargs['group'], id=self.kwargs['collection_id'])
             if collection_order.grading_policy:
                 # form.fields['grading_policy_name'].initial = collection_order.grading_policy.name
                 form.initial['grading_policy_name'] = collection_order.grading_policy.name

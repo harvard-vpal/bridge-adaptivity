@@ -155,7 +155,7 @@ class CollectionGroupForm(ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
         self.group = kwargs.pop('group')
-        read_only = kwargs.pop('read_only') if kwargs.get('read_only') else False
+        read_only = kwargs.pop('read_only') if 'read_only' in kwargs else False
         super().__init__(*args, **kwargs)
         self.fields['collection'].queryset = self.fields['collection'].queryset.filter(
             owner_id=self.user.id
@@ -203,5 +203,6 @@ class CollectionGroupForm(ModelForm):
         self.instance.group = self.group
         self.instance.collection = self.cleaned_data['collection']
         self.instance.engine = self.cleaned_data['engine']
+        self.instance.grading_policy = self.cleaned_data['grading_policy']
         self.instance.save()
 

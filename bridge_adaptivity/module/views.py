@@ -295,9 +295,39 @@ class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, Collect
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
-        if self.kwargs.get('collection_id'):
-            kwargs['read_only'] = True
+        kwargs['read_only'] = self._set_read_only_collection()
         return kwargs
+
+    def _set_read_only_collection(self):
+        return bool(self.kwargs.get('collection_id'))
+
+
+class CollectionOrderAdd(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, CreateView):
+
+    # def get_object(self):
+    #     return CollectionOrder.objects
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        kwargs['read_only'] = self._set_read_only_collection()
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        # NOTE(AndreyLykhoman): I need to return group or write another way to return a valid form with
+        #  information about group.
+        """Handle GET requests: instantiate a blank version of the form."""
+        result = super().get(request, *args, **kwargs)
+        result.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        return result
+
+    def get_success_url(self):
+        return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
+
+    def _set_read_only_collection(self):
+        # NOTE(AndreyLykhoman): Return 'False' because we will able to chouse a new collection to add.
+        return False
 
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
@@ -380,7 +410,7 @@ class CollectionGroupDelete(DeleteView):
 
     def get_object(self, queryset=None):
         return self.model.objects.get(
-            collection__slug=self.kwargs['slug'],
+            id=self.kwargs['collection_order_id'],
             group__slug=self.kwargs['group_slug']
         )
 

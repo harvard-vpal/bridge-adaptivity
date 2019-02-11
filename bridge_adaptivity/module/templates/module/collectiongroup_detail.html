@@ -117,19 +117,19 @@
                     {% if not request.session.read_only_data %}
                     {% with undone=True %}
 
-                      {% url 'module:collection-group-delete' slug=collection_order.collection.slug group_slug=group.slug as delete_url %}
+                      {% url 'module:collection-group-delete' collection_order_id=collection_order.id group_slug=group.slug as delete_url %}
 
                       {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <CollectionGroup: "|add:group.name|add:">" %}
                         {% if collection.has_linked_active_sequences %}
                           {% with message="At least one student is still working on the Collection " %}
-                            {% include "module/modals/confirmation_modal.html" with object=collection_order.collection action_url=delete_url id=collection_order.collection.slug %}
+                            {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
                         {% elif collection.has_linked_sequences %}
                           {% with message="At least one student is linked to the Collection " %}
-                            {% include "module/modals/confirmation_modal.html" with object=collection_order.collection action_url=delete_url id=collection_order.collection.slug %}
+                            {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
                         {% else %}
-                          {% include "module/modals/confirmation_modal.html" with object=collection_order.collection action_url=delete_url id=collection_order.collection.slug %}
+                          {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                         {% endif %}
                       {% endwith %}
                     {% endwith %}
@@ -140,7 +140,7 @@
                         class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
                             {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                         href=""
-                        data-id="{{ collection_order.collection.slug }}">
+                        data-id="{{ collection_order.id }}">
                       <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
                     </a>
                     {% endif %}
@@ -157,12 +157,8 @@
     {% endif %}
 
     {% if not request.session.read_only_data %}
-{#      <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">#}
-{#      <span class="fa fa-chain"></span>#}
-{#      Link collection with group#}
-{#    </button>#}
-        {% url 'module:collection-order-change' group=group.slug collection_id=0 as collection_add %}
-  {% bootstrap_button "Add new" size='sm' icon='plus' extra_classes='pull-left modal_launcher' value=collection_add %}
+        {% url 'module:collection-order-add' group=group.slug as new_collection_add %}
+  {% bootstrap_button "Add new" size='sm' icon='Add' extra_classes='modal_launcher' value=new_collection_add %}
     {% endif %}
 
     <hr>
@@ -177,7 +173,9 @@
         </ul>
 
       <hr>
-
+{#  {% url 'module:group-detail' group_slug=group.slug as back_url %}#}
+{#  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}#}
+{#  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}#}
 
 
   </div>
