@@ -368,7 +368,7 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
         Collection, related_name='collection_groups', blank=True, through='CollectionOrder'
     )
 
-    engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
+    engine = models.ForeignKey(Engine, null=True, on_delete=models.CASCADE)
 
     ui_option = MultiSelectField(
         choices=OPTIONS, blank=True, help_text="Add an optional UI block to the student view"

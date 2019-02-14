@@ -10,8 +10,7 @@
 
 {% block body %}
 
-    <form role="form" method="post" id="group_form"
-          data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
+    <form role="form" method="post" id="group_form">
         {% csrf_token %}
         {% bootstrap_form form %}
         <button class="btn btn-primary" type="submit">

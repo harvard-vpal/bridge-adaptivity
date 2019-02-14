@@ -19,8 +19,16 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
     def setUp(self):
         super().setUp()
         self.rf = RequestFactory()
-        self.correct_kw = {'collection_slug': self.collection1.slug, 'group_slug': self.test_cg.slug}
-        self.not_correct_kw = {'collection_slug': self.collection2.slug, 'group_slug': self.test_cg.slug}
+        self.correct_kw = {
+            'collection_slug': self.collection1.slug,
+            'group_slug': self.test_cg.slug,
+            'collection_order': self.collection_order1.order
+        }
+        self.not_correct_kw = {
+            'collection_slug': self.collection2.slug,
+            'group_slug': self.test_cg.slug,
+            'collection_order': self.collection_order1.order
+        }
         self.url = reverse('lti:launch', kwargs=self.correct_kw)
         self.not_correct_url = reverse('lti:launch', kwargs=self.not_correct_kw)
 

@@ -28,11 +28,6 @@ class ActivityForm(ModelForm):
 
 
 class GroupForm(ModelForm):
-    # grading_policy_name = forms.ChoiceField(
-    #     choices=GRADING_POLICY_CHOICES,
-    #     required=True,
-    #     widget=PolicyChoiceWidget
-    # )
 
     class Meta:
         model = CollectionGroup
@@ -40,48 +35,12 @@ class GroupForm(ModelForm):
             'name',
             'description',
             'owner',
-            # 'course',
-            #'collections',
-            # 'engine',
-            #'grading_policy_name',
             'ui_option',
             'ui_next',
         )
         labels = {
             'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button',
         }
-
-    def clean(self):
-        super().clean()
-        # engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
-        #
-        # engine_cls = engine.engine_driver
-        # policy_cls = GRADING_POLICY_NAME_TO_CLS.get(policy)
-        #
-        # if policy_cls is None:
-        #     raise forms.ValidationError({'grading_policy_name': ['Not correct policy']})
-        #
-        # required_engine = policy_cls.require.get('engine')
-        #
-        # if required_engine and not isinstance(engine_cls, required_engine):
-        #     required_engine_names = ", ".join([e.__name__.strip('Engine') for e in required_engine])
-        #     engine_err_msg = 'This Engine doesn\'t support chosen Policy. Please choose another policy or engine.'
-        #     policy_err_msg = 'This policy can be used only with {} engine(s). Choose another policy or engine.'.format(
-        #         required_engine_names,
-        #     )
-        #     raise forms.ValidationError({'engine': [engine_err_msg], 'grading_policy_name': [policy_err_msg]})
-        return self.cleaned_data
-
-    def save(self):
-        group = super().save(commit=False)
-        group.save()
-        # cleaned_collections = self.cleaned_data.get('collections', [])
-        # initial_collections = self.initial.get('collections', [])
-        # for collection in set(cleaned_collections) - set(initial_collections):
-        #     CollectionOrder.objects.get_or_create(collection=collection, group=group)
-        # for collection in set(initial_collections) - set(cleaned_collections):
-        #     CollectionOrder.objects.filter(collection=collection, group=group).delete()
-        return group
 
 
 class BaseGradingPolicyForm(ModelForm):

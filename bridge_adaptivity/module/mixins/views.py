@@ -51,52 +51,6 @@ class GroupEditFormMixin(object):
     prefix = 'group'
     grading_prefix = 'grading'
 
-    def get_grading_form_kwargs(self):
-        """Return kwargs for GradingForm."""
-        form_kw = dict(
-            prefix=self.grading_prefix,
-        )
-        if self.object and self.object.grading_policy:
-            form_kw['instance'] = self.object.grading_policy
-        return form_kw
-
-    def form_valid(self, form):
-        POST = self.request.POST.copy()
-        form_kw = self.get_grading_form_kwargs()
-        policy = GRADING_POLICY_NAME_TO_CLS[POST['group-grading_policy_name']]
-        GradingPolicyForm = policy.get_form_class()
-
-        grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
-        if grading_policy_form.is_valid():
-            response = super().form_valid(form)
-            grading_policy = grading_policy_form.save()
-            self.object.grading_policy = grading_policy
-            self.object.save()
-        else:
-            return self.form_invalid(form)
-        return response
-
-    def get_context_data(self, **kwargs):
-        data = super().get_context_data(**kwargs)
-        form_kw = self.get_grading_form_kwargs()
-        post_or_none = self.request.POST if self.request.POST else None
-        data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
-        return data
-
-    def get_form(self):
-        form = super().get_form()
-        collections = Collection.objects.filter(
-            owner=self.request.user
-        )
-        #form.fields['engine'].initial = Engine.get_default()
-        form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
-        #form.fields['collections'].queryset = collections
-        if self.kwargs.get('group_slug'):
-            group = get_object_or_404(CollectionGroup, slug=self.kwargs['group_slug'])
-            # if group.grading_policy:
-            #     form.fields['grading_policy_name'].initial = group.grading_policy.name
-        return form
-
 
 class CollectionOrderEditFormMixin(object):
     form_class = CollectionGroupForm
