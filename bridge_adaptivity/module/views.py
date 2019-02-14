@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import Max
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
@@ -467,25 +468,36 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
         Updating activity and changing the activity's order if activity changes the type.
         """
         activity = self.get_object()
-        # NOTE(AndreyLykhoman): 'is_change_type' is an indicator of the type change in the activity. If the
-        #  'is_change_type' is True, we will have to change the activity's order.
-        is_change_atype = request.POST.get("atype") != activity.atype
-        result = super().post(request, *args, **kwargs)
-        if is_change_atype:
-            # NOTE(AndreyLykhoman): Getting updated activity.
-            activity = self.get_object()
-            ordering_queryset = activity.get_ordering_queryset()
-            ordering_queryset = ordering_queryset.exclude(pk=activity.pk)
-            # NOTE(AndreyLykhoman): if the ordering_queryset contains one or more activities, we can get last element's
-            #  index, increase by one and set to updating activity's order. If the ordering_queryset is empty, we need
-            #  to set zero to updating activity's order
+        # NOTE(AndreyLykhoman): Run this block if activity changes it's 'atype'. In this block We reorder set where
+        #  activity was and change atype and order(that equals the last order pluse one)
+        if request.POST.get("atype") != activity.atype:
+            # NOTE(AndreyLykhoman): Get and reorder set where activity was
+            ordering_queryset = activity.get_ordering_queryset().exclude(pk=activity.pk)
             if ordering_queryset.exists():
-                last = ordering_queryset.aggregate(Max(activity.order_field_name)).get(
-                    activity.order_field_name + '__max'
-                )
-                getattr(activity, 'to')(last + 1)
-            else:
-                getattr(activity, 'to')(0)
+                transaction.set_autocommit(False)
+                try:
+                    for index, element in enumerate(ordering_queryset):
+                        element.order = index
+                        element.save()
+                except Exception:
+                    transaction.rollback()
+                    raise
+                else:
+                    transaction.commit()
+                finally:
+                    transaction.set_autocommit(True)
+            # NOTE(AndreyLykhoman): Get a set were activity will be and get last order or create new one
+            new_order = 0
+            tmp_activity = Activity.objects.filter(
+                collection=activity.collection,
+                atype=request.POST.get("atype")
+            ).first()
+            if tmp_activity:
+                new_order = 1 + tmp_activity.get_ordering_queryset().latest('order').order
+            # NOTE(AndreyLykhoman): Change and save activity
+            activity.atype, activity.order = request.POST.get("atype"), new_order
+            activity.save()
+        result = super().post(request, *args, **kwargs)
         return result
 
 
