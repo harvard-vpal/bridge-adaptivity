@@ -287,7 +287,7 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
 class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, UpdateView):
 
     def get_object(self):
-        return CollectionOrder.objects.get(group__slug=self.kwargs.get("group"), id=self.kwargs.get("collection_id"))
+        return CollectionOrder.objects.get(group__slug=self.kwargs.get("group"), id=self.kwargs.get("collection_order_id"))
 
     def get_success_url(self):
         return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
@@ -832,7 +832,7 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
             )
         update_activity = request.session.pop('Lti_update_activity', None)
         sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
-            sequence_item, update_activity, last_item, position
+            sequence_item, update_activity, last_item, position, collection_order
         )
 
         if sequence_complete:

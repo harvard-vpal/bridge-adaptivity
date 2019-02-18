@@ -35,6 +35,7 @@ class GroupForm(ModelForm):
             'name',
             'description',
             'owner',
+            'course',
             'ui_option',
             'ui_next',
         )

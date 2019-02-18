@@ -14,13 +14,9 @@
       <div class="modal-body">
 
         {% if has_available_objects %}
-{#        <script src="{% static 'module/js/collectiongroup.js' %}"></script>#}
-        <form action="{{ link_action_url }}" method="post" id="link-objects-form" data-policy_url="{% url 'module:grading_policy_form' group_slug=group.slug %}">
+        <form action="{{ link_action_url }}" method="post" id="link-objects-form">
           {% bootstrap_form link_objects_form %}
           {% csrf_token %}
-{#          <div class="grading_policy11">#}
-{#            {% bootstrap_form grading_policy_form %}#}
-{#        </div>#}
         </form>
 
         {% else %}

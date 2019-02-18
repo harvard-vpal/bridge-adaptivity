@@ -388,6 +388,9 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
+    def get_collection_order_by_order(self, order):
+        return CollectionOrder.objects.filter(group=self, order=order).first()
+
 
 class Activity(OrderedModel):
     """General entity which represents problem/text/video material."""

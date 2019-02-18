@@ -50,21 +50,29 @@ class BridgeTestCase(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order1 = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
             engine=self.engine,
             grading_policy=self.points_earned
         )
-
-        self.collection_order1 = CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
-        self.collection_order3 = CollectionOrder.objects.create(group=self.test_cg, collection=self.collection3)
+        self.collection_order3 = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection3,
+            engine=self.engine,
+            grading_policy=self.trials_count
+        )
 
         self.course = Course.objects.create(name='test_course', owner=self.user)
 
         self.group_update_data = {
             'name': "CG2",
-            'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
-            'engine': self.engine.id,
+            # 'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
+            # 'engine': self.engine.id,
             'owner': self.user.id,
-            'grading_policy_name': 'trials_count',
+            # 'grading_policy_name': 'trials_count',
             'description': 'Some description for a group',
             'course': self.course.id,
         }
@@ -105,10 +113,7 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
         groups_count = CollectionGroup.objects.count()
-        policy_data = self.add_prefix(self.grading_prefix, {
-            'params': json.dumps({"threshold": 1}),
-            'name': self.trials_count.name,
-        })
+        policy_data = {'name': self.trials_count.name}
         data = {}
         data.update(self.group_post_data)
         data.update(policy_data)
@@ -117,35 +122,35 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, b'{"status": "ok"}')
 
-    def test_cg_with_not_correct_policy_engine_pair(self):
-        """
-        Try to create collectiongroup with not correct pair of policy and engine.
-
-        Not correct pair example - engine graded policy with mock engine.
-        In this case it should return 200, and context['form'] should contain errors.
-        """
-        self.group_update_data = {
-            'name': "CG2",
-            #'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
-            #'engine': self.engine.id,  # mock engine
-            'owner': self.user.id,
-            #'grading_policy_name': 'engine_grade',
-            'description': 'Some description for a group',
-            'course': self.course.id,
-        }
-        url = reverse('module:group-add')
-        self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
-        response = self.client.post(url, data=self.group_post_data)
-        self.assertTrue(str(response.status_code).index("2") == 0)
-        self.assertIn('form', response.context)
-        self.assertEqual(
-            response.context['form'].errors,
-            {
-                'engine': ["This Engine doesn't support chosen Policy. Please choose another policy or engine."],
-                'grading_policy_name': [('This policy can be used only with VPAL engine(s). '
-                                         'Choose another policy or engine.')]
-            }
-        )
+    # def test_cg_with_not_correct_policy_engine_pair(self):
+    #     """
+    #     Try to create collectiongroup with not correct pair of policy and engine.
+    #
+    #     Not correct pair example - engine graded policy with mock engine.
+    #     In this case it should return 200, and context['form'] should contain errors.
+    #     """
+    #     self.group_update_data = {
+    #         'name': "CG2",
+    #         #'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
+    #         #'engine': self.engine.id,  # mock engine
+    #         'owner': self.user.id,
+    #         #'grading_policy_name': 'engine_grade',
+    #         'description': 'Some description for a group',
+    #         'course': self.course.id,
+    #     }
+    #     url = reverse('module:group-add')
+    #     self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
+    #     response = self.client.post(url, data=self.group_post_data)
+    #     self.assertTrue(str(response.status_code).index("2") == 0)
+    #     self.assertIn('form', response.context)
+    #     self.assertEqual(
+    #         response.context['form'].errors,
+    #         {
+    #             'engine': ["This Engine doesn't support chosen Policy. Please choose another policy or engine."],
+    #             'grading_policy_name': [('This policy can be used only with VPAL engine(s). '
+    #                                      'Choose another policy or engine.')]
+    #         }
+    #     )
 
     def test_cg_list(self):
         """Test CollectionGroup list page. Check that response code is 200, `groups` is in context and is not empty."""
@@ -166,18 +171,9 @@ class TestCollectionGroup(BridgeTestCase):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('grading_policy_form', response.context)
         self.assertIn('form', response.context)
 
-        policy_data = self.add_prefix(self.grading_prefix, {
-            'params': json.dumps({'threshold': 1}),
-            'name': self.group_update_data['grading_policy_name'],
-        })
-        data = {}
-        data.update(self.group_post_data)
-        data.update(policy_data)
-
-        response = self.client.post(url, data=data)
+        response = self.client.post(url, data=self.group_update_data)
         if response.status_code == 200:
             print((dict(response.context['form'].errors)))
 
@@ -185,7 +181,6 @@ class TestCollectionGroup(BridgeTestCase):
         test_g = CollectionGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(test_g.name, self.group_update_data['name'])
         self.assertEqual(test_g.description, self.group_update_data['description'])
-        self.assertEqual(test_g.engine.id, self.group_update_data['engine'])
         self.assertNotEqual(test_g.name, self.test_cg.name)
         self.assertNotEqual(test_g.description, self.test_cg.description)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
@@ -214,39 +209,32 @@ class TestCollectionGroup(BridgeTestCase):
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
-    def test_get_grading_policy_form_no_group(self):
-        """Test that form is present in response context for both grading policies."""
-        policies = GRADING_POLICIES
-        for policy, _ in policies:
-            url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format(policy)
-            response = self.client.get(url)
-            self.assertIn('form', response.context)
-
-    def test_get_not_valid_grading_policy_form(self):
-        """Check that if not correct grading policy passed - no form return."""
-        url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format('some_policy')
-        response = self.client.get(url)
-        self.assertNotIn('form', response.context)
+    # def test_get_grading_policy_form_no_group(self):
+    #     """Test that form is present in response context for both grading policies."""
+    #     policies = GRADING_POLICIES
+    #     for policy, _ in policies:
+    #         url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format(policy)
+    #         response = self.client.get(url)
+    #         self.assertIn('form', response.context)
+    #
+    # def test_get_not_valid_grading_policy_form(self):
+    #     """Check that if not correct grading policy passed - no form return."""
+    #     url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format('some_policy')
+    #     response = self.client.get(url)
+    #     self.assertNotIn('form', response.context)
 
     def check_group_change_page(self):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('grading_policy_form', response.context)
+        # self.assertIn('grading_policy_form', response.context)
         self.assertIn('form', response.context)
 
     def check_update_group(self, data):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         self.client.post(url, data=data)
-        grading_policy_count = GradingPolicy.objects.all().count()
-
-        self.assertEqual(grading_policy_count, GradingPolicy.objects.all().count())
-
         self.test_cg = CollectionGroup.objects.get(id=self.test_cg.id)
-
         self.assertEqual(self.group_update_data['name'], self.test_cg.name)
-        self.assertEqual(self.test_cg.grading_policy, self.points_earned)
-        self.assertNotEqual(self.test_cg.grading_policy, self.trials_count)
 
     def test_update_grading_policy(self):
         """Test update grading policy (positive flow).
@@ -273,28 +261,28 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
             self.check_group_change_page()
             self.check_update_group(data)
 
-    def test_update_grading_policy_not_correct_policy(self):
-        """Test update grading policy with not correct grading policy name (negative flow)."""
-        self.group_post_data.update({'group-grading_policy_name': 'BLA_BLA'})
-
-        policy_data = self.add_prefix(self.grading_prefix, {
-            'params': json.dumps({'threshold': 1}),
-            'name': 'BLA_BLA'
-        })
-        data = {}
-        data.update(self.group_post_data)
-        data.update(policy_data)
-
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
-        response = self.client.post(url, data=data)
-
-        self.assertNotEqual(self.group_post_data[self.group_prefix + '-name'], self.test_cg.name)
-        # check that grading policy not changed
-        self.assertEqual(self.test_cg.grading_policy, self.points_earned)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('form', response.context)
-        self.assertIsNotNone(response.context['form'].errors)
-        self.assertIn('grading_policy_name', response.context['form'].errors)
+    # def test_update_grading_policy_not_correct_policy(self):
+    #     """Test update grading policy with not correct grading policy name (negative flow)."""
+    #     self.group_post_data.update({'group-grading_policy_name': 'BLA_BLA'})
+    #
+    #     policy_data = self.add_prefix(self.grading_prefix, {
+    #         'params': json.dumps({'threshold': 1}),
+    #         'name': 'BLA_BLA'
+    #     })
+    #     data = {}
+    #     data.update(self.group_post_data)
+    #     data.update(policy_data)
+    #
+    #     url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+    #     response = self.client.post(url, data=data)
+    #
+    #     self.assertNotEqual(self.group_post_data[self.group_prefix + '-name'], self.test_cg.name)
+    #     # check that grading policy not changed
+    #     self.assertEqual(self.test_cg.grading_policy, self.points_earned)
+    #     self.assertEqual(response.status_code, 200)
+    #     self.assertIn('form', response.context)
+    #     self.assertIsNotNone(response.context['form'].errors)
+    #     self.assertIn('grading_policy_name', response.context['form'].errors)
 
 
 class TestCollectionGroupCollectionOrder(BridgeTestCase):
@@ -309,61 +297,93 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
             self.add_prefix(self.grading_prefix, {'params': json.dumps({'threshold': 1}), 'name': 'full_credit'})
         )
 
-    def test_group_collection_added_on_update(self):
+    def test_group_collection_add(self):
         """
         Test updated collection group contains all new collections.
         """
-        data = self.group_post_data
+        # data = self.group_post_data
+        data = {
+            "collection_group-collection": self.collection2.id,
+            "collection_group-engine": self.engine.id,
+            "collection_group-grading_policy_name": "trials_count",
+            "grading-name": "trials_count"
+        }
         # Group is updated with three collections two of which is repeated. Collections will increase by 1
-        expected_group_collection = len(data['group-collections'])
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        expected_collections_count = self.test_cg.collections.count() + 1
+        url = reverse('module:collection-order-add', kwargs={'group': self.test_cg.slug})
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
-        self.assertEqual(self.test_cg.collections.count(), expected_group_collection)
+        self.assertEqual(self.test_cg.collections.count(), expected_collections_count)
 
-    def test_group_collection_removed_on_update(self):
+    def test_group_collection_update(self):
+        """
+        Test updated collection group contains all new collections.
+        """
+        # data = self.group_post_data
+        data = {
+            "collection_group-collection": self.collection1.id,
+            "collection_group-engine": self.engine.id,
+            "collection_group-grading_policy_name": "trials_count",
+            "grading-name": "trials_count"
+        }
+
+        # Group is updated with three collections two of which is repeated. Collections will increase by 1
+        url = reverse('module:collection-order-change', kwargs={
+            'group': self.test_cg.slug,
+            'collection_order_id': self.collection_order1.id
+        })
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(self.test_cg.get_collection_order_by_order(self.collection_order1.order).grading_policy.name, "trials_count")
+
+    def test_group_collection_remove(self):
         """
         Test updated collection group doesn't contain old collections.
         """
-        data = self.group_post_data
-        data['group-collections'] = data['group-collections'][:1]
+        data = [x for x in self.test_cg.ordered_collections]
+        expected_group_collection = len(data) - 1
         # Group is updated with one collection all existing should be removed.
-        expected_group_collection = len(data['group-collections'])
-
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
-        response = self.client.post(url, data=data)
-        self.assertEqual(response.status_code, 202)
-        self.assertEqual(self.test_cg.collections.count(), expected_group_collection)
+        url = reverse(
+            'module:collection-group-delete',
+            kwargs={'group_slug': self.test_cg.slug, 'collection_order_id': data[1].id}
+        )
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len([x for x in self.test_cg.ordered_collections]), expected_group_collection)
 
     def test_group_collection_reordered(self):
         """
         Test collections are reordered in the group on move to different positions command.
         """
-        expected_collection_order = [self.collection3, self.collection2, self.collection1]
+        data = {
+            "collection_group-collection": self.collection2.id,
+            "collection_group-engine": self.engine.id,
+            "collection_group-grading_policy_name": "trials_count",
+            "grading-name": "trials_count"
+        }
+        url = reverse('module:collection-order-add', kwargs={'group': self.test_cg.slug})
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 202)
 
-        # After the update -- collections have an order: (collection1, collection3, collection2)
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
-        self.client.post(url, data=self.group_post_data)
-        # Check that initial state is as expected
-
-        self.assertEqual(list(self.test_cg.ordered_collections), [self.collection1, self.collection3, self.collection2])
+        ordered_collections = tuple(self.test_cg.ordered_collections)
+        expected_collection_order = (ordered_collections[2], ordered_collections[1], ordered_collections[0])
 
         # Moving collection3 up, collection1 down and get reordered result as (collection3, collection2, collection1)
         move_to_index_0 = reverse('module:collection-move', kwargs={
             'group_slug': self.test_cg.slug,
-            'slug': self.collection3.slug,
+            'id': ordered_collections[2].id,
             'order': 0,
         })
         response_up = self.client.get(move_to_index_0)
         self.assertEqual(response_up.status_code, 201)
         move_to_index_2 = reverse('module:collection-move', kwargs={
             'group_slug': self.test_cg.slug,
-            'slug': self.collection1.slug,
+            'id': ordered_collections[0].id,
             'order': 2,
         })
         response_down = self.client.get(move_to_index_2)
         self.assertEqual(response_down.status_code, 201)
-        ordered_collections = list(self.test_cg.ordered_collections)
+        ordered_collections = tuple(self.test_cg.ordered_collections)
         self.assertEqual(ordered_collections, expected_collection_order)
 
 

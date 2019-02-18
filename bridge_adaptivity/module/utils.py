@@ -7,11 +7,13 @@ from module.models import Activity, SequenceItem
 log = getLogger(__name__)
 
 
-def choose_activity(sequence_item=None, sequence=None):
+def choose_activity(collection_order, sequence_item=None, sequence=None,):
     sequence = sequence or sequence_item.sequence
 
     try:
-        engine_choose = sequence.group.engine.engine_driver.select_activity(sequence)
+        engine_choose = sequence.group.get_collection_order_by_order(
+            collection_order
+        ).engine.engine_driver.select_activity(sequence)
         activity_source_launch_url = engine_choose.get('source_launch_url')
         if engine_choose.get('complete'):
             sequence.completed = True
@@ -30,7 +32,7 @@ def choose_activity(sequence_item=None, sequence=None):
         sequence.delete()
 
 
-def select_next_sequence_item(sequence_item, update_activity, last_item, position):
+def select_next_sequence_item(sequence_item, update_activity, last_item, position, collection_order):
     """
     Chose next sequence item for the Adaptivity Demo flow.
 
@@ -50,10 +52,12 @@ def select_next_sequence_item(sequence_item, update_activity, last_item, positio
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:
-        activity = choose_activity(sequence_item)
+        activity = choose_activity(collection_order, sequence_item)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.group.grading_policy.policy_instance(sequence=sequence)
+            policy = sequence.group.get_collection_order_by_order(
+                collection_order
+            ).grading_policy.policy_instance(sequence=sequence)
             policy.send_grade()
             if not activity:
                 if sequence.completed:

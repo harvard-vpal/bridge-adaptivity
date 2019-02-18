@@ -133,7 +133,7 @@
                         {% endif %}
                       {% endwith %}
                     {% endwith %}
-                    {% url 'module:collection-order-change' group=group.slug collection_id=collection_order.id as collection_edit %}
+                    {% url 'module:collection-order-change' group=group.slug collection_order_id=collection_order.id as collection_edit %}
                     {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
 
                     <a

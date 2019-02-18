@@ -51,6 +51,10 @@ class GroupEditFormMixin(object):
     prefix = 'group'
     grading_prefix = 'grading'
 
+    def get_form(self):
+        form = super().get_form()
+        form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
+        return form
 
 class CollectionOrderEditFormMixin(object):
     form_class = CollectionGroupForm

@@ -65,11 +65,14 @@ class TestUtilities(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order1 = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection,
             engine=self.engine,
             grading_policy=self.gading_policy
         )
-
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
@@ -81,10 +84,13 @@ class TestUtilities(TestCase):
         self.vpal_group = CollectionGroup.objects.create(
             name='TestVpalGroup',
             owner=self.user,
-            engine=self.vpal_engine,
         )
 
-        CollectionOrder.objects.create(group=self.vpal_group, collection=self.collection)
+        self.collection_order2 = CollectionOrder.objects.create(
+            group=self.vpal_group,
+            collection=self.collection,
+            engine=self.vpal_engine,
+        )
 
         self.vpal_sequence = Sequence.objects.create(
             lti_user=self.lti_user,
@@ -103,7 +109,7 @@ class TestUtilities(TestCase):
         try:
             # test if 2 activities has the same launch url but has different collections
             # this method should return only one activity, filtered by sequence.collection
-            chosen_activity = choose_activity(sequence=self.sequence)
+            chosen_activity = choose_activity(collection_order=self.collection_order1.order, sequence=self.sequence)
         except MultipleObjectsReturned as e:
             log.error(Activity.ojbects.all().values('collection', 'source_launch_url'))
             self.fail(e)
@@ -117,7 +123,7 @@ class TestUtilities(TestCase):
         """
         Test sequence is deleted if after creating first activity is not chosen for any reason.
         """
-        choose_activity(sequence=self.vpal_sequence)
+        choose_activity(collection_order=self.collection_order1.order, sequence=self.vpal_sequence)
         sequence_is_exists = Sequence.objects.filter(group=self.vpal_group)
         self.assertFalse(sequence_is_exists)
 
@@ -127,7 +133,7 @@ class TestUtilities(TestCase):
         Test sequence becomes completed if at least one sequence_item exists and there no new activity chosen.
         """
         sequence_item = SequenceItem.objects.create(sequence=self.vpal_sequence, activity=self.activity)
-        choose_activity(sequence_item=sequence_item)
+        choose_activity(collection_order=self.collection_order1.order, sequence_item=sequence_item)
         completed_sequence = Sequence.objects.filter(group=self.vpal_group).first()
         self.assertEqual(completed_sequence, self.vpal_sequence)
         self.assertTrue(completed_sequence.completed)
@@ -170,6 +176,7 @@ class TestUtilities(TestCase):
             update_activity,
             last_item,
             position,
+            self.collection_order1.order
         )
         if position > last_item or update_activity:
             next_item = self.sequence.items.last()
@@ -180,5 +187,5 @@ class TestUtilities(TestCase):
         self.sequence_item_5 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity5, position=5)
         sequence_item = self.sequence_item_5
         expected_result = (sequence_item, True, None)
-        result = select_next_sequence_item(sequence_item, update_activity=False, last_item=5, position=6)
+        result = select_next_sequence_item(sequence_item, update_activity=False, last_item=5, position=6, collection_order=self.collection_order1.order)
         self.assertEqual(expected_result, result)

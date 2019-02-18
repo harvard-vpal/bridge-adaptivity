@@ -40,10 +40,10 @@ urlpatterns = ([
         name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
     url(
-        r'group/(?P<group>[\w-]+)/collection_order/(?P<collection_id>\d+)/$', CollectionOrderUpdate.as_view(), name='collection-order-change'
+        r'group/(?P<group>[\w-]+)/collection_order/(?P<collection_order_id>\d+)/$', CollectionOrderUpdate.as_view(), name='collection-order-change'
     ),
 
-url(
+    url(
         r'group/(?P<group>[\w-]+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
     ),
 

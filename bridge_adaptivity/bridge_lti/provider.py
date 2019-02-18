@@ -120,6 +120,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
     """
     Define logic flow for Learner.
     """
+
     if not collection_slug:
         return stub_page(request)
 
@@ -152,7 +153,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
 
     if created:
         log.debug("Sequence {} was created".format(sequence))
-        start_activity = module_utils.choose_activity(sequence_item=None, sequence=sequence)
+        start_activity = module_utils.choose_activity(collection_order=collection_order, sequence_item=None, sequence=sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
             return stub_page(
