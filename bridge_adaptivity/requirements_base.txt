@@ -8,6 +8,7 @@ django-multiselectfield==0.1.8
 django-ordered-model==1.4.3
 djangorestframework==3.7.7
 django-slugger==1.0.4
+django-filter==2.1.0
 
 edx-rest-api-client==1.7.1
 lti==0.9.2
