@@ -133,7 +133,6 @@ def learner_flow(
     """
     Define logic flow for Learner.
     """
-
     if not collection_slug:
         return stub_page(request)
 

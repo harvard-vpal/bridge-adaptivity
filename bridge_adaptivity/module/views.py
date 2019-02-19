@@ -24,10 +24,10 @@ from api.backends.api_client import get_active_content_sources, get_available_co
 from bridge_lti.models import LtiProvider, LtiUser
 from common.utils import get_collection_collectiongroup_engine, stub_page
 from module import tasks, utils
-from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView, BaseCollectionOrderView
-from module.forms import ActivityForm, CollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
+from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseGroupView
+from module.forms import ActivityForm, AddCourseGroupForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
 from module.mixins.views import (
-    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, CollectionOrderEditFormMixin, JsonResponseMixin,
+    BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin,
     LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
@@ -179,7 +179,6 @@ class GetGradingPolicyForm(FormView):
         return form
 
 
-
 @method_decorator(login_required, name='dispatch')
 class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
 
@@ -277,6 +276,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, UpdateView):
     pass
 
+
 @method_decorator(login_required, name='dispatch')
 class CollectionOrderUpdate(
     BaseCollectionOrderView,
@@ -334,6 +334,7 @@ class CollectionOrderAdd(
     def _set_read_only_collection(self):
         # NOTE(AndreyLykhoman): Return 'False' because we will able to choose a new collection to add.
         return False
+
 
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):

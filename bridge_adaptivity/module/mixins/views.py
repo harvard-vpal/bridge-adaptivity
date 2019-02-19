@@ -7,8 +7,8 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
-from module.forms import BaseGradingPolicyForm, GroupForm, CollectionGroupForm
-from module.models import Collection, CollectionOrder, CollectionGroup, Course, Engine, GRADING_POLICY_NAME_TO_CLS
+from module.forms import BaseGradingPolicyForm, CollectionGroupForm, GroupForm
+from module.models import Collection, CollectionGroup, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
 
@@ -57,6 +57,7 @@ class GroupEditFormMixin(object):
         form = super().get_form()
         form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
         return form
+
 
 class CollectionOrderEditFormMixin(object):
     form_class = CollectionGroupForm

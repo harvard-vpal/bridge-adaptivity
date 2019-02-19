@@ -1,5 +1,4 @@
 import datetime
-import json
 import uuid
 
 from django.test import TestCase
@@ -115,7 +114,6 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, b'{"status": "ok"}')
-
 
     def test_cg_list(self):
         """Test CollectionGroup list page. Check that response code is 200, `groups` is in context and is not empty."""

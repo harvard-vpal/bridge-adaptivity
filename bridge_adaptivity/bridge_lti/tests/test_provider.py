@@ -27,6 +27,7 @@ class ProviderTest(BridgeTestCase):
     """
     Class for testing correct working LTI provider.
     """
+
     @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
     @mock.patch('bridge_lti.provider.instructor_flow')
     @mock.patch('bridge_lti.provider.learner_flow')

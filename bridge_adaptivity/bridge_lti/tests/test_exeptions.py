@@ -22,6 +22,7 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
     """
     Test incorrect working LTI provider.
     """
+
     def setUp(self):
         super().setUp()
         self.rf = RequestFactory()

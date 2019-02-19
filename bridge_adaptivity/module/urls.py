@@ -4,8 +4,8 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
-    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
-    CollectionOrderUpdate, CollectionOrderAdd, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
+    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
+    CollectionOrderUpdate, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
     CourseRmGroup, CourseUpdate, demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
     GroupList, GroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete,
     SequenceItemDetail, sync_collection, update_students_grades
@@ -34,7 +34,7 @@ urlpatterns = ([
         (
             r'group/(?P<group_slug>[\w-]+)(?:/collection/(?P<collection_slug>[\w-]*))?(?:/order/(?P<order>\d+))?/'
             r'grading_policy_form/?$'
-         ),
+        ),
         GetGradingPolicyForm.as_view(),
         name='grading_policy_form'
     ),

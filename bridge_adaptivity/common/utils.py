@@ -6,7 +6,7 @@ from logging import getLogger
 from django.http import Http404
 from django.shortcuts import render
 
-from module.models import Collection, CollectionGroup, Engine, CollectionOrder
+from module.models import Collection, CollectionGroup, CollectionOrder, Engine
 
 log = getLogger(__name__)
 

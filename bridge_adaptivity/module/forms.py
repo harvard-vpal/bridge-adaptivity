@@ -6,6 +6,7 @@ import logging
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
+
 from module.models import Activity, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 from module.widgets import PolicyChoiceWidget
 
@@ -16,6 +17,7 @@ class ActivityForm(ModelForm):
     """
     Form to work with Activity models.
     """
+
     required_css_class = 'required'
     advanced_fields = ['source_launch_url', 'source_name']
 
@@ -23,6 +25,7 @@ class ActivityForm(ModelForm):
         """
         Metaclass for ActivityForm.
         """
+
         model = Activity
         exclude = ['collection', 'points']
         widgets = {'stype': forms.HiddenInput(), 'points': forms.HiddenInput(), 'lti_consumer': forms.HiddenInput()}
@@ -32,10 +35,12 @@ class GroupForm(ModelForm):
     """
     Form to work with CollectionGroup(CollectionModule) models.
     """
+
     class Meta:
         """
         Metaclass for GroupForm.
         """
+
         model = CollectionGroup
         fields = ('name', 'description', 'owner', 'course', 'ui_option', 'ui_next')
         labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
@@ -47,10 +52,12 @@ class BaseGradingPolicyForm(ModelForm):
 
     This is form has hidden input with GradingPolicy name.
     """
+
     class Meta:
         """
         Metaclass for BaseGradingPolicyForm.
         """
+
         model = GradingPolicy
         fields = 'name',
         widgets = {'name': forms.HiddenInput()}
@@ -58,14 +65,16 @@ class BaseGradingPolicyForm(ModelForm):
 
 class ThresholdGradingPolicyForm(ModelForm):
     """
-     Form to work with GradingPolicy models.
+    Form to work with GradingPolicy models.
 
-     This is form has hidden input with GradingPolicy name and textarea with params in JSON format.
+    This is form has hidden input with GradingPolicy name and textarea with params in JSON format.
     """
+
     class Meta:
         """
         Metaclass for ThresholdGradingPolicyForm.
         """
+
         model = GradingPolicy
         fields = 'params', 'name'
         widgets = {'params': forms.Textarea(attrs={'rows': '2'}), 'name': forms.HiddenInput()}
@@ -138,6 +147,7 @@ class CollectionGroupForm(ModelForm):
         """
         Metaclass for CollectionGroupForm.
         """
+
         model = CollectionOrder
         fields = (
             'collection',
