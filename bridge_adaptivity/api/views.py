@@ -69,7 +69,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = ActivitySerializer
-    filter_fields = ['source_launch_url']
+    filter_fields = ['collection', 'source_launch_url']
 
     def get_queryset(self):
         """
