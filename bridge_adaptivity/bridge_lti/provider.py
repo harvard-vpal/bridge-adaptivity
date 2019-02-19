@@ -1,3 +1,6 @@
+"""
+LTI provider.
+"""
 import logging
 
 from django.core.cache import cache
@@ -68,7 +71,7 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker='', c
             collection_slug=collection_slug,
             group_slug=group_slug,
             unique_marker=unique_marker,
-            collection_order=collection_order
+            collection_order=collection_order,
         )
 
 
@@ -94,7 +97,9 @@ def instructor_flow(request, collection_slug=None, group_slug=''):
 
 
 def create_sequence_item(request, sequence, start_activity, tool_provider, lti_consumer):
-    """Create and return sequence item."""
+    """
+    Create and return sequence item.
+    """
     # NOTE(wowkalucky): empty Collection validation
     cache.set(str(sequence.id), request.session['Lti_session'])
 
@@ -102,7 +107,7 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     if tool_provider.is_outcome_service():
         outcomes, __ = OutcomeService.objects.get_or_create(
             lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
-            lms_lti_connection=lti_consumer
+            lms_lti_connection=lti_consumer,
         )
         sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
         sequence.outcome_service = outcomes
@@ -111,12 +116,20 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     sequence_item = SequenceItem.objects.create(
         sequence=sequence,
         activity=start_activity,
-        position=1
+        position=1,
     )
     return sequence_item
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, group_slug=None, unique_marker='', collection_order=None):
+def learner_flow(
+    request,
+    lti_consumer,
+    tool_provider,
+    collection_slug=None,
+    group_slug=None,
+    unique_marker='',
+    collection_order=None,
+):
     """
     Define logic flow for Learner.
     """
@@ -124,7 +137,11 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
     if not collection_slug:
         return stub_page(request)
 
-    collection, collection_group, engine = get_collection_collectiongroup_engine(collection_slug, group_slug, collection_order)
+    collection, collection_group, engine = get_collection_collectiongroup_engine(
+        collection_slug,
+        group_slug,
+        collection_order,
+    )
 
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -153,14 +170,14 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
 
     if created:
         log.debug("Sequence {} was created".format(sequence))
-        start_activity = module_utils.choose_activity(collection_order=collection_order, sequence_item=None, sequence=sequence)
+        start_activity = module_utils.choose_activity(collection_order=collection_order, sequence=sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
             return stub_page(
                 request,
                 title="Warning",
                 message="Cannot get the first question to start.",
-                tip="Please try again later"
+                tip="Please try again later",
             )
         sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer
@@ -173,7 +190,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_slug=None, gro
             request,
             title="Warning",
             message="Cannot find sequence item to start from.",
-            tip="Ask help from the site admins."
+            tip="Ask help from the site admins.",
         )
 
     return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_id}))

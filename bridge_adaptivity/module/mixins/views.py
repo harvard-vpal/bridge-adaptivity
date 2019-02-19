@@ -40,8 +40,10 @@ class LtiSessionMixin(object):
             cache.set(sequence_id, lti_session)
             if request.session.get('Lti_strict_forward'):
                 request.session['Lti_update_activity'] = True
-                log.debug("[StrictForward] Session is changed, activity update could be required: {}".format(
-                    request.session['Lti_update_activity'])
+                log.debug(
+                    "[StrictForward] Session is changed, activity update could be required: {}".format(
+                        request.session['Lti_update_activity']
+                    )
                 )
         return super().dispatch(request, *args, **kwargs)
 
@@ -63,27 +65,22 @@ class CollectionOrderEditFormMixin(object):
 
     def get_grading_form_kwargs(self):
         """Return kwargs for GradingForm."""
-        form_kw = dict(
-            prefix=self.grading_prefix,
-        )
+        form_kw = dict(prefix=self.grading_prefix)
         if self.object and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy
         return form_kw
 
     def form_valid(self, form):
-        POST = self.request.POST.copy()
         form_kw = self.get_grading_form_kwargs()
-        policy = GRADING_POLICY_NAME_TO_CLS[POST['collection_group-grading_policy_name']]
-        GradingPolicyForm = policy.get_form_class()
-
-        grading_policy_form = GradingPolicyForm(self.request.POST, **form_kw)
+        policy = GRADING_POLICY_NAME_TO_CLS[self.request.POST.get('collection_group-grading_policy_name')]
+        grading_policy_form = policy.get_form_class()
+        grading_policy_form = grading_policy_form(self.request.POST, **form_kw)
         if grading_policy_form.is_valid():
             if 'params' not in grading_policy_form.cleaned_data:
                 grading_policy_form.instance.params = {}
             grading_policy = grading_policy_form.save()
             form.cleaned_data['grading_policy'] = grading_policy
             response = super().form_valid(form)
-            # self.object.save()
         else:
             response = self.form_invalid(form)
             response.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
@@ -107,9 +104,12 @@ class CollectionOrderEditFormMixin(object):
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections
         if self.kwargs.get('collection_id') and self.kwargs.get('group'):
-            collection_order = get_object_or_404(CollectionOrder, group__slug=self.kwargs['group'], id=self.kwargs['collection_id'])
+            collection_order = get_object_or_404(
+                CollectionOrder,
+                group__slug=self.kwargs['group'],
+                id=self.kwargs['collection_id'],
+            )
             if collection_order.grading_policy:
-                # form.fields['grading_policy_name'].initial = collection_order.grading_policy.name
                 form.initial['grading_policy_name'] = collection_order.grading_policy.name
         return form
 

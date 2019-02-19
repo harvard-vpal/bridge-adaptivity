@@ -7,13 +7,19 @@
 
 {% block content %}
 
-{#{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}#}
-{#{% url "module:collection-add" group_slug=group.slug as add_new_collection_url %}#}
-{##}
-{#{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url add_new_object_url=add_new_collection_url title='Link collection with group' %}#}
 {% include "module/modals/modal_wrapper.html" %}
 
 <div class="row">
+  {% if group.description %}
+      <div class="col-md-12">
+          <div class="alert alert-info">
+            <h4 class="text-center">Description</h4>
+            <p class="text-left">
+              {{ group.description }}
+            </p>
+          </div>
+      </div>
+  {% endif %}
   <div class="col-md-12">
     <div class="detail-toolpanel">
         {% if not request.session.read_only_data %}
@@ -173,11 +179,6 @@
         </ul>
 
       <hr>
-{#  {% url 'module:group-detail' group_slug=group.slug as back_url %}#}
-{#  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}#}
-{#  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}#}
-
-
   </div>
 </div>
 

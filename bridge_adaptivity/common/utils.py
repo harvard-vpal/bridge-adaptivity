@@ -1,3 +1,6 @@
+"""
+Get engine from CollectinOrder, get stub page and find last item in a sequence.
+"""
 from logging import getLogger
 
 from django.http import Http404
@@ -7,10 +10,10 @@ from module.models import Collection, CollectionGroup, Engine, CollectionOrder
 
 log = getLogger(__name__)
 
-# NOTE : Add new parametr - order.
-def get_collection_collectiongroup_engine(collection_slug, group_slug, order):
+
+def get_collection_collectiongroup_engine(collection_slug, group_slug, collectionorder_order):
     """
-    Return collection and collection group by collection_slug and group_slug.
+    Return collection and collection group by collection_slug, group_slug and collectionorder_order.
     """
     collection = Collection.objects.filter(slug=collection_slug).first()
     if not collection:
@@ -31,7 +34,11 @@ def get_collection_collectiongroup_engine(collection_slug, group_slug, order):
             .format(collection_slug, group_slug)
         )
     # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine (collection, group, order)
-    collection_order = CollectionOrder.objects.filter(collection=collection, group=collection_group, order=order).first()
+    collection_order = CollectionOrder.objects.filter(
+        collection=collection,
+        group=collection_group,
+        order=collectionorder_order
+    ).first()
 
     if collection_group:
         engine = collection_order.engine or Engine.get_default()

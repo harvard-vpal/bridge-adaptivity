@@ -47,10 +47,7 @@ class BridgeTestCase(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mockEngine')
-        self.test_cg = CollectionGroup.objects.create(
-            name='TestColGroup',
-            owner=self.user,
-        )
+        self.test_cg = CollectionGroup.objects.create(name='TestColGroup', owner=self.user)
 
         self.collection_order1 = CollectionOrder.objects.create(
             group=self.test_cg,
@@ -177,9 +174,7 @@ class TestCollectionGroup(BridgeTestCase):
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
-    """
 
-    """
     def check_group_change_page(self):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
@@ -194,16 +189,6 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
 
 
 class TestCollectionGroupCollectionOrder(BridgeTestCase):
-
-    def setUp(self):
-        super().setUp()
-        self.group_update_data.update({
-            'group-grading_policy_name': 'Bla-Bla',
-        })
-        self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
-        self.group_post_data.update(
-            self.add_prefix(self.grading_prefix, {'params': json.dumps({'threshold': 1}), 'name': 'full_credit'})
-        )
 
     def test_group_collection_add(self):
         """
@@ -242,7 +227,9 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         })
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
-        self.assertEqual(self.test_cg.get_collection_order_by_order(self.collection_order1.order).grading_policy.name, "trials_count")
+        self.assertEqual(
+            self.test_cg.get_collection_order_by_order(self.collection_order1.order).grading_policy.name, "trials_count"
+        )
 
     def test_group_collection_remove(self):
         """

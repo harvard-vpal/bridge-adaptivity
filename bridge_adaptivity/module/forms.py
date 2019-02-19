@@ -1,71 +1,80 @@
+"""
+Forms to work with module models.
+"""
 import logging
 
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
-from module.models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_CHOICES, GRADING_POLICY_NAME_TO_CLS,
-    GradingPolicy,
-)
+from module.models import Activity, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)
 
 
 class ActivityForm(ModelForm):
+    """
+    Form to work with Activity models.
+    """
     required_css_class = 'required'
-
     advanced_fields = ['source_launch_url', 'source_name']
 
     class Meta:
+        """
+        Metaclass for ActivityForm.
+        """
         model = Activity
         exclude = ['collection', 'points']
-        widgets = {
-            'stype': forms.HiddenInput(),
-            'points': forms.HiddenInput(),
-            'lti_consumer': forms.HiddenInput(),
-        }
+        widgets = {'stype': forms.HiddenInput(), 'points': forms.HiddenInput(), 'lti_consumer': forms.HiddenInput()}
 
 
 class GroupForm(ModelForm):
-
+    """
+    Form to work with CollectionGroup(CollectionModule) models.
+    """
     class Meta:
+        """
+        Metaclass for GroupForm.
+        """
         model = CollectionGroup
-        fields = (
-            'name',
-            'description',
-            'owner',
-            'course',
-            'ui_option',
-            'ui_next',
-        )
-        labels = {
-            'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button',
-        }
+        fields = ('name', 'description', 'owner', 'course', 'ui_option', 'ui_next')
+        labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
 
 
 class BaseGradingPolicyForm(ModelForm):
+    """
+    Form to work with GradingPolicy models.
+
+    This is form has hidden input with GradingPolicy name.
+    """
     class Meta:
+        """
+        Metaclass for BaseGradingPolicyForm.
+        """
         model = GradingPolicy
         fields = 'name',
-        widgets = {
-            'name': forms.HiddenInput(),
-        }
+        widgets = {'name': forms.HiddenInput()}
 
 
 class ThresholdGradingPolicyForm(ModelForm):
+    """
+     Form to work with GradingPolicy models.
+
+     This is form has hidden input with GradingPolicy name and textarea with params in JSON format.
+    """
     class Meta:
+        """
+        Metaclass for ThresholdGradingPolicyForm.
+        """
         model = GradingPolicy
         fields = 'params', 'name'
-        widgets = {
-            'params': forms.Textarea(attrs={'rows': '2'}),
-            'name': forms.HiddenInput(),
-        }
-        help_texts = {
-            'params': '{"threshold": &lt;value&gt;} is required, please use JSON format.',
-        }
+        widgets = {'params': forms.Textarea(attrs={'rows': '2'}), 'name': forms.HiddenInput()}
+        help_texts = {'params': '{"threshold": &lt;value&gt;} is required, please use JSON format.'}
 
     def clean(self):
+        """
+        Make cleaned_data from Query.
+        """
         super().clean()
         policy_name, params = self.cleaned_data.get('name'), self.cleaned_data.get('params')
         required_params = GRADING_POLICY_NAME_TO_CLS.get(policy_name).require.get('params')
@@ -90,13 +99,9 @@ class ThresholdGradingPolicyForm(ModelForm):
 
 
 class AddCourseGroupForm(forms.Form):
-    """Add group to course form."""
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
-        self.course = kwargs.pop('course')
-        super().__init__(*args, **kwargs)
-        self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
+    """
+    Add group to course form.
+    """
 
     groups = forms.ModelMultipleChoiceField(
         label="Choose groups to add into this course:",
@@ -104,13 +109,41 @@ class AddCourseGroupForm(forms.Form):
         widget=forms.CheckboxSelectMultiple()
     )
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        self.course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+        self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
+
     def save(self, **kwargs):
+        """
+        Save change that related to add groups to course.
+        """
         group_ids = [group.id for group in self.cleaned_data['groups']]
         CollectionGroup.objects.filter(id__in=group_ids).update(course=self.course)
 
 
 class CollectionGroupForm(ModelForm):
-    """Add collection in group form."""
+    """
+    Add collection in group form.
+    """
+
+    grading_policy_name = forms.ChoiceField(
+        choices=((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items()),
+        required=True,
+        widget=PolicyChoiceWidget
+    )
+
+    class Meta:
+        """
+        Metaclass for CollectionGroupForm.
+        """
+        model = CollectionOrder
+        fields = (
+            'collection',
+            'engine',
+            'grading_policy_name',
+        )
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
@@ -124,21 +157,10 @@ class CollectionGroupForm(ModelForm):
             self.fields['collection'].widget = HiddenInput()
             self.fields['collection'].widget.attrs['readonly'] = read_only
 
-    grading_policy_name = forms.ChoiceField(
-        choices=((k, v) for k, v in GRADING_POLICY_NAME_TO_CLS.items()),
-        required=True,
-        widget=PolicyChoiceWidget
-    )
-
-    class Meta:
-        model = CollectionOrder
-        fields = (
-            'collection',
-            'engine',
-            'grading_policy_name',
-        )
-
     def clean(self):
+        """
+        Make cleaned_data from Query.
+        """
         super().clean()
         engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
 
@@ -160,9 +182,11 @@ class CollectionGroupForm(ModelForm):
         return self.cleaned_data
 
     def save(self, **kwargs):
+        """
+        Update CollectionOrder instance.
+        """
         self.instance.group = self.group
         self.instance.collection = self.cleaned_data['collection']
         self.instance.engine = self.cleaned_data['engine']
         self.instance.grading_policy = self.cleaned_data['grading_policy']
         self.instance.save()
-

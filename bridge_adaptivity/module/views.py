@@ -27,8 +27,8 @@ from module import tasks, utils
 from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView, BaseCollectionOrderView
 from module.forms import ActivityForm, CollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
 from module.mixins.views import (
-    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, CollectionOrderEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
-    LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
+    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, CollectionOrderEditFormMixin, JsonResponseMixin,
+    LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
@@ -278,10 +278,18 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
     pass
 
 @method_decorator(login_required, name='dispatch')
-class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, UpdateView):
+class CollectionOrderUpdate(
+    BaseCollectionOrderView,
+    SetUserInFormMixin,
+    CollectionOrderEditFormMixin,
+    ModalFormMixin,
+    UpdateView,
+):
 
     def get_object(self):
-        return CollectionOrder.objects.get(group__slug=self.kwargs.get("group"), id=self.kwargs.get("collection_order_id"))
+        return CollectionOrder.objects.get(
+            group__slug=self.kwargs.get("group"), id=self.kwargs.get("collection_order_id"),
+        )
 
     def get_success_url(self):
         return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
@@ -297,7 +305,13 @@ class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, Collect
         return bool(self.kwargs.get('collection_id'))
 
 
-class CollectionOrderAdd(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, CreateView):
+class CollectionOrderAdd(
+    BaseCollectionOrderView,
+    SetUserInFormMixin,
+    CollectionOrderEditFormMixin,
+    ModalFormMixin,
+    CreateView
+):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -318,7 +332,7 @@ class CollectionOrderAdd(BaseCollectionOrderView, SetUserInFormMixin, Collection
         return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
 
     def _set_read_only_collection(self):
-        # NOTE(AndreyLykhoman): Return 'False' because we will able to chouse a new collection to add.
+        # NOTE(AndreyLykhoman): Return 'False' because we will able to choose a new collection to add.
         return False
 
 @method_decorator(login_required, name='dispatch')
@@ -761,7 +775,9 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    collection, collection_group, __ = get_collection_collectiongroup_engine(collection_slug, group_slug, collection_order)
+    collection, collection_group, __ = get_collection_collectiongroup_engine(
+        collection_slug, group_slug, collection_order,
+    )
     lti_consumer = LtiProvider.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,
@@ -817,10 +833,15 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
         next_forbidden, last_item, sequence_item = _check_next_forbidden(s_item_id)
         position = int(request.GET.get('position') or 1)
         if next_forbidden and position > sequence_item.position:
-            return redirect(
-                f"{reverse('module:demo', kwargs={'collection_slug': collection_slug, 'group_slug': group_slug, 'collection_order': collection_order})}"
-                f"?forbidden=true&back_url={back_url}&position={sequence_item.position}"
+            reverse_demo = reverse(
+                'module:demo',
+                kwargs={
+                    'collection_slug': collection_slug,
+                    'group_slug': group_slug,
+                    'collection_order': collection_order,
+                }
             )
+            return redirect(f"{reverse_demo}?forbidden=true&back_url={back_url}&position={sequence_item.position}")
         update_activity = request.session.pop('Lti_update_activity', None)
         sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
             sequence_item, update_activity, last_item, position, collection_order

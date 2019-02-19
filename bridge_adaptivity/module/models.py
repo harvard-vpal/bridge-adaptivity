@@ -380,6 +380,9 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
 
     @property
     def ordered_collections(self):
+        """
+        Return tuple of CollectionOrder.
+        """
         return (col_order for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
 
     def __str__(self):
@@ -389,6 +392,9 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
     def get_collection_order_by_order(self, order):
+        """
+        Return CollectionOrder object by order in group.
+        """
         return CollectionOrder.objects.filter(group=self, order=order).first()
 
 

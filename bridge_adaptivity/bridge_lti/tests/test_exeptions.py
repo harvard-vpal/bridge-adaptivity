@@ -1,3 +1,6 @@
+"""
+Test exceptions in LTI provider.
+"""
 import logging
 
 from django.http.response import Http404
@@ -16,6 +19,9 @@ log = logging.getLogger(__name__)
 
 
 class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
+    """
+    Test incorrect working LTI provider.
+    """
     def setUp(self):
         super().setUp()
         self.rf = RequestFactory()
@@ -34,7 +40,9 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
 
     @override_settings(DEBUG=False)
     def test_learner_flow_with_incorrect_collection_slug(self):
-        """Check if learner_flow function is called with incorrect collection_slug raise proper exception."""
+        """
+        Check if learner_flow function is called with incorrect collection_slug raise proper exception.
+        """
         request = self.rf.post(self.url)
         with pytest.raises(Http404):
             learner_flow(
@@ -47,7 +55,9 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
 
     @override_settings(DEBUG=False)
     def test_learner_flow_with_collection_not_in_passed_group(self):
-        """Check if learner_flow function is called with incorrect collection_slug raise proper exception."""
+        """
+        Check if learner_flow function is called with incorrect collection_slug raise proper exception.
+        """
         request = self.rf.post(self.not_correct_url)
         with pytest.raises(Http404):
             learner_flow(
@@ -61,7 +71,9 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
     @mock.patch('lti.contrib.django.DjangoToolProvider.from_django_request')
     @override_settings(DEBUG=False)
     def test_client_post_with_incorrect_collection_slug_test(self, from_django_request):
-        """Test that when POST request received with not correct data it will show 404 error with correct template."""
+        """
+        Test that when POST request received with not correct data it will show 404 error with correct template.
+        """
         is_valid_request = Mock(return_value=False)
         tool_provider = Mock(is_valid_request=is_valid_request)
         from_django_request.return_value = tool_provider

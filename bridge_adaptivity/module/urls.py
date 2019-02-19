@@ -4,12 +4,12 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
-    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate, CollectionOrderUpdate,
-    CollectionOrderAdd,
-    CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
-    demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
-    preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection,
-    update_students_grades)
+    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
+    CollectionOrderUpdate, CollectionOrderAdd, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
+    CourseRmGroup, CourseUpdate, demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
+    GroupList, GroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete,
+    SequenceItemDetail, sync_collection, update_students_grades
+)
 
 urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
@@ -28,25 +28,28 @@ urlpatterns = ([
     url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
     url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
-
     url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<collection_order_id>\d+)$', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
-    # group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>
-    url(r'group/(?P<group_slug>[\w-]+)(?:/collection/(?P<collection_slug>[\w-]*))?(?:/order/(?P<order>\d+))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
-        name='grading_policy_form'),
-
+    url(
+        (
+            r'group/(?P<group_slug>[\w-]+)(?:/collection/(?P<collection_slug>[\w-]*))?(?:/order/(?P<order>\d+))?/'
+            r'grading_policy_form/?$'
+         ),
+        GetGradingPolicyForm.as_view(),
+        name='grading_policy_form'
+    ),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
     url(
-        r'group/(?P<group>[\w-]+)/collection_order/(?P<collection_order_id>\d+)/$', CollectionOrderUpdate.as_view(), name='collection-order-change'
+        r'group/(?P<group>[\w-]+)/collection_order/(?P<collection_order_id>\d+)/$',
+        CollectionOrderUpdate.as_view(),
+        name='collection-order-change'
     ),
-
     url(
         r'group/(?P<group>[\w-]+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
     ),
-
     re_path(
         r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
         CollectionDetail.as_view(),
@@ -57,17 +60,17 @@ urlpatterns = ([
         CollectionDelete.as_view(),
         name='collection-delete'
     ),
-
-    path('group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>/demo', demo_collection, name="demo"),
-
+    path(
+        'group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>/demo',
+        demo_collection,
+        name="demo"
+    ),
     path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
-
     url(
         r'^group/(?P<group_slug>[\w-]+)/collection_order/(?P<id>[\w-]+)/move/(?P<order>\d+)?$',
         GroupUpdate.as_view(),
         name='collection-move'
     ),
-
     url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
         r'^activity/(?P<pk>\d+)/(?P<collection_slug>[\w-]+)/change/$',

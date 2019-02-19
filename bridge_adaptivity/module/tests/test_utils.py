@@ -62,10 +62,7 @@ class TestUtilities(TestCase):
             lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
         )
 
-        self.test_cg = CollectionGroup.objects.create(
-            name='TestColGroup',
-            owner=self.user,
-        )
+        self.test_cg = CollectionGroup.objects.create(name='TestColGroup', owner=self.user)
 
         self.collection_order1 = CollectionOrder.objects.create(
             group=self.test_cg,
@@ -81,10 +78,7 @@ class TestUtilities(TestCase):
         )
         self.vpal_engine = Engine.objects.get(engine='engine_vpal')
 
-        self.vpal_group = CollectionGroup.objects.create(
-            name='TestVpalGroup',
-            owner=self.user,
-        )
+        self.vpal_group = CollectionGroup.objects.create(name='TestVpalGroup', owner=self.user)
 
         self.collection_order2 = CollectionOrder.objects.create(
             group=self.vpal_group,
@@ -108,7 +102,7 @@ class TestUtilities(TestCase):
     def test_choose_activity(self):
         try:
             # test if 2 activities has the same launch url but has different collections
-            # this method should return only one activity, filtered by sequence.collection
+            # this method should return only one activity, filtered by collection_order.order and sequence.collection
             chosen_activity = choose_activity(collection_order=self.collection_order1.order, sequence=self.sequence)
         except MultipleObjectsReturned as e:
             log.error(Activity.ojbects.all().values('collection', 'source_launch_url'))
@@ -187,5 +181,7 @@ class TestUtilities(TestCase):
         self.sequence_item_5 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity5, position=5)
         sequence_item = self.sequence_item_5
         expected_result = (sequence_item, True, None)
-        result = select_next_sequence_item(sequence_item, update_activity=False, last_item=5, position=6, collection_order=self.collection_order1.order)
+        result = select_next_sequence_item(
+            sequence_item, update_activity=False, last_item=5, position=6, collection_order=self.collection_order1.order
+        )
         self.assertEqual(expected_result, result)
