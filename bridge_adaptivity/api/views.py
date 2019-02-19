@@ -69,6 +69,7 @@ class ActivityViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = ActivitySerializer
+    filter_fields = ['source_launch_url']
 
     def get_queryset(self):
         """
@@ -86,6 +87,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = CollectionSerializer
+    filter_fields = ['slug']
 
     def get_queryset(self):
         """
