@@ -69,10 +69,7 @@ class BridgeTestCase(TestCase):
 
         self.group_update_data = {
             'name': "CG2",
-            # 'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
-            # 'engine': self.engine.id,
             'owner': self.user.id,
-            # 'grading_policy_name': 'trials_count',
             'description': 'Some description for a group',
             'course': self.course.id,
         }
@@ -122,35 +119,6 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, b'{"status": "ok"}')
 
-    # def test_cg_with_not_correct_policy_engine_pair(self):
-    #     """
-    #     Try to create collectiongroup with not correct pair of policy and engine.
-    #
-    #     Not correct pair example - engine graded policy with mock engine.
-    #     In this case it should return 200, and context['form'] should contain errors.
-    #     """
-    #     self.group_update_data = {
-    #         'name': "CG2",
-    #         #'collections': [self.collection1.id, self.collection2.id, self.collection3.id],
-    #         #'engine': self.engine.id,  # mock engine
-    #         'owner': self.user.id,
-    #         #'grading_policy_name': 'engine_grade',
-    #         'description': 'Some description for a group',
-    #         'course': self.course.id,
-    #     }
-    #     url = reverse('module:group-add')
-    #     self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
-    #     response = self.client.post(url, data=self.group_post_data)
-    #     self.assertTrue(str(response.status_code).index("2") == 0)
-    #     self.assertIn('form', response.context)
-    #     self.assertEqual(
-    #         response.context['form'].errors,
-    #         {
-    #             'engine': ["This Engine doesn't support chosen Policy. Please choose another policy or engine."],
-    #             'grading_policy_name': [('This policy can be used only with VPAL engine(s). '
-    #                                      'Choose another policy or engine.')]
-    #         }
-    #     )
 
     def test_cg_list(self):
         """Test CollectionGroup list page. Check that response code is 200, `groups` is in context and is not empty."""
@@ -209,25 +177,13 @@ class TestCollectionGroup(BridgeTestCase):
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
-    # def test_get_grading_policy_form_no_group(self):
-    #     """Test that form is present in response context for both grading policies."""
-    #     policies = GRADING_POLICIES
-    #     for policy, _ in policies:
-    #         url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format(policy)
-    #         response = self.client.get(url)
-    #         self.assertIn('form', response.context)
-    #
-    # def test_get_not_valid_grading_policy_form(self):
-    #     """Check that if not correct grading policy passed - no form return."""
-    #     url = reverse('module:grading_policy_form', kwargs={}) + "?grading_policy={}".format('some_policy')
-    #     response = self.client.get(url)
-    #     self.assertNotIn('form', response.context)
+    """
 
+    """
     def check_group_change_page(self):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        # self.assertIn('grading_policy_form', response.context)
         self.assertIn('form', response.context)
 
     def check_update_group(self, data):
@@ -235,54 +191,6 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
         self.client.post(url, data=data)
         self.test_cg = CollectionGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(self.group_update_data['name'], self.test_cg.name)
-
-    def test_update_grading_policy(self):
-        """Test update grading policy (positive flow).
-
-        Check that:
-        * after update policy changed,
-        * policy count not changed,
-        * grading_policy_form is in context with default policy by default.
-        """
-        policies = GRADING_POLICIES
-        for policy, _ in policies:
-            self.group_post_data.update(
-                self.add_prefix(self.group_prefix, {'grading_policy_name': policy})
-            )
-
-            policy_data = self.add_prefix(self.grading_prefix, {
-                'params': json.dumps({'threshold': 1}),
-                'name': policy
-            })
-            data = {}
-            data.update(self.group_post_data)
-            data.update(policy_data)
-
-            self.check_group_change_page()
-            self.check_update_group(data)
-
-    # def test_update_grading_policy_not_correct_policy(self):
-    #     """Test update grading policy with not correct grading policy name (negative flow)."""
-    #     self.group_post_data.update({'group-grading_policy_name': 'BLA_BLA'})
-    #
-    #     policy_data = self.add_prefix(self.grading_prefix, {
-    #         'params': json.dumps({'threshold': 1}),
-    #         'name': 'BLA_BLA'
-    #     })
-    #     data = {}
-    #     data.update(self.group_post_data)
-    #     data.update(policy_data)
-    #
-    #     url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
-    #     response = self.client.post(url, data=data)
-    #
-    #     self.assertNotEqual(self.group_post_data[self.group_prefix + '-name'], self.test_cg.name)
-    #     # check that grading policy not changed
-    #     self.assertEqual(self.test_cg.grading_policy, self.points_earned)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertIn('form', response.context)
-    #     self.assertIsNotNone(response.context['form'].errors)
-    #     self.assertIn('grading_policy_name', response.context['form'].errors)
 
 
 class TestCollectionGroupCollectionOrder(BridgeTestCase):
@@ -385,6 +293,28 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         self.assertEqual(response_down.status_code, 201)
         ordered_collections = tuple(self.test_cg.ordered_collections)
         self.assertEqual(ordered_collections, expected_collection_order)
+
+    def test_get_grading_policy_form(self):
+        """Test that form is present in response context for both grading policies."""
+        policies = GRADING_POLICIES
+        for policy, _ in policies:
+            url = reverse('module:grading_policy_form', kwargs={
+                "group_slug": self.test_cg.slug,
+                "collection_slug": self.collection1.slug,
+                "order": self.collection_order1.order
+            }) + "?grading_policy={}".format(policy)
+            response = self.client.get(url)
+            self.assertIn('form', response.context)
+
+    def test_get_not_valid_grading_policy_form(self):
+        """Check that if not correct grading policy passed - no form return."""
+        url = reverse('module:grading_policy_form', kwargs={
+            "group_slug": self.test_cg.slug,
+            "collection_slug": self.collection1.slug,
+            "order": self.collection_order1.order
+        }) + "?grading_policy={}".format('some_policy')
+        response = self.client.get(url)
+        self.assertIn('form', response.context)
 
 
 class TestBackURLMixin(BridgeTestCase):

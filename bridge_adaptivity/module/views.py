@@ -146,7 +146,6 @@ class GetGradingPolicyForm(FormView):
     def get_form_class(self):
         policy_cls = GRADING_POLICY_NAME_TO_CLS.get(self.request.GET.get('grading_policy'), None)
         if policy_cls is None:
-            # raise Http404("No such grading policy")
             return next(iter(GRADING_POLICY_NAME_TO_CLS.values())).get_form_class()
         return policy_cls.get_form_class()
 
@@ -173,11 +172,6 @@ class GetGradingPolicyForm(FormView):
         self.form_class = self.get_form_class()
         form = super().get_form()
         gp = self.request.GET.get('grading_policy')
-        # if gp in GRADING_POLICY_NAME_TO_CLS:
-        #     form.fields['name'].initial = self.request.GET.get('grading_policy')
-        #     return form
-        # else:
-        #     raise Http404()
         if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
         else:
@@ -304,9 +298,6 @@ class CollectionOrderUpdate(BaseCollectionOrderView, SetUserInFormMixin, Collect
 
 
 class CollectionOrderAdd(BaseCollectionOrderView, SetUserInFormMixin, CollectionOrderEditFormMixin, ModalFormMixin, CreateView):
-
-    # def get_object(self):
-    #     return CollectionOrder.objects
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
