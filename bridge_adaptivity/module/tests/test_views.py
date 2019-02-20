@@ -192,7 +192,6 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         """
         Test updated collection group contains all new collections.
         """
-        # data = self.group_post_data
         data = {
             "collection_group-collection": self.collection2.id,
             "collection_group-engine": self.engine.id,
@@ -210,7 +209,6 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         """
         Test updated collection group contains all new collections.
         """
-        # data = self.group_post_data
         data = {
             "collection_group-collection": self.collection1.id,
             "collection_group-engine": self.engine.id,
@@ -227,6 +225,62 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         self.assertEqual(response.status_code, 202)
         self.assertEqual(
             self.test_cg.get_collection_order_by_order(self.collection_order1.order).grading_policy.name, "trials_count"
+        )
+
+    def test_group_collection_not_valid_update(self):
+        """
+        Test updated collection group contains all new collections.
+        """
+        data = {
+            "collection_group-collection": self.collection1.id,
+            "collection_group-engine": self.engine.id,
+            "collection_group-grading_policy_name": "wrong_grading",
+            "grading-name": "wrong_grading"
+        }
+
+        # Group is updated with three collections two of which is repeated. Collections will increase by 1
+        url = reverse('module:collection-order-change', kwargs={
+            'group': self.test_cg.slug,
+            'collection_order_id': self.collection_order1.id
+        })
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context['form'].errors,
+            {
+                'grading_policy_name': [
+                    'Select a valid choice. wrong_grading is not one of the available choices.',
+                    'Not correct policy'
+                ]
+            }
+        )
+
+    def test_cg_with_not_correct_policy_engine_pair(self):
+        """
+        Try to create collectiongroup with not correct pair of policy and engine.
+
+        Not correct pair example - engine graded policy with mock engine.
+        In this case it should return 200, and context['form'] should contain errors.
+        """
+        data = {
+            "collection_group-collection": self.collection1.id,
+            "collection_group-engine": self.engine.id,
+            "collection_group-grading_policy_name": "engine_grade",
+        }
+        url = reverse('module:collection-order-change', kwargs={
+            'group': self.test_cg.slug,
+            'collection_order_id': self.collection_order1.id
+        })
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        self.assertEqual(
+            response.context['form'].errors,
+            {
+                'engine': ["This Engine doesn't support chosen Policy. Please choose another policy or engine."],
+                'grading_policy_name': [('This policy can be used only with VPAL engine(s). '
+                                         'Choose another policy or engine.')]
+            }
         )
 
     def test_group_collection_remove(self):

@@ -302,7 +302,7 @@ class CollectionOrderUpdate(
         return kwargs
 
     def _set_read_only_collection(self):
-        return bool(self.kwargs.get('collection_id'))
+        return bool(self.kwargs.get('collection_order_id'))
 
 
 class CollectionOrderAdd(
