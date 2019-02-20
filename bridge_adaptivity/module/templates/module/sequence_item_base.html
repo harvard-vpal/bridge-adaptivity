@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load staticfiles bootstrap3 %}
+{% load staticfiles bootstrap3%}
 
 
 {% block bootstrap3_content %}
@@ -21,7 +21,7 @@
           {% if demo %}
               {% url 'module:demo' group_slug=item.sequence.group.slug collection_slug=item.sequence.collection.slug collection_order=collection_order%}?sequence_item_id={{ item.id }}&position={{ item.position }}
           {% else %}
-              {% url 'module:sequence-item' item.id %}
+              {% url 'module:sequence-item' item.id collection_order %}
           {% endif %}
         ">
           <button class="btn btn-default {% if item == sequence_item %} active {% endif %}">
@@ -32,7 +32,7 @@
       </div>
       {% if sequence_item.sequence.group.ui_option %}
         <h4 class="pull-right">
-            {% for details in  sequence_item.sequence.sequence_ui_details %}
+            {% for details in sequence_item.sequence.sequence_ui_details %}
                 <span class="label label-success column">{{ details }}</span>
             {% endfor %}
         </h4>

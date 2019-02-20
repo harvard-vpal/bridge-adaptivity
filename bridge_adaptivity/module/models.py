@@ -109,7 +109,7 @@ class Sequence(models.Model):
             self.metadata = meta_dict
             self.save()
 
-    def sequence_ui_details(self):
+    def sequence_ui_details(self, collection_order_value):
         """
         Create the context for the optional label on the student view.
 
@@ -124,7 +124,8 @@ class Sequence(models.Model):
             if ui_option == CollectionGroup.OPTIONS[0][0]:
                 details = f"{CollectionGroup.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
             elif ui_option == CollectionGroup.OPTIONS[1][0]:
-                details = f"{CollectionGroup.OPTIONS[1][1]}: {self.group.grading_policy.calculate_grade(self)}"
+                collection_order = self.group.get_collection_order_by_order(collection_order_value)
+                details = f"{CollectionGroup.OPTIONS[1][1]}: {collection_order.grading_policy.calculate_grade(self)}"
             else:
                 details = (
                     f"{CollectionGroup.OPTIONS[2][1]}: "

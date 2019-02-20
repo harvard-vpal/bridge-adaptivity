@@ -192,4 +192,6 @@ def learner_flow(
             tip="Ask help from the site admins.",
         )
 
-    return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_id}))
+    return redirect(reverse(
+        'module:sequence-item', kwargs={'pk': sequence_item_id, 'collection_order': collection_order})
+    )

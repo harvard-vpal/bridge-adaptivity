@@ -87,8 +87,16 @@ urlpatterns = ([
         ActivityDelete.as_view(),
         name='activity-delete'
     ),
-    url(r'^sequence_item/(?P<pk>\d+)/$', SequenceItemDetail.as_view(), name='sequence-item'),
-    url(r'^sequence_item/(?P<pk>\d+)/next/$', sequence_item_next, name='sequence-item-next'),
+    url(
+        r'^sequence_item/(?P<pk>\d+)/collection/order/(?P<collection_order>[\w-]+)/$',
+        SequenceItemDetail.as_view(),
+        name='sequence-item'
+    ),
+    url(
+        r'^sequence_item/(?P<pk>\d+)/next/collection/order/(?P<collection_order>[\w-]+)/$',
+        sequence_item_next,
+        name='sequence-item-next'
+    ),
     url(r'^sequence_complete/(?P<pk>\d+)/$', SequenceComplete.as_view(), name='sequence-complete'),
     url(r'^$', RedirectView.as_view(url=reverse_lazy('module:collection-list'))),
 

@@ -10,7 +10,7 @@
           {% if demo %}
             {% url 'module:demo' group_slug=sequence_item.sequence.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order=collection_order %}?back_url={{ back_url }}sequence_item_id={{ sequence_item.id }}&position={{ position }}
           {% else %}
-            {% url 'module:sequence-item-next' sequence_item.id %}
+            {% url 'module:sequence-item-next' sequence_item.id collection_order %}
           {% endif %}
         ">
       {% if sequence_item.sequence.group.ui_next %}
@@ -40,7 +40,7 @@
     {% if demo %}
       {% url 'module:demo' group_slug=sequence_item.sequence.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order=collection_order %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}
     {% else %}
-      {% url 'module:sequence-item-next' sequence_item.id %}
+      {% url 'module:sequence-item-next' sequence_item.id collection_order %}
     {% endif %}
   ">
   {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}

@@ -349,11 +349,14 @@ class TestSequence(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection,
             engine=self.engine,
             grading_policy=self.grading_policy
         )
-
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
@@ -379,5 +382,5 @@ class TestSequence(TestCase):
     def test_sequence_ui_details(self, option, expected_result):
         self.test_cg.ui_option = option
         self.test_cg.save()
-        details = self.sequence.sequence_ui_details()
+        details = self.sequence.sequence_ui_details(self.collection_order.order)
         self.assertEqual(expected_result, details)

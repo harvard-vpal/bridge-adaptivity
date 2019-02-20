@@ -551,6 +551,11 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 
         return context
 
+    def get(self, request, *args, **kwargs):
+        responce = super().get(request, *args, **kwargs)
+        responce.context_data["collection_order"] = kwargs.get("collection_order")
+        return responce
+
 
 @method_decorator(login_required, name='dispatch')
 class SequenceDelete(DeleteView):
@@ -599,7 +604,7 @@ def _check_next_forbidden(pk):
     return next_forbidden, last_item, sequence_item
 
 
-def sequence_item_next(request, pk):
+def sequence_item_next(request, pk, collection_order):
     try:
         next_forbidden, last_item, sequence_item = _check_next_forbidden(pk)
     except SequenceItem.DoesNotExist:
@@ -614,7 +619,9 @@ def sequence_item_next(request, pk):
             }
         )
     if next_forbidden:
-        return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
+        return redirect("{}?forbidden=true".format(
+            reverse('module:sequence-item', kwargs={'pk': sequence_item.id, 'collection_order': collection_order}))
+        )
 
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
@@ -624,11 +631,13 @@ def sequence_item_next(request, pk):
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:
-        activity = utils.choose_activity(sequence_item)
+        activity = utils.choose_activity(collection_order, sequence_item)
         update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.group.grading_policy.policy_instance(sequence=sequence)
+            policy = sequence.group.get_collection_order_by_order(collection_order).grading_policy.policy_instance(
+                sequence=sequence
+            )
             policy.send_grade()
             if not activity:
                 if sequence.completed:
@@ -650,7 +659,9 @@ def sequence_item_next(request, pk):
             if activity:
                 next_sequence_item.activity = activity
                 next_sequence_item.save()
-    return redirect(reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id}))
+    return redirect(
+        reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id, 'collection_order': collection_order})
+    )
 
 
 class SequenceComplete(LtiSessionMixin, DetailView):
@@ -811,7 +822,7 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
         test_sequence.suffix = suffix
         test_sequence.save()
         log.debug("Sequence {} was created".format(test_sequence))
-        start_activity = utils.choose_activity(sequence_item=None, sequence=test_sequence)
+        start_activity = utils.choose_activity(collection_order=collection_order, sequence=test_sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
             return stub_page(
