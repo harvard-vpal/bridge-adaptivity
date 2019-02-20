@@ -407,10 +407,9 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
         Updating activity and changing the activity's order if activity changes the type.
         """
         activity = self.get_object()
-        # NOTE(AndreyLykhoman): Run this block if activity changes it's 'atype'. In this block We reorder set where
-        #  activity was and change atype and order(that equals the last order pluse one)
         if request.POST.get("atype") != activity.atype:
-            # NOTE(AndreyLykhoman): Get and reorder set where activity was
+            # NOTE(AndreyLykhoman): Excluding activity from atype group and reorder other activities. The autocommit
+            #  was disabled in this part of code in order to send one query to DB.
             ordering_queryset = activity.get_ordering_queryset().exclude(pk=activity.pk)
             if ordering_queryset.exists():
                 transaction.set_autocommit(False)
@@ -425,7 +424,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
                     transaction.commit()
                 finally:
                     transaction.set_autocommit(True)
-            # NOTE(AndreyLykhoman): Get a set were activity will be and get last order or create new one
+            # NOTE(AndreyLykhoman): Calculate a new activity's order
             new_order = 0
             tmp_activity = Activity.objects.filter(
                 collection=activity.collection,
@@ -433,7 +432,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
             ).first()
             if tmp_activity:
                 new_order = 1 + tmp_activity.get_ordering_queryset().latest('order').order
-            # NOTE(AndreyLykhoman): Change and save activity
+
             activity.atype, activity.order = request.POST.get("atype"), new_order
             activity.save()
         result = super().post(request, *args, **kwargs)
