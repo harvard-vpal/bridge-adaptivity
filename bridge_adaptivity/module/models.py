@@ -77,8 +77,7 @@ class Sequence(models.Model):
 
     lti_user = models.ForeignKey(LtiUser, on_delete=models.CASCADE)
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
-    group = models.ForeignKey('CollectionGroup', null=True, on_delete=models.CASCADE)
-
+    collection_order = models.ForeignKey('CollectionOrder', null=True, on_delete=models.CASCADE)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True, on_delete=models.CASCADE)
@@ -89,7 +88,7 @@ class Sequence(models.Model):
     suffix = models.CharField(max_length=15, default='')
 
     class Meta:
-        unique_together = ('lti_user', 'collection', 'group', 'suffix')
+        unique_together = ('lti_user', 'collection', 'collection_order', 'suffix')
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -109,26 +108,26 @@ class Sequence(models.Model):
             self.metadata = meta_dict
             self.save()
 
-    def sequence_ui_details(self, collection_order_value):
+    def sequence_ui_details(self):
         """
         Create the context for the optional label on the student view.
 
         Context depends on the CollectionGroup's OPTION value.
         :return: str with the text for injecting into the label.
         """
-        ui_options = self.group.ui_option
+        ui_options = self.collection_order.ui_option
 
         details_list = []
         for ui_option in ui_options:
             # NOTE(idegtiarov) conditions depend on CollectionGroup's OPTIONS
-            if ui_option == CollectionGroup.OPTIONS[0][0]:
-                details = f"{CollectionGroup.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
-            elif ui_option == CollectionGroup.OPTIONS[1][0]:
-                collection_order = self.group.get_collection_order_by_order(collection_order_value)
-                details = f"{CollectionGroup.OPTIONS[1][1]}: {collection_order.grading_policy.calculate_grade(self)}"
+            if ui_option == CollectionOrder.OPTIONS[0][0]:
+                details = f"{CollectionOrder.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
+            elif ui_option == CollectionOrder.OPTIONS[1][0]:
+                grade = self.collection_order.grading_policy.calculate_grade(self)
+                details = f"{CollectionOrder.OPTIONS[1][1]}: {grade}"
             else:
                 details = (
-                    f"{CollectionGroup.OPTIONS[2][1]}: "
+                    f"{CollectionOrder.OPTIONS[2][1]}: "
                     f"{self.items.filter(score__gt=0).count()}/{self.items.filter(score=0).count()}"
                 )
             details_list.append(details)
@@ -176,7 +175,7 @@ class SequenceItem(models.Model):
         Extension sending notification to the Adaptive engine that score is changed.
         """
         if self.score != self.__origin_score:
-            engine = self.sequence.group.engine.engine_driver
+            engine = self.sequence.collection_order.engine.engine_driver
             engine.submit_activity_answer(self)
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
                 self.activity.name, self.id
@@ -249,7 +248,6 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     )
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
-    strict_forward = fields.BooleanField(default=True)
     updated_at = fields.DateTimeField(auto_now=True)
 
     class Meta:
@@ -336,27 +334,37 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
         return (param.strip() for param in self.lti_parameters.split(','))
 
 
-class CollectionOrder(OrderedModel):
-    group = models.ForeignKey('CollectionGroup', on_delete=models.CASCADE)
-    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
-    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
-    engine = models.ForeignKey(Engine, blank=True, null=True, on_delete=models.CASCADE)
-    order_with_respect_to = 'group'
-
-    class Meta:
-        ordering = ('group', 'order')
-
-
-class CollectionGroup(HasLinkedSequenceMixin, models.Model):
-    """
-    Represents Collections Group.
-    """
+class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
 
     OPTIONS = (
         ('AT', _('Questions viewed/total')),
         ('EP', _('Earned grade')),
         ('RW', _('Answers right/wrong'))
     )
+
+    group = models.ForeignKey('CollectionGroup', on_delete=models.CASCADE)
+    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
+    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
+    engine = models.ForeignKey(Engine, blank=True, null=True, on_delete=models.CASCADE)
+    strict_forward = fields.BooleanField(default=True)
+    ui_option = MultiSelectField(
+        choices=OPTIONS, blank=True, help_text="Add an optional UI block to the student view"
+    )
+
+    ui_next = models.BooleanField(
+        default=False, help_text="Add an optional NEXT button under the embedded unit."
+    )
+    order_with_respect_to = 'group'
+
+    class Meta:
+        ordering = ('group', 'order')
+
+
+class CollectionGroup(models.Model):
+    """
+    Represents Collections Group.
+    """
+
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
@@ -371,20 +379,14 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
 
     engine = models.ForeignKey(Engine, null=True, on_delete=models.CASCADE)
 
-    ui_option = MultiSelectField(
-        choices=OPTIONS, blank=True, help_text="Add an optional UI block to the student view"
-    )
 
-    ui_next = models.BooleanField(
-        default=False, help_text="Add an optional NEXT button under the embedded unit."
-    )
 
     @property
     def ordered_collections(self):
         """
         Return tuple of CollectionOrder.
         """
-        return (col_order for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
+        return ((col_order, col_order.sequence_set.exists()) for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
 
     def __str__(self):
         return "<Group of Collections: {}>".format(self.name)

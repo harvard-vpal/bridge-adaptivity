@@ -30,7 +30,7 @@ class TestTask(TestCase):
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mock_eng')
         self.grading_policy = GradingPolicy.objects.create(name='full_credit', public_name='test_sequence_policy')
         self.collection_group = CollectionGroup.objects.create(
-            name='col_group', owner=self.user, engine=self.engine, grading_policy=self.grading_policy
+            name='col_group', owner=self.user,
         )
 
     @patch('module.tasks.sync_collection_engines.apply_async')
@@ -42,7 +42,12 @@ class TestTask(TestCase):
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
 
-        CollectionOrder.objects.create(group=self.collection_group, collection=collection)
+        CollectionOrder.objects.create(
+            group=self.collection_group,
+            collection=collection,
+            engine=self.engine,
+            grading_policy=self.grading_policy
+        )
 
         self.activity = Activity.objects.create(name='testA1', collection=collection)
         mock_apply_async.assert_called_with(
@@ -57,14 +62,19 @@ class TestTask(TestCase):
     def test_update_students_grades(self, mock_send_grade, mock_apply_async):
         collection = Collection.objects.create(name='test_col', owner=self.user)
 
-        CollectionOrder.objects.create(group=self.collection_group, collection=collection)
+        collection_order = CollectionOrder.objects.create(
+            group=self.collection_group,
+            collection=collection,
+            engine=self.engine,
+            grading_policy=self.grading_policy
+        )
 
         Sequence.objects.create(
             lti_user=self.lti_user,
             collection=collection,
-            group=self.collection_group,
+            collection_order=collection_order,
             suffix='12345',
             lis_result_sourcedid='fake_lis_result_sourcedid',
         )
-        tasks.update_students_grades(self.collection_group.id)
+        tasks.update_students_grades(collection_order.id)
         mock_send_grade.assert_called_once_with()

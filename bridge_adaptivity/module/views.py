@@ -209,7 +209,6 @@ class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView,
         context = super().get_context_data(**kwargs)
         context.update({
             'bridge_host': settings.BRIDGE_HOST,
-            'grade_update_available': self.object.sequence_set.exists(),
         })
         return context
 
@@ -551,11 +550,6 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 
         return context
 
-    def get(self, request, *args, **kwargs):
-        responce = super().get(request, *args, **kwargs)
-        responce.context_data["collection_order"] = kwargs.get("collection_order")
-        return responce
-
 
 @method_decorator(login_required, name='dispatch')
 class SequenceDelete(DeleteView):
@@ -597,14 +591,14 @@ def _check_next_forbidden(pk):
     next_forbidden = (
         sequence_item.is_problem and
         sequence_item.position == last_item and
-        sequence_item.sequence.collection.strict_forward and
+        sequence_item.sequence.collection_order.strict_forward and
         sequence_item.score is None
     )
     log.debug(f"Next item forbidden: {next_forbidden}, last_item: {last_item}, sequence_item_id: {sequence_item.id}")
     return next_forbidden, last_item, sequence_item
 
 
-def sequence_item_next(request, pk, collection_order):
+def sequence_item_next(request, pk):
     try:
         next_forbidden, last_item, sequence_item = _check_next_forbidden(pk)
     except SequenceItem.DoesNotExist:
@@ -620,7 +614,7 @@ def sequence_item_next(request, pk, collection_order):
         )
     if next_forbidden:
         return redirect("{}?forbidden=true".format(
-            reverse('module:sequence-item', kwargs={'pk': sequence_item.id, 'collection_order': collection_order}))
+            reverse('module:sequence-item', kwargs={'pk': sequence_item.id}))
         )
 
     next_sequence_item = SequenceItem.objects.filter(
@@ -631,11 +625,11 @@ def sequence_item_next(request, pk, collection_order):
     log.debug("Picked next sequence item is: {}".format(next_sequence_item))
 
     if not next_sequence_item or next_sequence_item.position == last_item:
-        activity = utils.choose_activity(collection_order, sequence_item)
+        activity = utils.choose_activity(sequence_item)
         update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.group.get_collection_order_by_order(collection_order).grading_policy.policy_instance(
+            policy = sequence.collection_order.grading_policy.policy_instance(
                 sequence=sequence
             )
             policy.send_grade()
@@ -660,7 +654,7 @@ def sequence_item_next(request, pk, collection_order):
                 next_sequence_item.activity = activity
                 next_sequence_item.save()
     return redirect(
-        reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id, 'collection_order': collection_order})
+        reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id})
     )
 
 
@@ -748,15 +742,15 @@ def sync_collection(request, slug, api_request=None):
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection.id}) + '?back_url={}'.format(back_url))
 
 
-def update_students_grades(request, group_slug):
+def update_students_grades(request, collection_order_id):
     """
     Mandatory update students grade related to the collection-group.
     """
     back_url = request.GET.get('back_url')
-    group = get_object_or_404(CollectionGroup, slug=group_slug)
-    tasks.update_students_grades.delay(group_id=group.id)
-    log.debug(f"Task with updating students grades related to the group {group.name} is started.")
-    return redirect(reverse('module:group-detail', kwargs={'group_slug': group_slug}) + '?back_url={}'.format(back_url))
+    colection_order = get_object_or_404(CollectionOrder, id=collection_order_id)
+    tasks.update_students_grades.delay(collection_order_id=colection_order.id)
+    log.debug(f"Task with updating students grades related to the colection_order with id {colection_order.id} is started.")
+    return redirect(reverse('module:group-detail', kwargs={'group_slug': colection_order.group.slug }) + '?back_url={}'.format(back_url))
 
 
 def preview_collection(request, slug):
@@ -783,12 +777,12 @@ def preview_collection(request, slug):
     )
 
 
-def demo_collection(request, group_slug, collection_slug, collection_order):
+def demo_collection(request, group_slug, collection_slug, collection_order_order):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    collection, collection_group, __ = get_collection_collectiongroup_engine(
-        collection_slug, group_slug, collection_order,
+    collection, collection_group, __, collection_order = get_collection_collectiongroup_engine(
+        collection_slug, group_slug, collection_order_order,
     )
     lti_consumer = LtiProvider.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
@@ -799,10 +793,10 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
     test_sequence, created = Sequence.objects.get_or_create(
         lti_user=test_lti_user,
         collection=collection,
-        group=collection_group,
+        collection_order=collection_order
     )
 
-    strict_forward = collection.strict_forward
+    strict_forward = collection_order.strict_forward
     request.session['Lti_sequence'] = test_sequence.id
     request.session['Lti_strict_forward'] = strict_forward
 
@@ -813,7 +807,7 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
         'sequence_pk': test_sequence.id,
         'back_url': back_url,
         'forbidden': request.GET.get('forbidden', ''),
-        'collection_order': collection_order
+        'collection_order': collection_order_order
     }
 
     if created or not test_sequence.items.exists():
@@ -822,7 +816,7 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
         test_sequence.suffix = suffix
         test_sequence.save()
         log.debug("Sequence {} was created".format(test_sequence))
-        start_activity = utils.choose_activity(collection_order=collection_order, sequence=test_sequence)
+        start_activity = utils.choose_activity(sequence=test_sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
             return stub_page(
@@ -850,13 +844,13 @@ def demo_collection(request, group_slug, collection_slug, collection_order):
                 kwargs={
                     'collection_slug': collection_slug,
                     'group_slug': group_slug,
-                    'collection_order': collection_order,
+                    'collection_order_order': collection_order_order,
                 }
             )
             return redirect(f"{reverse_demo}?forbidden=true&back_url={back_url}&position={sequence_item.position}")
         update_activity = request.session.pop('Lti_update_activity', None)
         sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
-            sequence_item, update_activity, last_item, position, collection_order
+            sequence_item, update_activity, last_item, position,
         )
 
         if sequence_complete:

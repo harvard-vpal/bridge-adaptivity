@@ -292,9 +292,14 @@
 
         $(".show-warning,.show-alarm,.delete-object button").on('click', function(e){
             var data = getDataForWarning(this);
+            console.log(data)
             if(data && data.id) {
                 $("#deleteModal" + data.id).modal('show');
             } else {
+                if (data && data.order_update_url){
+                    $("#updateGradeForm").attr("action", data.order_update_url)
+                }
+
                 $("#deleteModal").modal('show');
             }
             e.stopPropagation();

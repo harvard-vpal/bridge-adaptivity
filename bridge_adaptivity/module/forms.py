@@ -42,8 +42,8 @@ class GroupForm(ModelForm):
         """
 
         model = CollectionGroup
-        fields = ('name', 'description', 'owner', 'course', 'ui_option', 'ui_next')
-        labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
+        fields = ('name', 'description', 'owner', 'course', ) # 'ui_option', 'ui_next'
+        #labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
 
 
 class BaseGradingPolicyForm(ModelForm):

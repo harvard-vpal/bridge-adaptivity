@@ -71,7 +71,7 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker='', c
             collection_slug=collection_slug,
             group_slug=group_slug,
             unique_marker=unique_marker,
-            collection_order=collection_order,
+            collection_order_order=collection_order,
         )
 
 
@@ -128,7 +128,7 @@ def learner_flow(
     collection_slug=None,
     group_slug=None,
     unique_marker='',
-    collection_order=None,
+    collection_order_order=None,
 ):
     """
     Define logic flow for Learner.
@@ -136,10 +136,10 @@ def learner_flow(
     if not collection_slug:
         return stub_page(request)
 
-    collection, collection_group, engine = get_collection_collectiongroup_engine(
+    collection, collection_group, engine, collection_order = get_collection_collectiongroup_engine(
         collection_slug,
         group_slug,
-        collection_order,
+        collection_order_order,
     )
 
     lti_user, created = LtiUser.objects.get_or_create(
@@ -152,14 +152,14 @@ def learner_flow(
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
         collection=collection,
-        group=collection_group,
+        collection_order=collection_order,
         suffix=unique_marker,
     )
 
     # Update sequence metadata with lti parameters required by the engine
     sequence.fulfil_sequence_metadata(engine.lti_params, tool_provider.launch_params)
 
-    strict_forward = collection.strict_forward
+    strict_forward = collection_order.strict_forward
     request.session['Lti_sequence'] = sequence.id
     request.session['Lti_strict_forward'] = strict_forward
 
@@ -169,7 +169,7 @@ def learner_flow(
 
     if created:
         log.debug("Sequence {} was created".format(sequence))
-        start_activity = module_utils.choose_activity(collection_order=collection_order, sequence=sequence)
+        start_activity = module_utils.choose_activity(sequence=sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
             return stub_page(
@@ -193,5 +193,5 @@ def learner_flow(
         )
 
     return redirect(reverse(
-        'module:sequence-item', kwargs={'pk': sequence_item_id, 'collection_order': collection_order})
+        'module:sequence-item', kwargs={'pk': sequence_item_id})
     )

@@ -49,11 +49,14 @@ class TestVPALEngine(TestCase):
         self.engine = Engine.objects.create(engine='engine_vpal', lti_parameters=' lis_person_sourcedid, lis_unknown')
         self.grading_policy = GradingPolicy.objects.create(name='trials_count', public_name='test_policy')
 
-        self.group = CollectionGroup.objects.create(
-            engine=self.engine, grading_policy=self.grading_policy, name='test-group', owner=self.user
-        )
+        self.group = CollectionGroup.objects.create(name='test-group', owner=self.user)
 
-        CollectionOrder.objects.create(group=self.group, collection=self.collection)
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.group,
+            collection=self.collection,
+            engine=self.engine,
+            grading_policy=self.grading_policy,
+        )
 
         self.outcome_service = OutcomeService.objects.create(
             lis_outcome_service_url='http://test.outcome_service.net',
@@ -63,7 +66,7 @@ class TestVPALEngine(TestCase):
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
-            group=self.group,
+            collection_order=self.collection_order,
             outcome_service=self.outcome_service,
         )
         self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.a1, score=0.4)

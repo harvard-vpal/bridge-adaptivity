@@ -45,7 +45,7 @@ def get_collection_collectiongroup_engine(collection_slug, group_slug, collectio
     else:
         engine = Engine.get_default()
 
-    return collection, collection_group, engine
+    return collection, collection_group, engine, collection_order
 
 
 def stub_page(

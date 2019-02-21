@@ -21,8 +21,7 @@ class SequenceAdmin(admin.ModelAdmin):
 class ActivityStackedInline(OrderedTabularInline):
     model = Activity
     fields = [
-        'order', 'move_up_down_links', 'name', 'atype', 'difficulty', 'points', 'source_launch_url',
-        'source_name',
+        'order', 'move_up_down_links', 'name', 'atype', 'difficulty', 'points', 'source_launch_url', 'source_name',
     ]
     readonly_fields = ('order', 'move_up_down_links',)
     extra = 0
@@ -30,12 +29,14 @@ class ActivityStackedInline(OrderedTabularInline):
 
 @admin.register(CollectionOrder)
 class CollectionOrderAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in CollectionOrder._meta.get_fields()]
+    list_display = [
+        'id', 'order', 'group', 'collection', 'grading_policy', 'engine', 'strict_forward', 'ui_option', 'ui_next',
+    ]
 
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'owner_name', 'strict_forward']
+    list_display = ['id', 'name', 'owner_name']
     list_display_links = ['id', 'name']
 
     def owner_name(self, obj):
@@ -57,7 +58,7 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = CollectionGroup
         fields = (
-            'name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine', 'ui_option', 'ui_next'
+            'name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine',
         )
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
@@ -68,7 +69,7 @@ class GroupForm(forms.ModelForm):
 class CollectionGroupAdmin(admin.ModelAdmin):
     form = GroupForm
     readonly_fields = ('slug',)
-    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine', 'ui_option', 'ui_next')
+    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine')
 
 
 @admin.register(Engine)

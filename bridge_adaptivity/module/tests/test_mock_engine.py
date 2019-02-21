@@ -38,12 +38,15 @@ class TestMockEngine(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
             engine=self.engine,
             grading_policy=self.points_earned
         )
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, group=self.test_cg
+            lti_user=self.lti_user, collection=self.collection1, collection_order=self.collection_order
         )
 
     @unpack

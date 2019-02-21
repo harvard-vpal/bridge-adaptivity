@@ -8,26 +8,27 @@ log = getLogger(__name__)
 
 @task()
 def sync_collection_engines(collection_slug=None, created_at=None):
-    from module.models import Collection
+    from module.models import Collection, CollectionOrder
     collection = Collection.objects.filter(slug=collection_slug, updated_at=created_at).first()
     if not collection:
         return
     sync_result = {}
-    for coll_group in collection.collection_groups.all().select_related('engine'):
+
+    for coll_collection_order in CollectionOrder.objects.filter(collection=collection).select_related('engine'):
         try:
-            coll_group.engine.engine_driver.sync_collection_activities(collection)
+            coll_collection_order.engine.engine_driver.sync_collection_activities(collection)
             result = {'success': True}
         except Exception as err:
             result = {'success': False, 'message': str(err)}
-        sync_result[coll_group.engine.engine_name] = result
+        sync_result[coll_collection_order.engine.engine_name] = result
     return sync_result
 
 
 @task()
-def update_students_grades(group_id=None):
-    from module.models import CollectionGroup
-    group = CollectionGroup.objects.get(id=group_id)
-    for sequence in group.sequence_set.all():
+def update_students_grades(collection_order_id=None):
+    from module.models import CollectionOrder
+    collection_order = CollectionOrder.objects.get(id=collection_order_id)
+    for sequence in collection_order.sequence_set.all():
         if sequence.lis_result_sourcedid:
-            group.grading_policy.policy_instance(sequence=sequence).send_grade()
+            collection_order.grading_policy.policy_instance(sequence=sequence).send_grade()
             log.debug(f"Grade update is sent for the user {sequence.lti_user}")

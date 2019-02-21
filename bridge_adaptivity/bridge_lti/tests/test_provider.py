@@ -101,7 +101,7 @@ class ProviderTest(BridgeTestCase):
             mock_tool_provider,
             collection_slug=mock_collection_slug,
             group_slug=mock_group_slug,
-            collection_order=mock_collection_order,
+            collection_order_order=mock_collection_order,
             unique_marker=mock_unique_marker,
         )
         mock_instructor_flow.assert_not_called()
@@ -137,7 +137,7 @@ class ProviderTest(BridgeTestCase):
             tool_provider,
             collection_slug=self.collection1.slug,
             group_slug=self.test_cg.slug,
-            collection_order=self.collection_order1.order,
+            collection_order_order=self.collection_order1.order,
         )
         learner_flow(
             mock_request,
@@ -145,7 +145,7 @@ class ProviderTest(BridgeTestCase):
             tool_provider,
             collection_slug=self.collection1.slug,
             group_slug=self.test_cg.slug,
-            collection_order=self.collection_order1.order,
+            collection_order_order=self.collection_order1.order,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
 
@@ -158,7 +158,7 @@ class ProviderTest(BridgeTestCase):
             collection_slug=self.collection1.slug,
             group_slug=self.test_cg.slug,
             unique_marker='marker',
-            collection_order=self.collection_order1.order,
+            collection_order_order=self.collection_order1.order,
         )
         learner_flow(
             mock_request,
@@ -167,7 +167,7 @@ class ProviderTest(BridgeTestCase):
             collection_slug=self.collection1.slug,
             group_slug=self.test_cg.slug,
             unique_marker='marker',
-            collection_order=self.collection_order1.order,
+            collection_order_order=self.collection_order1.order,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
 
@@ -179,7 +179,7 @@ class ProviderTest(BridgeTestCase):
             collection_slug=self.collection1.slug,
             group_slug=self.test_cg.slug,
             unique_marker='marker1',
-            collection_order=self.collection_order1.order,
+            collection_order_order=self.collection_order1.order,
         )
         learner_flow(
             mock_request,
@@ -188,7 +188,7 @@ class ProviderTest(BridgeTestCase):
             collection_slug=self.collection1.slug,
             group_slug=self.test_cg.slug,
             unique_marker='marker2',
-            collection_order=self.collection_order1.order,
+            collection_order_order=self.collection_order1.order,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 2)
 

@@ -160,14 +160,17 @@ class TestActivityModel(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
             engine=self.engine,
             grading_policy=self.points_earned
         )
 
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
-
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, group=self.test_cg, suffix='12345'
+            lti_user=self.lti_user, collection=self.collection1, collection_order=self.collection_order, suffix='12345'
         )
 
     @unpack
@@ -276,12 +279,15 @@ class TestDeleteObjectsSeparately(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
-            engine=self.engine,
-            grading_policy=self.points_earned,
             course=self.course
         )
         # self.test_cg.collections.add(self.collection1)
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
+        self.collection_orer = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
+            engine=self.engine,
+            grading_policy=self.points_earned,
+        )
 
     def test_delete_group(self):
         collections_count = Collection.objects.count()
@@ -361,7 +367,7 @@ class TestSequence(TestCase):
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
-            group=self.test_cg,
+            collection_order=self.collection_order,
             outcome_service=self.outcome_service
         )
         self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity, score=0.4)
@@ -380,7 +386,7 @@ class TestSequence(TestCase):
         {'option': MSFList(OPTIONS, []), 'expected_result': []},
     )
     def test_sequence_ui_details(self, option, expected_result):
-        self.test_cg.ui_option = option
-        self.test_cg.save()
-        details = self.sequence.sequence_ui_details(self.collection_order.order)
+        self.collection_order.ui_option = option
+        self.collection_order.save()
+        details = self.sequence.sequence_ui_details()
         self.assertEqual(expected_result, details)

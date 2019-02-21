@@ -280,16 +280,20 @@ class TestPolicySendGradeMethod(TestCase):
         self.test_cg = CollectionGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
-            engine=self.engine,
-            grading_policy=self.grading_policy
         )
 
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection,
+            engine=self.engine,
+            grading_policy=self.grading_policy
+
+        )
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
             collection=self.collection,
-            group=self.test_cg,
+            collection_order=self.collection_order,
             outcome_service=self.outcome_service
         )
 

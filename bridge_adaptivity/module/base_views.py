@@ -46,7 +46,7 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     Base view for Collection.
     """
 
-    fields = ['name', 'slug', 'metadata', 'strict_forward', 'owner']
+    fields = ['name', 'slug', 'metadata', 'owner']
     model = Collection
     ordering = ['id']
 

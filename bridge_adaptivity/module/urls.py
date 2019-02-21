@@ -61,7 +61,7 @@ urlpatterns = ([
         name='collection-delete'
     ),
     path(
-        'group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order>/demo',
+        'group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order_order>/demo',
         demo_collection,
         name="demo"
     ),
@@ -88,12 +88,12 @@ urlpatterns = ([
         name='activity-delete'
     ),
     url(
-        r'^sequence_item/(?P<pk>\d+)/collection/order/(?P<collection_order>[\w-]+)/$',
+        r'^sequence_item/(?P<pk>\d+)/$',
         SequenceItemDetail.as_view(),
         name='sequence-item'
     ),
     url(
-        r'^sequence_item/(?P<pk>\d+)/next/collection/order/(?P<collection_order>[\w-]+)/$',
+        r'^sequence_item/(?P<pk>\d+)/next/$',
         sequence_item_next,
         name='sequence-item-next'
     ),
@@ -107,7 +107,7 @@ urlpatterns = ([
     url(r'^collection/(?P<slug>[\w-]+)/sync/$', sync_collection, name='collection-sync'),
 
     # Manually update students grades related to the collection-group
-    path('group/<slug:group_slug>/update_grades/', update_students_grades, name='update_grades'),
+    path('collection_order/<slug:collection_order_id>/update_grades/', update_students_grades, name='update_grades'),
 
     path('collection/<slug:slug>/preview/', preview_collection, name='collection-preview'),
 ], 'module')
