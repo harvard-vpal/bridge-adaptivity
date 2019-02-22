@@ -7,7 +7,7 @@ from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 
-from module.models import Activity, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+from module.models import Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)
@@ -42,8 +42,8 @@ class GroupForm(ModelForm):
         """
 
         model = CollectionGroup
-        fields = ('name', 'description', 'owner', 'course', ) # 'ui_option', 'ui_next'
-        #labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
+        fields = ('name', 'description', 'owner', 'course', )
+
 
 
 class BaseGradingPolicyForm(ModelForm):
@@ -61,6 +61,24 @@ class BaseGradingPolicyForm(ModelForm):
         model = GradingPolicy
         fields = 'name',
         widgets = {'name': forms.HiddenInput()}
+
+
+class BaseCollectionForm(ModelForm):
+    """
+    Form to work with GradingPolicy models.
+
+    This is form has hidden input with GradingPolicy name.
+    """
+
+    class Meta:
+        """
+        Metaclass for BaseGradingPolicyForm.
+        """
+
+        model = Collection
+        fields = ['name', 'slug', 'metadata', 'owner']
+        widgets = {'owner': forms.HiddenInput()}
+
 
 
 class ThresholdGradingPolicyForm(ModelForm):
@@ -153,7 +171,11 @@ class CollectionGroupForm(ModelForm):
             'collection',
             'engine',
             'grading_policy_name',
+            'strict_forward',
+            'ui_option',
+            'ui_next'
         )
+        labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')

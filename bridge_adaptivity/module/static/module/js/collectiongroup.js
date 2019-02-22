@@ -2,11 +2,23 @@
 var update_form = function() {
     var gpFormUrl = $("#link-objects-form-update").data("policy_url");
     var gp = $("select[name='collection_group-grading_policy_name'] option:selected").val();
-    console.log(gp);
+    console.log("gr: " + gpFormUrl);
     $.get(gpFormUrl, {
         grading_policy: gp,
       }, function(response) {
         $("div.grading_policy").html(response);
+    })
+};
+
+var update_collection_form = function() {
+    var clFormUrl = $("#link-objects-form-update").data("collection_url");
+    var cl = $("select[name='collection_group-collection'] option:selected").val();
+    console.log(clFormUrl);
+    $.get(clFormUrl, {
+        collection_id: cl,
+      }, function(response) {
+        console.log(response);
+        $("div.collection_form").html(response);
     })
 };
 
@@ -33,6 +45,10 @@ $(document).ready(function() {
       update_form();
       // when form changed - update policy popover
       popover_policy();
+    });
+
+    $("form select[name=collection_group-collection]").on("change", function() {
+      update_collection_form();
     });
 });
 

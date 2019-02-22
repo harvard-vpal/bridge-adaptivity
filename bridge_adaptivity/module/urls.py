@@ -6,7 +6,7 @@ from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
     CollectionOrderUpdate, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
-    CourseRmGroup, CourseUpdate, demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
+    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
     GroupList, GroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete,
     SequenceItemDetail, sync_collection, update_students_grades
 )
@@ -38,6 +38,7 @@ urlpatterns = ([
         GetGradingPolicyForm.as_view(),
         name='grading_policy_form'
     ),
+    url(r'collection/collection_form/$', GetCollectionForm.as_view(), name='collection_form'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),

@@ -25,9 +25,9 @@ from bridge_lti.models import LtiProvider, LtiUser
 from common.utils import get_collection_collectiongroup_engine, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, AddCourseGroupForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
+from module.forms import ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
 from module.mixins.views import (
-    BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin,
+    BackURLMixin, CollectionOrderEditFormMixin, CollectionEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin,
     LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
@@ -135,6 +135,29 @@ class GroupList(BaseGroupView, ListView):
     context_object_name = 'groups'
     ordering = ['slug']
     filter = 'group'
+
+
+@method_decorator(login_required, name='dispatch')
+class GetCollectionForm(FormView):
+    form_class = BaseCollectionForm
+    template_name = 'module/collection_form.html'
+    prefix = 'collection'
+
+    def get_form_kwargs(self):
+        form_kw = dict(prefix=self.prefix)
+        # collection_id = self.request.GET.get('collection_id')
+        # if collection_id:
+        #     collection = Collection.objects.filter(id=collection_id).first()
+        #     if collection:
+        #         form_kw['instance'] = collection
+        return form_kw
+
+    def get_form(self, form_class=None):
+        form = super().get_form()
+        form.fields['owner'].initial = self.request.user.id
+        if self.request.GET.get('collection_id') and Collection.objects.filter(id=self.request.GET.get('collection_id')).first():
+            form.fields.clear()
+        return form
 
 
 @method_decorator(login_required, name='dispatch')
@@ -281,6 +304,7 @@ class CollectionOrderUpdate(
     BaseCollectionOrderView,
     SetUserInFormMixin,
     CollectionOrderEditFormMixin,
+    CollectionEditFormMixin,
     ModalFormMixin,
     UpdateView,
 ):
@@ -308,6 +332,7 @@ class CollectionOrderAdd(
     BaseCollectionOrderView,
     SetUserInFormMixin,
     CollectionOrderEditFormMixin,
+    CollectionEditFormMixin,
     ModalFormMixin,
     CreateView
 ):
@@ -325,6 +350,8 @@ class CollectionOrderAdd(
         """Handle GET requests: instantiate a blank version of the form."""
         result = super().get(request, *args, **kwargs)
         result.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        result.context_data['form'].fields['collection'].required = False
+        result.context_data['collection_form'].fields['owner'].initial = self.request.user.id
         return result
 
     def get_success_url(self):

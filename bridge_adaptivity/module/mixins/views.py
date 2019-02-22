@@ -7,7 +7,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
-from module.forms import BaseGradingPolicyForm, CollectionGroupForm, GroupForm
+from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
 from module.models import Collection, CollectionGroup, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
@@ -104,11 +104,11 @@ class CollectionOrderEditFormMixin(object):
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections
-        if self.kwargs.get('collection_id') and self.kwargs.get('group'):
+        if self.kwargs.get('collection_order_id') and self.kwargs.get('group'):
             collection_order = get_object_or_404(
                 CollectionOrder,
                 group__slug=self.kwargs['group'],
-                id=self.kwargs['collection_id'],
+                id=self.kwargs['collection_order_id'],
             )
             if collection_order.grading_policy:
                 form.initial['grading_policy_name'] = collection_order.grading_policy.name
@@ -125,6 +125,47 @@ class OnlyMyObjectsMixin(object):
             return qs.filter(slug=read_only_data[self.filter])
         return qs.filter(**{self.owner_field: self.request.user})
 
+class CollectionEditFormMixin(object):
+    form_class = BaseCollectionForm
+    prefix = 'collection'
+    collection_prefix = 'collection'
+
+    def get_collection_form_kwargs(self):
+        """Return kwargs for GradingForm."""
+        form_kw = dict(prefix=self.collection_prefix)
+        if self.object and self.object.collection:
+            form_kw['instance'] = self.object.collection
+        return form_kw
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.POST.get('collection_group-collection'):
+            form_kw = self.get_collection_form_kwargs()
+            post_or_none = self.request.POST if self.request.POST else None
+            context['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
+        context["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        return context
+
+    def form_valid(self, form):
+        form_kw = self.get_collection_form_kwargs()
+        post_or_none = self.request.POST if self.request.POST else None
+        collection_form = BaseCollectionForm(post_or_none, **form_kw)
+        if self.request.POST.get('collection_group-collection'):
+            response = super().form_valid(form)
+        elif collection_form.is_valid():
+            collection = collection_form.save()
+            form.cleaned_data['collection'] = collection
+            response = super().form_valid(form)
+        else:
+            response = self.form_invalid(form)
+            response.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        return response
+
+
+    def get_form(self):
+        form = super().get_form()
+        form.fields['collection'].required = False
+        return form
 
 class BackURLMixin(object):
     def get_context_data(self, **kwargs):
