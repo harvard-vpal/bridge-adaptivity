@@ -25,10 +25,12 @@ from bridge_lti.models import LtiProvider, LtiUser
 from common.utils import get_collection_collectiongroup_engine, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
+from module.forms import (
+    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
+)
 from module.mixins.views import (
-    BackURLMixin, CollectionOrderEditFormMixin, CollectionEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin,
-    LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
+    BackURLMixin, CollectionEditFormMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
+    GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
     Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
@@ -145,17 +147,13 @@ class GetCollectionForm(FormView):
 
     def get_form_kwargs(self):
         form_kw = dict(prefix=self.prefix)
-        # collection_id = self.request.GET.get('collection_id')
-        # if collection_id:
-        #     collection = Collection.objects.filter(id=collection_id).first()
-        #     if collection:
-        #         form_kw['instance'] = collection
         return form_kw
 
     def get_form(self, form_class=None):
         form = super().get_form()
         form.fields['owner'].initial = self.request.user.id
-        if self.request.GET.get('collection_id') and Collection.objects.filter(id=self.request.GET.get('collection_id')).first():
+        collection_id = self.request.GET.get('collection_id')
+        if collection_id and Collection.objects.filter(id=collection_id).first():
             form.fields.clear()
         return form
 
@@ -776,8 +774,12 @@ def update_students_grades(request, collection_order_id):
     back_url = request.GET.get('back_url')
     colection_order = get_object_or_404(CollectionOrder, id=collection_order_id)
     tasks.update_students_grades.delay(collection_order_id=colection_order.id)
-    log.debug(f"Task with updating students grades related to the colection_order with id {colection_order.id} is started.")
-    return redirect(reverse('module:group-detail', kwargs={'group_slug': colection_order.group.slug }) + '?back_url={}'.format(back_url))
+    log.debug(
+        f"Task with updating students grades related to the colection_order with id {colection_order.id} is started."
+    )
+    return redirect(reverse(
+        'module:group-detail', kwargs={'group_slug': colection_order.group.slug}
+    ) + '?back_url={}'.format(back_url))
 
 
 def preview_collection(request, slug):

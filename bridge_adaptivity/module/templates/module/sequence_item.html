@@ -8,7 +8,7 @@
   <div class="col-md-{% if demo %}12{% else %}6{% endif %}">
         <a href="
           {% if demo %}
-            {% url 'module:demo' group_slug=group_slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?back_url={{ back_url }}sequence_item_id={{ sequence_item.id }}&position={{ position }}
+            {% url 'module:demo' group_slug=sequence_item.sequence.collection_order.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?back_url={{ back_url }}sequence_item_id={{ sequence_item.id }}&position={{ position }}
           {% else %}
             {% url 'module:sequence-item-next' sequence_item.id %}
           {% endif %}
@@ -34,11 +34,11 @@
 </div>
 <div class="row">
 <div id="next-button" data-forbidden="{{ forbidden }}"
-     data-url="{% url 'module:demo' group_slug=group_slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}" data-sequence_item_id="{{ item.id }}"
+     data-url="{% url 'module:demo' group_slug=sequence_item.sequence.collection_order.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}" data-sequence_item_id="{{ item.id }}"
      class="col-md-{% if demo %}12{% else %}6{% endif %}?sequence_item_id={{ item.id }}">
   <a href="
     {% if demo %}
-      {% url 'module:demo' group_slug=group_slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}
+      {% url 'module:demo' group_slug=sequence_item.sequence.collection_order.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}
     {% else %}
       {% url 'module:sequence-item-next' sequence_item.id %}
     {% endif %}

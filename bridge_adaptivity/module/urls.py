@@ -6,8 +6,8 @@ from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
     CollectionOrderUpdate, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
-    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail,
-    GroupList, GroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete,
+    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, GroupCreate, GroupDelete,
+    GroupDetail, GroupList, GroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete,
     SequenceItemDetail, sync_collection, update_students_grades
 )
 

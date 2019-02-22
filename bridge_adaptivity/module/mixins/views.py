@@ -125,6 +125,7 @@ class OnlyMyObjectsMixin(object):
             return qs.filter(slug=read_only_data[self.filter])
         return qs.filter(**{self.owner_field: self.request.user})
 
+
 class CollectionEditFormMixin(object):
     form_class = BaseCollectionForm
     prefix = 'collection'
@@ -161,11 +162,11 @@ class CollectionEditFormMixin(object):
             response.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
         return response
 
-
     def get_form(self):
         form = super().get_form()
         form.fields['collection'].required = False
         return form
+
 
 class BackURLMixin(object):
     def get_context_data(self, **kwargs):

@@ -19,7 +19,7 @@
         {% for item in sequence_items %}
         <a href="
           {% if demo %}
-              {% url 'module:demo' group_slug=group_slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?sequence_item_id={{ item.id }}&position={{ item.position }}
+              {% url 'module:demo' group_slug=sequence_item.sequence.collection_order.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?sequence_item_id={{ item.id }}&position={{ item.position }}
           {% else %}
               {% url 'module:sequence-item' item.id %}
           {% endif %}

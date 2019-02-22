@@ -6,8 +6,11 @@ import logging
 from django import forms
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
+from django.utils.translation import ugettext_lazy as _
 
-from module.models import Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+from module.models import (
+    Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+)
 from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)
@@ -45,7 +48,6 @@ class GroupForm(ModelForm):
         fields = ('name', 'description', 'owner', 'course', )
 
 
-
 class BaseGradingPolicyForm(ModelForm):
     """
     Form to work with GradingPolicy models.
@@ -78,7 +80,6 @@ class BaseCollectionForm(ModelForm):
         model = Collection
         fields = ['name', 'slug', 'metadata', 'owner']
         widgets = {'owner': forms.HiddenInput()}
-
 
 
 class ThresholdGradingPolicyForm(ModelForm):
@@ -175,7 +176,7 @@ class CollectionGroupForm(ModelForm):
             'ui_option',
             'ui_next'
         )
-        labels = {'ui_option': 'UI Option', 'ui_next': 'Additional NEXT Button'}
+        labels = {'ui_option': _('UI Option'), 'ui_next': _('Additional NEXT Button')}
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')

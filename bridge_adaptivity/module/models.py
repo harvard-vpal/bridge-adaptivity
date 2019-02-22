@@ -359,6 +359,13 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
     class Meta:
         ordering = ('group', 'order')
 
+    @property
+    def get_selected_ui_options(self):
+        res_list = self.get_ui_option_list()
+        if self.ui_next:
+            res_list.append(_('Additional NEXT Button'))
+        return res_list
+
 
 class CollectionGroup(models.Model):
     """
@@ -379,14 +386,15 @@ class CollectionGroup(models.Model):
 
     engine = models.ForeignKey(Engine, null=True, on_delete=models.CASCADE)
 
-
-
     @property
     def ordered_collections(self):
         """
         Return tuple of CollectionOrder.
         """
-        return ((col_order, col_order.sequence_set.exists()) for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
+        return (
+            (col_order, col_order.sequence_set.exists())
+            for col_order in CollectionOrder.objects.filter(group=self).order_by('order')
+        )
 
     def __str__(self):
         return "<Group of Collections: {}>".format(self.name)

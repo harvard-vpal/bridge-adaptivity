@@ -1,5 +1,4 @@
 import datetime
-import uuid
 
 from django.test import TestCase
 from django.urls.base import reverse
@@ -287,7 +286,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         """
         Test updated collection group doesn't contain old collections.
         """
-        data = [x for x in self.test_cg.ordered_collections]
+        data = [col_order for col_order, grade_update_available in self.test_cg.ordered_collections]
         expected_group_collection = len(data) - 1
         # Group is updated with one collection all existing should be removed.
         url = reverse(
@@ -312,8 +311,8 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
 
-        ordered_collections = tuple(self.test_cg.ordered_collections)
-        expected_collection_order = (ordered_collections[2], ordered_collections[1], ordered_collections[0])
+        ordered_collections = [col_order for col_order, grade_update_available in self.test_cg.ordered_collections]
+        expected_collection_order = [ordered_collections[2], ordered_collections[1], ordered_collections[0]]
 
         # Moving collection3 up, collection1 down and get reordered result as (collection3, collection2, collection1)
         move_to_index_0 = reverse('module:collection-move', kwargs={
@@ -330,7 +329,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         })
         response_down = self.client.get(move_to_index_2)
         self.assertEqual(response_down.status_code, 201)
-        ordered_collections = tuple(self.test_cg.ordered_collections)
+        ordered_collections = [col_order for col_order, grade_update_available in self.test_cg.ordered_collections]
         self.assertEqual(ordered_collections, expected_collection_order)
 
     def test_get_grading_policy_form(self):
@@ -542,18 +541,14 @@ class TestManualGradeUpdate(BridgeTestCase):
 
     @patch('module.tasks.update_students_grades.delay')
     def test_mandatory_students_grade_update(self, mock_delay):
-        # ToDO(AndreyLykhoman): rewrite this test
-        group_slug = self.test_cg.slug
-        expected_url = reverse('module:group-detail', kwargs={'group_slug': group_slug}) + '?back_url=None'
-        url = reverse('module:update_grades', kwargs={'group_slug': group_slug})
+        expected_url = reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}) + '?back_url=None'
+        url = reverse('module:update_grades', kwargs={'collection_order_id': self.collection_order1.id})
         response = self.client.get(url)
-        mock_delay.assert_called_once_with(collection_order_id=self.test_cg.id)
+        mock_delay.assert_called_once_with(collection_order_id=self.collection_order1.id)
         self.assertRedirects(response, expected_url)
 
     def test_grade_update_with_incorect_group_slug(self):
-        # ToDO(AndreyLykhoman): rewrite this test
-        group_slug = uuid.uuid4()
-        url = reverse('module:update_grades', kwargs={'group_slug': group_slug})
+        url = reverse('module:update_grades', kwargs={'collection_order_id': 3})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
