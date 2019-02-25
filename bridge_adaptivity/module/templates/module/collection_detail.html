@@ -195,7 +195,7 @@
             <div class="alert alert-danger text-center" role="alert">
                Something activities have not active content sources.
                You may ask Bridge administrator to activate content sources with names:
-               {{not_active_content_source|join:", " }}
+               {{ not_active_content_source|join:", " }}
             </div>
         {% endif %}
         {% if not source_courses %}
@@ -248,7 +248,6 @@
 
     </div>
     {% endif %}
-
   </div>
 
   {% include "module/modals/source_modal.html" %}
