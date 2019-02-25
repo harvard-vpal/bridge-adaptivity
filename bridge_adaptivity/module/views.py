@@ -283,10 +283,13 @@ class CollectionDetail(BaseCollectionView, DetailView):
 
     def get_context_data(self, **kwargs):
         selected_content_sources = list(map(int, self.request.GET.getlist('content_source', [])))
-        activities = Activity.objects.filter(collection=self.object)
+        activities = Activity.objects.filter(collection=self.object).select_related('lti_consumer')
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
+        context['not_active_content_source'] = activities.values_list('lti_consumer__name', flat=True).filter(
+            lti_consumer__is_active=False
+        )
         context['content_sources'] = self.get_content_source_list(selected_content_sources)
         context['source_courses'] = self.get_content_courses(selected_content_sources)
         context['activity_form'] = ActivityForm(initial={'collection': self.object})

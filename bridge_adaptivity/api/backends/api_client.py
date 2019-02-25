@@ -40,10 +40,6 @@ def get_active_content_sources(request, source_ids=None, not_allow_empty_source_
 
     content_sources = get_content_providers(request, source_ids=source_ids)
 
-    if not content_sources:
-        # if no active content sources
-        raise HttpClientError(_("No active Content Provider"))
-
     return content_sources
 
 

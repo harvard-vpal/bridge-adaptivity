@@ -70,7 +70,7 @@
           </tr>
           {% for activity in activities %}
             <tr id="activity-row-{{ forloop.counter0 }}"
-                class="activity droppable {% if activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
+                class="activity droppable {% if not activity.lti_consumer.is_active %}danger{% elif activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
                 data-activity-name="{{ activity.name }}"
                 data-id="{{ activity.id }}"
                 data-activity-source-launch-url="{{ activity.source_launch_url }}"
@@ -150,6 +150,10 @@
           <span class="bg-warning">pre-assessments</span> and
           <span class="bg-info">post-assessment</span> activities are marked respectively
         </li>
+        <li class="text-muted">
+            activities with <span class="bg-danger">not active content source</span>
+            are marked <span class="bg-danger">red</span>
+        </li>
           <li class="text-muted">
               Unreachable activities from the content source marked
           <span class="unreachable-activity">gray</span>
@@ -187,6 +191,13 @@
         </button>
       </div>
       <div class="row">
+        {% if not_active_content_source %}
+            <div class="alert alert-danger text-center" role="alert">
+               Something activities have not active content sources.
+               You may ask Bridge administrator to activate content sources with names:
+               {{not_active_content_source|join:", " }}
+            </div>
+        {% endif %}
         {% if not source_courses %}
           <div class="alert alert-warning text-center" role="alert">
             There are no active content sources.
@@ -237,6 +248,7 @@
 
     </div>
     {% endif %}
+
   </div>
 
   {% include "module/modals/source_modal.html" %}
