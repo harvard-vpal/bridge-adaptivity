@@ -14,6 +14,9 @@
 
 {% block body %}
     <script src="{% static 'module/js/collectiongroup.js' %}"></script>
+    {%if not collectionorder.collection.id %}
+        <script src="{% static 'module/js//collectionform.js' %}" ></script>
+    {% endif %}
 
 {%if not collectionorder.collection.id %}
     {% url 'module:grading_policy_form' group_slug=group.slug as get_grading_policy_form %}

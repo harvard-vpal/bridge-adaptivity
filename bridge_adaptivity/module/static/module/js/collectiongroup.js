@@ -10,18 +10,6 @@ var update_form = function() {
     })
 };
 
-var update_collection_form = function() {
-    var clFormUrl = $("#link-objects-form-update").data("collection_url");
-    var cl = $("select[name='collection_group-collection'] option:selected").val();
-    console.log(clFormUrl);
-    $.get(clFormUrl, {
-        collection_id: cl,
-      }, function(response) {
-        console.log(response);
-        $("div.collection_form").html(response);
-    })
-};
-
 var popover_policy = function(){
     $('#policy_help[data-toggle="popover"]').popover({
         title: function(){
@@ -47,9 +35,6 @@ $(document).ready(function() {
       popover_policy();
     });
 
-    $("form select[name=collection_group-collection]").on("change", function() {
-      update_collection_form();
-    });
 });
 
 

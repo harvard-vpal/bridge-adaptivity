@@ -13,7 +13,6 @@
     <table class="table table-hover">
       <tr>
         <th>collection name</th>
-        <th>strict forward</th>
         <th>groups</th>
         {% if not request.session.read_only_data %}
           <th>options</th>
@@ -26,14 +25,6 @@
             {{ collection.name }} : {{ collection.activities.count }}
             {{ collection.activities.count|pluralize:'activity,activities' }}</a>
           </td>
-
-          <td>{% if collection.strict_forward %}
-            <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
-          {% else %}
-            <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
-          {% endif %}
-          </td>
-
           <td style="max-width: 30%">
             {% for group in collection.collection_groups.all %}
               <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group.get_absolute_url }}">{{ group.name }}</a>

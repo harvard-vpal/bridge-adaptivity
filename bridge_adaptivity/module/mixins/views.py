@@ -140,10 +140,9 @@ class CollectionEditFormMixin(object):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if not self.request.POST.get('collection_group-collection'):
-            form_kw = self.get_collection_form_kwargs()
-            post_or_none = self.request.POST if self.request.POST else None
-            context['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
+        form_kw = self.get_collection_form_kwargs()
+        post_or_none = self.request.POST if self.request.POST else None
+        context['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
         context["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
         return context
 
