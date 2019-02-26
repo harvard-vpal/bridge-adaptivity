@@ -193,9 +193,9 @@
       <div class="row">
         {% if not_active_content_source %}
             <div class="alert alert-danger text-center" role="alert">
-               Something activities have not active content sources.
-               You may ask Bridge administrator to activate content sources with names:
-               {{ not_active_content_source|join:", " }}
+               Some activities don't have an active content source.
+               Please send an email for the Bridge's administrator with the request to activate
+                required Content Sources: {{ not_active_content_source|join:", " }}
             </div>
         {% endif %}
         {% if not source_courses %}
