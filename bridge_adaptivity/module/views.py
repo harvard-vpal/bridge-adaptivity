@@ -287,11 +287,11 @@ class CollectionDetail(BaseCollectionView, DetailView):
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
-        context['not_active_content_source'] = activities.values_list('lti_consumer__name', flat=True).filter(
-            lti_consumer__is_active=False
-        )
+        context['not_active_content_source'] = activities.filter(lti_consumer__is_active=False).order_by(
+            "lti_consumer"
+        ).distinct("lti_consumer").values_list('lti_consumer__name', flat=True)
         context['content_sources'] = self.get_content_source_list(selected_content_sources)
-        context['source_courses'] = self.get_content_courses(selected_content_sources)
+        context['source_courses'], context['error_content_source'] = self.get_content_courses(selected_content_sources)
         context['activity_form'] = ActivityForm(initial={'collection': self.object})
         context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
@@ -301,13 +301,13 @@ class CollectionDetail(BaseCollectionView, DetailView):
 
     def get_content_courses(self, selected_content_sources):
         try:
-            return get_available_courses(self.request, selected_content_sources)
-        except HttpClientError:
+            return get_available_courses(self.request, selected_content_sources), ""
+        except HttpClientError as e:
             log.exception(
                 "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
                 "LtiConsumer.is_active=True."
             )
-            return []
+            return [], str(e)
 
     def get_content_source_list(self, selected_content_sources):
         return [

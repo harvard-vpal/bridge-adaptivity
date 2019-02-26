@@ -191,11 +191,18 @@
         </button>
       </div>
       <div class="row">
+
+
         {% if not_active_content_source %}
             <div class="alert alert-danger text-center" role="alert">
                Some activities don't have an active content source.
                Please send an email for the Bridge's administrator with the request to activate
                 required Content Sources: {{ not_active_content_source|join:", " }}
+            </div>
+        {% endif %}
+        {% if error_content_source %}
+            <div class="alert alert-danger text-center" role="alert">
+               {{ error_content_source }}
             </div>
         {% endif %}
         {% if not source_courses %}

@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext as _
+from requests.exceptions import ConnectionError
 import slumber
 
 
@@ -35,10 +37,13 @@ class BaseApiClient(slumber.API):
 
         Result list item has next structure: {course_id, name, org}
         """
-        resource = self.courses.get(
-            username=None,
-            org=None,
-            mobile=None,
-            page_size=1000,
-        )
-        return resource.get('results')
+        try:
+            resource = self.courses.get(
+                username=None,
+                org=None,
+                mobile=None,
+                page_size=1000,
+            )
+            return resource.get('results')
+        except ConnectionError:
+            raise slumber.exceptions.HttpClientError(_("Incorrect URL."))

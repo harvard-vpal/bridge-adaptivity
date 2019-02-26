@@ -99,8 +99,8 @@ def get_available_courses(request, source_ids=None):
 
     for content_source in content_sources:
         # Get API client instance:
-        api = api_client_factory(content_source=content_source)
         try:
+            api = api_client_factory(content_source=content_source)
             all_courses.extend(
                 apply_data_filter(
                     api.get_provider_courses(),
@@ -109,7 +109,11 @@ def get_available_courses(request, source_ids=None):
                 )
             )
         except HttpClientError as exc:
-            raise HttpClientError(_("Not valid query: {}").format(exc.message))
+            raise HttpClientError(
+                _("Problem with {} content source. Reason: {} You may ask Bridge administrator to fix this.").format(
+                    content_source.name, str(exc)
+                )
+            )
 
     return all_courses
 
