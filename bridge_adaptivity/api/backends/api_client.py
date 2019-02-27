@@ -96,7 +96,7 @@ def get_available_courses(request, source_ids=None):
     content_sources = get_active_content_sources(request, source_ids, not_allow_empty_source_id=False)
 
     all_courses = []
-    errors = []
+    errors = {}
     for content_source in content_sources:
         # Get API client instance:
         try:
@@ -109,12 +109,12 @@ def get_available_courses(request, source_ids=None):
                 )
             )
         except HttpClientError as exc:
-            errors.append(
-                _(
-                    "Content source '{}' is unavailable. Reason: {} Please contact Bridge administrator to solve the"
-                    " problem."
-                ).format(content_source.name, str(exc))
-            )
+            error_list = list()
+            if str(exc) in errors:
+                error_list = errors[str(exc)]
+            error_list.append(content_source.name)
+            errors[str(exc)] = error_list
+
     return all_courses, errors
 
 
