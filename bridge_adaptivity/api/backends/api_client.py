@@ -110,9 +110,10 @@ def get_available_courses(request, source_ids=None):
             )
         except HttpClientError as exc:
             raise HttpClientError(
-                _("Problem with {} content source. Reason: {} You may ask Bridge administrator to fix this.").format(
-                    content_source.name, str(exc)
-                )
+                _(
+                    "Problem with {} content source. Reason: {} Please contact Bridge administrator to solve the"
+                    " problem."
+                ).format(content_source.name, str(exc))
             )
 
     return all_courses
