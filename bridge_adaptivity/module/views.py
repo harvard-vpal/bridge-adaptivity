@@ -1,5 +1,6 @@
 import datetime
 import logging
+import urllib
 from xml.sax.saxutils import escape
 
 from django.conf import settings
@@ -678,8 +679,8 @@ def preview_collection(request, slug):
     acitvities = [
         {
             'url': (
-                f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={a.name}&source_lti_url='
-                f'{a.source_launch_url}&content_source_id={a.lti_consumer_id}'
+                f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={urllib.parse.quote_plus(a.name)}'
+                f'&source_lti_url={a.source_launch_url}&content_source_id={a.lti_consumer_id}'
             ),
             'pos': pos,
         }
