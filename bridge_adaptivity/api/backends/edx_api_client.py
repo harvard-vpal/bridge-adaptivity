@@ -66,13 +66,12 @@ class OpenEdxApiClient(BaseApiClient, EdxRestApiClient):
                 "LTI Provider may be disabled (to enable: LMS config > FEATURES > ENABLE_OAUTH2_PROVIDER: true"
             )
             raise HttpClientError(
-                "OAuth token request failure. You may want to check your OAuth registration on LTI Provider or"
-                "enable OAuth Provider."
+                "OAuth token request failure."
             )
         except RequestException:
             log.exception('OAuth2 token request to the OpenEdx LTI Provider failed.')
             raise HttpClientError(
-                "OAuth token request failure. You may want to check your LTI Provider's HOST_URL(https)."
+                "OAuth token request failure."
             )
         return access_token, expires_at
 

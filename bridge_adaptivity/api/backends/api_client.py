@@ -40,10 +40,6 @@ def get_active_content_sources(request, source_ids=None, not_allow_empty_source_
 
     content_sources = get_content_providers(request, source_ids=source_ids)
 
-    if not content_sources:
-        # if no active content sources
-        raise HttpClientError(_("No active Content Provider"))
-
     return content_sources
 
 
@@ -100,11 +96,11 @@ def get_available_courses(request, source_ids=None):
     content_sources = get_active_content_sources(request, source_ids, not_allow_empty_source_id=False)
 
     all_courses = []
-
+    errors = []
     for content_source in content_sources:
         # Get API client instance:
-        api = api_client_factory(content_source=content_source)
         try:
+            api = api_client_factory(content_source=content_source)
             all_courses.extend(
                 apply_data_filter(
                     api.get_provider_courses(),
@@ -113,9 +109,13 @@ def get_available_courses(request, source_ids=None):
                 )
             )
         except HttpClientError as exc:
-            raise HttpClientError(_("Not valid query: {}").format(exc.message))
-
-    return all_courses
+            errors.append(
+                _(
+                    "Content source '{}' is unavailable. Reason: {} Please contact Bridge administrator to solve the"
+                    " problem."
+                ).format(content_source.name, str(exc))
+            )
+    return all_courses, errors
 
 
 def add_to_dict(data, **kwargs):
