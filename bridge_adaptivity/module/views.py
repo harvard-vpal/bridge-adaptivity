@@ -18,7 +18,6 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from django.views.generic.edit import FormView
 from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
-from slumber.exceptions import HttpClientError
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
 from bridge_lti.models import LtiProvider, LtiUser
@@ -291,23 +290,15 @@ class CollectionDetail(BaseCollectionView, DetailView):
             "lti_consumer"
         ).distinct("lti_consumer").values_list('lti_consumer__name', flat=True)
         context['content_sources'] = self.get_content_source_list(selected_content_sources)
-        context['source_courses'], context['error_content_source'] = self.get_content_courses(selected_content_sources)
+        context['source_courses'], context['errors_content_source'] = get_available_courses(
+            self.request, selected_content_sources
+        )
         context['activity_form'] = ActivityForm(initial={'collection': self.object})
         context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
             context['engine'] = engine_failure
         return context
-
-    def get_content_courses(self, selected_content_sources):
-        try:
-            return get_available_courses(self.request, selected_content_sources), ""
-        except HttpClientError as e:
-            log.exception(
-                "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
-                "LtiConsumer.is_active=True."
-            )
-            return [], str(e)
 
     def get_content_source_list(self, selected_content_sources):
         return [

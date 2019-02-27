@@ -200,10 +200,12 @@
                 required Content Sources: {{ not_active_content_source|join:", " }}
             </div>
         {% endif %}
-        {% if error_content_source %}
+        {% if errors_content_source %}
+            {% for error_content_source in errors_content_source %}
             <div class="alert alert-danger text-center" role="alert">
                {{ error_content_source }}
             </div>
+            {% endfor %}
         {% endif %}
         {% if not source_courses %}
           <div class="alert alert-warning text-center" role="alert">
