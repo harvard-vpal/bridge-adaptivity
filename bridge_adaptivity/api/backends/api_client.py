@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 
 from django.utils.translation import ugettext as _
@@ -96,7 +97,7 @@ def get_available_courses(request, source_ids=None):
     content_sources = get_active_content_sources(request, source_ids, not_allow_empty_source_id=False)
 
     all_courses = []
-    errors = []
+    errors = defaultdict(list)
     for content_source in content_sources:
         # Get API client instance:
         try:
@@ -109,13 +110,10 @@ def get_available_courses(request, source_ids=None):
                 )
             )
         except HttpClientError as exc:
-            errors.append(
-                _(
-                    "Content source '{}' is unavailable. Reason: {} Please contact Bridge administrator to solve the"
-                    " problem."
-                ).format(content_source.name, str(exc))
-            )
-    return all_courses, errors
+            errors[str(exc)].append(content_source.name)
+
+    # Convert defaultdict to dict, because django template doesn't work with defaultdict
+    return all_courses, dict(errors)
 
 
 def add_to_dict(data, **kwargs):
