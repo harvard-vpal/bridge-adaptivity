@@ -203,7 +203,7 @@
         {% if errors_content_source %}
             {% for error, content_sources in errors_content_source.items %}
             <div class="alert alert-danger text-center" role="alert">
-               Content source(s) '{{ content_sources|join:", " }}' is/are unavailable. Reason: {{ error }} Please contact Bridge administrator to solve the problem.
+               Content source(s) "{{ content_sources|join:", " }}" is/are unavailable. Reason: {{ error }} Please contact Bridge administrator to solve the problem.
             </div>
             {% endfor %}
         {% endif %}
