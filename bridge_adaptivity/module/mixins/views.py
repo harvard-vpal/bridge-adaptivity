@@ -78,22 +78,14 @@ class CollectionOrderEditFormMixin(object):
     grading_prefix = 'grading'
     collection_prefix = 'collection'
 
-    def get_grading_form_kwargs(self):
-        """Return kwargs for GradingForm."""
-        form_kw = dict(prefix=self.grading_prefix)
-        if isinstance(self.object, CollectionOrder) and self.object.grading_policy:
-            form_kw['instance'] = self.object.grading_policy
-        return form_kw
-
-    def get_collection_form_kwargs(self):
-        """Return kwargs for GradingForm."""
-        form_kw = dict(prefix=self.collection_prefix)
-        if isinstance(self.object, CollectionOrder) and self.object.collection:
-            form_kw['instance'] = self.object.collection
+    def get_extra_form_kwargs(self, prefix, instance):
+        form_kw = dict(prefix=prefix)
+        if isinstance(self.object, CollectionOrder) and hasattr(self.object, instance):
+            form_kw['instance'] = getattr(self.object, instance)
         return form_kw
 
     def form_valid(self, form):
-        form_kw = self.get_grading_form_kwargs()
+        form_kw = self.get_extra_form_kwargs(self.grading_prefix, "grading_policy")
         policy = GRADING_POLICY_NAME_TO_CLS[self.request.POST.get('collection_group-grading_policy_name')]
         grading_policy_form = policy.get_form_class()
         grading_policy_form = grading_policy_form(self.request.POST, **form_kw)
@@ -102,7 +94,7 @@ class CollectionOrderEditFormMixin(object):
                 grading_policy_form.instance.params = {}
             grading_policy = grading_policy_form.save()
             form.cleaned_data['grading_policy'] = grading_policy
-            form_kw = self.get_collection_form_kwargs()
+            form_kw = self.get_extra_form_kwargs(self.collection_prefix, "collection")
             post_or_none = self.request.POST if self.request.POST else None
             collection_form = BaseCollectionForm(post_or_none, **form_kw)
 
@@ -123,10 +115,10 @@ class CollectionOrderEditFormMixin(object):
 
     def get_context_data(self, **kwargs):
         data = super().get_context_data(**kwargs)
-        form_kw = self.get_grading_form_kwargs()
+        form_kw = self.get_extra_form_kwargs(self.grading_prefix, "grading_policy")
         post_or_none = self.request.POST if self.request.POST else None
         data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
-        form_kw = self.get_collection_form_kwargs()
+        form_kw = self.get_extra_form_kwargs(self.collection_prefix, "collection")
         data['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
         return data
 
