@@ -1,3 +1,4 @@
+from collections import defaultdict
 import logging
 
 from django.utils.translation import ugettext as _
@@ -39,10 +40,6 @@ def get_active_content_sources(request, source_ids=None, not_allow_empty_source_
         raise HttpClientError(_("Parameter source_id is mandatory if there's more than one active content source."))
 
     content_sources = get_content_providers(request, source_ids=source_ids)
-
-    if not content_sources:
-        # if no active content sources
-        raise HttpClientError(_("No active Content Provider"))
 
     return content_sources
 
@@ -100,11 +97,11 @@ def get_available_courses(request, source_ids=None):
     content_sources = get_active_content_sources(request, source_ids, not_allow_empty_source_id=False)
 
     all_courses = []
-
+    errors = defaultdict(list)
     for content_source in content_sources:
         # Get API client instance:
-        api = api_client_factory(content_source=content_source)
         try:
+            api = api_client_factory(content_source=content_source)
             all_courses.extend(
                 apply_data_filter(
                     api.get_provider_courses(),
@@ -113,9 +110,10 @@ def get_available_courses(request, source_ids=None):
                 )
             )
         except HttpClientError as exc:
-            raise HttpClientError(_("Not valid query: {}").format(exc.message))
+            errors[str(exc)].append(content_source.name)
 
-    return all_courses
+    # Convert defaultdict to dict, because django template doesn't work with defaultdict
+    return all_courses, dict(errors)
 
 
 def add_to_dict(data, **kwargs):

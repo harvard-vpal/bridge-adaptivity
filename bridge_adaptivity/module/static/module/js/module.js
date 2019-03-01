@@ -233,7 +233,7 @@
 
         function configurePreview(title, ltiUrl, sourceId, contentSourceId, modalFrame) {
             var idParam = "source_id=" + sourceId + "&";
-            var displayNameParam = "source_name=" + title + "&";
+            var displayNameParam = "source_name=" + encodeURIComponent(title) + "&";
             var ltiUrlParam = "source_lti_url=" + ltiUrl + "&";
             var contentSourceIdParam = "content_source_id=" + contentSourceId + "&";
             var previewUrl = (

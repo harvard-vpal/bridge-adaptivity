@@ -1,5 +1,6 @@
 import datetime
 import logging
+import urllib
 from xml.sax.saxutils import escape
 
 from django.conf import settings
@@ -381,28 +382,23 @@ class CollectionDetail(BaseCollectionView, DetailView):
 
     def get_context_data(self, **kwargs):
         selected_content_sources = list(map(int, self.request.GET.getlist('content_source', [])))
-        activities = Activity.objects.filter(collection=self.object)
+        activities = Activity.objects.filter(collection=self.object).select_related('lti_consumer')
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
+        context['not_active_content_source'] = activities.filter(lti_consumer__is_active=False).order_by(
+            "lti_consumer"
+        ).distinct("lti_consumer").values_list('lti_consumer__name', flat=True)
         context['content_sources'] = self.get_content_source_list(selected_content_sources)
-        context['source_courses'] = self.get_content_courses(selected_content_sources)
+        context['source_courses'], context['errors_content_source'] = get_available_courses(
+            self.request, selected_content_sources
+        )
         context['activity_form'] = ActivityForm(initial={'collection': self.object})
         context['sync_available'] = self.object.collection_groups.exists()
         engine_failure = self.request.GET.get('engine')
         if engine_failure:
             context['engine'] = engine_failure
         return context
-
-    def get_content_courses(self, selected_content_sources):
-        try:
-            return get_available_courses(self.request, selected_content_sources)
-        except HttpClientError:
-            log.exception(
-                "There are no active LTI Content Providers. Enable one by setting via Bridge admin site"
-                "LtiConsumer.is_active=True."
-            )
-            return []
 
     def get_content_source_list(self, selected_content_sources):
         return [
@@ -502,10 +498,9 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
         Updating activity and changing the activity's order if activity changes the type.
         """
         activity = self.get_object()
-        # NOTE(AndreyLykhoman): Run this block if activity changes it's 'atype'. In this block We reorder set where
-        #  activity was and change atype and order(that equals the last order pluse one)
         if request.POST.get("atype") != activity.atype:
-            # NOTE(AndreyLykhoman): Get and reorder set where activity was
+            # NOTE(AndreyLykhoman): Excluding activity from atype group and reorder other activities. The autocommit
+            #  was disabled in this part of code in order to send one query to DB.
             ordering_queryset = activity.get_ordering_queryset().exclude(pk=activity.pk)
             if ordering_queryset.exists():
                 transaction.set_autocommit(False)
@@ -520,7 +515,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
                     transaction.commit()
                 finally:
                     transaction.set_autocommit(True)
-            # NOTE(AndreyLykhoman): Get a set were activity will be and get last order or create new one
+            # NOTE(AndreyLykhoman): Calculate a new activity's order
             new_order = 0
             tmp_activity = Activity.objects.filter(
                 collection=activity.collection,
@@ -528,7 +523,7 @@ class ActivityUpdate(CollectionSlugToContextMixin, ModalFormMixin, UpdateView):
             ).first()
             if tmp_activity:
                 new_order = 1 + tmp_activity.get_ordering_queryset().latest('order').order
-            # NOTE(AndreyLykhoman): Change and save activity
+
             activity.atype, activity.order = request.POST.get("atype"), new_order
             activity.save()
         result = super().post(request, *args, **kwargs)
@@ -790,8 +785,8 @@ def preview_collection(request, slug):
     acitvities = [
         {
             'url': (
-                f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={a.name}&source_lti_url='
-                f'{a.source_launch_url}&content_source_id={a.lti_consumer_id}'
+                f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={urllib.parse.quote_plus(a.name)}'
+                f'&source_lti_url={a.source_launch_url}&content_source_id={a.lti_consumer_id}'
             ),
             'pos': pos,
         }

@@ -371,7 +371,7 @@ class TestBackURLMixin(BridgeTestCase):
         self.assertIn('back_url', change_response.context)
         self.assertEqual(change_response.context['back_url'], self.back_url)
 
-    @patch('module.views.get_available_courses', return_value=[])
+    @patch('module.views.get_available_courses', return_value=([], []))
     def test_collection_detail_back_url(self, available_course_mock):
         """Test back_url param is added into context navigation from collection detail view."""
         url_detail = (
@@ -512,7 +512,7 @@ class TestManualSync(BridgeTestCase):
 
     @patch('module.tasks.sync_collection_engines.delay')
     @patch('module.tasks.sync_collection_engines.apply_async')
-    @patch('module.views.get_available_courses')
+    @patch('module.views.get_available_courses', return_value=([], []))
     def test_immediate_synchronization(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
