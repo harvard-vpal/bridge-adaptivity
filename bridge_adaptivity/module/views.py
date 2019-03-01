@@ -371,7 +371,7 @@ class CollectionOrderAdd(
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
-    filter = 'collection'
+    filter = 'collection_id'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -464,7 +464,7 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
         return result
 
     def form_valid(self, form):
-        form.instance.collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
+        form.instance.collection = Collection.objects.get(id=self.kwargs.get('collection_id'))
         result = super().form_valid(form)
         return result
 
@@ -581,7 +581,7 @@ class SequenceDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:group-detail', kwargs={'group_slug': self.object.group.slug}
+            'module:group-detail', kwargs={'group_id': self.object.group.id}
         )
 
     def delete(self, request, *args, **kwargs):
@@ -750,38 +750,38 @@ def callback_sequence_item_grade(request):
     return HttpResponse(xml, content_type="application/xml")
 
 
-def sync_collection(request, slug, api_request=None):
+def sync_collection(request, pk, api_request=None):
     """
     Synchronize collection immediately.
     """
     back_url = request.GET.get('back_url')
-    collection = get_object_or_404(Collection, slug=slug)
+    collection = get_object_or_404(Collection, id=pk)
     collection.save()
     log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
     task = tasks.sync_collection_engines.delay(
-        collection_slug=slug, created_at=collection.updated_at
+        collection_id=pk, created_at=collection.updated_at
     )
     if api_request:
         return task.collect(timeout=settings.CELERY_RESULT_TIMEOUT)
     return redirect(reverse('module:collection-detail', kwargs={'pk': collection.id}) + '?back_url={}'.format(back_url))
 
 
-def update_students_grades(request, collection_order_id):
+def update_students_grades(request, collection_order_slug):
     """
     Mandatory update students grade related to the collection-group.
     """
     back_url = request.GET.get('back_url')
-    colection_order = get_object_or_404(CollectionOrder, id=collection_order_id)
+    colection_order = get_object_or_404(CollectionOrder, slug=collection_order_slug)
     tasks.update_students_grades.delay(collection_order_id=colection_order.id)
     log.debug(
         f"Task with updating students grades related to the colection_order with id {colection_order.id} is started."
     )
     return redirect(reverse(
-        'module:group-detail', kwargs={'group_slug': colection_order.group.slug}
+        'module:group-detail', kwargs={'group_id': colection_order.group.id}
     ) + '?back_url={}'.format(back_url))
 
 
-def preview_collection(request, slug):
+def preview_collection(request, pk):
     acitvities = [
         {
             'url': (
@@ -790,7 +790,7 @@ def preview_collection(request, slug):
             ),
             'pos': pos,
         }
-        for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug), start=1)
+        for pos, a in enumerate(get_list_or_404(Activity, collection__id=pk), start=1)
     ]
     return render(
         request,
@@ -798,20 +798,22 @@ def preview_collection(request, slug):
         context={
             'activities': acitvities,
             'back_url': (
-                f"{reverse('module:collection-detail', kwargs={'pk': Collection.objects.get(slug=slug).pk})}"
+                f"{reverse('module:collection-detail', kwargs={'pk': pk})}"
                 f"?back_url={request.GET.get('back_url')}"
             )
         }
     )
 
 
-def demo_collection(request, group_slug, collection_slug, collection_order_order):
+def demo_collection(request, collection_order_slug):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    collection, collection_group, __, collection_order = get_collection_collectiongroup_engine(
-        collection_slug, group_slug, collection_order_order,
+    __, collection_order = get_collection_collectiongroup_engine(
+        collection_order_slug
     )
+
+    collection, collection_group = collection_order.collection, collection_order.group
     lti_consumer = LtiProvider.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,
@@ -831,11 +833,9 @@ def demo_collection(request, group_slug, collection_slug, collection_order_order
     back_url = request.GET.get('back_url', '')
 
     context = {
-        'group_slug': group_slug,
         'sequence_pk': test_sequence.id,
         'back_url': back_url,
         'forbidden': request.GET.get('forbidden', ''),
-        'collection_order': collection_order_order
     }
 
     if created or not test_sequence.items.exists():
@@ -870,9 +870,7 @@ def demo_collection(request, group_slug, collection_slug, collection_order_order
             reverse_demo = reverse(
                 'module:demo',
                 kwargs={
-                    'collection_slug': collection_slug,
-                    'group_slug': group_slug,
-                    'collection_order_order': collection_order_order,
+                    'collection_order_slug': collection_order_slug,
                 }
             )
             return redirect(f"{reverse_demo}?forbidden=true&back_url={back_url}&position={sequence_item.position}")

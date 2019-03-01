@@ -21,10 +21,10 @@ def update_lms_grades(request=None, sequence=None):
     outcome_request.lis_result_sourcedid = sequence.lis_result_sourcedid
 
     log.debug("Update LMS grades. Used sequence = {} is completed = {}, grading_policy = {}".format(
-        sequence, sequence.completed, sequence.group.grading_policy
+        sequence, sequence.completed, sequence.collection_order.grading_policy
     ))
 
-    score = sequence.group.grading_policy.calculate_grade(sequence)
+    score = sequence.collection_order.grading_policy.calculate_grade(sequence)
     outcome_request.post_replace_result(score)
     lms_response = outcome_request.outcome_response
     user_id = sequence.lti_user

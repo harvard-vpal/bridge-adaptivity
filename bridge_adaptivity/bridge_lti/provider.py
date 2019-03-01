@@ -79,7 +79,8 @@ def instructor_flow(request, collection_order_slug):
     """
     if not collection_order_slug:
         return redirect(reverse('module:collection-list'))
-    request.session['read_only_data'] = {'collection_order': collection_order_slug}
+    collection_id = CollectionOrder.objects.get(slug=collection_order_slug).collection.id
+    request.session['read_only_data'] = {'collection_id': collection_id}
     read_only_user, _ = BridgeUser.objects.get_or_create(
         username='read_only',
         password='fake_pass'
@@ -89,7 +90,7 @@ def instructor_flow(request, collection_order_slug):
     return redirect(
         reverse(
             'module:collection-detail',
-            kwargs={'pk': CollectionOrder.objects.get(slug=collection_order_slug).collection.id}
+            kwargs={'pk': collection_id}
         )
     )
 
@@ -133,7 +134,7 @@ def learner_flow(
         return stub_page(request)
 
     engine, collection_order = get_collection_collectiongroup_engine(collection_order_slug)
-    collection, collection_group = collection_order.collection, collection_order.gtop
+    collection, collection_group = collection_order.collection, collection_order.group
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
         lti_consumer=lti_consumer,

@@ -8,7 +8,7 @@
 <div class="container-fluid toolbar">
   {% if demo %}
     <a
-        href="{% url 'module:delete_sequence' sequence_pk %}?return_url={% url 'module:group-detail' group_slug %}?back_url={{ back_url }}">
+        href="{% url 'module:delete_sequence' sequence_pk %}?return_url={% url 'module:group-detail' sequence_item.sequence.collection_order.group.id %}?back_url={{ back_url }}">
         <button class="btn btn-warning ">Close Demo</button>
     </a>
 
@@ -19,7 +19,7 @@
         {% for item in sequence_items %}
         <a href="
           {% if demo %}
-              {% url 'module:demo' group_slug=sequence_item.sequence.collection_order.group.slug collection_slug=sequence_item.sequence.collection.slug collection_order_order=sequence_item.sequence.collection_order.order %}?sequence_item_id={{ item.id }}&position={{ item.position }}
+              {% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}?sequence_item_id={{ item.id }}&position={{ item.position }}
           {% else %}
               {% url 'module:sequence-item' item.id %}
           {% endif %}

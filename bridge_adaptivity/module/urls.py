@@ -40,7 +40,7 @@ urlpatterns = ([
     url(r'^(?:group/(?P<group_id>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
     url(r'^(?:group/(?P<group_id>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
-    url('collection/(?P<id>[\w-]+)/change/', CollectionUpdate.as_view(), name='collection-change'),
+    url('collection/(?P<pk>[\w-]+)/change/', CollectionUpdate.as_view(), name='collection-change'),
     url(
         r'collection_order/(?P<collection_order_slug>[\w-]+)/change$',
         CollectionOrderUpdate.as_view(),
@@ -55,7 +55,7 @@ urlpatterns = ([
         name='collection-detail'
     ),
     url(
-        r'^(?:group/(?P<group_id>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$',
+        r'^(?:group/(?P<group_id>[\w-]+)/)?collection/(?P<pk>\d+)/delete/?$',
         CollectionDelete.as_view(),
         name='collection-delete'
     ),

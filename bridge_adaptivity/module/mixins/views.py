@@ -121,7 +121,7 @@ class OnlyMyObjectsMixin(object):
         qs = super().get_queryset()
         read_only_data = self.request.session.get('read_only_data')
         if read_only_data and getattr(self, 'filter', None) in read_only_data:
-            return qs.filter(slug=read_only_data[self.filter])
+            return qs.filter(id=read_only_data[self.filter])
         return qs.filter(**{self.owner_field: self.request.user})
 
 

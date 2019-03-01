@@ -395,7 +395,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collectiongroup_detail_back_url(self):
         """Test back_url param is added into context navigation from collectiongroup detail view."""
         url = (
-            reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}) +
+            reverse('module:group-detail', kwargs={'group_id': self.test_cg.id}) +
             '?back_url={}'.format(self.back_url)
         )
         detail_response = self.client.get(url)
@@ -542,7 +542,7 @@ class TestManualGradeUpdate(BridgeTestCase):
 
     @patch('module.tasks.update_students_grades.delay')
     def test_mandatory_students_grade_update(self, mock_delay):
-        expected_url = reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}) + '?back_url=None'
+        expected_url = reverse('module:group-detail', kwargs={'group_id': self.test_cg.id}) + '?back_url=None'
         url = reverse('module:update_grades', kwargs={'collection_order_id': self.collection_order1.id})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(collection_order_id=self.collection_order1.id)
