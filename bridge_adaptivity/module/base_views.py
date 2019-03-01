@@ -20,7 +20,21 @@ class BaseCourseView(OnlyMyObjectsMixin, BackURLMixin):
     model = Course
 
 
-class BaseGroupView(OnlyMyObjectsMixin, BackURLMixin):
+class BaseGetFormKwargs(OnlyMyObjectsMixin, BackURLMixin):
+    """
+    Call the parent get_form_kwargs method and then self get_form_kwargs variant.
+    """
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        model_field_names = [f.name for f in self.model._meta.fields]
+        filtered_get = {key: value for key, value in self.request.GET.items() if key in model_field_names}
+        if filtered_get and not self.request.POST:
+            kwargs['initial'] = filtered_get
+        return kwargs
+
+
+class BaseGroupView(BaseGetFormKwargs):
     """
     Base view for Group (Module).
     """
@@ -28,17 +42,6 @@ class BaseGroupView(OnlyMyObjectsMixin, BackURLMixin):
     slug_url_kwarg = 'group_id'
     slug_field = 'id'
     model = ModuleGroup
-
-    def get_form_kwargs(self):
-        """
-        Get form kwargs for ModuleGroup model.
-        """
-        kwargs = super().get_form_kwargs()
-        model_field_names = [f.name for f in ModuleGroup._meta.fields]
-        filtered_get = {key: value for key, value in self.request.GET.items() if key in model_field_names}
-        if filtered_get and not self.request.POST:
-            kwargs['initial'] = filtered_get
-        return kwargs
 
 
 class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
@@ -51,21 +54,10 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     ordering = ['id']
 
 
-class BaseCollectionOrderView(OnlyMyObjectsMixin, BackURLMixin):
+class BaseCollectionOrderView(BaseGetFormKwargs):
     """
     Base view for CollectionOrder.
     """
 
     model = CollectionOrder
     ordering = ['group', 'order']
-
-    def get_form_kwargs(self):
-        """
-        Get form kwargs for CollectionOrder model.
-        """
-        kwargs = super().get_form_kwargs()
-        model_field_names = [f.name for f in CollectionOrder._meta.fields]
-        filtered_get = {key: value for key, value in self.request.GET.items() if key in model_field_names}
-        if filtered_get and not self.request.POST:
-            kwargs['initial'] = filtered_get
-        return kwargs

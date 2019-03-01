@@ -59,16 +59,37 @@ class GroupEditFormMixin(object):
         return form
 
 
+class BaseEditFormMixin(object):
+    extra_form_kw_method = "method"
+    extra_form_class = None
+    extra_form_context_string = 'extra'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form_kw = getattr(self, self.extra_form_kw_method)()
+        post_or_none = self.request.POST if self.request.POST else None
+        context[self.extra_form_context_string] = self.extra_form_class(post_or_none, **form_kw)
+        return context
+
+
 class CollectionOrderEditFormMixin(object):
     form_class = CollectionOrderForm
     prefix = 'collection_group'
     grading_prefix = 'grading'
+    collection_prefix = 'collection'
 
     def get_grading_form_kwargs(self):
         """Return kwargs for GradingForm."""
         form_kw = dict(prefix=self.grading_prefix)
         if isinstance(self.object, CollectionOrder) and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy
+        return form_kw
+
+    def get_collection_form_kwargs(self):
+        """Return kwargs for GradingForm."""
+        form_kw = dict(prefix=self.collection_prefix)
+        if isinstance(self.object, CollectionOrder) and self.object.collection:
+            form_kw['instance'] = self.object.collection
         return form_kw
 
     def form_valid(self, form):
@@ -81,7 +102,18 @@ class CollectionOrderEditFormMixin(object):
                 grading_policy_form.instance.params = {}
             grading_policy = grading_policy_form.save()
             form.cleaned_data['grading_policy'] = grading_policy
-            response = super().form_valid(form)
+            form_kw = self.get_collection_form_kwargs()
+            post_or_none = self.request.POST if self.request.POST else None
+            collection_form = BaseCollectionForm(post_or_none, **form_kw)
+
+            if collection_form.is_valid():
+                collection = collection_form.save()
+                form.cleaned_data['collection'] = collection
+                response = super().form_valid(form)
+            elif self.request.POST.get('collection_group-collection'):
+                response = super().form_valid(form)
+            else:
+                response = self.form_invalid(form)
         else:
             response = self.form_invalid(form)
             if 'params' in grading_policy_form.cleaned_data:
@@ -94,6 +126,8 @@ class CollectionOrderEditFormMixin(object):
         form_kw = self.get_grading_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
         data['grading_policy_form'] = BaseGradingPolicyForm(post_or_none, **form_kw)
+        form_kw = self.get_collection_form_kwargs()
+        data['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
         return data
 
     def get_form(self):
@@ -103,6 +137,7 @@ class CollectionOrderEditFormMixin(object):
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections
+        form.fields['collection'].required = False
         if self.kwargs.get('collection_order_slug'):
             collection_order = get_object_or_404(
                 CollectionOrder,
@@ -122,46 +157,6 @@ class OnlyMyObjectsMixin(object):
         if read_only_data and getattr(self, 'filter', None) in read_only_data:
             return qs.filter(id=read_only_data[self.filter])
         return qs.filter(**{self.owner_field: self.request.user})
-
-
-class CollectionEditFormMixin(object):
-    form_class = BaseCollectionForm
-    prefix = 'collection'
-    collection_prefix = 'collection'
-
-    def get_collection_form_kwargs(self):
-        """Return kwargs for GradingForm."""
-        form_kw = dict(prefix=self.collection_prefix)
-        if self.object and self.object.collection:
-            form_kw['instance'] = self.object.collection
-        return form_kw
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        form_kw = self.get_collection_form_kwargs()
-        post_or_none = self.request.POST if self.request.POST else None
-        context['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
-        return context
-
-    def form_valid(self, form):
-        form_kw = self.get_collection_form_kwargs()
-        post_or_none = self.request.POST if self.request.POST else None
-        collection_form = BaseCollectionForm(post_or_none, **form_kw)
-
-        if collection_form.is_valid():
-            collection = collection_form.save()
-            form.cleaned_data['collection'] = collection
-            response = super().form_valid(form)
-        elif self.request.POST.get('collection_group-collection'):
-            response = super().form_valid(form)
-        else:
-            response = self.form_invalid(form)
-        return response
-
-    def get_form(self):
-        form = super().get_form()
-        form.fields['collection'].required = False
-        return form
 
 
 class BackURLMixin(object):

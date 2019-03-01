@@ -29,7 +29,7 @@ from module.forms import (
     ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, GroupForm
 )
 from module.mixins.views import (
-    BackURLMixin, CollectionEditFormMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
+    BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
     GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
@@ -299,21 +299,17 @@ class CollectionOrderUpdate(
     BaseCollectionOrderView,
     SetUserInFormMixin,
     CollectionOrderEditFormMixin,
-    CollectionEditFormMixin,
     ModalFormMixin,
     UpdateView,
 ):
 
     def get_object(self):
-        return CollectionOrder.objects.get(
-            slug=self.kwargs.get("collection_order_slug")
-        )
+        collection_order = CollectionOrder.objects.get(slug=self.kwargs.get("collection_order_slug"))
+        self.colection_order_group_id = collection_order.group.id
+        return collection_order
 
     def get_success_url(self):
-        collection_order = CollectionOrder.objects.get(
-            slug=self.kwargs.get("collection_order_slug")
-        )
-        return reverse("module:group-detail", kwargs={'group_id': collection_order.group.id})
+        return reverse("module:group-detail", kwargs={'group_id': self.colection_order_group_id})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -330,7 +326,6 @@ class CollectionOrderAdd(
     BaseCollectionOrderView,
     SetUserInFormMixin,
     CollectionOrderEditFormMixin,
-    CollectionEditFormMixin,
     ModalFormMixin,
     CreateView
 ):
