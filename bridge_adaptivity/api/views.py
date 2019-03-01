@@ -87,7 +87,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = CollectionSerializer
-    filter_fields = ['slug']
+    filter_fields = ['id']
 
     def get_queryset(self):
         """
@@ -98,7 +98,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['GET'])
-def sync_collection(request, slug):
+def sync_collection(request, pk):
     """
     Sync collection - engine API.
 
@@ -112,7 +112,7 @@ def sync_collection(request, slug):
         }
     """
     try:
-        result = [v for obj, v in module_views.sync_collection(request, slug, api_request=True)]
+        result = [v for obj, v in module_views.sync_collection(request, pk, api_request=True)]
     except TimeoutError:
         log.debug(f"The Collection sync task failed because of timeout error.")
         return HttpResponseBadRequest(reason="Collection sync was failed, the reason is: TimeoutError")

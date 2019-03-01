@@ -13,7 +13,6 @@ def sync_collection_engines(collection_id=None, created_at=None):
     if not collection:
         return
     sync_result = {}
-
     for coll_collection_order in CollectionOrder.objects.filter(collection=collection).select_related('engine'):
         try:
             coll_collection_order.engine.engine_driver.sync_collection_activities(collection)
@@ -25,9 +24,9 @@ def sync_collection_engines(collection_id=None, created_at=None):
 
 
 @task()
-def update_students_grades(collection_order_id=None):
+def update_students_grades(collection_order_slug=None):
     from module.models import CollectionOrder
-    collection_order = CollectionOrder.objects.get(id=collection_order_id)
+    collection_order = CollectionOrder.objects.get(slug=collection_order_slug)
     for sequence in collection_order.sequence_set.all():
         if sequence.lis_result_sourcedid:
             collection_order.grading_policy.policy_instance(sequence=sequence).send_grade()

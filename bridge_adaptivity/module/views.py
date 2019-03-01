@@ -19,7 +19,6 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from django.views.generic.edit import FormView
 from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
-from slumber.exceptions import HttpClientError
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
 from bridge_lti.models import LtiProvider, LtiUser
@@ -34,8 +33,7 @@ from module.mixins.views import (
     GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, ModuleGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
-    SequenceItem,
+    Activity, Collection, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
@@ -108,7 +106,7 @@ class CourseAddGroup(JsonResponseMixin, FormView):
 class CourseRmGroup(UpdateView):
     model = ModuleGroup
     template_name = 'module/modals/course_add_group.html'
-    slug_url_kwarg = 'group_id'
+    pk_url_kwarg = 'group_id'
     fields = ('course',)
 
     def get_queryset(self):
@@ -255,7 +253,7 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView)
         # ToDo(AndreyLykhoman): testing this order method
         if kwargs.get('order'):
             collection_order = CollectionOrder.objects.get(
-                group__slug=kwargs.get('group_slug'), id=kwargs.get('id')
+                slug=kwargs.get('collection_order_slug')
             )
             try:
                 getattr(collection_order, 'to')(int(kwargs['order']))
@@ -285,8 +283,8 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        if self.kwargs.get('group_slug'):
-            group = ModuleGroup.objects.get(slug=self.kwargs['group_slug'])
+        if self.kwargs.get('group_id'):
+            group = ModuleGroup.objects.get(id=self.kwargs['group_id'])
             CollectionOrder.objects.create(group=group, collection=self.object)
         return result
 
@@ -772,7 +770,7 @@ def update_students_grades(request, collection_order_slug):
     """
     back_url = request.GET.get('back_url')
     colection_order = get_object_or_404(CollectionOrder, slug=collection_order_slug)
-    tasks.update_students_grades.delay(collection_order_id=colection_order.id)
+    tasks.update_students_grades.delay(collection_order_slug=collection_order_slug)
     log.debug(
         f"Task with updating students grades related to the colection_order with id {colection_order.id} is started."
     )
@@ -813,7 +811,7 @@ def demo_collection(request, collection_order_slug):
         collection_order_slug
     )
 
-    collection, collection_group = collection_order.collection, collection_order.group
+    collection = collection_order.collection
     lti_consumer = LtiProvider.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,

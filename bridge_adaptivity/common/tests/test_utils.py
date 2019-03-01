@@ -5,7 +5,7 @@ from mock.mock import patch
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from common.utils import find_last_sequence_item
 from module.models import (
-    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+    Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
 )
 
 

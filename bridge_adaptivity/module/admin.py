@@ -4,7 +4,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
 from .models import (
-    Activity, Collection, ModuleGroup, CollectionOrder, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem,
+    Activity, Collection, CollectionOrder, Course, Engine, GradingPolicy, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 

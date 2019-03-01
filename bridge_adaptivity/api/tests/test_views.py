@@ -113,7 +113,7 @@ class TestSourcesView(BridgeTestCase):
     def test_sync_collection_success(self, mock_sync):
         mock_sync.delay().collect.return_value = [('Object', {"Mock": {"success": True}})]
         expected_data = {"engines": [{"Mock": {"success": True}}]}
-        url = reverse('api:sync_collection', kwargs={'slug': self.collection1.slug})
+        url = reverse('api:sync_collection', kwargs={'pk': self.collection1.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
@@ -128,7 +128,7 @@ class TestSourcesView(BridgeTestCase):
             {"Mocker": {"success": True}},
             {"Mock": {"success": False, "message": "Message of error description"}},
         ]}
-        url = reverse('api:sync_collection', kwargs={'slug': self.collection1.slug})
+        url = reverse('api:sync_collection', kwargs={'pk': self.collection1.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected_data)
@@ -137,7 +137,7 @@ class TestSourcesView(BridgeTestCase):
     def test_sync_collection_timeout(self, mock_sync):
         expected_msg = 'Collection sync was failed, the reason is: TimeoutError'
         mock_sync.delay().collect.side_effect = TimeoutError
-        url = reverse('api:sync_collection', kwargs={'slug': self.collection1.slug})
+        url = reverse('api:sync_collection', kwargs={'pk': self.collection1.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.reason_phrase, expected_msg)

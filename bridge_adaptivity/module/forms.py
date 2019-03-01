@@ -8,9 +8,7 @@ from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
 
-from module.models import (
-    Activity, Collection, ModuleGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
-)
+from module.models import Activity, Collection, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, ModuleGroup
 from module.widgets import PolicyChoiceWidget
 
 log = logging.getLogger(__name__)

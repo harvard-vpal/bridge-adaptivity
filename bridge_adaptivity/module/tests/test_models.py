@@ -10,8 +10,8 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Course, Engine, GradingPolicy, Sequence,
-    SequenceItem,
+    Activity, BridgeUser, Collection, CollectionOrder, Course, Engine, GradingPolicy, ModuleGroup, Sequence,
+    SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -221,7 +221,7 @@ class TestActivityModel(TestCase):
             name='test', collection=self.collection1, tags='test', atype='G', stype='problem'
         )
         mock_apply_async.assert_called_once_with(
-            kwargs={'collection_slug': self.collection1.slug, 'created_at': self.collection1.updated_at},
+            kwargs={'collection_id': self.collection1.id, 'created_at': self.collection1.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
         sequence_item = SequenceItem.objects.create(
@@ -245,10 +245,8 @@ class TestCollectionGroupModel(TestCase):
             password='test',
             email='test@me.com'
         )
-        points_earned = GradingPolicy.objects.get(name='points_earned')
-        engine = Engine.objects.create(engine='engine_mock')
         group = ModuleGroup.objects.create(
-            name='some name', engine=engine, grading_policy=points_earned, owner=user
+            name='some name', owner=user
         )
         self.assertEqual(ModuleGroup.objects.count(), groups_count + 1)
         self.assertFalse(group.collections.all())

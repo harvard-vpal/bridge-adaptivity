@@ -16,7 +16,7 @@ from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from common.utils import find_last_sequence_item, get_collection_collectiongroup_engine, stub_page
 from module import utils as module_utils
-from module.models import Collection, CollectionOrder, Sequence, SequenceItem
+from module.models import CollectionOrder, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 
@@ -134,7 +134,7 @@ def learner_flow(
         return stub_page(request)
 
     engine, collection_order = get_collection_collectiongroup_engine(collection_order_slug)
-    collection, collection_group = collection_order.collection, collection_order.group
+    collection = collection_order.collection
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
         lti_consumer=lti_consumer,

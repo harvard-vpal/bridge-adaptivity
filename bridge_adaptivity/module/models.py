@@ -15,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 from multiselectfield import MultiSelectField
 from ordered_model.models import OrderedModel
 import shortuuid
-from slugger import AutoSlugField
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
@@ -249,33 +248,28 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     def __str__(self):
         return '<Collection: {}>'.format(self.name)
 
-    # def save(self, *args, **kwargs):
-    #     """Extension cover method with logging."""
-    #     initial_id = self.id
-    #     super().save(*args, **kwargs)
-    #     tasks.sync_collection_engines.apply_async(
-    #         kwargs={'collection_slug': self.slug, 'created_at': self.updated_at},
-    #         countdown=settings.CELERY_DELAY_SYNC_TASK,
-    #     )
-    #
-    #     if initial_id:
-    #         Log.objects.create(
-    #             log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
-    #             data={'collection_id': self.id}
-    #         )
-    #     else:
-    #         Log.objects.create(
-    #             log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
-    #             data={'collection_id': self.id}
-    #         )
-    #
-    # def get_absolute_url(self):
-    #     return reverse('module:collection-list')
-    #
-    # def get_launch_url(self, group):
-    #     return "{}{}".format(
-    #         settings.BRIDGE_HOST,
-    #         reverse("lti:launch", kwargs={'collection_slug': self.slug, 'group_slug': group.slug}))
+    def save(self, *args, **kwargs):
+        """Extension cover method with logging."""
+        initial_id = self.id
+        super().save(*args, **kwargs)
+        tasks.sync_collection_engines.apply_async(
+            kwargs={'collection_id': self.id, 'created_at': self.updated_at},
+            countdown=settings.CELERY_DELAY_SYNC_TASK,
+        )
+
+        if initial_id:
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
+                data={'collection_id': self.id}
+            )
+        else:
+            Log.objects.create(
+                log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
+                data={'collection_id': self.id}
+            )
+
+    def get_absolute_url(self):
+        return reverse('module:collection-list')
 
 
 class Engine(ModelFieldIsDefaultMixin, models.Model):
@@ -334,7 +328,7 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
         ('EP', _('Earned grade')),
         ('RW', _('Answers right/wrong'))
     )
-    # ToDO# reganarate migration
+
     slug = models.SlugField(unique=True, default=uuid.uuid4, editable=True, db_index=True)
     group = models.ForeignKey('ModuleGroup', on_delete=models.CASCADE)
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
@@ -359,6 +353,12 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
         if self.ui_next:
             res_list.append(_('Additional NEXT Button'))
         return res_list
+
+    def get_launch_url(self):
+        return "{}{}".format(
+            settings.BRIDGE_HOST,
+            reverse("lti:launch", kwargs={'collection_order_slug': self.slug})
+        )
 
 
 class ModuleGroup(models.Model):

@@ -7,9 +7,7 @@ from oauthlib.common import generate_token
 
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
-from module.models import (
-    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Course, Engine, GradingPolicy,
-)
+from module.models import Activity, BridgeUser, Collection, CollectionOrder, Course, Engine, GradingPolicy, ModuleGroup
 
 GRADING_POLICIES = (
     # value, display_name
@@ -48,12 +46,14 @@ class BridgeTestCase(TestCase):
         self.test_cg = ModuleGroup.objects.create(name='TestColGroup', owner=self.user)
 
         self.collection_order1 = CollectionOrder.objects.create(
+            slug="collection_order1",
             group=self.test_cg,
             collection=self.collection1,
             engine=self.engine,
             grading_policy=self.points_earned
         )
         self.collection_order3 = CollectionOrder.objects.create(
+            slug="collection_order3",
             group=self.test_cg,
             collection=self.collection3,
             engine=self.engine,
@@ -90,9 +90,9 @@ class TestCollectionList(BridgeTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_with_group_slug(self):
+    def test_with_group_id(self):
         """Test collection list view with group slug."""
-        url = reverse('module:collection-list', kwargs={'group_slug': self.test_cg.slug})
+        url = reverse('module:collection-list', kwargs={'group_id': self.test_cg.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -122,15 +122,15 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertIn('groups', response.context)
         self.assertIsNotNone(response.context['groups'])
         self.assertEqual(
-            list(response.context['groups'].values_list('slug', flat=True)),
-            list(ModuleGroup.objects.filter(owner=self.user).values_list('slug', flat=True))
+            list(response.context['groups'].values_list('id', flat=True)),
+            list(ModuleGroup.objects.filter(owner=self.user).values_list('id', flat=True))
         )
 
     def test_update_cg(self):
         """Test update ModuleGroup page, check that updated collection group is really updated."""
         groups_count = ModuleGroup.objects.count()
 
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        url = reverse('module:group-change', kwargs={'group_id': self.test_cg.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
@@ -164,7 +164,7 @@ class TestCollectionGroup(BridgeTestCase):
                 'module:rm-group-from-course',
                 kwargs={
                     'course_slug': self.course.slug,
-                    'group_slug': self.test_cg.slug,
+                    'group_id': self.test_cg.id,
                 })
         )
         self.assertIsNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
@@ -173,13 +173,13 @@ class TestCollectionGroup(BridgeTestCase):
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
 
     def check_group_change_page(self):
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        url = reverse('module:group-change', kwargs={'group_id': self.test_cg.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
 
     def check_update_group(self, data):
-        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
+        url = reverse('module:group-change', kwargs={'group_id': self.test_cg.id})
         self.client.post(url, data=data)
         self.test_cg = ModuleGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(self.group_update_data['name'], self.test_cg.name)
@@ -192,6 +192,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         Test updated collection group contains all new collections.
         """
         data = {
+            "collection_group-slug": "second",
             "collection_group-collection": self.collection2.id,
             "collection_group-engine": self.engine.id,
             "collection_group-grading_policy_name": "trials_count",
@@ -199,7 +200,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         }
         # Group is updated with three collections two of which is repeated. Collections will increase by 1
         expected_collections_count = self.test_cg.collections.count() + 1
-        url = reverse('module:collection-order-add', kwargs={'group': self.test_cg.slug})
+        url = reverse('module:collection-order-add', kwargs={'group_id': self.test_cg.id})
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
         self.assertEqual(self.test_cg.collections.count(), expected_collections_count)
@@ -209,6 +210,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         Test updated collection group contains all new collections.
         """
         data = {
+            "collection_group-slug": self.collection_order1.slug,
             "collection_group-collection": self.collection1.id,
             "collection_group-engine": self.engine.id,
             "collection_group-grading_policy_name": "trials_count",
@@ -217,14 +219,12 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
 
         # Group is updated with three collections two of which is repeated. Collections will increase by 1
         url = reverse('module:collection-order-change', kwargs={
-            'group': self.test_cg.slug,
-            'collection_order_id': self.collection_order1.id
+            'collection_order_slug': self.collection_order1.slug,
         })
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
-        # ToDO(AndreyLykhoman) rewrite this test.
         self.assertEqual(
-            self.test_cg.get_collection_order_by_order(self.collection_order1.order).grading_policy.name, "trials_count"
+            CollectionOrder.objects.get(id=self.collection_order1.id).grading_policy.name, "trials_count"
         )
 
     def test_group_collection_not_valid_update(self):
@@ -232,6 +232,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         Test updated collection group contains all new collections.
         """
         data = {
+            "collection_group-slug": self.collection_order1.slug,
             "collection_group-collection": self.collection1.id,
             "collection_group-engine": self.engine.id,
             "collection_group-grading_policy_name": "wrong_grading",
@@ -240,8 +241,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
 
         # Group is updated with three collections two of which is repeated. Collections will increase by 1
         url = reverse('module:collection-order-change', kwargs={
-            'group': self.test_cg.slug,
-            'collection_order_id': self.collection_order1.id
+            'collection_order_slug': self.collection_order1.slug
         })
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 200)
@@ -263,13 +263,13 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         In this case it should return 200, and context['form'] should contain errors.
         """
         data = {
+            "collection_group-slug": self.collection_order1.slug,
             "collection_group-collection": self.collection1.id,
             "collection_group-engine": self.engine.id,
             "collection_group-grading_policy_name": "engine_grade",
         }
         url = reverse('module:collection-order-change', kwargs={
-            'group': self.test_cg.slug,
-            'collection_order_id': self.collection_order1.id
+            'collection_order_slug': self.collection_order1.slug
         })
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 200)
@@ -281,6 +281,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
                 'grading_policy_name': [('This policy can be used only with VPAL engine(s). '
                                          'Choose another policy or engine.')]
             }
+
         )
 
     def test_group_collection_remove(self):
@@ -292,7 +293,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         # Group is updated with one collection all existing should be removed.
         url = reverse(
             'module:collection-group-delete',
-            kwargs={'group_slug': self.test_cg.slug, 'collection_order_id': data[1].id}
+            kwargs={'collection_order_slug': self.collection_order1.slug}
         )
         response = self.client.post(url)
         self.assertEqual(response.status_code, 302)
@@ -303,12 +304,13 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         Test collections are reordered in the group on move to different positions command.
         """
         data = {
+            "collection_group-slug": "second",
             "collection_group-collection": self.collection2.id,
             "collection_group-engine": self.engine.id,
             "collection_group-grading_policy_name": "trials_count",
             "grading-name": "trials_count"
         }
-        url = reverse('module:collection-order-add', kwargs={'group': self.test_cg.slug})
+        url = reverse('module:collection-order-add', kwargs={'group_id': self.test_cg.id})
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
 
@@ -317,15 +319,13 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
 
         # Moving collection3 up, collection1 down and get reordered result as (collection3, collection2, collection1)
         move_to_index_0 = reverse('module:collection-move', kwargs={
-            'group_slug': self.test_cg.slug,
-            'id': ordered_collections[2].id,
+            'collection_order_slug': ordered_collections[2].slug,
             'order': 0,
         })
         response_up = self.client.get(move_to_index_0)
         self.assertEqual(response_up.status_code, 201)
         move_to_index_2 = reverse('module:collection-move', kwargs={
-            'group_slug': self.test_cg.slug,
-            'id': ordered_collections[0].id,
+            'collection_order_slug': ordered_collections[0].slug,
             'order': 2,
         })
         response_down = self.client.get(move_to_index_2)
@@ -338,9 +338,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         policies = GRADING_POLICIES
         for policy, _ in policies:
             url = reverse('module:grading_policy_form', kwargs={
-                "group_slug": self.test_cg.slug,
-                "collection_slug": self.collection1.slug,
-                "order": self.collection_order1.order
+                "collection_order_slug": self.collection_order1.slug
             }) + "?grading_policy={}".format(policy)
             response = self.client.get(url)
             self.assertIn('form', response.context)
@@ -348,9 +346,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
     def test_get_not_valid_grading_policy_form(self):
         """Check that if not correct grading policy passed - no form return."""
         url = reverse('module:grading_policy_form', kwargs={
-            "group_slug": self.test_cg.slug,
-            "collection_slug": self.collection1.slug,
-            "order": self.collection_order1.order
+            "collection_order_slug": self.collection_order1.slug
         }) + "?grading_policy={}".format('some_policy')
         response = self.client.get(url)
         self.assertIn('form', response.context)
@@ -364,7 +360,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collection_edit_back_url(self):
         """Test back_url param is added into context in collection change view."""
         url = (
-            reverse('module:collection-change', kwargs={'slug': self.collection1.slug}) +
+            reverse('module:collection-change', kwargs={'pk': self.collection1.id}) +
             '?back_url={}'.format(self.back_url)
         )
         change_response = self.client.get(url)
@@ -385,7 +381,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collectiongroup_edit_back_url(self):
         """Test back_url param is added into context navigation from collectiongroup edit view."""
         change_url = (
-            reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug}) +
+            reverse('module:group-change', kwargs={'group_id': self.test_cg.id}) +
             '?back_url={}'.format(self.back_url)
         )
         change_response = self.client.get(change_url)
@@ -516,13 +512,13 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_slug = self.collection1.slug
-        expected_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) + '?back_url=None'
-        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
+        col_id = self.collection1.id
+        expected_url = reverse('module:collection-detail', kwargs={'pk': col_id}) + '?back_url=None'
+        url = reverse('module:collection-sync', kwargs={'pk': col_id})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(
-            collection_slug=str(col_slug),
-            created_at=Collection.objects.get(slug=col_slug).updated_at
+            created_at=Collection.objects.get(id=col_id).updated_at,
+            collection_id=str(col_id),
         )
         self.assertRedirects(response, expected_url)
 
@@ -532,8 +528,8 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization_incorrect_pk(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_slug = 345
-        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
+        col_id = '345'
+        url = reverse('module:collection-sync', kwargs={'pk': col_id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -543,13 +539,13 @@ class TestManualGradeUpdate(BridgeTestCase):
     @patch('module.tasks.update_students_grades.delay')
     def test_mandatory_students_grade_update(self, mock_delay):
         expected_url = reverse('module:group-detail', kwargs={'group_id': self.test_cg.id}) + '?back_url=None'
-        url = reverse('module:update_grades', kwargs={'collection_order_id': self.collection_order1.id})
+        url = reverse('module:update_grades', kwargs={'collection_order_slug': self.collection_order1.slug})
         response = self.client.get(url)
-        mock_delay.assert_called_once_with(collection_order_id=self.collection_order1.id)
+        mock_delay.assert_called_once_with(collection_order_slug=self.collection_order1.slug)
         self.assertRedirects(response, expected_url)
 
     def test_grade_update_with_incorect_group_slug(self):
-        url = reverse('module:update_grades', kwargs={'collection_order_id': 3})
+        url = reverse('module:update_grades', kwargs={'collection_order_slug': '3'})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -562,7 +558,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
         super().setUp()
         self.back_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
         self.provider = LtiConsumer.objects.get(id=2)
-        self.add_url = reverse('module:activity-add', kwargs={'collection_slug': self.collection1.slug})
+        self.add_url = reverse('module:activity-add', kwargs={'collection_id': self.collection1.id})
         self.create_data = {
             'name': 'Adapt 310',
             'tags': '',
@@ -604,7 +600,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
         }
         data = self.create_data.copy()
         data.update(update_data)
-        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_slug': self.collection1.slug})
+        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_id': self.collection1.id})
         response = self.client.post(url, data)
         self.assertEqual(activity_count, Activity.objects.count())
 

@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
 from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, GroupForm
-from module.models import Collection, ModuleGroup, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
+from module.models import Collection, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
 
@@ -84,7 +84,6 @@ class CollectionOrderEditFormMixin(object):
             response = super().form_valid(form)
         else:
             response = self.form_invalid(form)
-            #response.context_data["group"] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group'))
             if 'params' in grading_policy_form.cleaned_data:
                 response.context_data['grading_policy_form'] = grading_policy_form
             return response
@@ -157,7 +156,6 @@ class CollectionEditFormMixin(object):
             response = super().form_valid(form)
         else:
             response = self.form_invalid(form)
-            #response.context_data["group"] = self.object.group
         return response
 
     def get_form(self):

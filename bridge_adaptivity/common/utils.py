@@ -6,7 +6,7 @@ from logging import getLogger
 from django.http import Http404
 from django.shortcuts import render
 
-from module.models import Collection, ModuleGroup, CollectionOrder, Engine
+from module.models import CollectionOrder, Engine
 
 log = getLogger(__name__)
 
@@ -15,26 +15,11 @@ def get_collection_collectiongroup_engine(collection_order_slug):
     """
     Return collection and collection group by collection_slug, group_slug and collectionorder_order.
     """
-    # collection = Collection.objects.filter(slug=collection_slug).first()
-    # if not collection:
-    #     log.exception("Collection with provided ID does not exist. Check configured launch url.")
-    #     raise Http404('Bad launch_url collection ID.')
-    #
-    # collection_group = ModuleGroup.objects.filter(slug=group_slug).first()
-    #
-    # if collection_group is None:
-    #     raise Http404(
-    #         'The launch URL is not correctly configured. The group with the slug `{}` cannot be found.'
-    #         .format(group_slug)
-    #     )
-    #
-    # if collection not in collection_group.collections.all():
-    #     raise Http404(
-    #         'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
-    #         .format(collection_slug, group_slug)
-    #    )
-    # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine (collection, group, order)
+    # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine
     collection_order = CollectionOrder.objects.filter(slug=collection_order_slug).first()
+    if not collection_order:
+        log.exception("Collection Order with provided Slug does not exist. Check configured launch url.")
+        raise Http404('Bad launch_url collection_order slug.')
 
     if collection_order:
         engine = collection_order.engine or Engine.get_default()

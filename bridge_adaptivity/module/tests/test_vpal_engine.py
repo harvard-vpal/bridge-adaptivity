@@ -7,7 +7,7 @@ from mock import Mock, patch
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.engines import engine_vpal
 from module.models import (
-    Activity, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+    Activity, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
 )
 
 
@@ -106,7 +106,7 @@ class TestVPALEngine(TestCase):
                 # add to the Engine.lti_parameters or not found in received lti_launch parameters.
                 'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
             },
-            "collection": self.sequence.collection.slug,
+            "collection": self.sequence.collection.id,
             lti_param: self.sequence.metadata[lti_param],
             "sequence": [
                 {
@@ -153,7 +153,7 @@ class TestVPALEngine(TestCase):
                 'user_id': self.sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': expected_tool_consumer_instance_guid,
             },
-            "collection": self.sequence.collection.slug,
+            "collection": self.sequence.collection.id,
             "sequence": [
                 {
                     'activity': self.a1.source_launch_url,
@@ -193,7 +193,7 @@ class TestVPALEngine(TestCase):
                 'user_id': self.sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
             },
-            "collection": self.sequence.collection.slug,
+            "collection": self.sequence.collection.id,
             "sequence": [
                 {
                     'activity': self.a1.source_launch_url,

@@ -12,7 +12,7 @@ router.register('collection', CollectionViewSet, base_name='collection')
 urls_list = [
     url(r'^', include(router.urls)),
     url(r'^sources/$', sources, name='sources'),
-    path('collection/<slug:slug>/sync/', sync_collection, name='sync_collection')
+    path('collection/<int:pk>/sync/', sync_collection, name='sync_collection')
 ]
 
 # Add rest API dashboard in DEBUG mode

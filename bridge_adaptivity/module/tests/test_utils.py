@@ -7,7 +7,7 @@ from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.models import (
-    Activity, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+    Activity, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
 )
 from module.utils import choose_activity, select_next_sequence_item
 

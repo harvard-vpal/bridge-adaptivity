@@ -27,20 +27,16 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
         super().setUp()
         self.rf = RequestFactory()
         self.correct_kw = {
-            'collection_slug': self.collection1.slug,
-            'group_slug': self.test_cg.slug,
-            'collection_order': self.collection_order1.order
+            'collection_order_slug': self.collection_order1.slug,
         }
         self.not_correct_kw = {
-            'collection_slug': self.collection2.slug,
-            'group_slug': self.test_cg.slug,
-            'collection_order': self.collection_order1.order
+            'collection_order_slug': self.collection_order1.slug + "_wrong",
         }
         self.url = reverse('lti:launch', kwargs=self.correct_kw)
         self.not_correct_url = reverse('lti:launch', kwargs=self.not_correct_kw)
 
     @override_settings(DEBUG=False)
-    def test_learner_flow_with_incorrect_collection_slug(self):
+    def test_learner_flow_with_incorrect_collection_order_slug(self):
         """
         Check if learner_flow function is called with incorrect collection_slug raise proper exception.
         """
@@ -50,23 +46,7 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
                 request,
                 lti_consumer=None,
                 tool_provider=None,
-                collection_slug=1000,
-                group_slug=self.test_cg.slug,
-            )
-
-    @override_settings(DEBUG=False)
-    def test_learner_flow_with_collection_not_in_passed_group(self):
-        """
-        Check if learner_flow function is called with incorrect collection_slug raise proper exception.
-        """
-        request = self.rf.post(self.not_correct_url)
-        with pytest.raises(Http404):
-            learner_flow(
-                request,
-                lti_consumer=None,
-                tool_provider=None,
-                collection_slug=self.not_correct_kw['collection_slug'],
-                group_slug=self.not_correct_kw['group_slug'],
+                collection_order_slug=self.not_correct_kw["collection_order_slug"]
             )
 
     @mock.patch('lti.contrib.django.DjangoToolProvider.from_django_request')

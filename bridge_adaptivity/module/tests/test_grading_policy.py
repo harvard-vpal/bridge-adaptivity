@@ -6,8 +6,8 @@ import pytest
 
 from bridge_lti.models import LtiProvider, OutcomeService
 from module.models import (
-    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS,
-    GradingPolicy, LtiUser, Sequence, SequenceItem
+    Activity, BridgeUser, Collection, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, LtiUser,
+    ModuleGroup, Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy

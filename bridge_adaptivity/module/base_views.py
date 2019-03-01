@@ -5,7 +5,7 @@ Base views: Course, Group(Module), Collection and CollectionOrder.
 import logging
 
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
-from module.models import Collection, ModuleGroup, CollectionOrder, Course
+from module.models import Collection, CollectionOrder, Course, ModuleGroup
 
 log = logging.getLogger(__name__)
 

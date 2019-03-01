@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.urls import path, re_path, reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic import RedirectView
 
 from module.views import (
@@ -28,7 +28,6 @@ urlpatterns = ([
     url(r'^group/(?P<group_id>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
     url(r'^group/(?P<group_id>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
-    # Note ------ fix bellow
     url(r'^collection_order/(?P<collection_order_slug>[\w-]+)/delete/', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
     url(
@@ -37,25 +36,25 @@ urlpatterns = ([
         name='grading_policy_form'
     ),
     url(r'collection/collection_form/$', GetCollectionForm.as_view(), name='collection_form'),
-    url(r'^(?:group/(?P<group_id>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
-    url(r'^(?:group/(?P<group_id>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
+    url(r'^(?:group/(?P<group_id>\d+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
+    url(r'^(?:group/(?P<group_id>\d+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
-    url('collection/(?P<pk>[\w-]+)/change/', CollectionUpdate.as_view(), name='collection-change'),
+    url(r'collection/(?P<pk>\d+)/change/', CollectionUpdate.as_view(), name='collection-change'),
     url(
         r'collection_order/(?P<collection_order_slug>[\w-]+)/change$',
         CollectionOrderUpdate.as_view(),
         name='collection-order-change'
     ),
     url(
-        r'group/(?P<group_id>[\w-]+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
+        r'group/(?P<group_id>\d+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
     ),
     url(
-        r'^(?:group/(?P<group_id>[\w-]+)/)?collection/(?P<pk>\d+)/$',
+        r'^(?:group/(?P<group_id>\d+)/)?collection/(?P<pk>\d+)/$',
         CollectionDetail.as_view(),
         name='collection-detail'
     ),
     url(
-        r'^(?:group/(?P<group_id>[\w-]+)/)?collection/(?P<pk>\d+)/delete/?$',
+        r'^(?:group/(?P<group_id>\d+)/)?collection/(?P<pk>\d+)/delete/?$',
         CollectionDelete.as_view(),
         name='collection-delete'
     ),
@@ -70,9 +69,9 @@ urlpatterns = ([
         GroupUpdate.as_view(),
         name='collection-move'
     ),
-    url(r'^activity/(?P<collection_id>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
+    url(r'^activity/(?P<collection_id>\d+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
-        r'^activity/(?P<pk>\d+)/(?P<collection_id>[\w-]+)/change/$',
+        r'^activity/(?P<pk>\d+)/(?P<collection_id>\d+)/change/$',
         ActivityUpdate.as_view(),
         name='activity-change'
     ),
@@ -103,7 +102,7 @@ urlpatterns = ([
     url(r'^callback_grade/$', callback_sequence_item_grade, name='sequence-item-grade'),
 
     # Sync collection with relative engines
-    url(r'^collection/(?P<pk>\d)/sync/$', sync_collection, name='collection-sync'),
+    url(r'^collection/(?P<pk>\d+)/sync/$', sync_collection, name='collection-sync'),
 
     # Manually update students grades related to the collection-group
     url(

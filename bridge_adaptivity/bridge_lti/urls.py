@@ -10,7 +10,8 @@ urlpatterns = (
     [
         url(
             (
-                r'^launch/collection_order/(?P<collection_order_slug>[\w-]+)(?:/unique_marker/(?P<unique_marker>[\w]+)/?)?$'
+                r'^launch/collection_order/(?P<collection_order_slug>[\w-]+)(?:/unique_marker/'
+                r'(?P<unique_marker>[\w]+)/?)?$'
             ),
             lti_launch,
             name='launch'

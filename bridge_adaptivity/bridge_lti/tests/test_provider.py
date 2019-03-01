@@ -41,16 +41,12 @@ class ProviderTest(BridgeTestCase):
         mock_get_tool_provider_for_lti.return_value = True
         mock_instructor_flow.return_value = HttpResponse(status=200)
         mock_learner_flow.return_value = HttpResponse(status=200)
-        mock_collection_slug = '1'
-        mock_grop_slug = 'group-slug'
-        mock_collection_order = '0'
+        mock_collection_order_slug = '1'
         self.client.post(
             reverse(
                 'lti:launch',
                 kwargs={
-                    'collection_slug': mock_collection_slug,
-                    'group_slug': mock_grop_slug,
-                    'collection_order': mock_collection_order,
+                    'collection_order_slug': mock_collection_order_slug,
                 }),
             data={
                 'oauth_nonce': 'oauth_nonce',
@@ -59,7 +55,7 @@ class ProviderTest(BridgeTestCase):
             }
         )
         mock_instructor_flow.assert_called_once_with(
-            mock.ANY, collection_slug=mock_collection_slug, group_slug=mock_grop_slug
+            mock.ANY, collection_order_slug=mock_collection_order_slug
         )
         mock_learner_flow.assert_not_called()
 
@@ -74,18 +70,14 @@ class ProviderTest(BridgeTestCase):
         mock_learner_flow.return_value = HttpResponse(status=200)
         mock_tool_provider = 'tool_provider'
         mock_get_tool_provider_for_lti.return_value = mock_tool_provider
-        mock_collection_slug = '123'
-        mock_group_slug = '1234-124'
+        mock_collection_order_slug = '123'
         mock_unique_marker = '434'
-        mock_collection_order = '0'
 
         self.client.post(
             reverse(
                 'lti:launch',
                 kwargs={
-                    'collection_slug': mock_collection_slug,
-                    'group_slug': mock_group_slug,
-                    'collection_order': mock_collection_order,
+                    'collection_order_slug': mock_collection_order_slug,
                     'unique_marker': mock_unique_marker,
                 }),
             data={
@@ -99,9 +91,7 @@ class ProviderTest(BridgeTestCase):
             mock.ANY,
             self.lti_provider,
             mock_tool_provider,
-            collection_slug=mock_collection_slug,
-            group_slug=mock_group_slug,
-            collection_order_order=mock_collection_order,
+            collection_order_slug=mock_collection_order_slug,
             unique_marker=mock_unique_marker,
         )
         mock_instructor_flow.assert_not_called()
@@ -135,17 +125,13 @@ class ProviderTest(BridgeTestCase):
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_slug=self.collection1.slug,
-            group_slug=self.test_cg.slug,
-            collection_order_order=self.collection_order1.order,
+            collection_order_slug=self.collection_order1.slug,
         )
         learner_flow(
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_slug=self.collection1.slug,
-            group_slug=self.test_cg.slug,
-            collection_order_order=self.collection_order1.order,
+            collection_order_slug=self.collection_order1.slug,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
 
@@ -155,19 +141,15 @@ class ProviderTest(BridgeTestCase):
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_slug=self.collection1.slug,
-            group_slug=self.test_cg.slug,
+            collection_order_slug=self.collection_order1.slug,
             unique_marker='marker',
-            collection_order_order=self.collection_order1.order,
         )
         learner_flow(
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_slug=self.collection1.slug,
-            group_slug=self.test_cg.slug,
+            collection_order_slug=self.collection_order1.slug,
             unique_marker='marker',
-            collection_order_order=self.collection_order1.order,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
 
@@ -176,19 +158,15 @@ class ProviderTest(BridgeTestCase):
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_slug=self.collection1.slug,
-            group_slug=self.test_cg.slug,
+            collection_order_slug=self.collection_order1.slug,
             unique_marker='marker1',
-            collection_order_order=self.collection_order1.order,
         )
         learner_flow(
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_slug=self.collection1.slug,
-            group_slug=self.test_cg.slug,
+            collection_order_slug=self.collection_order1.slug,
             unique_marker='marker2',
-            collection_order_order=self.collection_order1.order,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 2)
 
@@ -211,9 +189,7 @@ class ProviderTest(BridgeTestCase):
             'consumer_secret': self.lti_provider.consumer_secret,
             'launch_url': f"http://{settings.BRIDGE_HOST}" + reverse(
                 'lti:launch', kwargs={
-                    'collection_slug': self.collection1.slug,
-                    'group_slug': str(self.test_cg.slug),
-                    'collection_order': self.collection_order1.order
+                    'collection_order_slug': self.collection_order1.slug,
                 }
             ),
             'params': {
@@ -306,9 +282,7 @@ class ProviderTest(BridgeTestCase):
                 reverse(
                     'lti:launch',
                     kwargs={
-                        'collection_slug': self.collection1.slug,
-                        'group_slug': str(self.test_cg.slug),
-                        'collection_order': self.collection_order1.order,
+                        'collection_order_slug': self.collection_order1.slug,
                     }
                 ),
                 data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_provider.consumer_key}
