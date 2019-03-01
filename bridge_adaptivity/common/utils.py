@@ -6,46 +6,42 @@ from logging import getLogger
 from django.http import Http404
 from django.shortcuts import render
 
-from module.models import Collection, CollectionGroup, CollectionOrder, Engine
+from module.models import Collection, ModuleGroup, CollectionOrder, Engine
 
 log = getLogger(__name__)
 
 
-def get_collection_collectiongroup_engine(collection_slug, group_slug, collectionorder_order):
+def get_collection_collectiongroup_engine(collection_order_slug):
     """
     Return collection and collection group by collection_slug, group_slug and collectionorder_order.
     """
-    collection = Collection.objects.filter(slug=collection_slug).first()
-    if not collection:
-        log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        raise Http404('Bad launch_url collection ID.')
-
-    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
-
-    if collection_group is None:
-        raise Http404(
-            'The launch URL is not correctly configured. The group with the slug `{}` cannot be found.'
-            .format(group_slug)
-        )
-
-    if collection not in collection_group.collections.all():
-        raise Http404(
-            'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
-            .format(collection_slug, group_slug)
-        )
+    # collection = Collection.objects.filter(slug=collection_slug).first()
+    # if not collection:
+    #     log.exception("Collection with provided ID does not exist. Check configured launch url.")
+    #     raise Http404('Bad launch_url collection ID.')
+    #
+    # collection_group = ModuleGroup.objects.filter(slug=group_slug).first()
+    #
+    # if collection_group is None:
+    #     raise Http404(
+    #         'The launch URL is not correctly configured. The group with the slug `{}` cannot be found.'
+    #         .format(group_slug)
+    #     )
+    #
+    # if collection not in collection_group.collections.all():
+    #     raise Http404(
+    #         'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
+    #         .format(collection_slug, group_slug)
+    #    )
     # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine (collection, group, order)
-    collection_order = CollectionOrder.objects.filter(
-        collection=collection,
-        group=collection_group,
-        order=collectionorder_order
-    ).first()
+    collection_order = CollectionOrder.objects.filter(slug=collection_order_slug).first()
 
-    if collection_group:
+    if collection_order:
         engine = collection_order.engine or Engine.get_default()
     else:
         engine = Engine.get_default()
 
-    return collection, collection_group, engine, collection_order
+    return engine, collection_order
 
 
 def stub_page(

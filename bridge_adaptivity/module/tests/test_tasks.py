@@ -4,7 +4,7 @@ from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser
 from module import tasks
-from module.models import Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence
+from module.models import Activity, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence
 from module.tasks import sync_collection_engines
 
 
@@ -29,7 +29,7 @@ class TestTask(TestCase):
         )
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mock_eng')
         self.grading_policy = GradingPolicy.objects.create(name='full_credit', public_name='test_sequence_policy')
-        self.collection_group = CollectionGroup.objects.create(
+        self.collection_group = ModuleGroup.objects.create(
             name='col_group', owner=self.user,
         )
 

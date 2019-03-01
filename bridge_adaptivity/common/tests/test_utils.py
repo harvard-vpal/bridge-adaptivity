@@ -5,7 +5,7 @@ from mock.mock import patch
 from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
 from common.utils import find_last_sequence_item
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
 )
 
 
@@ -59,7 +59,7 @@ class TestSequence(TestCase):
             lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
         )
 
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
         )

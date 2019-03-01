@@ -5,7 +5,7 @@ from mock.mock import patch
 
 from bridge_lti.models import LtiProvider, LtiUser
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem
+    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem
 )
 
 
@@ -35,7 +35,7 @@ class TestMockEngine(TestCase):
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
         )

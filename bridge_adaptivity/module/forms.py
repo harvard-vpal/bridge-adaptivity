@@ -9,7 +9,7 @@ from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
 
 from module.models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
+    Activity, Collection, ModuleGroup, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy
 )
 from module.widgets import PolicyChoiceWidget
 
@@ -36,7 +36,7 @@ class ActivityForm(ModelForm):
 
 class GroupForm(ModelForm):
     """
-    Form to work with CollectionGroup(CollectionModule) models.
+    Form to work with ModuleGroup(CollectionModule) models.
     """
 
     class Meta:
@@ -44,7 +44,7 @@ class GroupForm(ModelForm):
         Metaclass for GroupForm.
         """
 
-        model = CollectionGroup
+        model = ModuleGroup
         fields = ('name', 'description', 'owner', 'course', )
 
 
@@ -78,7 +78,7 @@ class BaseCollectionForm(ModelForm):
         """
 
         model = Collection
-        fields = ['name', 'slug', 'metadata', 'owner']
+        fields = ['name', 'metadata', 'owner']
         widgets = {'owner': forms.HiddenInput()}
 
 
@@ -133,7 +133,7 @@ class AddCourseGroupForm(forms.Form):
 
     groups = forms.ModelMultipleChoiceField(
         label="Choose groups to add into this course:",
-        queryset=CollectionGroup.objects.filter(course__isnull=True),
+        queryset=ModuleGroup.objects.filter(course__isnull=True),
         widget=forms.CheckboxSelectMultiple()
     )
 
@@ -148,10 +148,10 @@ class AddCourseGroupForm(forms.Form):
         Save change that related to add groups to course.
         """
         group_ids = [group.id for group in self.cleaned_data['groups']]
-        CollectionGroup.objects.filter(id__in=group_ids).update(course=self.course)
+        ModuleGroup.objects.filter(id__in=group_ids).update(course=self.course)
 
 
-class CollectionGroupForm(ModelForm):
+class CollectionOrderForm(ModelForm):
     """
     Add collection in group form.
     """
@@ -164,11 +164,12 @@ class CollectionGroupForm(ModelForm):
 
     class Meta:
         """
-        Metaclass for CollectionGroupForm.
+        Metaclass for CollectionOrderForm.
         """
 
         model = CollectionOrder
         fields = (
+            'slug',
             'collection',
             'engine',
             'grading_policy_name',

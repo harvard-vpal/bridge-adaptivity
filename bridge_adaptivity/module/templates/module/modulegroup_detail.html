@@ -23,7 +23,7 @@
   <div class="col-md-12">
     <div class="detail-toolpanel">
         {% if not request.session.read_only_data %}
-            {% url 'module:group-change' group.slug as group_edit %}
+            {% url 'module:group-change' group_id=group.id as group_edit %}
             <a>
             {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
             </a>
@@ -59,7 +59,7 @@
                       ondragstart="dragstart_handler(event);"
                       ondragover="dragover_handler(event);"
                       data-index="{{ forloop.counter0 }}"
-                      data-move_url="{% url 'module:collection-move' group_slug=group.slug id=collection_order.id %}?back_url={{ group.get_absolute_url}}"
+                      data-move_url="{% url 'module:collection-move' collection_order_slug=collection_order.slug %}?back_url={{ group.get_absolute_url}}"
                   {% endif %}
               >
                 <td>
@@ -96,7 +96,7 @@
                   <div>
 
                     <a id="launch-demo" class=""
-                       href="{% url 'module:demo' collection_slug=collection_order.collection.slug group_slug=group.slug collection_order_order=collection_order.order %}?back_url={% url 'module:group-list' %}">
+                       href="{% url 'module:demo' collection_order_slug=collection_order.slug %}?back_url={% url 'module:group-list' %}">
                       <button class="btn btn-warning btn-sm">
                           <span class="glyphicon glyphicon-education"></span>
                           Demo
@@ -109,7 +109,7 @@
                       </button>
                     </a>
                     <a id="launch-url-fetcher" class=""
-                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection_order.collection.slug group_slug=group.slug unique_marker='set_me_unique' collection_order=collection_order.order  %}">
+                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_order_slug=collection_order.slug unique_marker='set_me_unique' %}">
                       <button class="btn btn-default btn-sm">
                           <span class="glyphicon glyphicon-link"></span>
                           copy Launch URL
@@ -127,9 +127,9 @@
 
                     {% with undone=True %}
 
-                      {% url 'module:collection-group-delete' collection_order_id=collection_order.id group_slug=group.slug as delete_url %}
+                      {% url 'module:collection-group-delete' collection_order_slug=collection_order.slug  as delete_url %}
 
-                      {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <CollectionGroup: "|add:group.name|add:">" %}
+                      {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <ModuleGroup: "|add:group.name|add:">" %}
                         {% if collection.has_linked_active_sequences %}
                           {% with message="At least one student is still working on the Collection " %}
                             {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
@@ -143,7 +143,7 @@
                         {% endif %}
                       {% endwith %}
                     {% endwith %}
-                    {% url 'module:collection-order-change' group=group.slug collection_order_id=collection_order.id as collection_edit %}
+                    {% url 'module:collection-order-change' collection_order_slug=collection_order.slug as collection_edit %}
                     {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
 
                     <a
@@ -154,7 +154,7 @@
                       <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
                     </a>
                         {% if grade_update_available %}
-                            {% url 'module:update_grades' collection_order_id=collection_order.id as update_grades %}
+                            {% url 'module:update_grades' collection_order_slug=collection_order.slug as update_grades %}
                             <a class="show-warning" data-order_update_url="{{update_grades}}">
                                 {% bootstrap_button 'Update Students Grades' size='sm' icon='refresh' button_class="btn-primary" %}
                             </a>
@@ -174,7 +174,7 @@
     {% endif %}
 
     {% if not request.session.read_only_data %}
-        {% url 'module:collection-order-add' group=group.slug as new_collection_add %}
+        {% url 'module:collection-order-add' group_id=group.id as new_collection_add %}
   {% bootstrap_button "Add new" size='sm' icon='Add' extra_classes='modal_launcher' value=new_collection_add %}
     {% endif %}
 
@@ -193,7 +193,7 @@
   </div>
 </div>
 
-{% url 'module:group-delete' group_slug=group.slug as delete_url %}
+{% url 'module:group-delete' group_id=group.id as delete_url %}
 
 {% with title="Force update of students grades" message="Students grades related to the current group will be updated!" %}
   {% include "module/modals/confirmation_modal.html" with object='' action_url=update_grades form_id="updateGradeForm" %}

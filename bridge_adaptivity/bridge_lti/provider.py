@@ -16,7 +16,7 @@ from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
 from common.utils import find_last_sequence_item, get_collection_collectiongroup_engine, stub_page
 from module import utils as module_utils
-from module.models import Collection, Sequence, SequenceItem
+from module.models import Collection, CollectionOrder, Sequence, SequenceItem
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def get_tool_provider_for_lti(request):
 
 
 @csrf_exempt
-def lti_launch(request, collection_slug=None, group_slug='', unique_marker='', collection_order=None):
+def lti_launch(request, collection_order_slug, unique_marker='', ):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -60,7 +60,7 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker='', c
     roles = request_post.get('roles')
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
-        return instructor_flow(request, collection_slug=collection_slug, group_slug=group_slug)
+        return instructor_flow(request, collection_order_slug=collection_order_slug)
 
     # NOTE(wowkalucky): other LTI roles are considered as BridgeLearner
     else:
@@ -68,20 +68,18 @@ def lti_launch(request, collection_slug=None, group_slug='', unique_marker='', c
             request,
             lti_consumer,
             tool_provider,
-            collection_slug=collection_slug,
-            group_slug=group_slug,
+            collection_order_slug=collection_order_slug,
             unique_marker=unique_marker,
-            collection_order_order=collection_order,
         )
 
 
-def instructor_flow(request, collection_slug=None, group_slug=''):
+def instructor_flow(request, collection_order_slug):
     """
     Define logic flow for Instructor.
     """
-    if not collection_slug:
+    if not collection_order_slug:
         return redirect(reverse('module:collection-list'))
-    request.session['read_only_data'] = {'collection': collection_slug, 'group': group_slug}
+    request.session['read_only_data'] = {'collection_order': collection_order_slug}
     read_only_user, _ = BridgeUser.objects.get_or_create(
         username='read_only',
         password='fake_pass'
@@ -91,7 +89,7 @@ def instructor_flow(request, collection_slug=None, group_slug=''):
     return redirect(
         reverse(
             'module:collection-detail',
-            kwargs={'pk': Collection.objects.get(slug=collection_slug).id}
+            kwargs={'pk': CollectionOrder.objects.get(slug=collection_order_slug).collection.id}
         )
     )
 
@@ -125,23 +123,17 @@ def learner_flow(
     request,
     lti_consumer,
     tool_provider,
-    collection_slug=None,
-    group_slug=None,
+    collection_order_slug,
     unique_marker='',
-    collection_order_order=None,
 ):
     """
     Define logic flow for Learner.
     """
-    if not collection_slug:
+    if not collection_order_slug:
         return stub_page(request)
 
-    collection, collection_group, engine, collection_order = get_collection_collectiongroup_engine(
-        collection_slug,
-        group_slug,
-        collection_order_order,
-    )
-
+    engine, collection_order = get_collection_collectiongroup_engine(collection_order_slug)
+    collection, collection_group = collection_order.collection, collection_order.gtop
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
         lti_consumer=lti_consumer,

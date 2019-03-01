@@ -4,7 +4,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
 from .models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem,
+    Activity, Collection, ModuleGroup, CollectionOrder, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem,
 )
 
 
@@ -56,20 +56,19 @@ class CollectionAdmin(admin.ModelAdmin):
 
 class GroupForm(forms.ModelForm):
     class Meta:
-        model = CollectionGroup
+        model = ModuleGroup
         fields = (
-            'name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine',
+            'name', 'owner', 'description', 'collections', 'course',
         )
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
         }
 
 
-@admin.register(CollectionGroup)
-class CollectionGroupAdmin(admin.ModelAdmin):
+@admin.register(ModuleGroup)
+class ModuleGroupAdmin(admin.ModelAdmin):
     form = GroupForm
-    readonly_fields = ('slug',)
-    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine')
+    list_display = ('name', 'owner', )
 
 
 @admin.register(Engine)
@@ -80,7 +79,7 @@ class EngineAdmin(admin.ModelAdmin):
 @admin.register(GradingPolicy)
 class GradingPolicyAdmin(admin.ModelAdmin):
     readonly_fields = ['name']
-    list_display = ['name', 'collectiongroup', 'params']
+    list_display = ['name', 'params']
 
 
 @admin.register(Log)
@@ -98,13 +97,11 @@ class LogAdmin(admin.ModelAdmin):
 
 
 class GroupStackedInline(admin.StackedInline):
-    model = CollectionGroup
+    model = ModuleGroup
     exclude = []
-    readonly_fields = ('slug',)
     extra = 0
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     inlines = (GroupStackedInline,)
-    readonly_fields = ('slug',)

@@ -7,7 +7,7 @@ from mock import patch
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from module.models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+    Activity, Collection, ModuleGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
 )
 from module.utils import choose_activity, select_next_sequence_item
 
@@ -62,7 +62,7 @@ class TestUtilities(TestCase):
             lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
         )
 
-        self.test_cg = CollectionGroup.objects.create(name='TestColGroup', owner=self.user)
+        self.test_cg = ModuleGroup.objects.create(name='TestColGroup', owner=self.user)
 
         self.collection_order1 = CollectionOrder.objects.create(
             group=self.test_cg,
@@ -78,7 +78,7 @@ class TestUtilities(TestCase):
         )
         self.vpal_engine = Engine.objects.get(engine='engine_vpal')
 
-        self.vpal_group = CollectionGroup.objects.create(name='TestVpalGroup', owner=self.user)
+        self.vpal_group = ModuleGroup.objects.create(name='TestVpalGroup', owner=self.user)
 
         self.collection_order2 = CollectionOrder.objects.create(
             group=self.vpal_group,

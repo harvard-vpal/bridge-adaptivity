@@ -8,7 +8,7 @@ from oauthlib.common import generate_token
 from bridge_lti.models import LtiConsumer, LtiProvider
 from module.mixins.views import GroupEditFormMixin
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy,
+    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Course, Engine, GradingPolicy,
 )
 
 GRADING_POLICIES = (
@@ -45,7 +45,7 @@ class BridgeTestCase(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
 
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mockEngine')
-        self.test_cg = CollectionGroup.objects.create(name='TestColGroup', owner=self.user)
+        self.test_cg = ModuleGroup.objects.create(name='TestColGroup', owner=self.user)
 
         self.collection_order1 = CollectionOrder.objects.create(
             group=self.test_cg,
@@ -99,23 +99,23 @@ class TestCollectionList(BridgeTestCase):
 
 class TestCollectionGroup(BridgeTestCase):
     def test_create_cg_page_works(self):
-        """Test that CollectionGroup page works correctly contain valid context and response code is 200."""
+        """Test that ModuleGroup page works correctly contain valid context and response code is 200."""
         url = reverse('module:group-add')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
-        groups_count = CollectionGroup.objects.count()
+        groups_count = ModuleGroup.objects.count()
         policy_data = {'name': self.trials_count.name}
         data = {}
         data.update(self.group_post_data)
         data.update(policy_data)
         response = self.client.post(url, data=data)
-        self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
+        self.assertEqual(ModuleGroup.objects.count(), groups_count + 1)
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.content, b'{"status": "ok"}')
 
     def test_cg_list(self):
-        """Test CollectionGroup list page. Check that response code is 200, `groups` is in context and is not empty."""
+        """Test ModuleGroup list page. Check that response code is 200, `groups` is in context and is not empty."""
         url = reverse('module:group-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -123,12 +123,12 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertIsNotNone(response.context['groups'])
         self.assertEqual(
             list(response.context['groups'].values_list('slug', flat=True)),
-            list(CollectionGroup.objects.filter(owner=self.user).values_list('slug', flat=True))
+            list(ModuleGroup.objects.filter(owner=self.user).values_list('slug', flat=True))
         )
 
     def test_update_cg(self):
-        """Test update CollectionGroup page, check that updated collection group is really updated."""
-        groups_count = CollectionGroup.objects.count()
+        """Test update ModuleGroup page, check that updated collection group is really updated."""
+        groups_count = ModuleGroup.objects.count()
 
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
@@ -139,8 +139,8 @@ class TestCollectionGroup(BridgeTestCase):
         if response.status_code == 200:
             print((dict(response.context['form'].errors)))
 
-        self.assertEqual(groups_count, CollectionGroup.objects.count())
-        test_g = CollectionGroup.objects.get(id=self.test_cg.id)
+        self.assertEqual(groups_count, ModuleGroup.objects.count())
+        test_g = ModuleGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(test_g.name, self.group_update_data['name'])
         self.assertEqual(test_g.description, self.group_update_data['description'])
         self.assertNotEqual(test_g.name, self.test_cg.name)
@@ -148,17 +148,17 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
 
     def test_add_group_to_course(self):
-        self.assertIsNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+        self.assertIsNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
         self.client.post(
             path=reverse('module:add-group-to-course', kwargs={'course_slug': self.course.slug}),
             data={'groups': self.test_cg.id}
         )
-        self.assertIsNotNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+        self.assertIsNotNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
 
     def test_remove_group_from_course(self):
         self.test_cg.course = self.course
         self.test_cg.save()
-        self.assertIsNotNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+        self.assertIsNotNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
         self.client.post(
             path=reverse(
                 'module:rm-group-from-course',
@@ -167,7 +167,7 @@ class TestCollectionGroup(BridgeTestCase):
                     'group_slug': self.test_cg.slug,
                 })
         )
-        self.assertIsNone(CollectionGroup.objects.get(id=self.test_cg.id).course)
+        self.assertIsNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
@@ -181,7 +181,7 @@ class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
     def check_update_group(self, data):
         url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         self.client.post(url, data=data)
-        self.test_cg = CollectionGroup.objects.get(id=self.test_cg.id)
+        self.test_cg = ModuleGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(self.group_update_data['name'], self.test_cg.name)
 
 
@@ -222,6 +222,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         })
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
+        # ToDO(AndreyLykhoman) rewrite this test.
         self.assertEqual(
             self.test_cg.get_collection_order_by_order(self.collection_order1.order).grading_policy.name, "trials_count"
         )

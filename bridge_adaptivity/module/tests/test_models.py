@@ -10,7 +10,7 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy, Sequence,
+    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Course, Engine, GradingPolicy, Sequence,
     SequenceItem,
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
@@ -157,7 +157,7 @@ class TestActivityModel(TestCase):
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
         )
@@ -239,7 +239,7 @@ class TestCollectionGroupModel(TestCase):
 
     def test_create_empty_group(self):
         """Test an ability to create empty collection group (without collections)."""
-        groups_count = CollectionGroup.objects.count()
+        groups_count = ModuleGroup.objects.count()
         user = BridgeUser.objects.create_user(
             username='test',
             password='test',
@@ -247,10 +247,10 @@ class TestCollectionGroupModel(TestCase):
         )
         points_earned = GradingPolicy.objects.get(name='points_earned')
         engine = Engine.objects.create(engine='engine_mock')
-        group = CollectionGroup.objects.create(
+        group = ModuleGroup.objects.create(
             name='some name', engine=engine, grading_policy=points_earned, owner=user
         )
-        self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
+        self.assertEqual(ModuleGroup.objects.count(), groups_count + 1)
         self.assertFalse(group.collections.all())
 
 
@@ -276,7 +276,7 @@ class TestDeleteObjectsSeparately(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
         self.course = Course.objects.create(name='test_course', owner=self.user)
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
             course=self.course
@@ -297,9 +297,9 @@ class TestDeleteObjectsSeparately(TestCase):
 
     def test_delete_course(self):
         # check that any group was deleted when delete course
-        groups_count = CollectionGroup.objects.count()
+        groups_count = ModuleGroup.objects.count()
         self.course.delete()
-        self.assertEqual(CollectionGroup.objects.count(), groups_count)
+        self.assertEqual(ModuleGroup.objects.count(), groups_count)
 
 
 @ddt
@@ -352,7 +352,7 @@ class TestSequence(TestCase):
             lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
         )
 
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
         )

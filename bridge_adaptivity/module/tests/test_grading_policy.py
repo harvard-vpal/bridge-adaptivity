@@ -6,7 +6,7 @@ import pytest
 
 from bridge_lti.models import LtiProvider, OutcomeService
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS,
+    Activity, BridgeUser, Collection, ModuleGroup, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS,
     GradingPolicy, LtiUser, Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
@@ -277,7 +277,7 @@ class TestPolicySendGradeMethod(TestCase):
             lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
         )
 
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
         )

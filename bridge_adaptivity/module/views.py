@@ -26,14 +26,14 @@ from common.utils import get_collection_collectiongroup_engine, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseGroupView
 from module.forms import (
-    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
+    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, GroupForm
 )
 from module.mixins.views import (
     BackURLMixin, CollectionEditFormMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
     GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
+    Activity, Collection, ModuleGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
     SequenceItem,
 )
 
@@ -105,9 +105,9 @@ class CourseAddGroup(JsonResponseMixin, FormView):
 
 @method_decorator(login_required, name='dispatch')
 class CourseRmGroup(UpdateView):
-    model = CollectionGroup
+    model = ModuleGroup
     template_name = 'module/modals/course_add_group.html'
-    slug_url_kwarg = 'group_slug'
+    slug_url_kwarg = 'group_id'
     fields = ('course',)
 
     def get_queryset(self):
@@ -135,7 +135,7 @@ class CourseRmGroup(UpdateView):
 @method_decorator(login_required, name='dispatch')
 class GroupList(BaseGroupView, ListView):
     context_object_name = 'groups'
-    ordering = ['slug']
+    ordering = ['id']
     filter = 'group'
 
 
@@ -172,13 +172,10 @@ class GetGradingPolicyForm(FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs.get('collection_slug') and self.kwargs.get('order'):
+        if self.kwargs.get('collection_order_slug'):
 
             collection_order_query = CollectionOrder.objects.filter(
-                collection__slug=self.kwargs.get('collection_slug'),
-                group__slug=self.kwargs.get('group_slug'),
-                order=self.kwargs.get('order'),
-
+                slug=self.kwargs.get('collection_order_slug'),
             )
             if self.request.GET.get('grading_policy'):
                 collection_order_query = collection_order_query.filter(
@@ -213,7 +210,7 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
 @method_decorator(login_required, name='dispatch')
 class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView, DetailView):
     context_object_name = 'group'
-    link_form_class = CollectionGroupForm
+    link_form_class = CollectionOrderForm
     link_object_name = 'collection'
     filter = 'group'
 
@@ -236,12 +233,12 @@ class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView,
 
 class AddCollectionInGroup(CollectionOrderEditFormMixin, JsonResponseMixin, FormView):
     template_name = 'module/modals/course_add_group.html'
-    form_class = CollectionGroupForm
+    form_class = CollectionOrderForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group_slug'))
+        kwargs['group'] = get_object_or_404(ModuleGroup, id=self.kwargs.get('group_id'))
         return kwargs
 
     def get_success_url(self):
@@ -254,6 +251,7 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView)
     context_object_name = 'group'
 
     def get(self, request, *args, **kwargs):
+        # ToDo(AndreyLykhoman): testing this order method
         if kwargs.get('order'):
             collection_order = CollectionOrder.objects.get(
                 group__slug=kwargs.get('group_slug'), id=kwargs.get('id')
@@ -287,7 +285,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
     def form_valid(self, form):
         result = super().form_valid(form)
         if self.kwargs.get('group_slug'):
-            group = CollectionGroup.objects.get(slug=self.kwargs['group_slug'])
+            group = ModuleGroup.objects.get(slug=self.kwargs['group_slug'])
             CollectionOrder.objects.create(group=group, collection=self.object)
         return result
 
@@ -309,21 +307,24 @@ class CollectionOrderUpdate(
 
     def get_object(self):
         return CollectionOrder.objects.get(
-            group__slug=self.kwargs.get("group"), id=self.kwargs.get("collection_order_id"),
+            slug=self.kwargs.get("collection_order_slug")
         )
 
     def get_success_url(self):
-        return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
+        collection_order = CollectionOrder.objects.get(
+            slug=self.kwargs.get("collection_order_slug")
+        )
+        return reverse("module:group-detail", kwargs={'group_id': collection_order.group.id})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        kwargs['group'] = self.object.group
         kwargs['read_only'] = self._set_read_only_collection()
         return kwargs
 
     def _set_read_only_collection(self):
-        return bool(self.kwargs.get('collection_order_id'))
+        return bool(self.kwargs.get('collection_order_slug'))
 
 
 class CollectionOrderAdd(
@@ -338,7 +339,7 @@ class CollectionOrderAdd(
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        kwargs['group'] = get_object_or_404(ModuleGroup, id=self.kwargs.get('group_id'))
         kwargs['read_only'] = self._set_read_only_collection()
         return kwargs
 
@@ -347,13 +348,19 @@ class CollectionOrderAdd(
         #  information about group.
         """Handle GET requests: instantiate a blank version of the form."""
         result = super().get(request, *args, **kwargs)
-        result.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+        result.context_data["group"] = get_object_or_404(ModuleGroup, id=self.kwargs.get('group_id'))
         result.context_data['form'].fields['collection'].required = False
         result.context_data['collection_form'].fields['owner'].initial = self.request.user.id
         return result
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST.get('collection_group-collection'):
+            context['collection_form'] = None
+        return context
+
     def get_success_url(self):
-        return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group")})
+        return reverse("module:group-detail", kwargs={'group_id': self.kwargs.get("group_id")})
 
     def _set_read_only_collection(self):
         # NOTE(AndreyLykhoman): Return 'False' because we will able to choose a new collection to add.
@@ -430,7 +437,7 @@ class CollectionGroupDelete(DeleteView):
     def get_success_url(self):
         return (
             self.request.GET.get('return_url') or
-            reverse('module:group-detail', kwargs={'group_slug': self.kwargs.get('group_slug')})
+            reverse('module:group-detail', kwargs={'group_id': self.object.group.id})
         )
 
     def get(self, request, *args, **kwargs):
@@ -440,10 +447,7 @@ class CollectionGroupDelete(DeleteView):
         return self.model.filter()
 
     def get_object(self, queryset=None):
-        return self.model.objects.get(
-            id=self.kwargs['collection_order_id'],
-            group__slug=self.kwargs['group_slug']
-        )
+        return self.model.objects.get(slug=self.kwargs['collection_order_slug'])
 
 
 @method_decorator(login_required, name='dispatch')

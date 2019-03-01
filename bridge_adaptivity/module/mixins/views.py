@@ -7,8 +7,8 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
-from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionGroupForm, GroupForm
-from module.models import Collection, CollectionGroup, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
+from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, GroupForm
+from module.models import Collection, ModuleGroup, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
 
@@ -60,14 +60,14 @@ class GroupEditFormMixin(object):
 
 
 class CollectionOrderEditFormMixin(object):
-    form_class = CollectionGroupForm
+    form_class = CollectionOrderForm
     prefix = 'collection_group'
     grading_prefix = 'grading'
 
     def get_grading_form_kwargs(self):
         """Return kwargs for GradingForm."""
         form_kw = dict(prefix=self.grading_prefix)
-        if self.object and self.object.grading_policy:
+        if isinstance(self.object, CollectionOrder) and self.object.grading_policy:
             form_kw['instance'] = self.object.grading_policy
         return form_kw
 
@@ -84,7 +84,7 @@ class CollectionOrderEditFormMixin(object):
             response = super().form_valid(form)
         else:
             response = self.form_invalid(form)
-            response.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+            #response.context_data["group"] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group'))
             if 'params' in grading_policy_form.cleaned_data:
                 response.context_data['grading_policy_form'] = grading_policy_form
             return response
@@ -104,11 +104,10 @@ class CollectionOrderEditFormMixin(object):
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections
-        if self.kwargs.get('collection_order_id') and self.kwargs.get('group'):
+        if self.kwargs.get('collection_order_slug'):
             collection_order = get_object_or_404(
                 CollectionOrder,
-                group__slug=self.kwargs['group'],
-                id=self.kwargs['collection_order_id'],
+                slug=self.kwargs['collection_order_slug'],
             )
             if collection_order.grading_policy:
                 form.initial['grading_policy_name'] = collection_order.grading_policy.name
@@ -143,22 +142,22 @@ class CollectionEditFormMixin(object):
         form_kw = self.get_collection_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
         context['collection_form'] = BaseCollectionForm(post_or_none, **form_kw)
-        context["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
         return context
 
     def form_valid(self, form):
         form_kw = self.get_collection_form_kwargs()
         post_or_none = self.request.POST if self.request.POST else None
         collection_form = BaseCollectionForm(post_or_none, **form_kw)
-        if self.request.POST.get('collection_group-collection'):
-            response = super().form_valid(form)
-        elif collection_form.is_valid():
+
+        if collection_form.is_valid():
             collection = collection_form.save()
             form.cleaned_data['collection'] = collection
             response = super().form_valid(form)
+        elif self.request.POST.get('collection_group-collection'):
+            response = super().form_valid(form)
         else:
             response = self.form_invalid(form)
-            response.context_data["group"] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group'))
+            #response.context_data["group"] = self.object.group
         return response
 
     def get_form(self):

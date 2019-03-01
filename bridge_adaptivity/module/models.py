@@ -112,14 +112,14 @@ class Sequence(models.Model):
         """
         Create the context for the optional label on the student view.
 
-        Context depends on the CollectionGroup's OPTION value.
+        Context depends on the ModuleGroup's OPTION value.
         :return: str with the text for injecting into the label.
         """
         ui_options = self.collection_order.ui_option
 
         details_list = []
         for ui_option in ui_options:
-            # NOTE(idegtiarov) conditions depend on CollectionGroup's OPTIONS
+            # NOTE(idegtiarov) conditions depend on ModuleGroup's OPTIONS
             if ui_option == CollectionOrder.OPTIONS[0][0]:
                 details = f"{CollectionOrder.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
             elif ui_option == CollectionOrder.OPTIONS[1][0]:
@@ -239,13 +239,6 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
-    slug = AutoSlugField(
-        populate_from='name',
-        unique=True,
-        db_index=True,
-        help_text="Add the slug for the collection. If field empty slug will be created automatically.",
-        verbose_name='slug id'
-    )
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     updated_at = fields.DateTimeField(auto_now=True)
@@ -256,33 +249,33 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     def __str__(self):
         return '<Collection: {}>'.format(self.name)
 
-    def save(self, *args, **kwargs):
-        """Extension cover method with logging."""
-        initial_id = self.id
-        super().save(*args, **kwargs)
-        tasks.sync_collection_engines.apply_async(
-            kwargs={'collection_slug': self.slug, 'created_at': self.updated_at},
-            countdown=settings.CELERY_DELAY_SYNC_TASK,
-        )
-
-        if initial_id:
-            Log.objects.create(
-                log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
-                data={'collection_id': self.id}
-            )
-        else:
-            Log.objects.create(
-                log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
-                data={'collection_id': self.id}
-            )
-
-    def get_absolute_url(self):
-        return reverse('module:collection-list')
-
-    def get_launch_url(self, group):
-        return "{}{}".format(
-            settings.BRIDGE_HOST,
-            reverse("lti:launch", kwargs={'collection_slug': self.slug, 'group_slug': group.slug}))
+    # def save(self, *args, **kwargs):
+    #     """Extension cover method with logging."""
+    #     initial_id = self.id
+    #     super().save(*args, **kwargs)
+    #     tasks.sync_collection_engines.apply_async(
+    #         kwargs={'collection_slug': self.slug, 'created_at': self.updated_at},
+    #         countdown=settings.CELERY_DELAY_SYNC_TASK,
+    #     )
+    #
+    #     if initial_id:
+    #         Log.objects.create(
+    #             log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
+    #             data={'collection_id': self.id}
+    #         )
+    #     else:
+    #         Log.objects.create(
+    #             log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
+    #             data={'collection_id': self.id}
+    #         )
+    #
+    # def get_absolute_url(self):
+    #     return reverse('module:collection-list')
+    #
+    # def get_launch_url(self, group):
+    #     return "{}{}".format(
+    #         settings.BRIDGE_HOST,
+    #         reverse("lti:launch", kwargs={'collection_slug': self.slug, 'group_slug': group.slug}))
 
 
 class Engine(ModelFieldIsDefaultMixin, models.Model):
@@ -341,8 +334,9 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
         ('EP', _('Earned grade')),
         ('RW', _('Answers right/wrong'))
     )
-
-    group = models.ForeignKey('CollectionGroup', on_delete=models.CASCADE)
+    # ToDO# reganarate migration
+    slug = models.SlugField(unique=True, default=uuid.uuid4, editable=True, db_index=True)
+    group = models.ForeignKey('ModuleGroup', on_delete=models.CASCADE)
     collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
     engine = models.ForeignKey(Engine, blank=True, null=True, on_delete=models.CASCADE)
@@ -367,24 +361,20 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
         return res_list
 
 
-class CollectionGroup(models.Model):
+class ModuleGroup(models.Model):
     """
-    Represents Collections Group.
+    Represents Module Group.
     """
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
-    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
     course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
-    grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
     collections = models.ManyToManyField(
         Collection, related_name='collection_groups', blank=True, through='CollectionOrder'
     )
-
-    engine = models.ForeignKey(Engine, null=True, on_delete=models.CASCADE)
 
     @property
     def ordered_collections(self):
@@ -400,7 +390,7 @@ class CollectionGroup(models.Model):
         return "<Group of Collections: {}>".format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:group-detail', kwargs={'group_slug': self.slug})
+        return reverse('module:group-detail', kwargs={'group_id': self.id})
 
     def get_collection_order_by_order(self, order):
         """

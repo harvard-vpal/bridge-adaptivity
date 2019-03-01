@@ -18,63 +18,61 @@ urlpatterns = ([
     url(r'^course/(?P<course_slug>[\w-]+)/change/?$', CourseUpdate.as_view(), name='course-change'),
     url(r'^course/(?P<course_slug>[\w-]+)/delete/?$', CourseDelete.as_view(), name='course-delete'),
     url(r'^course/(?P<course_slug>[\w-]+)/add_group/?$', CourseAddGroup.as_view(), name='add-group-to-course'),
-    url(r'^course/(?P<course_slug>[\w-]+)/rm_group/(?P<group_slug>[\w-]+)?/?$', CourseRmGroup.as_view(),
+    url(r'^course/(?P<course_slug>[\w-]+)/rm_group/(?P<group_id>[\w-]+)?/?$', CourseRmGroup.as_view(),
         name='rm-group-from-course'),
 
     url(r'^group/$', GroupList.as_view(), name='group-list'),
-    re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
-    url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
-    url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
-    url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
+    url(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
+    url(r'^group/(?P<group_id>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
+    url(r'^group/(?P<group_id>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
+    url(r'^group/(?P<group_id>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
+    url(r'^group/(?P<group_id>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<collection_order_id>\d+)$', CollectionGroupDelete.as_view(),
+    # Note ------ fix bellow
+    url(r'^collection_order/(?P<collection_order_slug>[\w-]+)/delete/', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
     url(
-        (
-            r'group/(?P<group_slug>[\w-]+)(?:/collection/(?P<collection_slug>[\w-]*))?(?:/order/(?P<order>\d+))?/'
-            r'grading_policy_form/?$'
-        ),
+        r'collection_order/(?:(?P<collection_order_slug>[\w-]+))?/grading_policy_form/?$',
         GetGradingPolicyForm.as_view(),
         name='grading_policy_form'
     ),
     url(r'collection/collection_form/$', GetCollectionForm.as_view(), name='collection_form'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
+    url(r'^(?:group/(?P<group_id>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
+    url(r'^(?:group/(?P<group_id>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
         name='collection-add'),
-    path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
+    url('collection/(?P<id>[\w-]+)/change/', CollectionUpdate.as_view(), name='collection-change'),
     url(
-        r'group/(?P<group>[\w-]+)/collection_order/(?P<collection_order_id>\d+)/$',
+        r'collection_order/(?P<collection_order_slug>[\w-]+)/change$',
         CollectionOrderUpdate.as_view(),
         name='collection-order-change'
     ),
     url(
-        r'group/(?P<group>[\w-]+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
+        r'group/(?P<group_id>[\w-]+)/add/collection_order/$', CollectionOrderAdd.as_view(), name='collection-order-add'
     ),
-    re_path(
-        r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
+    url(
+        r'^(?:group/(?P<group_id>[\w-]+)/)?collection/(?P<pk>\d+)/$',
         CollectionDetail.as_view(),
         name='collection-detail'
     ),
     url(
-        r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$',
+        r'^(?:group/(?P<group_id>[\w-]+)/)?collection/(?P<slug>[\w-]+)/delete/?$',
         CollectionDelete.as_view(),
         name='collection-delete'
     ),
-    path(
-        'group/<slug:group_slug>/collection/<slug:collection_slug>/order/<slug:collection_order_order>/demo',
+    url(
+        r'collection_order/(?P<collection_order_slug>[\w-]+)/demo',
         demo_collection,
         name="demo"
     ),
-    path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
+    url(r'sequence/(?P<pk>\d+)', SequenceDelete.as_view(), name="delete_sequence"),
     url(
-        r'^group/(?P<group_slug>[\w-]+)/collection_order/(?P<id>[\w-]+)/move/(?P<order>\d+)?$',
+        r'^collection_order/(?P<collection_order_slug>[\w-]+)/move/(?P<order>\d+)?$',
         GroupUpdate.as_view(),
         name='collection-move'
     ),
-    url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
+    url(r'^activity/(?P<collection_id>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
-        r'^activity/(?P<pk>\d+)/(?P<collection_slug>[\w-]+)/change/$',
+        r'^activity/(?P<pk>\d+)/(?P<collection_id>[\w-]+)/change/$',
         ActivityUpdate.as_view(),
         name='activity-change'
     ),
@@ -105,10 +103,14 @@ urlpatterns = ([
     url(r'^callback_grade/$', callback_sequence_item_grade, name='sequence-item-grade'),
 
     # Sync collection with relative engines
-    url(r'^collection/(?P<slug>[\w-]+)/sync/$', sync_collection, name='collection-sync'),
+    url(r'^collection/(?P<pk>\d)/sync/$', sync_collection, name='collection-sync'),
 
     # Manually update students grades related to the collection-group
-    path('collection_order/<slug:collection_order_id>/update_grades/', update_students_grades, name='update_grades'),
+    url(
+        r'collection_order/(?P<collection_order_slug>[\w-]+)/update_grades/',
+        update_students_grades,
+        name='update_grades'
+    ),
 
-    path('collection/<slug:slug>/preview/', preview_collection, name='collection-preview'),
+    url(r'collection/(?P<pk>\d+)/preview/', preview_collection, name='collection-preview'),
 ], 'module')

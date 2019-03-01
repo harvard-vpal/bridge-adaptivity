@@ -34,7 +34,7 @@
             {% if not request.session.read_only_data %}
             <td class="text-right" style="min-width: 90px;">
               <div>
-                  {% url 'module:group-change' group_slug=group.slug as group_edit %}
+                  {% url 'module:group-change' group_id=group.id as group_edit %}
                     <a>
                   {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
                     </a>
@@ -43,13 +43,13 @@
                       {% if group.has_linked_active_sequences %} show-alarm
                       {% elif group.has_linked_sequences %} show-warning
                       {% endif %}"
-                      href="{% url 'module:group-delete' group_slug=group.slug %}"
+                      href="{% url 'module:group-delete' group_id=group.id %}"
                       data-id="{{ group.id }}">
                       {% bootstrap_button "" size='sm' icon='trash' %}
                   </a>
               {% endif %}
 
-              {% url 'module:group-delete' group_slug=group.slug as delete_url %}
+              {% url 'module:group-delete' group_id=group.id as delete_url %}
 
               {% if group.has_linked_active_sequences %}
                 {% with message="At least one student is still working on the Collection which is in " %}
