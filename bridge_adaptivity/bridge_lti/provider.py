@@ -42,7 +42,7 @@ def get_tool_provider_for_lti(request):
 
 
 @csrf_exempt
-def lti_launch(request, collection_order_slug, unique_marker='', ):
+def lti_launch(request, collection_order_slug=None, unique_marker='', ):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -79,8 +79,11 @@ def instructor_flow(request, collection_order_slug):
     """
     if not collection_order_slug:
         return redirect(reverse('module:collection-list'))
-    collection_id = CollectionOrder.objects.get(slug=collection_order_slug).collection.id
-    request.session['read_only_data'] = {'collection_id': collection_id}
+    collection_order = CollectionOrder.objects.get(slug=collection_order_slug)
+    request.session['read_only_data'] = {
+        "collection_slug": collection_order.collection.slug,
+        "group_slug": str(collection_order.group.slug)
+    }
     read_only_user, _ = BridgeUser.objects.get_or_create(
         username='read_only',
         password='fake_pass'
@@ -90,7 +93,7 @@ def instructor_flow(request, collection_order_slug):
     return redirect(
         reverse(
             'module:collection-detail',
-            kwargs={'pk': collection_id}
+            kwargs={'slug': collection_order.collection.slug}
         )
     )
 
@@ -120,13 +123,7 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def learner_flow(
-    request,
-    lti_consumer,
-    tool_provider,
-    collection_order_slug,
-    unique_marker='',
-):
+def learner_flow(request, lti_consumer, tool_provider, collection_order_slug, unique_marker=''):
     """
     Define logic flow for Learner.
     """

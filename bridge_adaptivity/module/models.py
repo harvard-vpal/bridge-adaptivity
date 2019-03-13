@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from multiselectfield import MultiSelectField
 from ordered_model.models import OrderedModel
 import shortuuid
+from slugger import AutoSlugField
 
 from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
@@ -238,6 +239,13 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
+    slug = AutoSlugField(
+        populate_from='name',
+        unique=True,
+        db_index=True,
+        help_text="Add the slug for the collection. If field empty slug will be created automatically.",
+        verbose_name='slug id'
+    )
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     updated_at = fields.DateTimeField(auto_now=True)
@@ -253,19 +261,19 @@ class Collection(HasLinkedSequenceMixin, models.Model):
         initial_id = self.id
         super().save(*args, **kwargs)
         tasks.sync_collection_engines.apply_async(
-            kwargs={'collection_id': self.id, 'created_at': self.updated_at},
+            kwargs={'collection_slug': self.slug, 'created_at': self.updated_at},
             countdown=settings.CELERY_DELAY_SYNC_TASK,
         )
 
         if initial_id:
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
-                data={'collection_id': self.id}
+                data={'collection_slug': self.slug}
             )
         else:
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
-                data={'collection_id': self.id}
+                data={'collection_slug': self.slug}
             )
 
     def get_absolute_url(self):
@@ -370,6 +378,7 @@ class ModuleGroup(models.Model):
     description = models.TextField(blank=True, null=True)
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
     course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
     collections = models.ManyToManyField(
@@ -390,7 +399,7 @@ class ModuleGroup(models.Model):
         return "<Group of Collections: {}>".format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:group-detail', kwargs={'group_id': self.id})
+        return reverse('module:group-detail', kwargs={'group_slug': self.slug})
 
     def get_collection_order_by_order(self, order):
         """
@@ -456,7 +465,7 @@ class Activity(OrderedModel):
         return '<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.collection.id})
+        return reverse('module:collection-detail', kwargs={'slug': self.collection.slug})
 
     def save(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is created/updated."""

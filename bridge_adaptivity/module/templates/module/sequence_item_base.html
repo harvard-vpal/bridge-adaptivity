@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load staticfiles bootstrap3%}
+{% load staticfiles bootstrap3 %}
 
 
 {% block bootstrap3_content %}
@@ -8,7 +8,7 @@
 <div class="container-fluid toolbar">
   {% if demo %}
     <a
-        href="{% url 'module:delete_sequence' sequence_pk %}?return_url={% url 'module:group-detail' sequence_item.sequence.collection_order.group.id %}?back_url={{ back_url }}">
+        href="{% url 'module:delete_sequence' sequence_pk %}?return_url={% url 'module:group-detail' sequence_item.sequence.collection_order.group.slug %}?back_url={{ back_url }}">
         <button class="btn btn-warning ">Close Demo</button>
     </a>
 

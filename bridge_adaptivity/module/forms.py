@@ -76,7 +76,7 @@ class BaseCollectionForm(ModelForm):
         """
 
         model = Collection
-        fields = ['name', 'metadata', 'owner']
+        fields = ['name', 'slug', 'metadata', 'owner']
         widgets = {'owner': forms.HiddenInput()}
 
 

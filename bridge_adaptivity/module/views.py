@@ -106,7 +106,7 @@ class CourseAddGroup(JsonResponseMixin, FormView):
 class CourseRmGroup(UpdateView):
     model = ModuleGroup
     template_name = 'module/modals/course_add_group.html'
-    pk_url_kwarg = 'group_id'
+    slug_url_kwarg = 'group_slug'
     fields = ('course',)
 
     def get_queryset(self):
@@ -135,7 +135,7 @@ class CourseRmGroup(UpdateView):
 class GroupList(BaseGroupView, ListView):
     context_object_name = 'groups'
     ordering = ['id']
-    filter = 'group'
+    filter = 'group_slug'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -211,7 +211,7 @@ class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView,
     context_object_name = 'group'
     link_form_class = CollectionOrderForm
     link_object_name = 'collection'
-    filter = 'group'
+    filter = 'group_slug'
 
     def get_link_form_kwargs(self):
         return dict(user=self.request.user, group=self.object)
@@ -237,7 +237,7 @@ class AddCollectionInGroup(CollectionOrderEditFormMixin, JsonResponseMixin, Form
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['group'] = get_object_or_404(ModuleGroup, id=self.kwargs.get('group_id'))
+        kwargs['group'] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
         return kwargs
 
     def get_success_url(self):
@@ -275,7 +275,7 @@ class GroupDelete(BaseGroupView, DeleteView):
 @method_decorator(login_required, name='dispatch')
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
-    filter = 'collection'
+    filter = 'collection_slug'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -283,8 +283,8 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        if self.kwargs.get('group_id'):
-            group = ModuleGroup.objects.get(id=self.kwargs['group_id'])
+        if self.kwargs.get('group_slug'):
+            group = ModuleGroup.objects.get(slug=self.kwargs['group_slug'])
             CollectionOrder.objects.create(group=group, collection=self.object)
         return result
 
@@ -305,11 +305,11 @@ class CollectionOrderUpdate(
 
     def get_object(self):
         collection_order = CollectionOrder.objects.get(slug=self.kwargs.get("collection_order_slug"))
-        self.colection_order_group_id = collection_order.group.id
+        self.collection_order_group_slug = collection_order.group.slug
         return collection_order
 
     def get_success_url(self):
-        return reverse("module:group-detail", kwargs={'group_id': self.colection_order_group_id})
+        return reverse("module:group-detail", kwargs={'group_slug': self.collection_order_group_slug})
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -333,7 +333,7 @@ class CollectionOrderAdd(
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['group'] = get_object_or_404(ModuleGroup, id=self.kwargs.get('group_id'))
+        kwargs['group'] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
         kwargs['read_only'] = self._set_read_only_collection()
         return kwargs
 
@@ -342,7 +342,7 @@ class CollectionOrderAdd(
         #  information about group.
         """Handle GET requests: instantiate a blank version of the form."""
         result = super().get(request, *args, **kwargs)
-        result.context_data["group"] = get_object_or_404(ModuleGroup, id=self.kwargs.get('group_id'))
+        result.context_data["group"] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
         result.context_data['form'].fields['collection'].required = False
         result.context_data['collection_form'].fields['owner'].initial = self.request.user.id
         return result
@@ -354,7 +354,7 @@ class CollectionOrderAdd(
         return context
 
     def get_success_url(self):
-        return reverse("module:group-detail", kwargs={'group_id': self.kwargs.get("group_id")})
+        return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group_slug")})
 
     def _set_read_only_collection(self):
         # NOTE(AndreyLykhoman): Return 'False' because we will able to choose a new collection to add.
@@ -364,7 +364,7 @@ class CollectionOrderAdd(
 @method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
-    filter = 'collection_id'
+    filter = 'collection_slug'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -426,7 +426,7 @@ class CollectionGroupDelete(DeleteView):
     def get_success_url(self):
         return (
             self.request.GET.get('return_url') or
-            reverse('module:group-detail', kwargs={'group_id': self.object.group.id})
+            reverse('module:group-detail', kwargs={'group_slug': self.object.group.slug})
         )
 
     def get(self, request, *args, **kwargs):
@@ -457,7 +457,7 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
         return result
 
     def form_valid(self, form):
-        form.instance.collection = Collection.objects.get(id=self.kwargs.get('collection_id'))
+        form.instance.collection = Collection.objects.get(slug=self.kwargs.get('collection_slug'))
         result = super().form_valid(form)
         return result
 
@@ -529,7 +529,7 @@ class ActivityDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:collection-detail', kwargs={'pk': self.object.collection.id}
+            'module:collection-detail', kwargs={'slug': self.object.collection.slug}
         )
 
     def delete(self, request, *args, **kwargs):
@@ -574,7 +574,7 @@ class SequenceDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:group-detail', kwargs={'group_id': self.object.group.id}
+            'module:group-detail', kwargs={'group_slug': self.object.group.slug}
         )
 
     def delete(self, request, *args, **kwargs):
@@ -743,20 +743,22 @@ def callback_sequence_item_grade(request):
     return HttpResponse(xml, content_type="application/xml")
 
 
-def sync_collection(request, pk, api_request=None):
+def sync_collection(request, slug, api_request=None):
     """
     Synchronize collection immediately.
     """
     back_url = request.GET.get('back_url')
-    collection = get_object_or_404(Collection, id=pk)
+    collection = get_object_or_404(Collection, slug=slug)
     collection.save()
     log.debug("Immediate sync task is created, time: {}".format(collection.updated_at))
     task = tasks.sync_collection_engines.delay(
-        collection_id=pk, created_at=collection.updated_at
+        collection_slug=slug, created_at=collection.updated_at
     )
     if api_request:
         return task.collect(timeout=settings.CELERY_RESULT_TIMEOUT)
-    return redirect(reverse('module:collection-detail', kwargs={'pk': collection.id}) + '?back_url={}'.format(back_url))
+    return redirect(
+        reverse('module:collection-detail', kwargs={'slug': collection.slug}) + '?back_url={}'.format(back_url)
+    )
 
 
 def update_students_grades(request, collection_order_slug):
@@ -770,11 +772,11 @@ def update_students_grades(request, collection_order_slug):
         f"Task with updating students grades related to the colection_order with id {colection_order.id} is started."
     )
     return redirect(reverse(
-        'module:group-detail', kwargs={'group_id': colection_order.group.id}
+        'module:group-detail', kwargs={'group_slug': colection_order.group.slug}
     ) + '?back_url={}'.format(back_url))
 
 
-def preview_collection(request, pk):
+def preview_collection(request, slug):
     acitvities = [
         {
             'url': (
@@ -783,7 +785,7 @@ def preview_collection(request, pk):
             ),
             'pos': pos,
         }
-        for pos, a in enumerate(get_list_or_404(Activity, collection__id=pk), start=1)
+        for pos, a in enumerate(get_list_or_404(Activity, collection__slug=slug), start=1)
     ]
     return render(
         request,
@@ -791,7 +793,7 @@ def preview_collection(request, pk):
         context={
             'activities': acitvities,
             'back_url': (
-                f"{reverse('module:collection-detail', kwargs={'pk': pk})}"
+                f"{reverse('module:collection-detail', kwargs={'slug': slug})}"
                 f"?back_url={request.GET.get('back_url')}"
             )
         }

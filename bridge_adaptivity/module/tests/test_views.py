@@ -92,7 +92,7 @@ class TestCollectionList(BridgeTestCase):
 
     def test_with_group_id(self):
         """Test collection list view with group slug."""
-        url = reverse('module:collection-list', kwargs={'group_id': self.test_cg.id})
+        url = reverse('module:collection-list', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -130,7 +130,7 @@ class TestCollectionGroup(BridgeTestCase):
         """Test update ModuleGroup page, check that updated collection group is really updated."""
         groups_count = ModuleGroup.objects.count()
 
-        url = reverse('module:group-change', kwargs={'group_id': self.test_cg.id})
+        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
@@ -164,7 +164,7 @@ class TestCollectionGroup(BridgeTestCase):
                 'module:rm-group-from-course',
                 kwargs={
                     'course_slug': self.course.slug,
-                    'group_id': self.test_cg.id,
+                    'group_slug': self.test_cg.slug,
                 })
         )
         self.assertIsNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
@@ -173,13 +173,13 @@ class TestCollectionGroup(BridgeTestCase):
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
 
     def check_group_change_page(self):
-        url = reverse('module:group-change', kwargs={'group_id': self.test_cg.id})
+        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
 
     def check_update_group(self, data):
-        url = reverse('module:group-change', kwargs={'group_id': self.test_cg.id})
+        url = reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug})
         self.client.post(url, data=data)
         self.test_cg = ModuleGroup.objects.get(id=self.test_cg.id)
         self.assertEqual(self.group_update_data['name'], self.test_cg.name)
@@ -200,7 +200,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
         }
         # Group is updated with three collections two of which is repeated. Collections will increase by 1
         expected_collections_count = self.test_cg.collections.count() + 1
-        url = reverse('module:collection-order-add', kwargs={'group_id': self.test_cg.id})
+        url = reverse('module:collection-order-add', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
         self.assertEqual(self.test_cg.collections.count(), expected_collections_count)
@@ -310,7 +310,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
             "collection_group-grading_policy_name": "trials_count",
             "grading-name": "trials_count"
         }
-        url = reverse('module:collection-order-add', kwargs={'group_id': self.test_cg.id})
+        url = reverse('module:collection-order-add', kwargs={'group_slug': self.test_cg.slug})
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, 202)
 
@@ -360,7 +360,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collection_edit_back_url(self):
         """Test back_url param is added into context in collection change view."""
         url = (
-            reverse('module:collection-change', kwargs={'pk': self.collection1.id}) +
+            reverse('module:collection-change', kwargs={'slug': self.collection1.slug}) +
             '?back_url={}'.format(self.back_url)
         )
         change_response = self.client.get(url)
@@ -371,7 +371,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collection_detail_back_url(self, available_course_mock):
         """Test back_url param is added into context navigation from collection detail view."""
         url_detail = (
-            reverse('module:collection-detail', kwargs={'pk': self.collection1.id}) +
+            reverse('module:collection-detail', kwargs={'slug': self.collection1.slug}) +
             '?back_url={}'.format(self.back_url)
         )
         detail_response = self.client.get(url_detail)
@@ -381,7 +381,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collectiongroup_edit_back_url(self):
         """Test back_url param is added into context navigation from collectiongroup edit view."""
         change_url = (
-            reverse('module:group-change', kwargs={'group_id': self.test_cg.id}) +
+            reverse('module:group-change', kwargs={'group_slug': self.test_cg.slug}) +
             '?back_url={}'.format(self.back_url)
         )
         change_response = self.client.get(change_url)
@@ -391,7 +391,7 @@ class TestBackURLMixin(BridgeTestCase):
     def test_collectiongroup_detail_back_url(self):
         """Test back_url param is added into context navigation from collectiongroup detail view."""
         url = (
-            reverse('module:group-detail', kwargs={'group_id': self.test_cg.id}) +
+            reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}) +
             '?back_url={}'.format(self.back_url)
         )
         detail_response = self.client.get(url)
@@ -512,13 +512,12 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_id = self.collection1.id
-        expected_url = reverse('module:collection-detail', kwargs={'pk': col_id}) + '?back_url=None'
-        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        expected_url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug}) + '?back_url=None'
+        url = reverse('module:collection-sync', kwargs={'slug': self.collection1.slug})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(
-            created_at=Collection.objects.get(id=col_id).updated_at,
-            collection_id=str(col_id),
+            created_at=Collection.objects.get(slug=self.collection1.slug).updated_at,
+            collection_slug=self.collection1.slug,
         )
         self.assertRedirects(response, expected_url)
 
@@ -528,8 +527,8 @@ class TestManualSync(BridgeTestCase):
     def test_immediate_synchronization_incorrect_pk(
         self, mock_get_available_courses, mock_apply_async, mock_delay
     ):
-        col_id = '345'
-        url = reverse('module:collection-sync', kwargs={'pk': col_id})
+        col_slug = '345'
+        url = reverse('module:collection-sync', kwargs={'slug': col_slug})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -538,7 +537,7 @@ class TestManualGradeUpdate(BridgeTestCase):
 
     @patch('module.tasks.update_students_grades.delay')
     def test_mandatory_students_grade_update(self, mock_delay):
-        expected_url = reverse('module:group-detail', kwargs={'group_id': self.test_cg.id}) + '?back_url=None'
+        expected_url = reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}) + '?back_url=None'
         url = reverse('module:update_grades', kwargs={'collection_order_slug': self.collection_order1.slug})
         response = self.client.get(url)
         mock_delay.assert_called_once_with(collection_order_slug=self.collection_order1.slug)
@@ -556,9 +555,9 @@ class TestCreateUpdateActivity(BridgeTestCase):
     @patch('module.tasks.sync_collection_engines.apply_async')
     def setUp(self, mock_apply_async):
         super().setUp()
-        self.back_url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
+        self.back_url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
         self.provider = LtiConsumer.objects.get(id=2)
-        self.add_url = reverse('module:activity-add', kwargs={'collection_id': self.collection1.id})
+        self.add_url = reverse('module:activity-add', kwargs={'collection_slug': self.collection1.slug})
         self.create_data = {
             'name': 'Adapt 310',
             'tags': '',
@@ -600,7 +599,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
         }
         data = self.create_data.copy()
         data.update(update_data)
-        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_id': self.collection1.id})
+        url = reverse('module:activity-change', kwargs={'pk': activity.id, 'collection_slug': self.collection1.slug})
         response = self.client.post(url, data)
         self.assertEqual(activity_count, Activity.objects.count())
 
@@ -636,7 +635,7 @@ class TestMultipleContentSources(BridgeTestCase):
         """
         Test count of courses from the multiple source.
         """
-        url = reverse('module:collection-detail', kwargs={'pk': self.collection1.id})
+        url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
         response = self.client.get(url)
         self.assertIn('source_courses', response.context)
         self.assertTrue(response.context['source_courses'])

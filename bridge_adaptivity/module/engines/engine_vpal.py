@@ -183,8 +183,8 @@ class EngineVPAL(EngineInterface):
         :param sequence: Sequence instance
         :return: grade returned from engine
         """
-        url = urllib.parse.urljoin(self.base_url, 'collection/{collection_id}/grade'.format(
-            collection_id=sequence.collection.id)
+        url = urllib.parse.urljoin(self.base_url, 'collection/{collection_slug}/grade'.format(
+            collection_slug=sequence.collection.slug)
         )
         response = requests.post(url, json=self.add_learner_to_payload(sequence, {}), headers=self.headers)
         if self.check_engine_response(response, action='grade', obj='sequence'):

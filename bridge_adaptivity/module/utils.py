@@ -7,7 +7,7 @@ from module.models import Activity, SequenceItem
 log = getLogger(__name__)
 
 
-def choose_activity(sequence_item=None, sequence=None,):
+def choose_activity(sequence_item=None, sequence=None):
     sequence = sequence or sequence_item.sequence
 
     try:
