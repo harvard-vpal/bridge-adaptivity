@@ -1,5 +1,5 @@
 """
-Get engine from CollectinOrder, get stub page and find last item in a sequence.
+Extra methods for all django modules.
 """
 from logging import getLogger
 
@@ -11,22 +11,18 @@ from module.models import CollectionOrder, Engine
 log = getLogger(__name__)
 
 
-def get_collection_collectiongroup_engine(collection_order_slug):
+def get_collection_collection_order_engine(collection_order_slug):
     """
-    Return collection and collection group by collection_slug, group_slug and collectionorder_order.
+    Return engine and CollectionOrder by CollectionOrder slug.
     """
     # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine
     collection_order = CollectionOrder.objects.filter(slug=collection_order_slug).first()
     if not collection_order:
-        log.exception("Collection Order with provided Slug does not exist. Check configured launch url.")
-        raise Http404('Bad launch_url collection_order slug.')
-
-    if collection_order:
-        engine = collection_order.engine or Engine.get_default()
-    else:
-        engine = Engine.get_default()
-
-    return engine, collection_order
+        log.error(
+            f"Collection Order with provided Slug {collection_order_slug} does not exist. Check configured launch url."
+        )
+        raise Http404(f'Bad the collection_order slug ({collection_order_slug}) in launch_url.')
+    return collection_order.engine or Engine.get_default(), collection_order
 
 
 def stub_page(

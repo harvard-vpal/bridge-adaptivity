@@ -1,5 +1,5 @@
 """
-Base views: Course, Group(Module), Collection and CollectionOrder.
+Base views for models.
 """
 # coding: utf-8
 import logging
@@ -22,7 +22,7 @@ class BaseCourseView(OnlyMyObjectsMixin, BackURLMixin):
 
 class BaseGetFormKwargs(OnlyMyObjectsMixin, BackURLMixin):
     """
-    Call the parent get_form_kwargs method and then self get_form_kwargs variant.
+    Base class for get form kwargs by self.model parameter.
     """
 
     def get_form_kwargs(self):
@@ -34,7 +34,7 @@ class BaseGetFormKwargs(OnlyMyObjectsMixin, BackURLMixin):
         return kwargs
 
 
-class BaseGroupView(BaseGetFormKwargs):
+class BaseModuleGroupView(BaseGetFormKwargs):
     """
     Base view for Group (Module).
     """

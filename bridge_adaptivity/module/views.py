@@ -22,11 +22,11 @@ from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
 from bridge_lti.models import LtiProvider, LtiUser
-from common.utils import get_collection_collectiongroup_engine, stub_page
+from common.utils import get_collection_collection_order_engine, stub_page
 from module import tasks, utils
-from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseGroupView
+from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseModuleGroupView
 from module.forms import (
-    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, GroupForm
+    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
 )
 from module.mixins.views import (
     BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
@@ -132,7 +132,7 @@ class CourseRmGroup(UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupList(BaseGroupView, ListView):
+class ModuleGroupList(BaseModuleGroupView, ListView):
     context_object_name = 'groups'
     ordering = ['id']
     filter = 'group_slug'
@@ -197,7 +197,7 @@ class GetGradingPolicyForm(FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
+class ModuleGroupCreate(BaseModuleGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
 
     def form_valid(self, form):
         result = super().form_valid(form)
@@ -207,7 +207,7 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseGroupView, DetailView):
+class ModuleGroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseModuleGroupView, DetailView):
     context_object_name = 'group'
     link_form_class = CollectionOrderForm
     link_object_name = 'collection'
@@ -245,8 +245,8 @@ class AddCollectionInGroup(CollectionOrderEditFormMixin, JsonResponseMixin, Form
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(BaseGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView):
-    form_class = GroupForm
+class ModuleGroupUpdate(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView):
+    form_class = ModuleGroupForm
     context_object_name = 'group'
 
     def get(self, request, *args, **kwargs):
@@ -264,7 +264,7 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView)
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDelete(BaseGroupView, DeleteView):
+class ModuleGroupDelete(BaseModuleGroupView, DeleteView):
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse('module:group-list')
 
@@ -338,9 +338,9 @@ class CollectionOrderAdd(
         return kwargs
 
     def get(self, request, *args, **kwargs):
-        # NOTE(AndreyLykhoman): I need to return group or write another way to return a valid form with
-        #  information about group.
-        """Handle GET requests: instantiate a blank version of the form."""
+        """
+        Handle GET requests: instantiate a blank version of the form.
+        """
         result = super().get(request, *args, **kwargs)
         result.context_data["group"] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
         result.context_data['form'].fields['collection'].required = False
@@ -804,7 +804,7 @@ def demo_collection(request, collection_order_slug):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    __, collection_order = get_collection_collectiongroup_engine(
+    __, collection_order = get_collection_collection_order_engine(
         collection_order_slug
     )
 

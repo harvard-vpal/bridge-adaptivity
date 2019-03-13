@@ -1,10 +1,10 @@
 
 var update_form = function() {
-    var gpFormUrl = $("#link-objects-form-update").data("policy_url");
-    var gp = $("select[name='collection_group-grading_policy_name'] option:selected").val();
-    console.log("gr: " + gpFormUrl);
-    $.get(gpFormUrl, {
-        grading_policy: gp,
+    var gradingPolicyFormUrl = $("#link-objects-form-update").data("policy_url");
+    var gradingPolicyName = $("select[name='collection_group-grading_policy_name'] option:selected").val();
+    console.log("gr: " + gradingPolicyFormUrl);
+    $.get(gradingPolicyFormUrl, {
+        grading_policy: gradingPolicyName,
       }, function(response) {
         $("div.grading_policy").html(response);
     })

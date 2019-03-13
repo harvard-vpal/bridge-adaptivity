@@ -134,7 +134,7 @@ class EngineVPAL(EngineInterface):
         reco_url = urllib.parse.urljoin(
             "{}/".format(self.activity_url), "recommend"
         )
-        payload = {"collection": sequence.collection.id, "sequence": []}
+        payload = {"collection": sequence.collection.slug, "sequence": []}
         self.add_learner_to_payload(sequence, payload)
 
         for sequence_item in sequence.items.all():
@@ -150,7 +150,7 @@ class EngineVPAL(EngineInterface):
 
         :param collection: Collection instance for synchronization
         """
-        sync_url = urllib.parse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.id))
+        sync_url = urllib.parse.urljoin(self.base_url, 'collection/{}/activities'.format(collection.slug))
         payload = []
         for activity in collection.activities.all():
             payload.append(self.fulfill_payload(payload={}, instance_to_parse=activity))

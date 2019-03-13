@@ -7,7 +7,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
-from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, GroupForm
+from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
 from module.models import Collection, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ class LtiSessionMixin(object):
 
 
 class GroupEditFormMixin(object):
-    form_class = GroupForm
+    form_class = ModuleGroupForm
     prefix = 'group'
     grading_prefix = 'grading'
 
@@ -72,7 +72,7 @@ class BaseEditFormMixin:
         return context
 
 
-class CollectionOrderEditFormMixin(object):
+class CollectionOrderEditFormMixin:
     form_class = CollectionOrderForm
     prefix = 'collection_group'
     grading_prefix = 'grading'

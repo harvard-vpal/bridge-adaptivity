@@ -1,5 +1,5 @@
 """
-Forms to work with module models.
+Forms to work with module's models.
 """
 import logging
 
@@ -24,7 +24,7 @@ class ActivityForm(ModelForm):
 
     class Meta:
         """
-        Metaclass for ActivityForm.
+        Inner class with metadata options for ActivityForm.
         """
 
         model = Activity
@@ -32,14 +32,14 @@ class ActivityForm(ModelForm):
         widgets = {'stype': forms.HiddenInput(), 'points': forms.HiddenInput(), 'lti_consumer': forms.HiddenInput()}
 
 
-class GroupForm(ModelForm):
+class ModuleGroupForm(ModelForm):
     """
-    Form to work with ModuleGroup(CollectionModule) models.
+    Form to work with ModuleGroup models.
     """
 
     class Meta:
         """
-        Metaclass for GroupForm.
+        Inner class with metadata options for ModuleGroupForm.
         """
 
         model = ModuleGroup
@@ -48,14 +48,14 @@ class GroupForm(ModelForm):
 
 class BaseGradingPolicyForm(ModelForm):
     """
-    Form to work with GradingPolicy models.
+    Base form to work with GradingPolicy models.
 
     This is form has hidden input with GradingPolicy name.
     """
 
     class Meta:
         """
-        Metaclass for BaseGradingPolicyForm.
+        Inner class with metadata options for BaseGradingPolicyForm.
         """
 
         model = GradingPolicy
@@ -65,14 +65,14 @@ class BaseGradingPolicyForm(ModelForm):
 
 class BaseCollectionForm(ModelForm):
     """
-    Form to work with GradingPolicy models.
+    Form to work with Collection models.
 
-    This is form has hidden input with GradingPolicy name.
+    This is form has hidden input with Collection owner.
     """
 
     class Meta:
         """
-        Metaclass for BaseGradingPolicyForm.
+        Inner class with metadata options for BaseGradingPolicyForm.
         """
 
         model = Collection
@@ -82,14 +82,14 @@ class BaseCollectionForm(ModelForm):
 
 class ThresholdGradingPolicyForm(ModelForm):
     """
-    Form to work with GradingPolicy models.
+    Threshold Form to work with GradingPolicy models.
 
     This is form has hidden input with GradingPolicy name and textarea with params in JSON format.
     """
 
     class Meta:
         """
-        Metaclass for ThresholdGradingPolicyForm.
+        Inner class with metadata options for ThresholdGradingPolicyForm.
         """
 
         model = GradingPolicy
@@ -98,9 +98,6 @@ class ThresholdGradingPolicyForm(ModelForm):
         help_texts = {'params': '{"threshold": &lt;value&gt;} is required, please use JSON format.'}
 
     def clean(self):
-        """
-        Make cleaned_data from Query.
-        """
         super().clean()
         policy_name, params = self.cleaned_data.get('name'), self.cleaned_data.get('params')
         required_params = GRADING_POLICY_NAME_TO_CLS.get(policy_name).require.get('params')
@@ -143,7 +140,7 @@ class AddCourseGroupForm(forms.Form):
 
     def save(self, **kwargs):
         """
-        Save change that related to add groups to course.
+        Add groups to course.
         """
         group_ids = [group.id for group in self.cleaned_data['groups']]
         ModuleGroup.objects.filter(id__in=group_ids).update(course=self.course)
@@ -162,7 +159,7 @@ class CollectionOrderForm(ModelForm):
 
     class Meta:
         """
-        Metaclass for CollectionOrderForm.
+        Inner class with metadata options for CollectionOrderForm.
         """
 
         model = CollectionOrder
@@ -190,9 +187,6 @@ class CollectionOrderForm(ModelForm):
             self.fields['collection'].widget.attrs['readonly'] = read_only
 
     def clean(self):
-        """
-        Make cleaned_data from Query.
-        """
         super().clean()
         engine, policy = self.cleaned_data.get('engine'), self.cleaned_data.get('grading_policy_name')
 
@@ -214,9 +208,6 @@ class CollectionOrderForm(ModelForm):
         return self.cleaned_data
 
     def save(self, **kwargs):
-        """
-        Update CollectionOrder instance.
-        """
         self.instance.group = self.group
         self.instance.collection = self.cleaned_data['collection']
         self.instance.engine = self.cleaned_data['engine']

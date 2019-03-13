@@ -6,9 +6,9 @@ from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
     CollectionOrderUpdate, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
-    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, GroupCreate, GroupDelete,
-    GroupDetail, GroupList, GroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete,
-    SequenceItemDetail, sync_collection, update_students_grades
+    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, ModuleGroupCreate,
+    ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupUpdate, preview_collection, sequence_item_next,
+    SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection, update_students_grades
 )
 
 urlpatterns = ([
@@ -21,11 +21,11 @@ urlpatterns = ([
     url(r'^course/(?P<course_slug>[\w-]+)/rm_group/(?P<group_slug>[\w-]+)?/?$', CourseRmGroup.as_view(),
         name='rm-group-from-course'),
 
-    url(r'^group/$', GroupList.as_view(), name='group-list'),
-    re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
-    url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
-    url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
+    url(r'^group/$', ModuleGroupList.as_view(), name='group-list'),
+    re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', ModuleGroupCreate.as_view(), name='group-add'),
+    url(r'^group/(?P<group_slug>[\w-]+)/$', ModuleGroupDetail.as_view(), name='group-detail'),
+    url(r'^group/(?P<group_slug>[\w-]+)/change/?$', ModuleGroupUpdate.as_view(), name='group-change'),
+    url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', ModuleGroupDelete.as_view(), name='group-delete'),
     url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
     url(r'^collection_order/(?P<collection_order_slug>[\w-]+)/delete/', CollectionGroupDelete.as_view(),
@@ -67,7 +67,7 @@ urlpatterns = ([
     path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
     url(
         r'^collection_order/(?P<collection_order_slug>[\w-]+)/move/(?P<order>\d+)?$',
-        GroupUpdate.as_view(),
+        ModuleGroupUpdate.as_view(),
         name='collection-move'
     ),
     url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),

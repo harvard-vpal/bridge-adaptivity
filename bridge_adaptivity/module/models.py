@@ -388,7 +388,10 @@ class ModuleGroup(models.Model):
     @property
     def ordered_collections(self):
         """
-        Return tuple of CollectionOrder.
+        Return tuple of tuples of CollectionOrder and indicator of sequences exists that related to CollectionOrder.
+
+        Returns True as second parameter for each Collection Order  in tuple if one or more sequences related to
+        CollectionOrder.
         """
         return (
             (col_order, col_order.sequence_set.exists())

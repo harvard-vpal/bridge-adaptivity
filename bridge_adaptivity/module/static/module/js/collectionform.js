@@ -1,9 +1,9 @@
 
 var update_collection_form = function() {
-    var clFormUrl = $("#link-objects-form-update").data("collection_url");
-    var cl = $("select[name='collection_group-collection'] option:selected").val();
-    $.get(clFormUrl, {
-        collection_id: cl,
+    var collectionFormUrl = $("#link-objects-form-update").data("collection_url");
+    var collection_id = $("select[name='collection_group-collection'] option:selected").val();
+    $.get(collectionFormUrl, {
+        collection_id: collection_id,
       }, function(response) {
         $("div.collection_form").html(response);
     })

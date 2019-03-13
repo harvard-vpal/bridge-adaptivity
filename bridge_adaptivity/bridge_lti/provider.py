@@ -14,7 +14,7 @@ from oauthlib import oauth1
 
 from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
-from common.utils import find_last_sequence_item, get_collection_collectiongroup_engine, stub_page
+from common.utils import find_last_sequence_item, get_collection_collection_order_engine, stub_page
 from module import utils as module_utils
 from module.models import CollectionOrder, Sequence, SequenceItem
 
@@ -73,7 +73,7 @@ def lti_launch(request, collection_order_slug=None, unique_marker='', ):
         )
 
 
-def instructor_flow(request, collection_order_slug):
+def instructor_flow(request, collection_order_slug=None):
     """
     Define logic flow for Instructor.
     """
@@ -123,14 +123,14 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_order_slug, unique_marker=''):
+def learner_flow(request, lti_consumer, tool_provider, collection_order_slug=None, unique_marker=''):
     """
     Define logic flow for Learner.
     """
     if not collection_order_slug:
         return stub_page(request)
 
-    engine, collection_order = get_collection_collectiongroup_engine(collection_order_slug)
+    engine, collection_order = get_collection_collection_order_engine(collection_order_slug)
     collection = collection_order.collection
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
@@ -166,7 +166,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_order_slug, un
                 request,
                 title="Warning",
                 message="Cannot get the first question to start.",
-                tip="Please try again later",
+                tip="Please try again later"
             )
         sequence_item = create_sequence_item(
             request, sequence, start_activity, tool_provider, lti_consumer
@@ -179,9 +179,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_order_slug, un
             request,
             title="Warning",
             message="Cannot find sequence item to start from.",
-            tip="Ask help from the site admins.",
+            tip="Ask help from the site admins."
         )
 
-    return redirect(reverse(
-        'module:sequence-item', kwargs={'pk': sequence_item_id})
-    )
+    return redirect(reverse('module:sequence-item', kwargs={'pk': sequence_item_id}))

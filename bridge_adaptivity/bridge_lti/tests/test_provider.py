@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 @ddt
 class ProviderTest(BridgeTestCase):
     """
-    Class for testing correct working LTI provider.
+    Class for testing correctly working LTI provider.
     """
 
     @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
@@ -54,9 +54,7 @@ class ProviderTest(BridgeTestCase):
                 'roles': role,
             }
         )
-        mock_instructor_flow.assert_called_once_with(
-            mock.ANY, collection_order_slug=mock_collection_order_slug
-        )
+        mock_instructor_flow.assert_called_once_with(mock.ANY, collection_order_slug=mock_collection_order_slug)
         mock_learner_flow.assert_not_called()
 
     @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
@@ -125,48 +123,48 @@ class ProviderTest(BridgeTestCase):
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_order_slug=self.collection_order1.slug,
+            self.collection_order1.slug,
         )
         learner_flow(
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_order_slug=self.collection_order1.slug,
-        )
-        self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
-
-        count_of_the_sequence += 1
-
-        learner_flow(
-            mock_request,
-            self.lti_provider,
-            tool_provider,
-            collection_order_slug=self.collection_order1.slug,
-            unique_marker='marker',
-        )
-        learner_flow(
-            mock_request,
-            self.lti_provider,
-            tool_provider,
-            collection_order_slug=self.collection_order1.slug,
-            unique_marker='marker',
+            self.collection_order1.slug,
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
 
         count_of_the_sequence += 1
+
         learner_flow(
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_order_slug=self.collection_order1.slug,
-            unique_marker='marker1',
+            self.collection_order1.slug,
+            'marker',
         )
         learner_flow(
             mock_request,
             self.lti_provider,
             tool_provider,
-            collection_order_slug=self.collection_order1.slug,
-            unique_marker='marker2',
+            self.collection_order1.slug,
+            'marker',
+        )
+        self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
+
+        count_of_the_sequence += 1
+        learner_flow(
+            mock_request,
+            self.lti_provider,
+            tool_provider,
+            self.collection_order1.slug,
+            'marker1',
+        )
+        learner_flow(
+            mock_request,
+            self.lti_provider,
+            tool_provider,
+            self.collection_order1.slug,
+            'marker2',
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 2)
 

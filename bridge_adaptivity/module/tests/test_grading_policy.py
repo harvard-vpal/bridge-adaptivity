@@ -287,7 +287,6 @@ class TestPolicySendGradeMethod(TestCase):
             collection=self.collection,
             engine=self.engine,
             grading_policy=self.grading_policy
-
         )
 
         self.sequence = Sequence.objects.create(

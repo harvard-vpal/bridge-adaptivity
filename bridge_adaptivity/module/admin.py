@@ -54,11 +54,11 @@ class CollectionAdmin(admin.ModelAdmin):
         return urls
 
 
-class GroupForm(forms.ModelForm):
+class ModuleGroupForm(forms.ModelForm):
     class Meta:
         model = ModuleGroup
         fields = (
-            'name', 'owner', 'description', 'collections', 'course',
+            'name', 'owner', 'description', 'collections', 'course'
         )
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
@@ -67,8 +67,8 @@ class GroupForm(forms.ModelForm):
 
 @admin.register(ModuleGroup)
 class ModuleGroupAdmin(admin.ModelAdmin):
-    form = GroupForm
-    list_display = ('name', 'owner', )
+    form = ModuleGroupForm
+    list_display = ('name', 'owner')
 
 
 @admin.register(Engine)
@@ -96,7 +96,7 @@ class LogAdmin(admin.ModelAdmin):
     )
 
 
-class GroupStackedInline(admin.StackedInline):
+class ModuleGroupStackedInline(admin.StackedInline):
     model = ModuleGroup
     exclude = []
     extra = 0
@@ -104,4 +104,4 @@ class GroupStackedInline(admin.StackedInline):
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    inlines = (GroupStackedInline,)
+    inlines = (ModuleGroupStackedInline,)
