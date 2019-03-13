@@ -170,7 +170,7 @@ class TestActivityModel(TestCase):
         )
 
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, collection_order=self.collection_order, suffix='12345'
+            lti_user=self.lti_user, collection_order=self.collection_order, suffix='12345'
         )
 
     @unpack
@@ -364,7 +364,6 @@ class TestSequence(TestCase):
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
             collection_order=self.collection_order,
             outcome_service=self.outcome_service
         )

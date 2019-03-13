@@ -131,7 +131,6 @@ def learner_flow(request, lti_consumer, tool_provider, collection_order_slug=Non
         return stub_page(request)
 
     engine, collection_order = get_collection_collection_order_engine(collection_order_slug)
-    collection = collection_order.collection
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
         lti_consumer=lti_consumer,
@@ -141,7 +140,6 @@ def learner_flow(request, lti_consumer, tool_provider, collection_order_slug=Non
 
     sequence, created = Sequence.objects.get_or_create(
         lti_user=lti_user,
-        collection=collection,
         collection_order=collection_order,
         suffix=unique_marker,
     )

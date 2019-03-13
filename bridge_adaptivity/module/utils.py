@@ -19,7 +19,7 @@ def choose_activity(sequence_item=None, sequence=None):
             return
         elif activity_source_launch_url:
             return Activity.objects.filter(
-                collection=sequence.collection, source_launch_url=activity_source_launch_url
+                collection=sequence.collection_order.collection, source_launch_url=activity_source_launch_url
             ).first()
     except (AttributeError, MaxRetryError):
         log.exception("[Engine] Cannot get activity from the engine")

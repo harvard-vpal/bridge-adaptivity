@@ -349,7 +349,7 @@ class TestCollectionGroupCollectionOrder(BridgeTestCase):
             "collection_order_slug": self.collection_order1.slug
         }) + "?grading_policy={}".format('some_policy')
         response = self.client.get(url)
-        self.assertIn('form', response.context)
+        self.assertNotIn('form', response.context)
 
 
 class TestBackURLMixin(BridgeTestCase):

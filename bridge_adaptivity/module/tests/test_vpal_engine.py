@@ -65,7 +65,6 @@ class TestVPALEngine(TestCase):
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
             collection_order=self.collection_order,
             outcome_service=self.outcome_service,
         )
@@ -106,7 +105,7 @@ class TestVPALEngine(TestCase):
                 # add to the Engine.lti_parameters or not found in received lti_launch parameters.
                 'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
             },
-            "collection": self.sequence.collection.slug,
+            "collection": self.sequence.collection_order.collection.slug,
             lti_param: self.sequence.metadata[lti_param],
             "sequence": [
                 {
@@ -153,7 +152,7 @@ class TestVPALEngine(TestCase):
                 'user_id': self.sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': expected_tool_consumer_instance_guid,
             },
-            "collection": self.sequence.collection.slug,
+            "collection": self.sequence.collection_order.collection.slug,
             "sequence": [
                 {
                     'activity': self.a1.source_launch_url,
@@ -193,7 +192,7 @@ class TestVPALEngine(TestCase):
                 'user_id': self.sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
             },
-            "collection": self.sequence.collection.slug,
+            "collection": self.sequence.collection_order.collection.slug,
             "sequence": [
                 {
                     'activity': self.a1.source_launch_url,

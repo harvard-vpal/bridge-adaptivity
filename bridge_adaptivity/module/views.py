@@ -166,7 +166,7 @@ class GetGradingPolicyForm(FormView):
     def get_form_class(self):
         policy_cls = GRADING_POLICY_NAME_TO_CLS.get(self.request.GET.get('grading_policy'), None)
         if policy_cls is None:
-            return next(iter(GRADING_POLICY_NAME_TO_CLS.values())).get_form_class()
+            raise Http404("No such grading policy")
         return policy_cls.get_form_class()
 
     def get_form_kwargs(self):
@@ -191,8 +191,6 @@ class GetGradingPolicyForm(FormView):
         gp = self.request.GET.get('grading_policy')
         if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
-        else:
-            form.fields['name'].initial = next(iter(GRADING_POLICY_NAME_TO_CLS.keys()))
         return form
 
 
@@ -804,11 +802,8 @@ def demo_collection(request, collection_order_slug):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    __, collection_order = get_collection_collection_order_engine(
-        collection_order_slug
-    )
+    __, collection_order = get_collection_collection_order_engine(collection_order_slug)
 
-    collection = collection_order.collection
     lti_consumer = LtiProvider.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,
@@ -817,7 +812,6 @@ def demo_collection(request, collection_order_slug):
 
     test_sequence, created = Sequence.objects.get_or_create(
         lti_user=test_lti_user,
-        collection=collection,
         collection_order=collection_order
     )
 

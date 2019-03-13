@@ -134,7 +134,7 @@ class EngineVPAL(EngineInterface):
         reco_url = urllib.parse.urljoin(
             "{}/".format(self.activity_url), "recommend"
         )
-        payload = {"collection": sequence.collection.slug, "sequence": []}
+        payload = {"collection": sequence.collection_order.collection.slug, "sequence": []}
         self.add_learner_to_payload(sequence, payload)
 
         for sequence_item in sequence.items.all():
@@ -184,7 +184,7 @@ class EngineVPAL(EngineInterface):
         :return: grade returned from engine
         """
         url = urllib.parse.urljoin(self.base_url, 'collection/{collection_slug}/grade'.format(
-            collection_slug=sequence.collection.slug)
+            collection_slug=sequence.collection_order.collection.slug)
         )
         response = requests.post(url, json=self.add_learner_to_payload(sequence, {}), headers=self.headers)
         if self.check_engine_response(response, action='grade', obj='sequence'):

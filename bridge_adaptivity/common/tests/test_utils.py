@@ -73,7 +73,6 @@ class TestSequence(TestCase):
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
             collection_order=self.collection_order,
             outcome_service=self.outcome_service
         )

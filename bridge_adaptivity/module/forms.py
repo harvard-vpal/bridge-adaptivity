@@ -199,10 +199,9 @@ class CollectionOrderForm(ModelForm):
         required_engine = policy_cls.require.get('engine')
 
         if required_engine and not isinstance(engine_cls, required_engine):
-            required_engine_names = ", ".join([e.__name__.strip('Engine') for e in required_engine])
             engine_err_msg = 'This Engine doesn\'t support chosen Policy. Please choose another policy or engine.'
             policy_err_msg = 'This policy can be used only with {} engine(s). Choose another policy or engine.'.format(
-                required_engine_names,
+                ", ".join([engine.__name__.strip('Engine') for engine in required_engine])
             )
             raise forms.ValidationError({'engine': [engine_err_msg], 'grading_policy_name': [policy_err_msg]})
         return self.cleaned_data

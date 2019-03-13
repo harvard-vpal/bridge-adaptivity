@@ -185,7 +185,7 @@ class ProviderTest(BridgeTestCase):
         consumer_prams = {
             'consumer_key': self.lti_provider.consumer_key,
             'consumer_secret': self.lti_provider.consumer_secret,
-            'launch_url': f"http://{settings.BRIDGE_HOST}" + reverse(
+            'launch_url': f"http://{str.strip(settings.BRIDGE_HOST)}" + reverse(
                 'lti:launch', kwargs={
                     'collection_order_slug': self.collection_order1.slug,
                 }
@@ -210,7 +210,7 @@ class ProviderTest(BridgeTestCase):
         consumer = ToolConsumer(**consumer_prams)
         response = self.client.post(
             consumer.launch_url,
-            HTTP_HOST=settings.BRIDGE_HOST,
+            HTTP_HOST=str.strip(settings.BRIDGE_HOST),
             data=consumer.generate_launch_data(),
             headers={'Content-Type': 'application/x-www-form-urlencoded'}
         )

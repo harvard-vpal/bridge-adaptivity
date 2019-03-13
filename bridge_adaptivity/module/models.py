@@ -76,7 +76,6 @@ class Sequence(models.Model):
     """
 
     lti_user = models.ForeignKey(LtiUser, on_delete=models.CASCADE)
-    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
     collection_order = models.ForeignKey('CollectionOrder', null=True, on_delete=models.CASCADE)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
@@ -88,7 +87,7 @@ class Sequence(models.Model):
     suffix = models.CharField(max_length=15, default='')
 
     class Meta:
-        unique_together = ('lti_user', 'collection', 'collection_order', 'suffix')
+        unique_together = ('lti_user', 'collection_order', 'suffix')
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -121,7 +120,10 @@ class Sequence(models.Model):
         for ui_option in ui_options:
             # NOTE(idegtiarov) conditions depend on ModuleGroup's OPTIONS
             if ui_option == CollectionOrder.OPTIONS[0][0]:
-                details = f"{CollectionOrder.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
+                details = (
+                    f"{CollectionOrder.OPTIONS[0][1]}: {self.items.count()}/"
+                    f"{self.collection_order.collection.activities.count()}"
+                )
             elif ui_option == CollectionOrder.OPTIONS[1][0]:
                 grade = self.collection_order.grading_policy.calculate_grade(self)
                 details = f"{CollectionOrder.OPTIONS[1][1]}: {grade}"
@@ -235,7 +237,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
         )
 
 
-class Collection(HasLinkedSequenceMixin, models.Model):
+class Collection(models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
@@ -364,7 +366,7 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
 
     def get_launch_url(self):
         return "{}{}".format(
-            settings.BRIDGE_HOST,
+            str.strip(settings.BRIDGE_HOST),
             reverse("lti:launch", kwargs={'collection_order_slug': self.slug})
         )
 

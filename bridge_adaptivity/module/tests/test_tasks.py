@@ -71,7 +71,6 @@ class TestTask(TestCase):
 
         Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=collection,
             collection_order=collection_order,
             suffix='12345',
             lis_result_sourcedid='fake_lis_result_sourcedid',

@@ -46,7 +46,7 @@ class TestMockEngine(TestCase):
             grading_policy=self.points_earned
         )
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, collection_order=self.collection_order
+            lti_user=self.lti_user, collection_order=self.collection_order
         )
 
     @unpack

@@ -73,7 +73,6 @@ class TestUtilities(TestCase):
 
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
             collection_order=self.collection_order1,
         )
         self.vpal_engine = Engine.objects.get(engine='engine_vpal')
@@ -88,7 +87,6 @@ class TestUtilities(TestCase):
 
         self.vpal_sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
             collection_order=self.collection_order2,
             outcome_service=self.outcome_service
         )
@@ -108,7 +106,7 @@ class TestUtilities(TestCase):
             log.error(Activity.ojbects.all().values('collection', 'source_launch_url'))
             self.fail(e)
         expected_activity = Activity.objects.get(
-            collection=self.sequence.collection, source_launch_url=f"{self.source_launch_url}5"
+            collection=self.sequence.collection_order.collection, source_launch_url=f"{self.source_launch_url}5"
         )
         self.assertEqual(chosen_activity, expected_activity)
 
