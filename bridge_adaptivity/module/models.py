@@ -406,6 +406,12 @@ class ModuleGroup(models.Model):
         """
         return CollectionOrder.objects.filter(group=self, order=order).first()
 
+    def has_linked_active_sequences(self):
+        return CollectionOrder.objects.filter(group=self, sequence__completed=False).exists()
+
+    def has_linked_sequences(self):
+        return CollectionOrder.objects.filter(group=self, sequence__isnull=False).exists()
+
 
 class Activity(OrderedModel):
     """General entity which represents problem/text/video material."""
