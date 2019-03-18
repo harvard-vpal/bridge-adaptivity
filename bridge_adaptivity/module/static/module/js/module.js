@@ -146,7 +146,7 @@
                 + `name=${item["display_name"]}&`
                 + `source_name=${item["display_name"]}&`
                 + `source_launch_url=${item["lti_url"]}&`
-                + `lti_consumer=${item["content_source_id"]}&`
+                + `lti_content_sources=${item["content_source_id"]}&`
                 + `stype=${item["type"]}`;
         }
 

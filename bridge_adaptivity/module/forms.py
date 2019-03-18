@@ -29,7 +29,9 @@ class ActivityForm(ModelForm):
 
         model = Activity
         exclude = ['collection', 'points']
-        widgets = {'stype': forms.HiddenInput(), 'points': forms.HiddenInput(), 'lti_consumer': forms.HiddenInput()}
+        widgets = {
+            'stype': forms.HiddenInput(), 'points': forms.HiddenInput(), 'lti_content_sources': forms.HiddenInput()
+        }
 
 
 class ModuleGroupForm(ModelForm):

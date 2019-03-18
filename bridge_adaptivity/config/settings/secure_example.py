@@ -10,6 +10,7 @@ SECRET_KEY = 'xf!mz_(en(p=tcp$-4%lse$9f55e+q)10rcve@bxhzcnrtv)hj-key'
 STATIC_ROOT = 'static/'
 ALLOWED_HOSTS = ['localhost']  # add bridge host in production
 BRIDGE_HOST = 'localhost:8008'
+BRIDGE_HOST = BRIDGE_HOST.strip()
 
 # SENTRY contains sentry dsn string. If dsn is not empty, then all exceptions from the application will be
 # forwarded to this url.

@@ -46,15 +46,13 @@ def create_lti_launch_params(request, sequence_item_id, consumer_prams):
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
         activity = sequence_item.activity
 
-        content_provider = activity.lti_consumer
+        content_provider = activity.lti_content_sources
         consumer_prams['consumer_key'] = content_provider.provider_key
         consumer_prams['consumer_secret'] = content_provider.provider_secret
 
         source_name = activity.source_name
         source_lti_url = activity.source_launch_url
-        lis_outcome_service_url = urllib.parse.urljoin(
-            str.strip(settings.BRIDGE_HOST), reverse('module:sequence-item-grade')
-        )
+        lis_outcome_service_url = urllib.parse.urljoin(settings.BRIDGE_HOST, reverse('module:sequence-item-grade'))
         consumer_prams['params'].update({
             'user_id': sequence_item.user_id_for_consumer,
             'context_id': sequence_item.sequence.collection_order.collection.name,

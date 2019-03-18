@@ -1,5 +1,5 @@
 """
-From the openEDX app -> lti_provider.
+From the openEDX app -> lti_lms_platforms.
 
 Subclass of oauthlib's RequestValidator that checks an OAuth signature.
 """
@@ -10,7 +10,7 @@ from django.core.cache import cache
 from oauthlib.oauth1 import RequestValidator
 from oauthlib.oauth1 import SignatureOnlyEndpoint
 
-from bridge_lti.models import LtiProvider
+from bridge_lti.models import LtiLmsPlatforms
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class SignatureValidator(RequestValidator):
     def __init__(self):
         super().__init__()
         self.endpoint = SignatureOnlyEndpoint(self)
-        self.lti_consumer = None
+        self.lti_content_sources = None
         self.cache = cache
 
     # The OAuth signature uses the endpoint URL as part of the request to be
@@ -86,8 +86,8 @@ class SignatureValidator(RequestValidator):
         :return: True if the key is valid, False if it is not.
         """
         try:
-            self.lti_consumer = LtiProvider.objects.get(consumer_key=client_key)
-        except LtiProvider.DoesNotExist:
+            self.lti_content_sources = LtiLmsPlatforms.objects.get(consumer_key=client_key)
+        except LtiLmsPlatforms.DoesNotExist:
             log.exception('Consumer with the key {} is not found.'.format(client_key))
             return False
         return True
@@ -100,7 +100,7 @@ class SignatureValidator(RequestValidator):
         present, or None if the key does not exist in the database.
         """
         log.debug('Getting client secret')
-        return self.lti_consumer.consumer_secret if client_key else None
+        return self.lti_content_sources.consumer_secret if client_key else None
 
     @property
     def dummy_client(self):

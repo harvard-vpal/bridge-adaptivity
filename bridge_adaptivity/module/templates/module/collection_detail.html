@@ -70,12 +70,12 @@
           </tr>
           {% for activity in activities %}
             <tr id="activity-row-{{ forloop.counter0 }}"
-                class="activity droppable {% if not activity.lti_consumer.is_active %}danger{% elif activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
+                class="activity droppable {% if not activity.lti_content_sources.is_active %}danger{% elif activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
                 data-activity-name="{{ activity.name }}"
                 data-id="{{ activity.id }}"
                 data-activity-source-launch-url="{{ activity.source_launch_url }}"
-                data-content_source_id="{{ activity.lti_consumer.id }}"
-                data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
+                data-content_source_id="{{ activity.lti_content_sources.id }}"
+                data-source-active="{% if activity.lti_content_sources.is_active %}true{% endif %}"
                 {% if not request.session.read_only_data %}
                     draggable="{% if activity.atype != 'G' %}true{% endif %}"
                     ondrop="drop_handler(event, this);"

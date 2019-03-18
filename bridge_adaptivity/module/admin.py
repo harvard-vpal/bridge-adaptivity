@@ -79,7 +79,7 @@ class EngineAdmin(admin.ModelAdmin):
 @admin.register(GradingPolicy)
 class GradingPolicyAdmin(admin.ModelAdmin):
     readonly_fields = ['name']
-    list_display = ['name', 'params']
+    list_display = ['name', 'collectionorder', 'params']
 
 
 @admin.register(Log)
@@ -98,7 +98,6 @@ class LogAdmin(admin.ModelAdmin):
 
 class ModuleGroupStackedInline(admin.StackedInline):
     model = ModuleGroup
-    exclude = []
     extra = 0
 
 

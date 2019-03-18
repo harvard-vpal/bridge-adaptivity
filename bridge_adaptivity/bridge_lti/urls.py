@@ -1,5 +1,5 @@
 """
-Launch and LTI urls.
+LTI urls.
 """
 from django.conf.urls import url
 

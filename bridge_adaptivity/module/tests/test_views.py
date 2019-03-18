@@ -5,7 +5,7 @@ from django.urls.base import reverse
 from mock import patch
 from oauthlib.common import generate_token
 
-from bridge_lti.models import LtiConsumer, LtiProvider
+from bridge_lti.models import LtiContentSources, LtiLmsPlatforms
 from module.mixins.views import GroupEditFormMixin
 from module.models import Activity, BridgeUser, Collection, CollectionOrder, Course, Engine, GradingPolicy, ModuleGroup
 
@@ -71,8 +71,8 @@ class BridgeTestCase(TestCase):
 
         self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
 
-        # LtiProvider
-        self.lti_provider = LtiProvider.objects.create(
+        # LtiLmsPlatforms
+        self.lti_lms_platforms = LtiLmsPlatforms.objects.create(
             consumer_name='consumer_name',
             # This method generates a valid consumer_key.
             # The valid consumer_key is used in the test for checking LTI query.
@@ -556,7 +556,7 @@ class TestCreateUpdateActivity(BridgeTestCase):
     def setUp(self, mock_apply_async):
         super().setUp()
         self.back_url = reverse('module:collection-detail', kwargs={'slug': self.collection1.slug})
-        self.provider = LtiConsumer.objects.get(id=2)
+        self.provider = LtiContentSources.objects.get(id=2)
         self.add_url = reverse('module:activity-add', kwargs={'collection_slug': self.collection1.slug})
         self.create_data = {
             'name': 'Adapt 310',
@@ -564,13 +564,13 @@ class TestCreateUpdateActivity(BridgeTestCase):
             'atype': 'G',
             'difficulty': '1',
             'source_launch_url': (
-                'https://edx-staging-vpal.raccoongang.com/lti_provider/courses/course-v1:MSFT+DAT222'
+                'https://edx-staging-vpal.raccoongang.com/lti_lms_platforms/courses/course-v1:MSFT+DAT222'
                 'x+4T2017/block-v1:MSFT+DAT222x+4T2017+type@problem+block@306986fde3e2489db9c97462dca19d4b'),
             'source_name': 'Adapt 310',
             'stype': 'problem',
             'points': '0.5',
             'repetition': 1,
-            'lti_consumer': self.provider.id,
+            'lti_content_sources': self.provider.id,
         }
 
     @patch('module.tasks.sync_collection_engines.delay')
@@ -642,11 +642,11 @@ class TestMultipleContentSources(BridgeTestCase):
         total_courses = len(response.context['source_courses'])
 
         # we use 10 because mock function return list with size 10
-        expect_course_count = LtiConsumer.objects.all().count() * 10
+        expect_course_count = LtiContentSources.objects.all().count() * 10
 
         self.assertEqual(total_courses, expect_course_count)
 
-        provider = LtiConsumer.objects.all().first()
+        provider = LtiContentSources.objects.all().first()
         provider.is_active = False
         provider.save()
 

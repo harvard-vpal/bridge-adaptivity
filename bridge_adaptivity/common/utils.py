@@ -11,7 +11,7 @@ from module.models import CollectionOrder, Engine
 log = getLogger(__name__)
 
 
-def get_collection_collection_order_engine(collection_order_slug):
+def get_engine_and_collection_order(collection_order_slug):
     """
     Return engine and CollectionOrder by CollectionOrder slug.
     """
@@ -19,9 +19,9 @@ def get_collection_collection_order_engine(collection_order_slug):
     collection_order = CollectionOrder.objects.filter(slug=collection_order_slug).first()
     if not collection_order:
         log.error(
-            f"Collection Order with provided Slug {collection_order_slug} does not exist. Check configured launch url."
+            f"Collection_Order with the slug: {collection_order_slug} does not exist. Please check lti launch url."
         )
-        raise Http404(f'Bad the collection_order slug ({collection_order_slug}) in launch_url.')
+        raise Http404(f'Bad slug of the collection_order in the lti launch url: ({collection_order_slug})')
     return collection_order.engine or Engine.get_default(), collection_order
 
 

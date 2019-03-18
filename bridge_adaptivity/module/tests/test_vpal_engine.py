@@ -4,7 +4,7 @@ from ddt import data, ddt
 from django.test import TestCase
 from mock import Mock, patch
 
-from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiLmsPlatforms, LtiUser, OutcomeService
 from module.engines import engine_vpal
 from module.models import (
     Activity, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
@@ -37,14 +37,14 @@ class TestVPALEngine(TestCase):
             source_launch_url='test_url_act2',
             stype='problem',
         )
-        self.lti_consumer = LtiProvider.objects.create(
+        self.lti_content_sources = LtiLmsPlatforms.objects.create(
             consumer_name='test_consumer_name',
             consumer_key='test_consumer_key',
             consumer_secret='test_consumer_secret',
         )
         self.lti_user = LtiUser.objects.create(
             user_id='test_ltiuser_id',
-            lti_consumer=self.lti_consumer,
+            lti_content_sources=self.lti_content_sources,
         )
         self.engine = Engine.objects.create(engine='engine_vpal', lti_parameters=' lis_person_sourcedid, lis_unknown')
         self.grading_policy = GradingPolicy.objects.create(name='trials_count', public_name='test_policy')
@@ -60,7 +60,7 @@ class TestVPALEngine(TestCase):
 
         self.outcome_service = OutcomeService.objects.create(
             lis_outcome_service_url='http://test.outcome_service.net',
-            lms_lti_connection=self.lti_consumer,
+            lms_lti_connection=self.lti_content_sources,
         )
 
         self.sequence = Sequence.objects.create(
@@ -101,9 +101,9 @@ class TestVPALEngine(TestCase):
         expected_payload = {
             "learner": {
                 'user_id': self.sequence.lti_user.user_id,
-                # NOTE(idegtiarov) `tool_consumer_instance_guid` is equal to the LTIProvider.consumer_name if it is not
-                # add to the Engine.lti_parameters or not found in received lti_launch parameters.
-                'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
+                # NOTE(idegtiarov) `tool_consumer_instance_guid` is equal to the LtiLmsPlatforms.consumer_name if it is
+                # not add to the Engine.lti_parameters or not found in received lti_launch parameters.
+                'tool_consumer_instance_guid': self.lti_content_sources.consumer_name,
             },
             "collection": self.sequence.collection_order.collection.slug,
             lti_param: self.sequence.metadata[lti_param],
@@ -178,7 +178,7 @@ class TestVPALEngine(TestCase):
     @data(200, 201)
     def test_no_sequence_metadata_in_select_activity_payload(self, mock_status):
         """
-        Test tool_consumer_instance_guid is added to the 'learner' parameter with the default LTIProvider.comsumer_name.
+        Test tool_consumer_instance_guid is added to the 'learner' parameter with the default consumer_name.
 
         `tool_consumer_instance_guid` is taken with the default value and no metadata is added to the sequence from the
         received lti parameters.
@@ -190,7 +190,7 @@ class TestVPALEngine(TestCase):
         expected_payload = {
             "learner": {
                 'user_id': self.sequence.lti_user.user_id,
-                'tool_consumer_instance_guid': self.lti_consumer.consumer_name,
+                'tool_consumer_instance_guid': self.lti_content_sources.consumer_name,
             },
             "collection": self.sequence.collection_order.collection.slug,
             "sequence": [

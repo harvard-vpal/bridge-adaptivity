@@ -2,6 +2,7 @@
 from config.settings.local import *  # noqa: F401,F403
 
 BRIDGE_HOST = 'localhost'
+BRIDGE_HOST = BRIDGE_HOST.strip()
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 

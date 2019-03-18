@@ -12,9 +12,9 @@ from lti import InvalidLTIRequestError
 from lti.contrib.django import DjangoToolProvider
 from oauthlib import oauth1
 
-from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiLmsPlatforms, LtiUser, OutcomeService
 from bridge_lti.validator import SignatureValidator
-from common.utils import find_last_sequence_item, get_collection_collection_order_engine, stub_page
+from common.utils import find_last_sequence_item, get_engine_and_collection_order, stub_page
 from module import utils as module_utils
 from module.models import CollectionOrder, Sequence, SequenceItem
 
@@ -42,7 +42,7 @@ def get_tool_provider_for_lti(request):
 
 
 @csrf_exempt
-def lti_launch(request, collection_order_slug=None, unique_marker='', ):
+def lti_launch(request, collection_order_slug=None, unique_marker=''):
     """
     Endpoint for all requests to embed edX content via the LTI protocol.
 
@@ -56,7 +56,7 @@ def lti_launch(request, collection_order_slug=None, unique_marker='', ):
     if not tool_provider:
         raise Http404('LTI request is not valid')
     request.session['Lti_session'] = request_post['oauth_nonce']
-    lti_consumer = LtiProvider.objects.get(consumer_key=request_post['oauth_consumer_key'])
+    lti_content_sources = LtiLmsPlatforms.objects.get(consumer_key=request_post['oauth_consumer_key'])
     roles = request_post.get('roles')
     # NOTE(wowkalucky): LTI roles `Instructor`, `Administrator` are considered as BridgeInstructor
     if roles and set(roles.split(",")).intersection(['Instructor', 'Administrator']):
@@ -66,7 +66,7 @@ def lti_launch(request, collection_order_slug=None, unique_marker='', ):
     else:
         return learner_flow(
             request,
-            lti_consumer,
+            lti_content_sources,
             tool_provider,
             collection_order_slug=collection_order_slug,
             unique_marker=unique_marker,
@@ -98,7 +98,7 @@ def instructor_flow(request, collection_order_slug=None):
     )
 
 
-def create_sequence_item(request, sequence, start_activity, tool_provider, lti_consumer):
+def create_sequence_item(request, sequence, start_activity, tool_provider, lti_content_sources):
     """
     Create and return sequence item.
     """
@@ -109,7 +109,7 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     if tool_provider.is_outcome_service():
         outcomes, __ = OutcomeService.objects.get_or_create(
             lis_outcome_service_url=tool_provider.launch_params.get('lis_outcome_service_url'),
-            lms_lti_connection=lti_consumer,
+            lms_lti_connection=lti_content_sources,
         )
         sequence.lis_result_sourcedid = tool_provider.launch_params.get('lis_result_sourcedid')
         sequence.outcome_service = outcomes
@@ -123,17 +123,17 @@ def create_sequence_item(request, sequence, start_activity, tool_provider, lti_c
     return sequence_item
 
 
-def learner_flow(request, lti_consumer, tool_provider, collection_order_slug=None, unique_marker=''):
+def learner_flow(request, lti_content_sources, tool_provider, collection_order_slug=None, unique_marker=''):
     """
     Define logic flow for Learner.
     """
     if not collection_order_slug:
         return stub_page(request)
 
-    engine, collection_order = get_collection_collection_order_engine(collection_order_slug)
+    engine, collection_order = get_engine_and_collection_order(collection_order_slug)
     lti_user, created = LtiUser.objects.get_or_create(
         user_id=request.POST['user_id'],
-        lti_consumer=lti_consumer,
+        lti_content_sources=lti_content_sources,
         defaults={'course_id': request.POST['context_id']}
     )
     log.debug("LTI user {}: user_id='{}'".format('created' if created else 'picked', lti_user.user_id))
@@ -167,7 +167,7 @@ def learner_flow(request, lti_consumer, tool_provider, collection_order_slug=Non
                 tip="Please try again later"
             )
         sequence_item = create_sequence_item(
-            request, sequence, start_activity, tool_provider, lti_consumer
+            request, sequence, start_activity, tool_provider, lti_content_sources
         )
     else:
         sequence_item = find_last_sequence_item(sequence, strict_forward)

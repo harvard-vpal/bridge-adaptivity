@@ -7,7 +7,7 @@
     }
 },
 {
-    "model": "bridge_lti.lticonsumer",
+    "model": "bridge_lti.lticontentsources",
     "pk": 2,
     "fields": {
         "name": "edx-VPAL-staging",
@@ -22,7 +22,7 @@
     }
 },
 {
-    "model": "bridge_lti.lticonsumer",
+    "model": "bridge_lti.lticontentsources",
     "pk": 4,
     "fields": {
         "name": "edx-VPAL-2",
@@ -37,7 +37,7 @@
     }
 },
 {
-    "model": "bridge_lti.lticonsumer",
+    "model": "bridge_lti.lticontentsources",
     "pk": 5,
     "fields": {
         "name": "base-VPAL",

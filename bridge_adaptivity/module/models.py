@@ -17,7 +17,7 @@ from ordered_model.models import OrderedModel
 import shortuuid
 from slugger import AutoSlugField
 
-from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiContentSources, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
 from module import tasks
 
@@ -365,10 +365,7 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
         return res_list
 
     def get_launch_url(self):
-        return "{}{}".format(
-            str.strip(settings.BRIDGE_HOST),
-            reverse("lti:launch", kwargs={'collection_order_slug': self.slug})
-        )
+        return "{}{}".format(settings.BRIDGE_HOST, reverse("lti:launch", kwargs={'collection_order_slug': self.slug}))
 
 
 class ModuleGroup(models.Model):
@@ -390,10 +387,7 @@ class ModuleGroup(models.Model):
     @property
     def ordered_collections(self):
         """
-        Return tuple of tuples of CollectionOrder and indicator of sequences exists that related to CollectionOrder.
-
-        Returns True as second parameter for each Collection Order  in tuple if one or more sequences related to
-        CollectionOrder.
+        Return tuple of tuples of CollectionOrder and result sequence_set.exists() method.
         """
         return (
             (col_order, col_order.sequence_set.exists())
@@ -408,7 +402,7 @@ class ModuleGroup(models.Model):
 
     def get_collection_order_by_order(self, order):
         """
-        Return CollectionOrder object by order in group.
+        Return CollectionOrder object filtered by order and group.
         """
         return CollectionOrder.objects.filter(group=self, order=order).first()
 
@@ -443,7 +437,7 @@ class Activity(OrderedModel):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
     points = models.FloatField(blank=True, default=1)
-    lti_consumer = models.ForeignKey(LtiConsumer, null=True, on_delete=models.CASCADE)
+    lti_content_sources = models.ForeignKey(LtiContentSources, null=True, on_delete=models.CASCADE)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     # NOTE(wowkalucky): extra field 'order' is available (inherited from OrderedModel)

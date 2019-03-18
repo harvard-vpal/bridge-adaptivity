@@ -4,7 +4,7 @@ from django.test.client import RequestFactory
 import mock
 import pytest
 
-from bridge_lti.models import LtiProvider, OutcomeService
+from bridge_lti.models import LtiLmsPlatforms, OutcomeService
 from module.models import (
     Activity, BridgeUser, Collection, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, LtiUser,
     ModuleGroup, Sequence, SequenceItem
@@ -265,16 +265,16 @@ class TestPolicySendGradeMethod(TestCase):
         self.activity2 = Activity.objects.create(
             name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url, stype='problem'
         )
-        self.lti_provider = LtiProvider.objects.create(
+        self.lti_lms_platforms = LtiLmsPlatforms.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
         )
         self.lti_user = LtiUser.objects.create(
-            user_id='test_user_id', lti_consumer=self.lti_provider, bridge_user=self.user
+            user_id='test_user_id', lti_content_sources=self.lti_lms_platforms, bridge_user=self.user
         )
         self.engine = Engine.objects.get(engine='engine_mock')
         self.grading_policy = GradingPolicy.objects.get(name='trials_count')
         self.outcome_service = OutcomeService.objects.create(
-            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
+            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platforms
         )
 
         self.test_cg = ModuleGroup.objects.create(

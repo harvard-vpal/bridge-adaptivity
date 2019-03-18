@@ -3,7 +3,7 @@ from ddt import data, ddt, unpack
 from django.test import TestCase
 from mock.mock import patch
 
-from bridge_lti.models import LtiProvider, LtiUser
+from bridge_lti.models import LtiLmsPlatforms, LtiUser
 from module.models import (
     Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
 )
@@ -20,14 +20,14 @@ class TestMockEngine(TestCase):
             password='test',
             email='test@me.com'
         )
-        self.consumer = LtiProvider.objects.create(
+        self.consumer = LtiLmsPlatforms.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
         )
         self.lti_user = LtiUser.objects.create(
             user_id='some_user', course_id='some_course', email=self.user.email,
-            lti_consumer=self.consumer, bridge_user=self.user
+            lti_content_sources=self.consumer, bridge_user=self.user
         )
         # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)

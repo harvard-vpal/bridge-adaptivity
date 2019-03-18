@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from mock.mock import patch
 from multiselectfield.db.fields import MSFList
 
-from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
+from bridge_lti.models import LtiLmsPlatforms, LtiUser, OutcomeService
 from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
@@ -142,14 +142,14 @@ class TestActivityModel(TestCase):
             password='test',
             email='test@me.com'
         )
-        self.consumer = LtiProvider.objects.create(
+        self.consumer = LtiLmsPlatforms.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
         )
         self.lti_user = LtiUser.objects.create(
             user_id='some_user', course_id='some_course', email=self.user.email,
-            lti_consumer=self.consumer, bridge_user=self.user
+            lti_content_sources=self.consumer, bridge_user=self.user
         )
         # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
@@ -262,7 +262,7 @@ class TestDeleteObjectsSeparately(TestCase):
             password='test',
             email='test@me.com'
         )
-        self.consumer = LtiProvider.objects.create(
+        self.consumer = LtiLmsPlatforms.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
@@ -338,16 +338,16 @@ class TestSequence(TestCase):
             source_launch_url=f"{self.source_launch_url}5",
             stype='problem',
         )
-        self.lti_provider = LtiProvider.objects.create(
+        self.lti_lms_platforms = LtiLmsPlatforms.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
         )
         self.lti_user = LtiUser.objects.create(
-            user_id='test_user_id', lti_consumer=self.lti_provider, bridge_user=self.user
+            user_id='test_user_id', lti_content_sources=self.lti_lms_platforms, bridge_user=self.user
         )
         self.engine = Engine.objects.get(engine='engine_mock')
         self.grading_policy = GradingPolicy.objects.get(name='points_earned')
         self.outcome_service = OutcomeService.objects.create(
-            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
+            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platforms
         )
 
         self.test_cg = ModuleGroup.objects.create(

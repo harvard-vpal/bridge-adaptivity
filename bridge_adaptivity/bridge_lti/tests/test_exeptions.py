@@ -40,14 +40,14 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
         with pytest.raises(Http404):
             learner_flow(
                 request,
-                lti_consumer=None,
+                lti_content_sources=None,
                 tool_provider=None,
                 collection_order_slug=self.not_correct_kw["collection_order_slug"]
             )
 
     @mock.patch('lti.contrib.django.DjangoToolProvider.from_django_request')
     @override_settings(DEBUG=False)
-    def test_client_post_with_incorrect_collection_slug_test(self, from_django_request):
+    def test_client_post_with_incorrect_collection_order_slug_test(self, from_django_request):
         """
         Test that when POST request received with not correct data it will show 404 error with correct template.
         """
@@ -55,7 +55,7 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
         tool_provider = Mock(is_valid_request=is_valid_request)
         from_django_request.return_value = tool_provider
 
-        response = self.client.post(self.url)
+        response = self.client.post(self.not_correct_url)
         self.assertTemplateUsed(response, '404.html')
         from_django_request.assert_called_once()
         tool_provider.is_valid_request.assert_called_once()

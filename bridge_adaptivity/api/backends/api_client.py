@@ -7,19 +7,19 @@ from slumber.exceptions import HttpClientError, HttpNotFoundError
 from api.backends.base_api_client import BaseApiClient
 from api.backends.dart_api_client import DartApiClient
 from api.backends.edx_api_client import OpenEdxApiClient
-from bridge_lti.models import LtiConsumer
+from bridge_lti.models import LtiContentSources
 
 log = logging.getLogger(__name__)
 
 
-def api_client_factory(content_source: LtiConsumer) -> BaseApiClient:
+def api_client_factory(content_source: LtiContentSources) -> BaseApiClient:
     """
     Return API client for the given content source.
     """
     api_clients = {
-        LtiConsumer.EDX_SOURCE: OpenEdxApiClient,
-        LtiConsumer.DART: DartApiClient,
-        LtiConsumer.BASE_SOURCE: BaseApiClient,
+        LtiContentSources.EDX_SOURCE: OpenEdxApiClient,
+        LtiContentSources.DART: DartApiClient,
+        LtiContentSources.BASE_SOURCE: BaseApiClient,
     }
     return api_clients[content_source.source_type](content_source)
 
@@ -30,7 +30,7 @@ def get_active_content_sources(request, source_ids=None, not_allow_empty_source_
 
     If there's only one active source provider - source_id parameter is not required, it will get first active.
     :param request: Request object
-    :param source_ids: LtiConsumer object id or list of this objects
+    :param source_ids: LtiContentSources object id or list of this objects
     :param not_allow_empty_source_id: if True - it will not allow empty source_id, if False - source_id could be None
     :return: queryset of content_sources
     :raise HttpClientError: if provided parameters are not valid
@@ -52,7 +52,7 @@ def get_available_blocks(request, source_id, course_id=''):
     Blocks data is filtered by `apply_data_filter`.
     :param request: Request object
     :param course_id: Course id
-    :param source_id: LtiConsumer id
+    :param source_id: LtiContentSources id
     :return: (list) blocks data
     """
     content_source = get_active_content_sources(request, source_id).first()
@@ -150,7 +150,7 @@ def get_content_providers(request, source_ids=None):
 
     LTI Providers which expose courses content blocks to use in adaptive collections.
     :param request: Request object
-    :param source_ids: LtiConsumer ID or list of the LtiConsumer ID or None
+    :param source_ids: LtiContentSources ID or list of the LtiContentSources ID or None
     :return: content_sources queryset
     """
     q_kw = {
@@ -162,7 +162,7 @@ def get_content_providers(request, source_ids=None):
             q_kw['id__in'] = source_ids
         else:
             q_kw['id'] = source_ids
-    content_source = LtiConsumer.objects.filter(**q_kw)
+    content_source = LtiContentSources.objects.filter(**q_kw)
     log.debug('Picked content Source(s){}: {}'.format(
         " with content_source_id={}".format(source_ids),
         ", ".join(content_source.values_list('name', flat=True))))
