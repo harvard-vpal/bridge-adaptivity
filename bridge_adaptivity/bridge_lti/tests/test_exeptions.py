@@ -40,7 +40,7 @@ class RaisedExceptionUsesCustomTemplateTest(BridgeTestCase):
         with pytest.raises(Http404):
             learner_flow(
                 request,
-                lti_content_sources=None,
+                lti_lms_platform=None,
                 tool_provider=None,
                 collection_order_slug=self.not_correct_kw["collection_order_slug"]
             )

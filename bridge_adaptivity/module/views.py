@@ -21,7 +21,7 @@ from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
-from bridge_lti.models import LtiLmsPlatforms, LtiUser
+from bridge_lti.models import LtiLmsPlatform, LtiUser
 from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseModuleGroupView
@@ -373,13 +373,13 @@ class CollectionDetail(BaseCollectionView, DetailView):
 
     def get_context_data(self, **kwargs):
         selected_content_sources = list(map(int, self.request.GET.getlist('content_source', [])))
-        activities = Activity.objects.filter(collection=self.object).select_related('lti_content_sources')
+        activities = Activity.objects.filter(collection=self.object).select_related('lti_content_source')
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
-        context['not_active_content_source'] = activities.filter(lti_content_sources__is_active=False).order_by(
-            "lti_content_sources"
-        ).distinct("lti_content_sources").values_list('lti_content_sources__name', flat=True)
+        context['not_active_content_source'] = activities.filter(lti_content_source__is_active=False).order_by(
+            "lti_content_source"
+        ).distinct("lti_content_source").values_list('lti_content_source__name', flat=True)
         context['content_sources'] = self.get_content_source_list(selected_content_sources)
         context['source_courses'], context['errors_content_source'] = get_available_courses(
             self.request, selected_content_sources
@@ -449,7 +449,7 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
                 'name': self.request.GET.get('name'),
                 'source_name': self.request.GET.get('source_name'),
                 'source_launch_url': self.request.GET.get('source_launch_url', '').replace(' ', '+'),
-                'lti_content_sources': self.request.GET.get('lti_content_sources'),
+                'lti_content_source': self.request.GET.get('lti_content_source'),
                 'stype': self.request.GET.get('stype'),
             })
         return result
@@ -779,7 +779,7 @@ def preview_collection(request, slug):
         {
             'url': (
                 f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={urllib.parse.quote_plus(a.name)}'
-                f'&source_lti_url={a.source_launch_url}&content_source_id={a.lti_content_sources_id}'
+                f'&source_lti_url={a.source_launch_url}&content_source_id={a.lti_content_source_id}'
             ),
             'pos': pos,
         }
@@ -804,10 +804,10 @@ def demo_collection(request, collection_order_slug):
     """
     __, collection_order = get_engine_and_collection_order(collection_order_slug)
 
-    lti_content_sources = LtiLmsPlatforms.objects.first()
+    lti_lms_platform = LtiLmsPlatform.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,
-        lti_content_sources=lti_content_sources,
+        lti_lms_platform=lti_lms_platform,
     )
 
     test_sequence, created = Sequence.objects.get_or_create(

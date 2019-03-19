@@ -115,7 +115,7 @@ class EngineVPAL(EngineInterface):
             "learner": {
                 'user_id': sequence.lti_user.user_id,
                 'tool_consumer_instance_guid': (
-                    tool_consumer_instance_guid or sequence.lti_user.lti_content_sources.consumer_name
+                    tool_consumer_instance_guid or sequence.lti_user.lti_lms_platform.consumer_name
                 ),
             }
         })

@@ -50,7 +50,7 @@ class ProviderTest(BridgeTestCase):
                 }),
             data={
                 'oauth_nonce': 'oauth_nonce',
-                'oauth_consumer_key': self.lti_lms_platforms.consumer_key,
+                'oauth_consumer_key': self.lti_lms_platform.consumer_key,
                 'roles': role,
             }
         )
@@ -80,14 +80,14 @@ class ProviderTest(BridgeTestCase):
                 }),
             data={
                 'oauth_nonce': 'oauth_nonce',
-                'oauth_consumer_key': self.lti_lms_platforms.consumer_key,
+                'oauth_consumer_key': self.lti_lms_platform.consumer_key,
                 'roles': 'Learner',
             }
         )
 
         mock_learner_flow.assert_called_once_with(
             mock.ANY,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             mock_tool_provider,
             collection_order_slug=mock_collection_order_slug,
             unique_marker=mock_unique_marker,
@@ -102,7 +102,7 @@ class ProviderTest(BridgeTestCase):
             '',
             data={
                 'oauth_nonce': 'oauth_nonce',
-                'oauth_consumer_key': self.lti_lms_platforms.consumer_key,
+                'oauth_consumer_key': self.lti_lms_platform.consumer_key,
                 'roles': 'Learner',
                 'user_id': 'user_id',
                 'context_id': 'some+course+id'
@@ -121,13 +121,13 @@ class ProviderTest(BridgeTestCase):
 
         learner_flow(
             mock_request,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             tool_provider,
             self.collection_order1.slug,
         )
         learner_flow(
             mock_request,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             tool_provider,
             self.collection_order1.slug,
         )
@@ -137,14 +137,14 @@ class ProviderTest(BridgeTestCase):
 
         learner_flow(
             mock_request,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             tool_provider,
             self.collection_order1.slug,
             'marker',
         )
         learner_flow(
             mock_request,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             tool_provider,
             self.collection_order1.slug,
             'marker',
@@ -154,14 +154,14 @@ class ProviderTest(BridgeTestCase):
         count_of_the_sequence += 1
         learner_flow(
             mock_request,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             tool_provider,
             self.collection_order1.slug,
             'marker1',
         )
         learner_flow(
             mock_request,
-            self.lti_lms_platforms,
+            self.lti_lms_platform,
             tool_provider,
             self.collection_order1.slug,
             'marker2',
@@ -183,8 +183,8 @@ class ProviderTest(BridgeTestCase):
         """
         mock_learner_flow.return_value = HttpResponse(status=200)
         consumer_prams = {
-            'consumer_key': self.lti_lms_platforms.consumer_key,
-            'consumer_secret': self.lti_lms_platforms.consumer_secret,
+            'consumer_key': self.lti_lms_platform.consumer_key,
+            'consumer_secret': self.lti_lms_platform.consumer_secret,
             'launch_url': f"http://{settings.BRIDGE_HOST}" + reverse(
                 'lti:launch', kwargs={
                     'collection_order_slug': self.collection_order1.slug,
@@ -283,7 +283,7 @@ class ProviderTest(BridgeTestCase):
                         'collection_order_slug': self.collection_order1.slug,
                     }
                 ),
-                data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_lms_platforms.consumer_key}
+                data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_lms_platform.consumer_key}
             )
             response_status = 200
             if session_cookie_samsite:

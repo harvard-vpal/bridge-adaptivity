@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from django.forms import ModelForm, ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from .models import BridgeUser, LtiContentSources, LtiLmsPlatforms, LtiUser, OutcomeService
+from .models import BridgeUser, LtiContentSource, LtiLmsPlatform, LtiUser, OutcomeService
 
 admin.site.unregister(Group)
 
@@ -16,7 +16,7 @@ class GroupForm(ModelForm):
 
     group_source = ModelMultipleChoiceField(
         label='Content Sources granted access',
-        queryset=LtiContentSources.objects.all(),
+        queryset=LtiContentSource.objects.all(),
         required=False,
         help_text='Content Sources which are available to the group',
         widget=admin.widgets.FilteredSelectMultiple('Content Sources', False)
@@ -66,12 +66,12 @@ class GroupAdmin(admin.ModelAdmin):
         return super().get_form(request, obj, **kwargs)
 
 
-@admin.register(LtiLmsPlatforms)
+@admin.register(LtiLmsPlatform)
 class LtiLmsPlatformsAdmin(admin.ModelAdmin):
     exclude = ['expiration_date', 'lms_metadata']
 
 
-@admin.register(LtiContentSources)
+@admin.register(LtiContentSource)
 class LtiContentSourcesAdmin(admin.ModelAdmin):
     list_display = ('name', 'host_url', 'is_active',)
     list_editable = ('is_active',)

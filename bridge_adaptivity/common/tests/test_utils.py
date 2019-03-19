@@ -2,7 +2,7 @@ from ddt import data, ddt, unpack
 from django.test import TestCase
 from mock.mock import patch
 
-from bridge_lti.models import LtiLmsPlatforms, LtiUser, OutcomeService
+from bridge_lti.models import LtiLmsPlatform, LtiUser, OutcomeService
 from common.utils import find_last_sequence_item
 from module.models import (
     Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
@@ -47,16 +47,16 @@ class TestSequence(TestCase):
             source_launch_url=f"{self.source_launch_url}5",
             stype='problem',
         )
-        self.lti_lms_platforms = LtiLmsPlatforms.objects.create(
+        self.lti_lms_platform = LtiLmsPlatform.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
         )
         self.lti_user = LtiUser.objects.create(
-            user_id='test_user_id', lti_content_sources=self.lti_lms_platforms, bridge_user=self.user
+            user_id='test_user_id', lti_lms_platform=self.lti_lms_platform, bridge_user=self.user
         )
         self.engine = Engine.objects.get(engine='engine_mock')
         self.grading_policy = GradingPolicy.objects.get(name='points_earned')
         self.outcome_service = OutcomeService.objects.create(
-            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platforms
+            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platform
         )
 
         self.test_cg = ModuleGroup.objects.create(

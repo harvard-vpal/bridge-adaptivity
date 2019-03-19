@@ -2,7 +2,7 @@ from django.conf import settings
 from django.test import TestCase
 from mock import patch
 
-from bridge_lti.models import BridgeUser, LtiLmsPlatforms, LtiUser
+from bridge_lti.models import BridgeUser, LtiLmsPlatform, LtiUser
 from module import tasks
 from module.models import Activity, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence
 from module.tasks import sync_collection_engines
@@ -15,7 +15,7 @@ class TestTask(TestCase):
             password='testtest',
             email='test_instructor@example.com'
         )
-        self.consumer = LtiLmsPlatforms.objects.create(
+        self.consumer = LtiLmsPlatform.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
@@ -24,7 +24,7 @@ class TestTask(TestCase):
             user_id='some_user',
             course_id='some_course',
             email=self.user.email,
-            lti_content_sources=self.consumer,
+            lti_lms_platform=self.consumer,
             bridge_user=self.user,
         )
         self.engine = Engine.objects.create(engine='engine_mock', engine_name='mock_eng')

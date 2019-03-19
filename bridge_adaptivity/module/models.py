@@ -17,7 +17,7 @@ from ordered_model.models import OrderedModel
 import shortuuid
 from slugger import AutoSlugField
 
-from bridge_lti.models import BridgeUser, LtiContentSources, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiContentSource, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
 from module import tasks
 
@@ -443,7 +443,7 @@ class Activity(OrderedModel):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
     points = models.FloatField(blank=True, default=1)
-    lti_content_sources = models.ForeignKey(LtiContentSources, null=True, on_delete=models.CASCADE)
+    lti_content_source = models.ForeignKey(LtiContentSource, null=True, on_delete=models.CASCADE)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     # NOTE(wowkalucky): extra field 'order' is available (inherited from OrderedModel)

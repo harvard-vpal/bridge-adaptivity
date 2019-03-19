@@ -114,7 +114,7 @@ class TestActivityAPI(TestApiBase):
             "source_name": "",
             "stype": "",
             "collection": cls.collection.id,
-            "lti_content_sources": None
+            "lti_content_source": None
         }
 
     def test_get_activity(self):

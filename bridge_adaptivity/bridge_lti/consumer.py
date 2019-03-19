@@ -46,7 +46,7 @@ def create_lti_launch_params(request, sequence_item_id, consumer_prams):
         sequence_item = SequenceItem.objects.get(id=sequence_item_id)
         activity = sequence_item.activity
 
-        content_provider = activity.lti_content_sources
+        content_provider = activity.lti_content_source
         consumer_prams['consumer_key'] = content_provider.provider_key
         consumer_prams['consumer_secret'] = content_provider.provider_secret
 
