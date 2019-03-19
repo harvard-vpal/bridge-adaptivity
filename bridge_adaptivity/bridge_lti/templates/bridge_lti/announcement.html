@@ -9,7 +9,7 @@
     <div class="row">
     {% if demo %}
     <a
-        href="{% url 'module:delete_sequence' sequence.id %}?return_url={% url 'module:group-detail' sequence.group.slug %}?back_url={{ back_url }}">
+        href="{% url 'module:delete_sequence' sequence.id %}?return_url={% url 'module:group-detail' sequence.collection_order.group.slug %}?back_url={{ back_url }}">
         <button class="btn btn-warning ">Close Demo</button>
     </a>
 
