@@ -1,7 +1,7 @@
 {% extends "module/base.html" %}
 {% load static bootstrap3 %}
 
-{% block title %}Groups of Collections{% endblock title %}
+{% block title %}Groups of Modules{% endblock title %}
 
 <hr>
 
@@ -16,9 +16,6 @@
         <th>group name</th>
         <th class="text-left">description</th>
         <th>collections</th>
-        <th>engine</th>
-        <th>policy</th>
-        <th>threshold</th>
         {% if not request.session.read_only_data %}
           <th>options</th>
         {% endif %}
@@ -34,10 +31,6 @@
             {% endif %}
           </td>
           <td style="width:5%; " class="container text-center">{{ group.collections.count }}</td>
-          <td class="text-center">{{ group.engine.engine_name }}</td>
-          <td class="text-center">{{ group.grading_policy.policy_cls.public_name }}</td>
-          <td class="text-center">{% if 'threshold' in group.grading_policy.policy_cls.require.params %}
-                                  {{ group.grading_policy.params.threshold }}{% endif %}</td>
             {% if not request.session.read_only_data %}
             <td class="text-right" style="min-width: 90px;">
               <div>

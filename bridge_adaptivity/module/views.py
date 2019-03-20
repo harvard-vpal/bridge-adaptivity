@@ -21,18 +21,19 @@ from lti import InvalidLTIConfigError, OutcomeRequest, OutcomeResponse
 from lti.outcome_response import CODE_MAJOR_CODES, SEVERITY_CODES
 
 from api.backends.api_client import get_active_content_sources, get_available_courses
-from bridge_lti.models import LtiProvider, LtiUser
-from common.utils import get_collection_collectiongroup_engine, stub_page
+from bridge_lti.models import LtiLmsPlatform, LtiUser
+from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
-from module.base_views import BaseCollectionView, BaseCourseView, BaseGroupView
-from module.forms import ActivityForm, AddCollectionGroupForm, AddCourseGroupForm, BaseGradingPolicyForm, GroupForm
+from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseModuleGroupView
+from module.forms import (
+    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
+)
 from module.mixins.views import (
-    BackURLMixin, CollectionSlugToContextMixin, GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin,
-    LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
+    BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
+    GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, Sequence,
-    SequenceItem,
+    Activity, Collection, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
@@ -103,7 +104,7 @@ class CourseAddGroup(JsonResponseMixin, FormView):
 
 @method_decorator(login_required, name='dispatch')
 class CourseRmGroup(UpdateView):
-    model = CollectionGroup
+    model = ModuleGroup
     template_name = 'module/modals/course_add_group.html'
     slug_url_kwarg = 'group_slug'
     fields = ('course',)
@@ -131,10 +132,29 @@ class CourseRmGroup(UpdateView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupList(BaseGroupView, ListView):
+class ModuleGroupList(BaseModuleGroupView, ListView):
     context_object_name = 'groups'
-    ordering = ['slug']
-    filter = 'group'
+    ordering = ['id']
+    filter = 'group_slug'
+
+
+@method_decorator(login_required, name='dispatch')
+class GetCollectionForm(FormView):
+    form_class = BaseCollectionForm
+    template_name = 'module/collection_form.html'
+    prefix = 'collection'
+
+    def get_form_kwargs(self):
+        form_kw = dict(prefix=self.prefix)
+        return form_kw
+
+    def get_form(self, form_class=None):
+        form = super().get_form()
+        form.fields['owner'].initial = self.request.user.id
+        collection_id = self.request.GET.get('collection_id')
+        if collection_id and Collection.objects.filter(id=collection_id).first():
+            form.fields.clear()
+        return form
 
 
 @method_decorator(login_required, name='dispatch')
@@ -151,13 +171,18 @@ class GetGradingPolicyForm(FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        if self.kwargs.get('group_slug'):
-            group = CollectionGroup.objects.filter(
-                slug=self.kwargs.get('group_slug'),
-                grading_policy__name=self.request.GET.get('grading_policy')
-            ).first()
-            if group:
-                kwargs['instance'] = group.grading_policy
+        if self.kwargs.get('collection_order_slug'):
+
+            collection_order_query = CollectionOrder.objects.filter(
+                slug=self.kwargs.get('collection_order_slug'),
+            )
+            if self.request.GET.get('grading_policy'):
+                collection_order_query = collection_order_query.filter(
+                    grading_policy__name=self.request.GET.get('grading_policy')
+                )
+            collection_order = collection_order_query.first()
+            if collection_order:
+                kwargs['instance'] = collection_order.grading_policy
         return kwargs
 
     def get_form(self, form_class=None):
@@ -166,13 +191,11 @@ class GetGradingPolicyForm(FormView):
         gp = self.request.GET.get('grading_policy')
         if gp in GRADING_POLICY_NAME_TO_CLS:
             form.fields['name'].initial = self.request.GET.get('grading_policy')
-            return form
-        else:
-            raise Http404()
+        return form
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
+class ModuleGroupCreate(BaseModuleGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
 
     def form_valid(self, form):
         result = super().form_valid(form)
@@ -182,11 +205,11 @@ class GroupCreate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
+class ModuleGroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseModuleGroupView, DetailView):
     context_object_name = 'group'
-    link_form_class = AddCollectionGroupForm
+    link_form_class = CollectionOrderForm
     link_object_name = 'collection'
-    filter = 'group'
+    filter = 'group_slug'
 
     def get_link_form_kwargs(self):
         return dict(user=self.request.user, group=self.object)
@@ -195,25 +218,24 @@ class GroupDetail(LinkObjectsMixin, BaseGroupView, DetailView):
         return reverse('module:collection-add')
 
     def get_has_available_objects(self, form):
-        return form.fields['collections'].queryset.exists()
+        return form.fields['collection'].queryset.exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
             'bridge_host': settings.BRIDGE_HOST,
-            'grade_update_available': self.object.sequence_set.exists(),
         })
         return context
 
 
-class AddCollectionInGroup(JsonResponseMixin, FormView):
+class AddCollectionInGroup(CollectionOrderEditFormMixin, JsonResponseMixin, FormView):
     template_name = 'module/modals/course_add_group.html'
-    form_class = AddCollectionGroupForm
+    form_class = CollectionOrderForm
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
-        kwargs['group'] = get_object_or_404(CollectionGroup, slug=self.kwargs.get('group_slug'))
+        kwargs['group'] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
         return kwargs
 
     def get_success_url(self):
@@ -221,14 +243,15 @@ class AddCollectionInGroup(JsonResponseMixin, FormView):
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, UpdateView):
-    form_class = GroupForm
+class ModuleGroupUpdate(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView):
+    form_class = ModuleGroupForm
     context_object_name = 'group'
 
     def get(self, request, *args, **kwargs):
+        # ToDo(AndreyLykhoman): testing this order method
         if kwargs.get('order'):
             collection_order = CollectionOrder.objects.get(
-                group__slug=kwargs.get('group_slug'), collection__slug=kwargs.get('slug')
+                slug=kwargs.get('collection_order_slug')
             )
             try:
                 getattr(collection_order, 'to')(int(kwargs['order']))
@@ -239,7 +262,7 @@ class GroupUpdate(BaseGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFo
 
 
 @method_decorator(login_required, name='dispatch')
-class GroupDelete(BaseGroupView, DeleteView):
+class ModuleGroupDelete(BaseModuleGroupView, DeleteView):
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse('module:group-list')
 
@@ -250,7 +273,7 @@ class GroupDelete(BaseGroupView, DeleteView):
 @method_decorator(login_required, name='dispatch')
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
-    filter = 'collection'
+    filter = 'collection_slug'
 
 
 @method_decorator(login_required, name='dispatch')
@@ -259,7 +282,7 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
     def form_valid(self, form):
         result = super().form_valid(form)
         if self.kwargs.get('group_slug'):
-            group = CollectionGroup.objects.get(slug=self.kwargs['group_slug'])
+            group = ModuleGroup.objects.get(slug=self.kwargs['group_slug'])
             CollectionOrder.objects.create(group=group, collection=self.object)
         return result
 
@@ -270,9 +293,76 @@ class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, U
 
 
 @method_decorator(login_required, name='dispatch')
+class CollectionOrderUpdate(
+    BaseCollectionOrderView,
+    SetUserInFormMixin,
+    CollectionOrderEditFormMixin,
+    ModalFormMixin,
+    UpdateView,
+):
+
+    def get_object(self):
+        collection_order = CollectionOrder.objects.get(slug=self.kwargs.get("collection_order_slug"))
+        self.collection_order_group_slug = collection_order.group.slug
+        return collection_order
+
+    def get_success_url(self):
+        return reverse("module:group-detail", kwargs={'group_slug': self.collection_order_group_slug})
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = self.object.group
+        kwargs['read_only'] = self._set_read_only_collection()
+        return kwargs
+
+    def _set_read_only_collection(self):
+        return bool(self.kwargs.get('collection_order_slug'))
+
+
+class CollectionOrderAdd(
+    BaseCollectionOrderView,
+    SetUserInFormMixin,
+    CollectionOrderEditFormMixin,
+    ModalFormMixin,
+    CreateView
+):
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        kwargs['group'] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
+        kwargs['read_only'] = self._set_read_only_collection()
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handle GET requests: instantiate a blank version of the form.
+        """
+        result = super().get(request, *args, **kwargs)
+        result.context_data["group"] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
+        result.context_data['form'].fields['collection'].required = False
+        result.context_data['collection_form'].fields['owner'].initial = self.request.user.id
+        return result
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST.get('collection_group-collection'):
+            context['collection_form'] = None
+        return context
+
+    def get_success_url(self):
+        return reverse("module:group-detail", kwargs={'group_slug': self.kwargs.get("group_slug")})
+
+    def _set_read_only_collection(self):
+        # NOTE(AndreyLykhoman): Return 'False' because we will able to choose a new collection to add.
+        return False
+
+
+@method_decorator(login_required, name='dispatch')
 class CollectionDetail(BaseCollectionView, DetailView):
     context_object_name = 'collection'
-    filter = 'collection'
+    filter = 'collection_slug'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -283,13 +373,13 @@ class CollectionDetail(BaseCollectionView, DetailView):
 
     def get_context_data(self, **kwargs):
         selected_content_sources = list(map(int, self.request.GET.getlist('content_source', [])))
-        activities = Activity.objects.filter(collection=self.object).select_related('lti_consumer')
+        activities = Activity.objects.filter(collection=self.object).select_related('lti_content_source')
         context = super().get_context_data(**kwargs)
         context['render_fields'] = ['name', 'tags', 'difficulty', 'points', 'source']
         context['activities'] = activities
-        context['not_active_content_source'] = activities.filter(lti_consumer__is_active=False).order_by(
-            "lti_consumer"
-        ).distinct("lti_consumer").values_list('lti_consumer__name', flat=True)
+        context['not_active_content_source'] = activities.filter(lti_content_source__is_active=False).order_by(
+            "lti_content_source"
+        ).distinct("lti_content_source").values_list('lti_content_source__name', flat=True)
         context['content_sources'] = self.get_content_source_list(selected_content_sources)
         context['source_courses'], context['errors_content_source'] = get_available_courses(
             self.request, selected_content_sources
@@ -334,7 +424,7 @@ class CollectionGroupDelete(DeleteView):
     def get_success_url(self):
         return (
             self.request.GET.get('return_url') or
-            reverse('module:group-detail', kwargs={'group_slug': self.kwargs.get('group_slug')})
+            reverse('module:group-detail', kwargs={'group_slug': self.object.group.slug})
         )
 
     def get(self, request, *args, **kwargs):
@@ -344,10 +434,7 @@ class CollectionGroupDelete(DeleteView):
         return self.model.filter()
 
     def get_object(self, queryset=None):
-        return self.model.objects.get(
-            collection__slug=self.kwargs['slug'],
-            group__slug=self.kwargs['group_slug']
-        )
+        return self.model.objects.get(slug=self.kwargs['collection_order_slug'])
 
 
 @method_decorator(login_required, name='dispatch')
@@ -362,7 +449,7 @@ class ActivityCreate(BackURLMixin, CollectionSlugToContextMixin, ModalFormMixin,
                 'name': self.request.GET.get('name'),
                 'source_name': self.request.GET.get('source_name'),
                 'source_launch_url': self.request.GET.get('source_launch_url', '').replace(' ', '+'),
-                'lti_consumer': self.request.GET.get('lti_consumer'),
+                'lti_content_source': self.request.GET.get('lti_content_source'),
                 'stype': self.request.GET.get('stype'),
             })
         return result
@@ -440,7 +527,7 @@ class ActivityDelete(DeleteView):
 
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse(
-            'module:collection-detail', kwargs={'pk': self.object.collection.id}
+            'module:collection-detail', kwargs={'slug': self.object.collection.slug}
         )
 
     def delete(self, request, *args, **kwargs):
@@ -519,7 +606,7 @@ def _check_next_forbidden(pk):
     next_forbidden = (
         sequence_item.is_problem and
         sequence_item.position == last_item and
-        sequence_item.sequence.collection.strict_forward and
+        sequence_item.sequence.collection_order.strict_forward and
         sequence_item.score is None
     )
     log.debug(f"Next item forbidden: {next_forbidden}, last_item: {last_item}, sequence_item_id: {sequence_item.id}")
@@ -541,7 +628,9 @@ def sequence_item_next(request, pk):
             }
         )
     if next_forbidden:
-        return redirect("{}?forbidden=true".format(reverse('module:sequence-item', kwargs={'pk': sequence_item.id})))
+        return redirect("{}?forbidden=true".format(
+            reverse('module:sequence-item', kwargs={'pk': sequence_item.id}))
+        )
 
     next_sequence_item = SequenceItem.objects.filter(
         sequence=sequence_item.sequence,
@@ -555,7 +644,9 @@ def sequence_item_next(request, pk):
         update_activity = request.session.pop('Lti_update_activity', None)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.group.grading_policy.policy_instance(sequence=sequence)
+            policy = sequence.collection_order.grading_policy.policy_instance(
+                sequence=sequence
+            )
             policy.send_grade()
             if not activity:
                 if sequence.completed:
@@ -577,7 +668,9 @@ def sequence_item_next(request, pk):
             if activity:
                 next_sequence_item.activity = activity
                 next_sequence_item.save()
-    return redirect(reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id}))
+    return redirect(
+        reverse('module:sequence-item', kwargs={'pk': next_sequence_item.id})
+    )
 
 
 class SequenceComplete(LtiSessionMixin, DetailView):
@@ -661,18 +754,24 @@ def sync_collection(request, slug, api_request=None):
     )
     if api_request:
         return task.collect(timeout=settings.CELERY_RESULT_TIMEOUT)
-    return redirect(reverse('module:collection-detail', kwargs={'pk': collection.id}) + '?back_url={}'.format(back_url))
+    return redirect(
+        reverse('module:collection-detail', kwargs={'slug': collection.slug}) + '?back_url={}'.format(back_url)
+    )
 
 
-def update_students_grades(request, group_slug):
+def update_students_grades(request, collection_order_slug):
     """
     Mandatory update students grade related to the collection-group.
     """
     back_url = request.GET.get('back_url')
-    group = get_object_or_404(CollectionGroup, slug=group_slug)
-    tasks.update_students_grades.delay(group_id=group.id)
-    log.debug(f"Task with updating students grades related to the group {group.name} is started.")
-    return redirect(reverse('module:group-detail', kwargs={'group_slug': group_slug}) + '?back_url={}'.format(back_url))
+    colection_order = get_object_or_404(CollectionOrder, slug=collection_order_slug)
+    tasks.update_students_grades.delay(collection_order_slug=collection_order_slug)
+    log.debug(
+        f"Task with updating students grades related to the colection_order with id {colection_order.id} is started."
+    )
+    return redirect(reverse(
+        'module:group-detail', kwargs={'group_slug': colection_order.group.slug}
+    ) + '?back_url={}'.format(back_url))
 
 
 def preview_collection(request, slug):
@@ -680,7 +779,7 @@ def preview_collection(request, slug):
         {
             'url': (
                 f'{reverse("lti:source-preview")}?source_id={a.id}&source_name={urllib.parse.quote_plus(a.name)}'
-                f'&source_lti_url={a.source_launch_url}&content_source_id={a.lti_consumer_id}'
+                f'&source_lti_url={a.source_launch_url}&content_source_id={a.lti_content_source_id}'
             ),
             'pos': pos,
         }
@@ -692,38 +791,37 @@ def preview_collection(request, slug):
         context={
             'activities': acitvities,
             'back_url': (
-                f"{reverse('module:collection-detail', kwargs={'pk': Collection.objects.get(slug=slug).pk})}"
+                f"{reverse('module:collection-detail', kwargs={'slug': slug})}"
                 f"?back_url={request.GET.get('back_url')}"
             )
         }
     )
 
 
-def demo_collection(request, group_slug, collection_slug):
+def demo_collection(request, collection_order_slug):
     """
     View for the demonstration and testing of the adaptivity behaviour.
     """
-    collection, collection_group, __ = get_collection_collectiongroup_engine(collection_slug, group_slug)
-    lti_consumer = LtiProvider.objects.first()
+    __, collection_order = get_engine_and_collection_order(collection_order_slug)
+
+    lti_lms_platform = LtiLmsPlatform.objects.first()
     test_lti_user, created = LtiUser.objects.get_or_create(
         user_id=DEMO_USER,
-        lti_consumer=lti_consumer,
+        lti_lms_platform=lti_lms_platform,
     )
 
     test_sequence, created = Sequence.objects.get_or_create(
         lti_user=test_lti_user,
-        collection=collection,
-        group=collection_group,
+        collection_order=collection_order
     )
 
-    strict_forward = collection.strict_forward
+    strict_forward = collection_order.strict_forward
     request.session['Lti_sequence'] = test_sequence.id
     request.session['Lti_strict_forward'] = strict_forward
 
     back_url = request.GET.get('back_url', '')
 
     context = {
-        'group_slug': group_slug,
         'sequence_pk': test_sequence.id,
         'back_url': back_url,
         'forbidden': request.GET.get('forbidden', ''),
@@ -735,7 +833,7 @@ def demo_collection(request, group_slug, collection_slug):
         test_sequence.suffix = suffix
         test_sequence.save()
         log.debug("Sequence {} was created".format(test_sequence))
-        start_activity = utils.choose_activity(sequence_item=None, sequence=test_sequence)
+        start_activity = utils.choose_activity(sequence=test_sequence)
         if not start_activity:
             log.warning('Instructor configured empty Collection.')
             return stub_page(
@@ -758,13 +856,16 @@ def demo_collection(request, group_slug, collection_slug):
         next_forbidden, last_item, sequence_item = _check_next_forbidden(s_item_id)
         position = int(request.GET.get('position') or 1)
         if next_forbidden and position > sequence_item.position:
-            return redirect(
-                f"{reverse('module:demo', kwargs={'collection_slug': collection_slug, 'group_slug': group_slug})}"
-                f"?forbidden=true&back_url={back_url}&position={sequence_item.position}"
+            reverse_demo = reverse(
+                'module:demo',
+                kwargs={
+                    'collection_order_slug': collection_order_slug,
+                }
             )
+            return redirect(f"{reverse_demo}?forbidden=true&back_url={back_url}&position={sequence_item.position}")
         update_activity = request.session.pop('Lti_update_activity', None)
         sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
-            sequence_item, update_activity, last_item, position
+            sequence_item, update_activity, last_item, position,
         )
 
         if sequence_complete:

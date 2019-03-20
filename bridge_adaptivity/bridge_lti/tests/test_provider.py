@@ -1,3 +1,6 @@
+"""
+Test correct working LTI provider.
+"""
 import logging
 
 from ddt import data, ddt
@@ -21,6 +24,9 @@ log = logging.getLogger(__name__)
 
 @ddt
 class ProviderTest(BridgeTestCase):
+    """
+    Class for testing correctly working LTI provider.
+    """
 
     @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
     @mock.patch('bridge_lti.provider.instructor_flow')
@@ -29,72 +35,74 @@ class ProviderTest(BridgeTestCase):
     def test_lti_launch_instructor_flow(
         self, role, mock_learner_flow, mock_instructor_flow, mock_get_tool_provider_for_lti
     ):
+        """
+        Test instructor flow.
+        """
         mock_get_tool_provider_for_lti.return_value = True
         mock_instructor_flow.return_value = HttpResponse(status=200)
         mock_learner_flow.return_value = HttpResponse(status=200)
-        mock_collection_slug = '1'
-        mock_grop_slug = 'group-slug'
+        mock_collection_order_slug = '1'
         self.client.post(
             reverse(
                 'lti:launch',
                 kwargs={
-                    'collection_slug': mock_collection_slug,
-                    'group_slug': mock_grop_slug,
+                    'collection_order_slug': mock_collection_order_slug,
                 }),
             data={
                 'oauth_nonce': 'oauth_nonce',
-                'oauth_consumer_key': self.lti_provider.consumer_key,
+                'oauth_consumer_key': self.lti_lms_platform.consumer_key,
                 'roles': role,
             }
         )
-        mock_instructor_flow.assert_called_once_with(
-            mock.ANY, collection_slug=mock_collection_slug, group_slug=mock_grop_slug
-        )
+        mock_instructor_flow.assert_called_once_with(mock.ANY, collection_order_slug=mock_collection_order_slug)
         mock_learner_flow.assert_not_called()
 
     @mock.patch('bridge_lti.provider.get_tool_provider_for_lti')
     @mock.patch('bridge_lti.provider.instructor_flow')
     @mock.patch('bridge_lti.provider.learner_flow')
     def test_lti_launch_student_flow(self, mock_learner_flow, mock_instructor_flow, mock_get_tool_provider_for_lti):
+        """
+        Test learner flow.
+        """
         mock_instructor_flow.return_value = HttpResponse(status=200)
         mock_learner_flow.return_value = HttpResponse(status=200)
         mock_tool_provider = 'tool_provider'
         mock_get_tool_provider_for_lti.return_value = mock_tool_provider
-        mock_collection_slug = '123'
-        mock_group_slug = '1234-124'
+        mock_collection_order_slug = '123'
         mock_unique_marker = '434'
 
         self.client.post(
             reverse(
                 'lti:launch',
                 kwargs={
-                    'collection_slug': mock_collection_slug,
-                    'group_slug': mock_group_slug,
+                    'collection_order_slug': mock_collection_order_slug,
                     'unique_marker': mock_unique_marker,
                 }),
             data={
                 'oauth_nonce': 'oauth_nonce',
-                'oauth_consumer_key': self.lti_provider.consumer_key,
+                'oauth_consumer_key': self.lti_lms_platform.consumer_key,
                 'roles': 'Learner',
             }
         )
 
         mock_learner_flow.assert_called_once_with(
             mock.ANY,
-            self.lti_provider,
+            self.lti_lms_platform,
             mock_tool_provider,
-            collection_slug=mock_collection_slug,
-            group_slug=mock_group_slug,
+            collection_order_slug=mock_collection_order_slug,
             unique_marker=mock_unique_marker,
         )
         mock_instructor_flow.assert_not_called()
 
     def test_learner_flow_different_user_creation(self):
+        """
+        Test different user creation.
+        """
         mock_request = RequestFactory().post(
             '',
             data={
                 'oauth_nonce': 'oauth_nonce',
-                'oauth_consumer_key': self.lti_provider.consumer_key,
+                'oauth_consumer_key': self.lti_lms_platform.consumer_key,
                 'roles': 'Learner',
                 'user_id': 'user_id',
                 'context_id': 'some+course+id'
@@ -111,21 +119,52 @@ class ProviderTest(BridgeTestCase):
 
         # learner_flow is called 2 times (here and below) to ensure that implement logic works correctly
 
-        learner_flow(mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug)
-        learner_flow(mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug)
-        self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
-
-        count_of_the_sequence += 1
-        learner_flow(mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug, 'marker')
-        learner_flow(mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug, 'marker')
-        self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
-
-        count_of_the_sequence += 1
         learner_flow(
-            mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug, 'marker1'
+            mock_request,
+            self.lti_lms_platform,
+            tool_provider,
+            self.collection_order1.slug,
         )
         learner_flow(
-            mock_request, self.lti_provider, tool_provider, self.collection1.slug, self.test_cg.slug, 'marker2'
+            mock_request,
+            self.lti_lms_platform,
+            tool_provider,
+            self.collection_order1.slug,
+        )
+        self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
+
+        count_of_the_sequence += 1
+
+        learner_flow(
+            mock_request,
+            self.lti_lms_platform,
+            tool_provider,
+            self.collection_order1.slug,
+            'marker',
+        )
+        learner_flow(
+            mock_request,
+            self.lti_lms_platform,
+            tool_provider,
+            self.collection_order1.slug,
+            'marker',
+        )
+        self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 1)
+
+        count_of_the_sequence += 1
+        learner_flow(
+            mock_request,
+            self.lti_lms_platform,
+            tool_provider,
+            self.collection_order1.slug,
+            'marker1',
+        )
+        learner_flow(
+            mock_request,
+            self.lti_lms_platform,
+            tool_provider,
+            self.collection_order1.slug,
+            'marker2',
         )
         self.assertEqual(Sequence.objects.all().count(), count_of_the_sequence + 2)
 
@@ -144,10 +183,12 @@ class ProviderTest(BridgeTestCase):
         """
         mock_learner_flow.return_value = HttpResponse(status=200)
         consumer_prams = {
-            'consumer_key': self.lti_provider.consumer_key,
-            'consumer_secret': self.lti_provider.consumer_secret,
+            'consumer_key': self.lti_lms_platform.consumer_key,
+            'consumer_secret': self.lti_lms_platform.consumer_secret,
             'launch_url': f"http://{settings.BRIDGE_HOST}" + reverse(
-                'lti:launch', kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
+                'lti:launch', kwargs={
+                    'collection_order_slug': self.collection_order1.slug,
+                }
             ),
             'params': {
                 # Required parameters
@@ -159,7 +200,7 @@ class ProviderTest(BridgeTestCase):
                 'user_id': 'bridge_user',
                 'roles': role,
                 'oauth_callback': 'about:blank',
-                'context_id': 'bridge_collection'
+                'context_id': 'bridge_collection',
             },
         }
         # Check read-only user do not exists
@@ -209,7 +250,7 @@ class ProviderTest(BridgeTestCase):
                 data={
                     'username': self.user.username,
                     'password': self.user.password,
-                    'csrfmiddlewaretoken': csrftoken_id
+                    'csrfmiddlewaretoken': csrftoken_id,
                 }
             )
             self.assertEqual(response.status_code, response_status)
@@ -238,9 +279,11 @@ class ProviderTest(BridgeTestCase):
             self.client.post(
                 reverse(
                     'lti:launch',
-                    kwargs={'collection_slug': self.collection1.slug, 'group_slug': str(self.test_cg.slug)}
+                    kwargs={
+                        'collection_order_slug': self.collection_order1.slug,
+                    }
                 ),
-                data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_provider.consumer_key}
+                data={'oauth_nonce': 'oauth_nonce', 'oauth_consumer_key': self.lti_lms_platform.consumer_key}
             )
             response_status = 200
             if session_cookie_samsite:

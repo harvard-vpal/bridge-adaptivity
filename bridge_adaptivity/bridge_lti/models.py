@@ -15,7 +15,7 @@ from .utils import short_token
 log = logging.getLogger(__name__)
 
 
-class LtiProvider(models.Model):
+class LtiLmsPlatform(models.Model):
     """
     Model to manage LTI consumers.
 
@@ -34,10 +34,10 @@ class LtiProvider(models.Model):
         verbose_name_plural = "LMS Platforms"
 
     def __str__(self):
-        return '<LtiProvider: {}>'.format(self.consumer_name)
+        return '<LtiLmsPlatform: {}>'.format(self.consumer_name)
 
 
-class LtiConsumer(models.Model):
+class LtiContentSource(models.Model):
     """
     Model to manage LTI source providers.
 
@@ -69,7 +69,7 @@ class LtiConsumer(models.Model):
         verbose_name_plural = "Content Sources"
 
     def __str__(self):
-        return '<LtiConsumer: {}>'.format(self.name or self.provider_key)
+        return '<LtiContentSource: {}>'.format(self.name or self.provider_key)
 
     def clean(self):
         """
@@ -94,13 +94,13 @@ class LtiUser(models.Model):
     user_id = fields.CharField(max_length=255, db_index=True)
     course_id = fields.CharField(max_length=255, blank=True, null=True)
     email = fields.CharField(max_length=255, blank=True, null=True)
-    lti_consumer = models.ForeignKey('LtiProvider', on_delete=models.CASCADE)
+    lti_lms_platform = models.ForeignKey('LtiLmsPlatform', on_delete=models.CASCADE)
     bridge_user = models.ForeignKey('BridgeUser', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = "LTI User"
         verbose_name_plural = "LTI Users"
-        unique_together = ('lti_consumer', 'user_id')
+        unique_together = ('lti_lms_platform', 'user_id')
 
     def __str__(self):
         return '<LtiUser: {}>'.format(self.user_id)
@@ -157,7 +157,7 @@ class OutcomeService(models.Model):
     """
 
     lis_outcome_service_url = models.CharField(max_length=255)
-    lms_lti_connection = models.ForeignKey('LtiProvider', null=True, on_delete=models.CASCADE)
+    lms_lti_connection = models.ForeignKey('LtiLmsPlatform', null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('outcome service')

@@ -2,22 +2,28 @@
 {% load static bootstrap3 fontawesome %}
 
 {% block title %}
-  Group: <span class="label label-default">{{ group.name }}</span>
+  Module Group: <span class="label label-default">{{ group.name }}</span>
 {% endblock title %}
 
 {% block content %}
 
-{% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
-{% url "module:collection-add" group_slug=group.slug as add_new_collection_url %}
-
-{% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url add_new_object_url=add_new_collection_url title='Link collection with group' %}
 {% include "module/modals/modal_wrapper.html" %}
 
 <div class="row">
-  <div class="col-md-9">
+  {% if group.description %}
+      <div class="col-md-12">
+          <div class="alert alert-info">
+            <h4 class="text-center">Description</h4>
+            <p class="text-left">
+              {{ group.description }}
+            </p>
+          </div>
+      </div>
+  {% endif %}
+  <div class="col-md-12">
     <div class="detail-toolpanel">
         {% if not request.session.read_only_data %}
-            {% url 'module:group-change' group.slug as group_edit %}
+            {% url 'module:group-change' group_slug=group.slug as group_edit %}
             <a>
             {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
             </a>
@@ -28,25 +34,23 @@
                data-id="{{ group.slug }}">
                 {% bootstrap_button 'Delete' size='sm' icon='trash' %}
             </a>
-            {% if grade_update_available %}
-                <a class="pull-right show-warning">
-                    {% bootstrap_button 'Update Students Grades' size='sm' icon='refresh' button_class="btn-primary" %}
-                </a>
-            {% endif %}
         {% endif %}
     </div>
   </div>
 
-  <div class="col-md-9">
+  <div class="col-md-12">
     {% if group.collections.all %}
       <table class="table table-hover">
         <tr>
           <th>collection name</th>
           <th>strict forward</th>
+          <th>grading policy</th>
+          <th>engine</th>
+          <th>ui options</th>
           <th>options</th>
         </tr>
-        {% for collection in group.ordered_collections %}
-          {% if request.session.read_only_data and collection.slug != request.session.read_only_data.collection %}
+        {% for collection_order, grade_update_available in group.ordered_collections %}
+          {% if request.session.read_only_data and collection_order.collection.slug != request.session.read_only_data.collection_slug %}
             {# Continue #}
           {% else %}
               <tr {% if not request.session.read_only_data %}
@@ -55,25 +59,44 @@
                       ondragstart="dragstart_handler(event);"
                       ondragover="dragover_handler(event);"
                       data-index="{{ forloop.counter0 }}"
-                      data-move_url="{% url 'module:collection-move' group_slug=group.slug slug=collection.slug %}?back_url={{ group.get_absolute_url}}"
+                      data-move_url="{% url 'module:collection-move' collection_order_slug=collection_order.slug %}?back_url={{ group.get_absolute_url}}"
                   {% endif %}
               >
                 <td>
-                  <a href="{% url 'module:collection-detail' collection.id %}?back_url={{ group.get_absolute_url}}">
-                  {{ collection.name }} :
-                  {{ collection.activities.count }}
-                  {{ collection.activities.count|pluralize:'activity,activities' }}</a></td>
-                <td>{% if collection.strict_forward %}
+                  <a href="{% url 'module:collection-detail' collection_order.collection.slug %}?back_url={{ group.get_absolute_url}}">
+                  {{ collection_order.collection.name }} :
+                  {{ collection_order.collection.activities.count }}
+                  {{ collection_order.collection.activities.count|pluralize:'activity,activities' }}</a></td>
+                <td>{% if collection_order.strict_forward %}
                   <span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
                 {% else %}
                   <span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span>
                 {% endif %}
                 </td>
                 <td>
+                    {% if collection_order.grading_policy.name %}
+                        {{ collection_order.grading_policy.policy_cls.public_name|default:'Not selected'}}
+                    {% else %}
+                        Not selected
+                    {% endif %}
+                    {% if collection_order.grading_policy.params %}
+                        {% for key, value in collection_order.grading_policy.params.items %}
+                            <p>{{key.title }}: {{ value }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </td>
+                <td>{{ collection_order.engine.engine_name }}</td>
+                <td>
+                    {% for option in collection_order.get_selected_ui_options %}
+                        <p>{{ option }}</p>
+                    {% endfor %}
+
+                </td>
+                <td>
                   <div>
 
                     <a id="launch-demo" class=""
-                       href="{% url 'module:demo' collection_slug=collection.slug group_slug=group.slug %}?back_url={% url 'module:group-list' %}">
+                       href="{% url 'module:demo' collection_order_slug=collection_order.slug %}?back_url={% url 'module:group-list' %}">
                       <button class="btn btn-warning btn-sm">
                           <span class="glyphicon glyphicon-education"></span>
                           Demo
@@ -86,7 +109,7 @@
                       </button>
                     </a>
                     <a id="launch-url-fetcher" class=""
-                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_slug=collection.slug group_slug=group.slug unique_marker='set_me_unique' %}">
+                       data-clipboard-text="{{ bridge_host }}{% url 'lti:launch' collection_order_slug=collection_order.slug unique_marker='set_me_unique' %}">
                       <button class="btn btn-default btn-sm">
                           <span class="glyphicon glyphicon-link"></span>
                           copy Launch URL
@@ -100,34 +123,43 @@
 
                     </a>
                     {% if not request.session.read_only_data %}
+
+
                     {% with undone=True %}
 
-                      {% url 'module:collection-group-delete' slug=collection.slug group_slug=group.slug as delete_url %}
+                      {% url 'module:collection-group-delete' collection_order_slug=collection_order.slug  as delete_url %}
 
-                      {% with title="You are about unlink <Collection: "|add:collection.name|add:"> from <CollectionGroup: "|add:group.name|add:">" %}
+                      {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <ModuleGroup: "|add:group.name|add:">" %}
                         {% if collection.has_linked_active_sequences %}
                           {% with message="At least one student is still working on the Collection " %}
-                            {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                            {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
                         {% elif collection.has_linked_sequences %}
                           {% with message="At least one student is linked to the Collection " %}
-                            {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                            {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
                         {% else %}
-                          {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
+                          {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                         {% endif %}
                       {% endwith %}
                     {% endwith %}
-                    {% url 'module:collection-change' collection.slug as collection_edit %}
+                    {% url 'module:collection-order-change' collection_order_slug=collection_order.slug as collection_edit %}
                     {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
 
                     <a
                         class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
                             {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                         href=""
-                        data-id="{{ collection.slug }}">
+                        data-id="{{ collection_order.id }}">
                       <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
                     </a>
+                        {% if grade_update_available %}
+                            {% url 'module:update_grades' collection_order_slug=collection_order.slug as update_grades %}
+                            <a class="show-warning" data-order_update_url="{{update_grades}}">
+                                {% bootstrap_button 'Update Students Grades' size='sm' icon='refresh' button_class="btn-primary" %}
+                            </a>
+                        {% endif %}
+
                     {% endif %}
                   </div>
                 </td>
@@ -142,10 +174,8 @@
     {% endif %}
 
     {% if not request.session.read_only_data %}
-      <button class="btn btn-default btn-lg open-modal" id="link-objects-modal">
-      <span class="fa fa-chain"></span>
-      Link collection with group
-    </button>
+        {% url 'module:collection-order-add' group_slug=group.slug as new_collection_add %}
+  {% bootstrap_button "Add new" size='sm' icon='Add' extra_classes='modal_launcher' value=new_collection_add %}
     {% endif %}
 
     <hr>
@@ -160,41 +190,13 @@
         </ul>
 
       <hr>
-
-  {% url 'module:group-detail' group_slug=group.slug as back_url %}
-  {% url "module:add-collection-to-group" group_slug=group.slug as add_collection_url %}
-  {% include "module/modals/link_objects.html" with course=course link_action_url=add_collection_url title='Link collection with group' %}
-
-  </div>
-  <div class="col-md-3">
-    <div class="row">
-      <h3 class="text-center">Group Info</h3>
-      <div class="alert alert-warning text-center" role="alert">
-        Engine - {{ group.engine.engine_name }}
-      </div>
-      <div class="alert alert-warning text-center" role="alert">
-        Grading Policy - {{ group.grading_policy.policy_cls.public_name|default:'Not selected' }}
-        {% if group.grading_policy.threshold %}
-          <p>Threshold: {{ group.grading_policy.threshold }}</p>
-        {% endif %}
-      </div>
-      {% if group.description %}
-      <div class="alert alert-info text-center">
-        <h4 class="text-center">Description</h4>
-        <p class="text-left">
-          {{ group.description }}
-        </p>
-      </div>
-      {% endif %}
-    </div>
   </div>
 </div>
 
 {% url 'module:group-delete' group_slug=group.slug as delete_url %}
-{% url 'module:update_grades' group_slug=group.slug as update_grades %}
 
 {% with title="Force update of students grades" message="Students grades related to the current group will be updated!" %}
-  {% include "module/modals/confirmation_modal.html" with object='' action_url=update_grades %}
+  {% include "module/modals/confirmation_modal.html" with object='' action_url=update_grades form_id="updateGradeForm" %}
 {% endwith %}
 
 {% if group.has_linked_active_sequences %}

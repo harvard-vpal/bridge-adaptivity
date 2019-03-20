@@ -1,0 +1,42 @@
+{% extends "module/base_modal_form.html" %}
+
+{% load bootstrap3 static%}
+{% bootstrap_javascript jquery=True %}
+{% block title %}
+{%if not collectionorder.collection.id %}
+    New Collection configuration
+{% else %}
+    Edit collection (order - {{ collectionorder.order }}): {{ collectionorder.collection.name }}
+{% endif %}
+{% endblock title %}
+
+{% block body %}
+    <script src="{% static 'module/js/collectiongroup.js' %}"></script>
+    {%if not collectionorder.collection.id %}
+        <script src="{% static 'module/js//collectionform.js' %}" ></script>
+    {% endif %}
+
+{%if not collectionorder.collection.id %}
+    {% url 'module:grading_policy_form'  as get_grading_policy_form %}
+{% else %}
+    {% url 'module:grading_policy_form' collection_order_slug=collectionorder.slug  as get_grading_policy_form %}
+{% endif %}
+
+    <form role="form" method="post" id="link-objects-form-update" data-policy_url="{{ get_grading_policy_form }}" data-collection_url="{% url 'module:collection_form' %}">
+    {% csrf_token %}
+
+        <div class="collection_form">
+            {% if collection_form %}
+                {% bootstrap_form collection_form %}
+            {% endif %}
+        </div>
+
+    {% bootstrap_form form %}
+
+    <div class="grading_policy">
+            {% bootstrap_form grading_policy_form %}
+        </div>
+    <button class="btn btn-primary" type="submit">
+        {% if collectionorder.collection.id %}Update{% else %}Create{% endif %}</button>
+</form>
+{% endblock body %}

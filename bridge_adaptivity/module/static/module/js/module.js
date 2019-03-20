@@ -146,7 +146,7 @@
                 + `name=${item["display_name"]}&`
                 + `source_name=${item["display_name"]}&`
                 + `source_launch_url=${item["lti_url"]}&`
-                + `lti_consumer=${item["content_source_id"]}&`
+                + `lti_content_source=${item["content_source_id"]}&`
                 + `stype=${item["type"]}`;
         }
 
@@ -295,6 +295,10 @@
             if(data && data.id) {
                 $("#deleteModal" + data.id).modal('show');
             } else {
+                if (data && data.order_update_url){
+                    $("#updateGradeForm").attr("action", data.order_update_url)
+                }
+
                 $("#deleteModal").modal('show');
             }
             e.stopPropagation();

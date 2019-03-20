@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 import pytest
 
 from api.models import OAuthClient
-from bridge_lti.models import LtiConsumer
+from bridge_lti.models import LtiContentSource
 from module.tests.test_views import BridgeTestCase
 
 
@@ -13,7 +13,7 @@ class BridgeLtiModelTest(BridgeTestCase):
 
     def test_content_source_validation(self):
         """
-        Test that LtiConsumer has correct validators.
+        Test that LtiContentSource has correct validators.
         """
         base_args = {
             'name': 'some_name',
@@ -22,18 +22,18 @@ class BridgeLtiModelTest(BridgeTestCase):
             'host_url': 'https://example.com/',
         }
         with pytest.raises(ValidationError):
-            LtiConsumer(
+            LtiContentSource(
                 **base_args,
-                source_type=LtiConsumer.EDX_SOURCE
+                source_type=LtiContentSource.EDX_SOURCE
             ).clean()
 
-        LtiConsumer(
+        LtiContentSource(
             **base_args,
-            source_type=LtiConsumer.EDX_SOURCE,
+            source_type=LtiContentSource.EDX_SOURCE,
             o_auth_client=OAuthClient()
         ).clean()
 
-        LtiConsumer(
+        LtiContentSource(
             **base_args,
-            source_type=LtiConsumer.BASE_SOURCE,
+            source_type=LtiContentSource.BASE_SOURCE,
         ).clean()

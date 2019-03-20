@@ -27,7 +27,7 @@
         <h3 class="detail-toolpanel">
 
             {% if not request.session.read_only_data %}
-                {% url 'module:collection-change' collection.slug as collection_edit %}
+                {% url 'module:collection-change' slug=collection.slug as collection_edit %}
                 <a class="pull-right">
                 {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
                 </a>
@@ -49,7 +49,7 @@
             <a
                     class="pull-right"
                     id="collection-preview-button"
-                    href="{% url 'module:collection-preview' collection.slug %}?back_url={{back_url}}"
+                    href="{% url 'module:collection-preview' slug=collection.slug %}?back_url={{back_url}}"
             >
                 {% bootstrap_button 'Preview' size='sm' icon='glyphicon glyphicon-eye-open' button_class="btn-success" %}
             </a>
@@ -70,12 +70,12 @@
           </tr>
           {% for activity in activities %}
             <tr id="activity-row-{{ forloop.counter0 }}"
-                class="activity droppable {% if not activity.lti_consumer.is_active %}danger{% elif activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
+                class="activity droppable {% if not activity.lti_content_source.is_active %}danger{% elif activity.atype == 'A' %}warning{% elif activity.atype == 'Z' %}info{% endif %}"
                 data-activity-name="{{ activity.name }}"
                 data-id="{{ activity.id }}"
                 data-activity-source-launch-url="{{ activity.source_launch_url }}"
-                data-content_source_id="{{ activity.lti_consumer.id }}"
-                data-source-active="{% if activity.lti_consumer.is_active %}true{% endif %}"
+                data-content_source_id="{{ activity.lti_content_source.id }}"
+                data-source-active="{% if activity.lti_content_source.is_active %}true{% endif %}"
                 {% if not request.session.read_only_data %}
                     draggable="{% if activity.atype != 'G' %}true{% endif %}"
                     ondrop="drop_handler(event, this);"
@@ -275,14 +275,14 @@
 
   {% if collection.has_linked_active_sequences %}
     {% with message="At least one student is still working on the collection: " %}
-      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.slug %}
+      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.id %}
     {% endwith %}
   {% elif collection.has_linked_sequences %}
     {% with message="At least one student is linked to the collection: " %}
-      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.slug %}
+      {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.id %}
     {% endwith %}
   {% else %}
-    {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.slug %}
+    {% include "module/modals/confirmation_modal.html" with object=object action_url=delete_url id=collection.id %}
   {% endif %}
 
 {% endblock content %}

@@ -11,7 +11,7 @@ def choose_activity(sequence_item=None, sequence=None):
     sequence = sequence or sequence_item.sequence
 
     try:
-        engine_choose = sequence.group.engine.engine_driver.select_activity(sequence)
+        engine_choose = sequence.collection_order.engine.engine_driver.select_activity(sequence)
         activity_source_launch_url = engine_choose.get('source_launch_url')
         if engine_choose.get('complete'):
             sequence.completed = True
@@ -19,7 +19,7 @@ def choose_activity(sequence_item=None, sequence=None):
             return
         elif activity_source_launch_url:
             return Activity.objects.filter(
-                collection=sequence.collection, source_launch_url=activity_source_launch_url
+                collection=sequence.collection_order.collection, source_launch_url=activity_source_launch_url
             ).first()
     except (AttributeError, MaxRetryError):
         log.exception("[Engine] Cannot get activity from the engine")
@@ -53,7 +53,7 @@ def select_next_sequence_item(sequence_item, update_activity, last_item, positio
         activity = choose_activity(sequence_item)
         if next_sequence_item is None:
             sequence = sequence_item.sequence
-            policy = sequence.group.grading_policy.policy_instance(sequence=sequence)
+            policy = sequence.collection_order.grading_policy.policy_instance(sequence=sequence)
             policy.send_grade()
             if not activity:
                 if sequence.completed:

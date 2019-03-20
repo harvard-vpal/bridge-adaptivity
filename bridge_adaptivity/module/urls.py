@@ -4,11 +4,12 @@ from django.views.generic import RedirectView
 
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
-    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionUpdate,
-    CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList, CourseRmGroup, CourseUpdate,
-    demo_collection, GetGradingPolicyForm, GroupCreate, GroupDelete, GroupDetail, GroupList, GroupUpdate,
-    preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection,
-    update_students_grades)
+    CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
+    CollectionOrderUpdate, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
+    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, ModuleGroupCreate,
+    ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupUpdate, preview_collection, sequence_item_next,
+    SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection, update_students_grades
+)
 
 urlpatterns = ([
     url(r'^course/$', CourseList.as_view(), name='course-list'),
@@ -20,26 +21,36 @@ urlpatterns = ([
     url(r'^course/(?P<course_slug>[\w-]+)/rm_group/(?P<group_slug>[\w-]+)?/?$', CourseRmGroup.as_view(),
         name='rm-group-from-course'),
 
-    url(r'^group/$', GroupList.as_view(), name='group-list'),
-    re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', GroupCreate.as_view(), name='group-add'),
-    url(r'^group/(?P<group_slug>[\w-]+)/$', GroupDetail.as_view(), name='group-detail'),
-    url(r'^group/(?P<group_slug>[\w-]+)/change/?$', GroupUpdate.as_view(), name='group-change'),
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', GroupDelete.as_view(), name='group-delete'),
+    url(r'^group/$', ModuleGroupList.as_view(), name='group-list'),
+    re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', ModuleGroupCreate.as_view(), name='group-add'),
+    url(r'^group/(?P<group_slug>[\w-]+)/$', ModuleGroupDetail.as_view(), name='group-detail'),
+    url(r'^group/(?P<group_slug>[\w-]+)/change/?$', ModuleGroupUpdate.as_view(), name='group-change'),
+    url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', ModuleGroupDelete.as_view(), name='group-delete'),
     url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
-
-    url(r'^group/(?P<group_slug>[\w-]+)/delete/(?P<slug>[\w-]+)?$', CollectionGroupDelete.as_view(),
+    url(r'^collection_order/(?P<collection_order_slug>[\w-]+)/delete/', CollectionGroupDelete.as_view(),
         name='collection-group-delete'),
-
-    url(r'group(?:/(?P<group_slug>[\w-]*))?/grading_policy_form/?$', GetGradingPolicyForm.as_view(),
-        name='grading_policy_form'),
-
+    url(
+        r'collection_order/(?:(?P<collection_order_slug>[\w-]+))?/grading_policy_form/?$',
+        GetGradingPolicyForm.as_view(),
+        name='grading_policy_form'
+    ),
+    url(r'collection/collection_form/$', GetCollectionForm.as_view(), name='collection_form'),
     url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/$', CollectionList.as_view(), name='collection-list'),
-    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(),
-        name='collection-add'),
+    url(r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/add/$', CollectionCreate.as_view(), name='collection-add'),
     path('collection/<slug:slug>/change/', CollectionUpdate.as_view(), name='collection-change'),
-    re_path(
-        r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<pk>\d+)/$',
+    url(
+        r'collection_order/(?P<collection_order_slug>[\w-]+)/change$',
+        CollectionOrderUpdate.as_view(),
+        name='collection-order-change'
+    ),
+    url(
+        r'group/(?P<group_slug>[\w-]+)/add/collection_order/$',
+        CollectionOrderAdd.as_view(),
+        name='collection-order-add'
+    ),
+    url(
+        r'^(?:group/(?P<group_slug>[\w-]+)/)?collection/(?P<slug>[\w-]+)/$',
         CollectionDetail.as_view(),
         name='collection-detail'
     ),
@@ -48,17 +59,17 @@ urlpatterns = ([
         CollectionDelete.as_view(),
         name='collection-delete'
     ),
-
-    path('group/<slug:group_slug>/collection/<slug:collection_slug>/demo', demo_collection, name="demo"),
-
-    path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
-
     url(
-        r'^group/(?P<group_slug>[\w-]+)/collection/(?P<slug>[\w-]+)/move/(?P<order>\d+)?$',
-        GroupUpdate.as_view(),
+        r'collection_order/(?P<collection_order_slug>[\w-]+)/demo',
+        demo_collection,
+        name="demo"
+    ),
+    path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
+    url(
+        r'^collection_order/(?P<collection_order_slug>[\w-]+)/move/(?P<order>\d+)?$',
+        ModuleGroupUpdate.as_view(),
         name='collection-move'
     ),
-
     url(r'^activity/(?P<collection_slug>[\w-]+)/add/$', ActivityCreate.as_view(), name='activity-add'),
     url(
         r'^activity/(?P<pk>\d+)/(?P<collection_slug>[\w-]+)/change/$',
@@ -87,7 +98,11 @@ urlpatterns = ([
     url(r'^collection/(?P<slug>[\w-]+)/sync/$', sync_collection, name='collection-sync'),
 
     # Manually update students grades related to the collection-group
-    path('group/<slug:group_slug>/update_grades/', update_students_grades, name='update_grades'),
+    url(
+        r'collection_order/(?P<collection_order_slug>[\w-]+)/update_grades/',
+        update_students_grades,
+        name='update_grades'
+    ),
 
     path('collection/<slug:slug>/preview/', preview_collection, name='collection-preview'),
 ], 'module')

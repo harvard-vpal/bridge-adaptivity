@@ -23,26 +23,16 @@
         <th>group name</th>
         <th>description</th>
         <th>collections count</th>
-        <th>grading policy</th>
-        <th>threshold</th>
         <th>options</th>
       </tr>
       {% for group in course.course_groups.all %}
         <tr>
-          <td><a href="{% url 'module:group-detail' group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.name }}</a></td>
+          <td><a href="{% url 'module:group-detail' group_slug=group.slug %}?back_url={{ course.get_absolute_url}}">{{ group.name }}</a></td>
           <td>
             {{ group.description }}
           </td>
           <td>
             {{ group.collections.count }}
-          </td>
-          <td>
-            <p>{{ group.grading_policy.policy_cls.public_name }}</p>
-          </td>
-          <td class="text-center">
-            {% if group.grading_policy.threshold is not None %}
-              <p>{{ group.grading_policy.threshold }}</p>
-            {% endif %}
           </td>
           <td>
             <div class="options">
@@ -65,7 +55,7 @@
       <tr>
         {% with undone=True id=group.id object=group %}
           {% url 'module:rm-group-from-course' course_slug=course.slug group_slug=group.slug as action_url %}
-          {% include "module/modals/confirmation_modal.html" with title="You are about unlink <CollectionGroup:"|add:group.name|add:"> from <Course:"|add:group.name|add:">" %}
+          {% include "module/modals/confirmation_modal.html" with title="You are about unlink <ModuleGroup:"|add:group.name|add:"> from <Course:"|add:group.name|add:">" %}
         {% endwith %}
       {% endfor %}
     </table>

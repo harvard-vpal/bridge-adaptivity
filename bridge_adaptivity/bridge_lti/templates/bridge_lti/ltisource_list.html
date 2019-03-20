@@ -16,7 +16,7 @@
   {% for lti_source in lti_sources %}
   <tr>
     <td>{{ lti_source.name }}</td>
-    <td>{{ lti_source.lti_consumer.name }}</td>
+    <td>{{ lti_source.lti_content_source.name }}</td>
     <td><a href="{% url 'lti:source-detail' lti_source.pk %}">{{ lti_source.launch_url }}</a></td>
     <td>{{ lti_source.coulaunch_urlrse_id }}</td>
   </tr>

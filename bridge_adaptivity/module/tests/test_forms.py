@@ -25,8 +25,10 @@ class ThresholdGradingPolicyFormTest(TestCase):
     @data(
         {'policy_name': 'trials_count', 'threshold': -10},
         {'policy_name': 'trials_count', 'threshold': 0},
+        {'policy_name': 'trials_count', 'threshold': "not_valid"},
         {'policy_name': 'points_earned', 'threshold': -10},
         {'policy_name': 'points_earned', 'threshold': 0},
+        {'policy_name': 'points_earned', 'threshold': "not_valid"},
     )
     def test_grading_policy_parameter_negative_threshold_validation(self, policy_name, threshold):
         payload = {

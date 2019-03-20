@@ -1,42 +1,28 @@
+"""
+Extra methods for all django modules.
+"""
 from logging import getLogger
 
 from django.http import Http404
 from django.shortcuts import render
 
-from module.models import Collection, CollectionGroup, Engine
+from module.models import CollectionOrder, Engine
 
 log = getLogger(__name__)
 
 
-def get_collection_collectiongroup_engine(collection_slug, group_slug):
+def get_engine_and_collection_order(collection_order_slug):
     """
-    Return collection and collection group by collection_slug and group_slug.
+    Return engine and CollectionOrder by CollectionOrder slug.
     """
-    collection = Collection.objects.filter(slug=collection_slug).first()
-    if not collection:
-        log.exception("Collection with provided ID does not exist. Check configured launch url.")
-        raise Http404('Bad launch_url collection ID.')
-
-    collection_group = CollectionGroup.objects.filter(slug=group_slug).first()
-
-    if collection_group is None:
-        raise Http404(
-            'The launch URL is not correctly configured. The group with the slug `{}` cannot be found.'
-            .format(group_slug)
+    # NOTE(AnadreyLikhoman): Using CollectionOrder to find engine
+    collection_order = CollectionOrder.objects.filter(slug=collection_order_slug).first()
+    if not collection_order:
+        log.error(
+            f"Collection_Order with the slug: {collection_order_slug} does not exist. Please check lti launch url."
         )
-
-    if collection not in collection_group.collections.all():
-        raise Http404(
-            'The launch URL is not correctly configured. Collection with the slug `{}` is not in group with slug `{}`'
-            .format(collection_slug, group_slug)
-        )
-
-    if collection_group:
-        engine = collection_group.engine or Engine.get_default()
-    else:
-        engine = Engine.get_default()
-
-    return collection, collection_group, engine
+        raise Http404(f'Bad slug of the collection_order in the lti launch url: ({collection_order_slug})')
+    return collection_order.engine or Engine.get_default(), collection_order
 
 
 def stub_page(

@@ -17,7 +17,7 @@ from ordered_model.models import OrderedModel
 import shortuuid
 from slugger import AutoSlugField
 
-from bridge_lti.models import BridgeUser, LtiConsumer, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiContentSource, LtiUser, OutcomeService
 from common.mixins.models import HasLinkedSequenceMixin, ModelFieldIsDefaultMixin
 from module import tasks
 
@@ -76,9 +76,7 @@ class Sequence(models.Model):
     """
 
     lti_user = models.ForeignKey(LtiUser, on_delete=models.CASCADE)
-    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
-    group = models.ForeignKey('CollectionGroup', null=True, on_delete=models.CASCADE)
-
+    collection_order = models.ForeignKey('CollectionOrder', null=True, on_delete=models.CASCADE)
     completed = fields.BooleanField(default=False)
     lis_result_sourcedid = models.CharField(max_length=255, null=True)
     outcome_service = models.ForeignKey(OutcomeService, null=True, on_delete=models.CASCADE)
@@ -89,7 +87,7 @@ class Sequence(models.Model):
     suffix = models.CharField(max_length=15, default='')
 
     class Meta:
-        unique_together = ('lti_user', 'collection', 'group', 'suffix')
+        unique_together = ('lti_user', 'collection_order', 'suffix')
 
     def __str__(self):
         return '<Sequence[{}]: {}>'.format(self.id, self.lti_user)
@@ -113,21 +111,25 @@ class Sequence(models.Model):
         """
         Create the context for the optional label on the student view.
 
-        Context depends on the CollectionGroup's OPTION value.
+        Context depends on the ModuleGroup's OPTION value.
         :return: str with the text for injecting into the label.
         """
-        ui_options = self.group.ui_option
+        ui_options = self.collection_order.ui_option
 
         details_list = []
         for ui_option in ui_options:
-            # NOTE(idegtiarov) conditions depend on CollectionGroup's OPTIONS
-            if ui_option == CollectionGroup.OPTIONS[0][0]:
-                details = f"{CollectionGroup.OPTIONS[0][1]}: {self.items.count()}/{self.collection.activities.count()}"
-            elif ui_option == CollectionGroup.OPTIONS[1][0]:
-                details = f"{CollectionGroup.OPTIONS[1][1]}: {self.group.grading_policy.calculate_grade(self)}"
+            # NOTE(idegtiarov) conditions depend on ModuleGroup's OPTIONS
+            if ui_option == CollectionOrder.OPTIONS[0][0]:
+                details = (
+                    f"{CollectionOrder.OPTIONS[0][1]}: {self.items.count()}/"
+                    f"{self.collection_order.collection.activities.count()}"
+                )
+            elif ui_option == CollectionOrder.OPTIONS[1][0]:
+                grade = self.collection_order.grading_policy.calculate_grade(self)
+                details = f"{CollectionOrder.OPTIONS[1][1]}: {grade}"
             else:
                 details = (
-                    f"{CollectionGroup.OPTIONS[2][1]}: "
+                    f"{CollectionOrder.OPTIONS[2][1]}: "
                     f"{self.items.filter(score__gt=0).count()}/{self.items.filter(score=0).count()}"
                 )
             details_list.append(details)
@@ -175,7 +177,7 @@ class SequenceItem(models.Model):
         Extension sending notification to the Adaptive engine that score is changed.
         """
         if self.score != self.__origin_score:
-            engine = self.sequence.group.engine.engine_driver
+            engine = self.sequence.collection_order.engine.engine_driver
             engine.submit_activity_answer(self)
             log.debug("Adaptive engine is updated with the grade for the {} activity in the SequenceItem {}".format(
                 self.activity.name, self.id
@@ -235,7 +237,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
         )
 
 
-class Collection(HasLinkedSequenceMixin, models.Model):
+class Collection(models.Model):
     """Set of Activities (problems) for a module."""
 
     name = fields.CharField(max_length=255)
@@ -248,7 +250,6 @@ class Collection(HasLinkedSequenceMixin, models.Model):
     )
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
-    strict_forward = fields.BooleanField(default=True)
     updated_at = fields.DateTimeField(auto_now=True)
 
     class Meta:
@@ -269,21 +270,16 @@ class Collection(HasLinkedSequenceMixin, models.Model):
         if initial_id:
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.COLLECTION_UPDATED,
-                data={'collection_id': self.id}
+                data={'collection_slug': self.slug}
             )
         else:
             Log.objects.create(
                 log_type=Log.ADMIN, action=Log.COLLECTION_CREATED,
-                data={'collection_id': self.id}
+                data={'collection_slug': self.slug}
             )
 
     def get_absolute_url(self):
         return reverse('module:collection-list')
-
-    def get_launch_url(self, group):
-        return "{}{}".format(
-            settings.BRIDGE_HOST,
-            reverse("lti:launch", kwargs={'collection_slug': self.slug, 'group_slug': group.slug}))
 
 
 class Engine(ModelFieldIsDefaultMixin, models.Model):
@@ -335,39 +331,20 @@ class Engine(ModelFieldIsDefaultMixin, models.Model):
         return (param.strip() for param in self.lti_parameters.split(','))
 
 
-class CollectionOrder(OrderedModel):
-    group = models.ForeignKey('CollectionGroup', on_delete=models.CASCADE)
-    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
-    order_with_respect_to = 'group'
-
-    class Meta:
-        ordering = ('group', 'order')
-
-
-class CollectionGroup(HasLinkedSequenceMixin, models.Model):
-    """
-    Represents Collections Group.
-    """
+class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
 
     OPTIONS = (
         ('AT', _('Questions viewed/total')),
         ('EP', _('Earned grade')),
         ('RW', _('Answers right/wrong'))
     )
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    atime = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
-    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
-    course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
+    slug = models.SlugField(unique=True, default=uuid.uuid4, editable=True, db_index=True)
+    group = models.ForeignKey('ModuleGroup', on_delete=models.CASCADE)
+    collection = models.ForeignKey('Collection', on_delete=models.CASCADE)
     grading_policy = models.OneToOneField('GradingPolicy', blank=True, null=True, on_delete=models.CASCADE)
-    collections = models.ManyToManyField(
-        Collection, related_name='collection_groups', blank=True, through='CollectionOrder'
-    )
-
-    engine = models.ForeignKey(Engine, on_delete=models.CASCADE)
-
+    engine = models.ForeignKey(Engine, blank=True, null=True, on_delete=models.CASCADE)
+    strict_forward = fields.BooleanField(default=True)
     ui_option = MultiSelectField(
         choices=OPTIONS, blank=True, help_text="Add an optional UI block to the student view"
     )
@@ -375,16 +352,65 @@ class CollectionGroup(HasLinkedSequenceMixin, models.Model):
     ui_next = models.BooleanField(
         default=False, help_text="Add an optional NEXT button under the embedded unit."
     )
+    order_with_respect_to = 'group'
+
+    class Meta:
+        ordering = ('group', 'order')
+
+    @property
+    def get_selected_ui_options(self):
+        res_list = self.get_ui_option_list()
+        if self.ui_next:
+            res_list.append(_('Additional NEXT Button'))
+        return res_list
+
+    def get_launch_url(self):
+        return "{}{}".format(settings.BRIDGE_HOST, reverse("lti:launch", kwargs={'collection_order_slug': self.slug}))
+
+
+class ModuleGroup(models.Model):
+    """
+    Represents Module Group.
+    """
+
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    atime = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
+    slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
+    course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
+
+    collections = models.ManyToManyField(
+        Collection, related_name='collection_groups', blank=True, through='CollectionOrder'
+    )
 
     @property
     def ordered_collections(self):
-        return (col_order.collection for col_order in CollectionOrder.objects.filter(group=self).order_by('order'))
+        """
+        Return tuple of tuples of CollectionOrder and result sequence_set.exists() method.
+        """
+        return (
+            (col_order, col_order.sequence_set.exists())
+            for col_order in CollectionOrder.objects.filter(group=self).order_by('order')
+        )
 
     def __str__(self):
         return "<Group of Collections: {}>".format(self.name)
 
     def get_absolute_url(self):
         return reverse('module:group-detail', kwargs={'group_slug': self.slug})
+
+    def get_collection_order_by_order(self, order):
+        """
+        Return CollectionOrder object filtered by order and group.
+        """
+        return CollectionOrder.objects.filter(group=self, order=order).first()
+
+    def has_linked_active_sequences(self):
+        return CollectionOrder.objects.filter(group=self, sequence__completed=False).exists()
+
+    def has_linked_sequences(self):
+        return CollectionOrder.objects.filter(group=self, sequence__isnull=False).exists()
 
 
 class Activity(OrderedModel):
@@ -417,7 +443,7 @@ class Activity(OrderedModel):
         validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
     )
     points = models.FloatField(blank=True, default=1)
-    lti_consumer = models.ForeignKey(LtiConsumer, null=True, on_delete=models.CASCADE)
+    lti_content_source = models.ForeignKey(LtiContentSource, null=True, on_delete=models.CASCADE)
     source_launch_url = models.URLField(max_length=255, null=True)
     source_name = fields.CharField(max_length=255, blank=True, null=True)
     # NOTE(wowkalucky): extra field 'order' is available (inherited from OrderedModel)
@@ -444,7 +470,7 @@ class Activity(OrderedModel):
         return '<Activity: {}>'.format(self.name)
 
     def get_absolute_url(self):
-        return reverse('module:collection-detail', kwargs={'pk': self.collection.id})
+        return reverse('module:collection-detail', kwargs={'slug': self.collection.slug})
 
     def save(self, *args, **kwargs):
         """Extension which sends notification to the Adaptive engine that Activity is created/updated."""

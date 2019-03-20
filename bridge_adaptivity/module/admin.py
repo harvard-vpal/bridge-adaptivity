@@ -4,7 +4,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
 from .models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy, Log, Sequence, SequenceItem,
+    Activity, Collection, CollectionOrder, Course, Engine, GradingPolicy, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 
@@ -21,8 +21,7 @@ class SequenceAdmin(admin.ModelAdmin):
 class ActivityStackedInline(OrderedTabularInline):
     model = Activity
     fields = [
-        'order', 'move_up_down_links', 'name', 'atype', 'difficulty', 'points', 'source_launch_url',
-        'source_name',
+        'order', 'move_up_down_links', 'name', 'atype', 'difficulty', 'points', 'source_launch_url', 'source_name',
     ]
     readonly_fields = ('order', 'move_up_down_links',)
     extra = 0
@@ -30,12 +29,14 @@ class ActivityStackedInline(OrderedTabularInline):
 
 @admin.register(CollectionOrder)
 class CollectionOrderAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in CollectionOrder._meta.get_fields()]
+    list_display = [
+        'id', 'order', 'group', 'collection', 'grading_policy', 'engine', 'strict_forward', 'ui_option', 'ui_next',
+    ]
 
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'owner_name', 'strict_forward']
+    list_display = ['id', 'name', 'owner_name']
     list_display_links = ['id', 'name']
 
     def owner_name(self, obj):
@@ -53,22 +54,21 @@ class CollectionAdmin(admin.ModelAdmin):
         return urls
 
 
-class GroupForm(forms.ModelForm):
+class ModuleGroupForm(forms.ModelForm):
     class Meta:
-        model = CollectionGroup
+        model = ModuleGroup
         fields = (
-            'name', 'owner', 'description', 'collections', 'course', 'grading_policy', 'engine', 'ui_option', 'ui_next'
+            'name', 'owner', 'description', 'collections', 'course'
         )
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
         }
 
 
-@admin.register(CollectionGroup)
-class CollectionGroupAdmin(admin.ModelAdmin):
-    form = GroupForm
-    readonly_fields = ('slug',)
-    list_display = ('name', 'slug', 'owner', 'grading_policy', 'engine', 'ui_option', 'ui_next')
+@admin.register(ModuleGroup)
+class ModuleGroupAdmin(admin.ModelAdmin):
+    form = ModuleGroupForm
+    list_display = ('name', 'owner')
 
 
 @admin.register(Engine)
@@ -79,7 +79,7 @@ class EngineAdmin(admin.ModelAdmin):
 @admin.register(GradingPolicy)
 class GradingPolicyAdmin(admin.ModelAdmin):
     readonly_fields = ['name']
-    list_display = ['name', 'collectiongroup', 'params']
+    list_display = ['name', 'collectionorder', 'params']
 
 
 @admin.register(Log)
@@ -96,14 +96,11 @@ class LogAdmin(admin.ModelAdmin):
     )
 
 
-class GroupStackedInline(admin.StackedInline):
-    model = CollectionGroup
-    exclude = []
-    readonly_fields = ('slug',)
+class ModuleGroupStackedInline(admin.StackedInline):
+    model = ModuleGroup
     extra = 0
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    inlines = (GroupStackedInline,)
-    readonly_fields = ('slug',)
+    inlines = (ModuleGroupStackedInline,)

@@ -5,13 +5,13 @@ from django.utils.translation import ugettext_lazy as _
 from mock.mock import patch
 from multiselectfield.db.fields import MSFList
 
-from bridge_lti.models import LtiProvider, LtiUser, OutcomeService
+from bridge_lti.models import LtiLmsPlatform, LtiUser, OutcomeService
 from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Course, Engine, GradingPolicy, Sequence,
-    SequenceItem,
+    Activity, BridgeUser, Collection, CollectionOrder, Course, Engine, GradingPolicy, ModuleGroup, Sequence,
+    SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -142,14 +142,14 @@ class TestActivityModel(TestCase):
             password='test',
             email='test@me.com'
         )
-        self.consumer = LtiProvider.objects.create(
+        self.consumer = LtiLmsPlatform.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
         )
         self.lti_user = LtiUser.objects.create(
             user_id='some_user', course_id='some_course', email=self.user.email,
-            lti_consumer=self.consumer, bridge_user=self.user
+            lti_lms_platform=self.consumer, bridge_user=self.user
         )
         # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
@@ -157,17 +157,20 @@ class TestActivityModel(TestCase):
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
             engine=self.engine,
             grading_policy=self.points_earned
         )
 
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
-
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, group=self.test_cg, suffix='12345'
+            lti_user=self.lti_user, collection_order=self.collection_order, suffix='12345'
         )
 
     @unpack
@@ -236,18 +239,16 @@ class TestCollectionGroupModel(TestCase):
 
     def test_create_empty_group(self):
         """Test an ability to create empty collection group (without collections)."""
-        groups_count = CollectionGroup.objects.count()
+        groups_count = ModuleGroup.objects.count()
         user = BridgeUser.objects.create_user(
             username='test',
             password='test',
             email='test@me.com'
         )
-        points_earned = GradingPolicy.objects.get(name='points_earned')
-        engine = Engine.objects.create(engine='engine_mock')
-        group = CollectionGroup.objects.create(
-            name='some name', engine=engine, grading_policy=points_earned, owner=user
+        group = ModuleGroup.objects.create(
+            name='some name', owner=user
         )
-        self.assertEqual(CollectionGroup.objects.count(), groups_count + 1)
+        self.assertEqual(ModuleGroup.objects.count(), groups_count + 1)
         self.assertFalse(group.collections.all())
 
 
@@ -261,7 +262,7 @@ class TestDeleteObjectsSeparately(TestCase):
             password='test',
             email='test@me.com'
         )
-        self.consumer = LtiProvider.objects.create(
+        self.consumer = LtiLmsPlatform.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
@@ -273,15 +274,18 @@ class TestDeleteObjectsSeparately(TestCase):
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
         self.course = Course.objects.create(name='test_course', owner=self.user)
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
-            engine=self.engine,
-            grading_policy=self.points_earned,
             course=self.course
         )
         # self.test_cg.collections.add(self.collection1)
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
+        self.collection_orer = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
+            engine=self.engine,
+            grading_policy=self.points_earned,
+        )
 
     def test_delete_group(self):
         collections_count = Collection.objects.count()
@@ -291,9 +295,9 @@ class TestDeleteObjectsSeparately(TestCase):
 
     def test_delete_course(self):
         # check that any group was deleted when delete course
-        groups_count = CollectionGroup.objects.count()
+        groups_count = ModuleGroup.objects.count()
         self.course.delete()
-        self.assertEqual(CollectionGroup.objects.count(), groups_count)
+        self.assertEqual(ModuleGroup.objects.count(), groups_count)
 
 
 @ddt
@@ -334,31 +338,33 @@ class TestSequence(TestCase):
             source_launch_url=f"{self.source_launch_url}5",
             stype='problem',
         )
-        self.lti_provider = LtiProvider.objects.create(
+        self.lti_lms_platform = LtiLmsPlatform.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
         )
         self.lti_user = LtiUser.objects.create(
-            user_id='test_user_id', lti_consumer=self.lti_provider, bridge_user=self.user
+            user_id='test_user_id', lti_lms_platform=self.lti_lms_platform, bridge_user=self.user
         )
         self.engine = Engine.objects.get(engine='engine_mock')
         self.grading_policy = GradingPolicy.objects.get(name='points_earned')
         self.outcome_service = OutcomeService.objects.create(
-            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
+            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platform
         )
 
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection,
             engine=self.engine,
             grading_policy=self.grading_policy
         )
 
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
-
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
-            group=self.test_cg,
+            collection_order=self.collection_order,
             outcome_service=self.outcome_service
         )
         self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity, score=0.4)
@@ -377,7 +383,7 @@ class TestSequence(TestCase):
         {'option': MSFList(OPTIONS, []), 'expected_result': []},
     )
     def test_sequence_ui_details(self, option, expected_result):
-        self.test_cg.ui_option = option
-        self.test_cg.save()
+        self.collection_order.ui_option = option
+        self.collection_order.save()
         details = self.sequence.sequence_ui_details()
         self.assertEqual(expected_result, details)

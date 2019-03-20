@@ -5,9 +5,9 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.test import TestCase
 from mock import patch
 
-from bridge_lti.models import BridgeUser, LtiProvider, LtiUser, OutcomeService
+from bridge_lti.models import BridgeUser, LtiLmsPlatform, LtiUser, OutcomeService
 from module.models import (
-    Activity, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem,
+    Activity, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
 )
 from module.utils import choose_activity, select_next_sequence_item
 
@@ -50,46 +50,44 @@ class TestUtilities(TestCase):
             source_launch_url=f"{self.source_launch_url}5",
             stype='problem',
         )
-        self.lti_provider = LtiProvider.objects.create(
+        self.lti_lms_platform = LtiLmsPlatform.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
         )
         self.lti_user = LtiUser.objects.create(
-            user_id='test_user_id', lti_consumer=self.lti_provider, bridge_user=self.user
+            user_id='test_user_id', lti_lms_platform=self.lti_lms_platform, bridge_user=self.user
         )
         self.engine = Engine.objects.get(engine='engine_mock')
         self.gading_policy = GradingPolicy.objects.get(name='trials_count')
         self.outcome_service = OutcomeService.objects.create(
-            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
+            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platform
         )
 
-        self.test_cg = CollectionGroup.objects.create(
-            name='TestColGroup',
-            owner=self.user,
+        self.test_cg = ModuleGroup.objects.create(name='TestColGroup', owner=self.user)
+
+        self.collection_order1 = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection,
             engine=self.engine,
             grading_policy=self.gading_policy
         )
 
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
-
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
-            group=self.test_cg,
+            collection_order=self.collection_order1,
         )
         self.vpal_engine = Engine.objects.get(engine='engine_vpal')
 
-        self.vpal_group = CollectionGroup.objects.create(
-            name='TestVpalGroup',
-            owner=self.user,
+        self.vpal_group = ModuleGroup.objects.create(name='TestVpalGroup', owner=self.user)
+
+        self.collection_order2 = CollectionOrder.objects.create(
+            group=self.vpal_group,
+            collection=self.collection,
             engine=self.vpal_engine,
         )
 
-        CollectionOrder.objects.create(group=self.vpal_group, collection=self.collection)
-
         self.vpal_sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
-            group=self.vpal_group,
+            collection_order=self.collection_order2,
             outcome_service=self.outcome_service
         )
         self.sequence_item_1 = SequenceItem.objects.create(sequence=self.sequence, activity=self.activity, score=0.4)
@@ -102,13 +100,13 @@ class TestUtilities(TestCase):
     def test_choose_activity(self):
         try:
             # test if 2 activities has the same launch url but has different collections
-            # this method should return only one activity, filtered by sequence.collection
+            # this method should return only one activity, filtered by collection_order.order and sequence.collection
             chosen_activity = choose_activity(sequence=self.sequence)
         except MultipleObjectsReturned as e:
             log.error(Activity.ojbects.all().values('collection', 'source_launch_url'))
             self.fail(e)
         expected_activity = Activity.objects.get(
-            collection=self.sequence.collection, source_launch_url=f"{self.source_launch_url}5"
+            collection=self.sequence.collection_order.collection, source_launch_url=f"{self.source_launch_url}5"
         )
         self.assertEqual(chosen_activity, expected_activity)
 
@@ -118,7 +116,7 @@ class TestUtilities(TestCase):
         Test sequence is deleted if after creating first activity is not chosen for any reason.
         """
         choose_activity(sequence=self.vpal_sequence)
-        sequence_is_exists = Sequence.objects.filter(group=self.vpal_group)
+        sequence_is_exists = Sequence.objects.filter(collection_order=self.collection_order2)
         self.assertFalse(sequence_is_exists)
 
     @patch('module.engines.engine_vpal.EngineVPAL.select_activity', return_value={'complete': True})
@@ -128,7 +126,7 @@ class TestUtilities(TestCase):
         """
         sequence_item = SequenceItem.objects.create(sequence=self.vpal_sequence, activity=self.activity)
         choose_activity(sequence_item=sequence_item)
-        completed_sequence = Sequence.objects.filter(group=self.vpal_group).first()
+        completed_sequence = Sequence.objects.filter(collection_order=self.collection_order2).first()
         self.assertEqual(completed_sequence, self.vpal_sequence)
         self.assertTrue(completed_sequence.completed)
 

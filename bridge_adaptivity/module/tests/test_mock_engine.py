@@ -3,9 +3,9 @@ from ddt import data, ddt, unpack
 from django.test import TestCase
 from mock.mock import patch
 
-from bridge_lti.models import LtiProvider, LtiUser
+from bridge_lti.models import LtiLmsPlatform, LtiUser
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GradingPolicy, Sequence, SequenceItem
+    Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence, SequenceItem
 )
 
 
@@ -20,14 +20,14 @@ class TestMockEngine(TestCase):
             password='test',
             email='test@me.com'
         )
-        self.consumer = LtiProvider.objects.create(
+        self.lms_platform = LtiLmsPlatform.objects.create(
             consumer_name='name',
             consumer_key='key',
             consumer_secret='secret',
         )
         self.lti_user = LtiUser.objects.create(
             user_id='some_user', course_id='some_course', email=self.user.email,
-            lti_consumer=self.consumer, bridge_user=self.user
+            lti_lms_platform=self.lms_platform, bridge_user=self.user
         )
         # collections
         self.collection1 = Collection.objects.create(name='col1', owner=self.user)
@@ -35,15 +35,18 @@ class TestMockEngine(TestCase):
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection1,
             engine=self.engine,
             grading_policy=self.points_earned
         )
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection1)
         self.sequence = Sequence.objects.create(
-            lti_user=self.lti_user, collection=self.collection1, group=self.test_cg
+            lti_user=self.lti_user, collection_order=self.collection_order
         )
 
     @unpack

@@ -41,7 +41,7 @@ class EngineMock(EngineInterface):
         """
         s_activities_list = self._get_s_activities_list(sequence)
 
-        available_activities = sequence.collection.activities.exclude(id__in=s_activities_list)
+        available_activities = sequence.collection_order.collection.activities.exclude(id__in=s_activities_list)
         pre_assesment = available_activities.filter(atype='A')
         generic = available_activities.filter(atype='G')
         post_assessment = available_activities.filter(atype='Z')

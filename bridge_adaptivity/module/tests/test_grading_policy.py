@@ -4,10 +4,10 @@ from django.test.client import RequestFactory
 import mock
 import pytest
 
-from bridge_lti.models import LtiProvider, OutcomeService
+from bridge_lti.models import LtiLmsPlatform, OutcomeService
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionGroup, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS,
-    GradingPolicy, LtiUser, Sequence, SequenceItem
+    Activity, BridgeUser, Collection, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, LtiUser,
+    ModuleGroup, Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -265,31 +265,33 @@ class TestPolicySendGradeMethod(TestCase):
         self.activity2 = Activity.objects.create(
             name='testactivity2', collection=self.collection2, source_launch_url=self.source_launch_url, stype='problem'
         )
-        self.lti_provider = LtiProvider.objects.create(
+        self.lti_lms_platform = LtiLmsPlatform.objects.create(
             consumer_name='test_consumer', consumer_key='test_consumer_key', consumer_secret='test_consumer_secret'
         )
         self.lti_user = LtiUser.objects.create(
-            user_id='test_user_id', lti_consumer=self.lti_provider, bridge_user=self.user
+            user_id='test_user_id', lti_lms_platform=self.lti_lms_platform, bridge_user=self.user
         )
         self.engine = Engine.objects.get(engine='engine_mock')
         self.grading_policy = GradingPolicy.objects.get(name='trials_count')
         self.outcome_service = OutcomeService.objects.create(
-            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_provider
+            lis_outcome_service_url='test_url', lms_lti_connection=self.lti_lms_platform
         )
 
-        self.test_cg = CollectionGroup.objects.create(
+        self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
+        )
+
+        self.collection_order = CollectionOrder.objects.create(
+            group=self.test_cg,
+            collection=self.collection,
             engine=self.engine,
             grading_policy=self.grading_policy
         )
 
-        CollectionOrder.objects.create(group=self.test_cg, collection=self.collection)
-
         self.sequence = Sequence.objects.create(
             lti_user=self.lti_user,
-            collection=self.collection,
-            group=self.test_cg,
+            collection_order=self.collection_order,
             outcome_service=self.outcome_service
         )
 
