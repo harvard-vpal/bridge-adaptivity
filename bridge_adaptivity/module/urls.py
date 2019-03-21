@@ -5,22 +5,12 @@ from django.views.generic import RedirectView
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
-    CollectionOrderUpdate, CollectionUpdate, CourseAddGroup, CourseCreate, CourseDelete, CourseDetail, CourseList,
-    CourseRmGroup, CourseUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, ModuleGroupCreate,
-    ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupUpdate, preview_collection, sequence_item_next,
-    SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection, update_students_grades
+    CollectionOrderUpdate, CollectionUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm,
+    ModuleGroupCreate, ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupUpdate, preview_collection,
+    sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection, update_students_grades
 )
 
 urlpatterns = ([
-    url(r'^course/$', CourseList.as_view(), name='course-list'),
-    url(r'^course/add/?$', CourseCreate.as_view(), name='course-add'),
-    url(r'^course/(?P<course_slug>[\w-]+)/$', CourseDetail.as_view(), name='course-detail'),
-    url(r'^course/(?P<course_slug>[\w-]+)/change/?$', CourseUpdate.as_view(), name='course-change'),
-    url(r'^course/(?P<course_slug>[\w-]+)/delete/?$', CourseDelete.as_view(), name='course-delete'),
-    url(r'^course/(?P<course_slug>[\w-]+)/add_group/?$', CourseAddGroup.as_view(), name='add-group-to-course'),
-    url(r'^course/(?P<course_slug>[\w-]+)/rm_group/(?P<group_slug>[\w-]+)?/?$', CourseRmGroup.as_view(),
-        name='rm-group-from-course'),
-
     url(r'^group/$', ModuleGroupList.as_view(), name='group-list'),
     re_path(r'^(?:course/(?P<course_slug>[\w-]+)/)?group/add/?$', ModuleGroupCreate.as_view(), name='group-add'),
     url(r'^group/(?P<group_slug>[\w-]+)/$', ModuleGroupDetail.as_view(), name='group-detail'),

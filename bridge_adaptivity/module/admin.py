@@ -4,7 +4,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
 from .models import (
-    Activity, Collection, CollectionOrder, Course, Engine, GradingPolicy, Log, ModuleGroup, Sequence, SequenceItem
+    Activity, Collection, CollectionOrder, Engine, GradingPolicy, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 
@@ -58,7 +58,7 @@ class ModuleGroupForm(forms.ModelForm):
     class Meta:
         model = ModuleGroup
         fields = (
-            'name', 'owner', 'description', 'collections', 'course'
+            'name', 'owner', 'description', 'collections'
         )
         widgets = {
             'collections': FilteredSelectMultiple(verbose_name='Collections', is_stacked=False)
@@ -99,8 +99,3 @@ class LogAdmin(admin.ModelAdmin):
 class ModuleGroupStackedInline(admin.StackedInline):
     model = ModuleGroup
     extra = 0
-
-
-@admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
-    inlines = (ModuleGroupStackedInline,)

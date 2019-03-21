@@ -10,7 +10,7 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionOrder, Course, Engine, GradingPolicy, ModuleGroup, Sequence,
+    Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence,
     SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
@@ -273,11 +273,9 @@ class TestDeleteObjectsSeparately(TestCase):
         self.trials_count = GradingPolicy.objects.get(name='trials_count')
         self.points_earned = GradingPolicy.objects.get(name='points_earned')
         self.engine = Engine.objects.create(engine='engine_mock')
-        self.course = Course.objects.create(name='test_course', owner=self.user)
         self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
-            course=self.course
         )
         # self.test_cg.collections.add(self.collection1)
         self.collection_orer = CollectionOrder.objects.create(
@@ -292,12 +290,6 @@ class TestDeleteObjectsSeparately(TestCase):
         self.test_cg.delete()
         # check that any collection was deleted
         self.assertEqual(Collection.objects.count(), collections_count)
-
-    def test_delete_course(self):
-        # check that any group was deleted when delete course
-        groups_count = ModuleGroup.objects.count()
-        self.course.delete()
-        self.assertEqual(ModuleGroup.objects.count(), groups_count)
 
 
 @ddt
