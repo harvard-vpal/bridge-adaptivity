@@ -5,19 +5,9 @@ Base views for models.
 import logging
 
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
-from module.models import Collection, CollectionOrder, Course, ModuleGroup
+from module.models import Collection, CollectionOrder, ModuleGroup
 
 log = logging.getLogger(__name__)
-
-
-class BaseCourseView(OnlyMyObjectsMixin, BackURLMixin):
-    """
-    Base view for Course.
-    """
-
-    slug_url_kwarg = 'course_slug'
-    slug_field = 'slug'
-    model = Course
 
 
 class BaseGetFormKwargs(OnlyMyObjectsMixin, BackURLMixin):

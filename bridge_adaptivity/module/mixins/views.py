@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 
 from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
-from module.models import Collection, CollectionOrder, Course, Engine, GRADING_POLICY_NAME_TO_CLS
+from module.models import Collection, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS
 
 log = logging.getLogger(__name__)
 
@@ -52,11 +52,6 @@ class GroupEditFormMixin(object):
     form_class = ModuleGroupForm
     prefix = 'group'
     grading_prefix = 'grading'
-
-    def get_form(self):
-        form = super().get_form()
-        form.fields['course'].queryset = Course.objects.filter(owner=self.request.user)
-        return form
 
 
 class BaseEditFormMixin:

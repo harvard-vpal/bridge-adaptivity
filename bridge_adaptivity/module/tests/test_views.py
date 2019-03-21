@@ -7,7 +7,7 @@ from oauthlib.common import generate_token
 
 from bridge_lti.models import LtiContentSource, LtiLmsPlatform
 from module.mixins.views import GroupEditFormMixin
-from module.models import Activity, BridgeUser, Collection, CollectionOrder, Course, Engine, GradingPolicy, ModuleGroup
+from module.models import Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup
 
 GRADING_POLICIES = (
     # value, display_name
@@ -60,13 +60,10 @@ class BridgeTestCase(TestCase):
             grading_policy=self.trials_count
         )
 
-        self.course = Course.objects.create(name='test_course', owner=self.user)
-
         self.group_update_data = {
             'name': "CG2",
             'owner': self.user.id,
             'description': 'Some description for a group',
-            'course': self.course.id,
         }
 
         self.group_post_data = self.add_prefix(self.group_prefix, self.group_update_data)
@@ -146,28 +143,6 @@ class TestCollectionGroup(BridgeTestCase):
         self.assertNotEqual(test_g.name, self.test_cg.name)
         self.assertNotEqual(test_g.description, self.test_cg.description)
         self.assertNotEqual(test_g.collections.all(), self.test_cg.collections.all())
-
-    def test_add_group_to_course(self):
-        self.assertIsNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
-        self.client.post(
-            path=reverse('module:add-group-to-course', kwargs={'course_slug': self.course.slug}),
-            data={'groups': self.test_cg.id}
-        )
-        self.assertIsNotNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
-
-    def test_remove_group_from_course(self):
-        self.test_cg.course = self.course
-        self.test_cg.save()
-        self.assertIsNotNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
-        self.client.post(
-            path=reverse(
-                'module:rm-group-from-course',
-                kwargs={
-                    'course_slug': self.course.slug,
-                    'group_slug': self.test_cg.slug,
-                })
-        )
-        self.assertIsNone(ModuleGroup.objects.get(id=self.test_cg.id).course)
 
 
 class CollectionGroupEditGradingPolicyTest(BridgeTestCase):
@@ -397,111 +372,6 @@ class TestBackURLMixin(BridgeTestCase):
         detail_response = self.client.get(url)
         self.assertIn('back_url', detail_response.context)
         self.assertEqual(detail_response.context['back_url'], self.back_url)
-
-
-class TestCourseViews(BridgeTestCase):
-    """Test case for course read/create/update/delete views."""
-
-    def setUp(self):
-        super().setUp()
-
-        self.other_user = BridgeUser.objects.create(
-            username='test2',
-            password='test',
-            email='test2@me.com'
-        )
-
-    def test_collectiongroup_form_course_choices(self):
-        # test that self.other_course not in form choices
-        url = reverse('module:group-add')
-        self.other_course = Course.objects.create(
-            owner=self.other_user,
-            name='something',
-        )
-        response = self.client.get(url)
-        self.assertIn('form', response.context)
-        flat_course_ids = [val for val, _ in response.context['form'].fields['course'].choices if val != '']
-        self.assertNotIn(self.other_course.id, flat_course_ids)
-
-    def test_view_course_details(self):
-        url = reverse('module:course-change', kwargs={'course_slug': self.course.slug})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('course', response.context)
-        self.assertEqual(response.context['course'], self.course)
-
-    def test_view_not_mine_course_details(self):
-        self.course.owner = self.other_user
-        self.course.save()
-        url = reverse('module:course-change', kwargs={'course_slug': self.course.slug})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
-
-    def test_list_courses(self):
-        url = reverse('module:course-list')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('courses', response.context)
-        self.assertIn(self.course, response.context['courses'])
-
-    def test_create_course(self):
-        url = reverse('module:course-add')
-        data = {
-            'name': 'Some new course',
-            'description': 'bla bla bla',
-            'owner': self.user.id
-        }
-        courses_count = Course.objects.count()
-        self.client.post(url, data=data)
-        self.assertNotEqual(Course.objects.count(), courses_count)
-
-    def test_update_course(self):
-        url = reverse('module:course-change', kwargs={'course_slug': self.course.slug})
-        data = {
-            'name': 'Some new course 111',
-            'description': 'bla bla bla 1111',
-            'owner': self.user.id
-        }
-        courses_count = Course.objects.count()
-        self.client.post(url, data=data)
-        self.assertEqual(Course.objects.count(), courses_count)
-        course = Course.objects.get(id=self.course.id)
-        self.assertEqual(course.name, data['name'])
-        self.assertEqual(course.description, data['description'])
-
-    def test_delete_course(self):
-        url = reverse('module:course-delete', kwargs={'course_slug': self.course.slug})
-        response = self.client.get(url)
-        self.assertRedirects(response, reverse('module:course-list'))
-        self.assertFalse(Course.objects.all())
-
-    def test_delete_not_mine_course(self):
-        self.course.owner = self.other_user
-        self.course.save()
-        url = reverse('module:course-delete', kwargs={'course_slug': self.course.slug})
-        response = self.client.get(url)
-        # response should be 404 and object should not be deleted
-        self.assertEqual(response.status_code, 404)
-        self.assertTrue(Course.objects.all())
-
-    def test_update_not_mine_course(self):
-        self.course.owner = self.other_user
-        self.course.save()
-        url = reverse('module:course-change', kwargs={'course_slug': self.course.slug})
-        data = {
-            'name': 'Some new course 111',
-            'description': 'bla bla bla 1111',
-            'owner': self.user.id
-        }
-        response = self.client.post(url, data=data)
-        course = Course.objects.get(id=self.course.id)
-        # course should not be changed
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(course.owner, self.other_user)
-        self.assertEqual(course, self.course)
-        self.assertEqual(course.name, self.course.name)
-        self.assertEqual(course.description, self.course.description)
-        self.assertEqual(course.owner, self.course.owner)
 
 
 class TestManualSync(BridgeTestCase):

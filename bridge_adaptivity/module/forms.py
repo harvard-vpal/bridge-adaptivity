@@ -45,7 +45,7 @@ class ModuleGroupForm(ModelForm):
         """
 
         model = ModuleGroup
-        fields = ('name', 'description', 'owner', 'course', )
+        fields = ('name', 'description', 'owner')
 
 
 class BaseGradingPolicyForm(ModelForm):
@@ -121,31 +121,6 @@ class ThresholdGradingPolicyForm(ModelForm):
                     params[param] = threshold
 
         return self.cleaned_data
-
-
-class AddCourseGroupForm(forms.Form):
-    """
-    Add group to course form.
-    """
-
-    groups = forms.ModelMultipleChoiceField(
-        label="Choose groups to add into this course:",
-        queryset=ModuleGroup.objects.filter(course__isnull=True),
-        widget=forms.CheckboxSelectMultiple()
-    )
-
-    def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
-        self.course = kwargs.pop('course')
-        super().__init__(*args, **kwargs)
-        self.fields['groups'].queryset = self.fields['groups'].queryset.filter(owner_id=user.id)
-
-    def save(self, **kwargs):
-        """
-        Add groups to course.
-        """
-        group_ids = [group.id for group in self.cleaned_data['groups']]
-        ModuleGroup.objects.filter(id__in=group_ids).update(course=self.course)
 
 
 class CollectionOrderForm(ModelForm):

@@ -192,20 +192,6 @@ class SequenceItem(models.Model):
         return f'{self.sequence.lti_user.user_id}{self.sequence.suffix}{self.suffix}'
 
 
-class Course(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-
-    slug = models.UUIDField(unique=True, db_index=True, default=uuid.uuid4, editable=False)
-    owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
-
-    def get_absolute_url(self):
-        return reverse('module:course-detail', kwargs={'course_slug': self.slug})
-
-    def __str__(self):
-        return "<Course: {}>".format(self.name)
-
-
 class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
     """
     Predefined set of Grading policy objects. Define how to grade collections.
@@ -378,7 +364,6 @@ class ModuleGroup(models.Model):
     atime = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     slug = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, db_index=True)
-    course = models.ForeignKey(Course, related_name='course_groups', blank=True, null=True, on_delete=models.SET_NULL)
 
     collections = models.ManyToManyField(
         Collection, related_name='collection_groups', blank=True, through='CollectionOrder'

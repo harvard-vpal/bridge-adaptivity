@@ -24,111 +24,21 @@ from api.backends.api_client import get_active_content_sources, get_available_co
 from bridge_lti.models import LtiLmsPlatform, LtiUser
 from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
-from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseCourseView, BaseModuleGroupView
+from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseModuleGroupView
 from module.forms import (
-    ActivityForm, AddCourseGroupForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
+    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
 )
 from module.mixins.views import (
-    BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin,
-    GroupEditFormMixin, JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
+    BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin,
+    JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionOrder, Course, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
+    Activity, Collection, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
 
 DEMO_USER = 'demo_lti_user'
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseCreate(BaseCourseView, SetUserInFormMixin, ModalFormMixin, CreateView):
-    fields = 'owner', 'name', 'description'
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseList(BaseCourseView, ListView):
-    context_object_name = 'courses'
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseDetail(LinkObjectsMixin, BaseCourseView, DetailView):
-    context_object_name = 'course'
-    link_form_class = AddCourseGroupForm
-    link_object_name = 'group'
-
-    def get_link_form_kwargs(self):
-        return dict(user=self.request.user, course=self.object)
-
-    def get_link_action_url(self):
-        return reverse('module:group-add')
-
-    def get_has_available_objects(self, form):
-        return form.fields['groups'].queryset.exists()
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseUpdate(BaseCourseView, SetUserInFormMixin, ModalFormMixin, UpdateView):
-    fields = 'name', 'description'
-    context_object_name = 'course'
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        self.object.owner = self.request.user
-        return response
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseDelete(BaseCourseView, GroupEditFormMixin, DeleteView):
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or reverse('module:course-list')
-
-    def get(self, *args, **kwargs):
-        return self.post(*args, **kwargs)
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseAddGroup(JsonResponseMixin, FormView):
-    template_name = 'module/modals/course_add_group.html'
-    form_class = AddCourseGroupForm
-
-    def get_success_url(self):
-        return self.request.GET.get('return_url') or reverse('module:course-detail', kwargs=self.kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        kwargs['course'] = get_object_or_404(Course, slug=self.kwargs['course_slug'])
-        return kwargs
-
-
-@method_decorator(login_required, name='dispatch')
-class CourseRmGroup(UpdateView):
-    model = ModuleGroup
-    template_name = 'module/modals/course_add_group.html'
-    slug_url_kwarg = 'group_slug'
-    fields = ('course',)
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        course = get_object_or_404(Course, slug=self.kwargs['course_slug'])
-        qs.filter(
-            owner=self.request.user,
-            course=course,
-        )
-        return qs
-
-    def get_success_url(self):
-        return (
-            self.request.GET.get('return_url') or
-            reverse('module:course-detail', kwargs={'course_slug': self.kwargs['course_slug']})
-        )
-
-    def get(self, *args, **kwargs):
-        self.object = self.get_object(self.get_queryset())
-        self.object.course = None
-        self.object.save()
-        return redirect(self.get_success_url())
 
 
 @method_decorator(login_required, name='dispatch')
@@ -196,12 +106,7 @@ class GetGradingPolicyForm(FormView):
 
 @method_decorator(login_required, name='dispatch')
 class ModuleGroupCreate(BaseModuleGroupView, SetUserInFormMixin, GroupEditFormMixin, ModalFormMixin, CreateView):
-
-    def form_valid(self, form):
-        result = super().form_valid(form)
-        if 'course_slug' in self.kwargs and self.kwargs['course_slug']:
-            Course.objects.get(slug=self.kwargs['course_slug']).course_groups.add(self.object)
-        return result
+    pass
 
 
 @method_decorator(login_required, name='dispatch')
