@@ -10,17 +10,7 @@
 {% include "module/modals/modal_wrapper.html" %}
 
 <div class="row">
-  {% if group.description %}
-      <div class="col-md-12">
-          <div class="alert alert-info">
-            <h4 class="text-center">Description</h4>
-            <p class="text-left">
-              {{ group.description }}
-            </p>
-          </div>
-      </div>
-  {% endif %}
-  <div class="col-md-12">
+<div class="col-md-12">
     <div class="detail-toolpanel">
         {% if not request.session.read_only_data %}
             {% url 'module:group-change' group_slug=group.slug as group_edit %}
@@ -37,6 +27,17 @@
         {% endif %}
     </div>
   </div>
+
+  {% if group.description %}
+      <div class="col-md-12">
+          <div class="alert alert-info">
+            <h4 class="text-center">Description</h4>
+            <p class="text-left">
+              {{ group.description }}
+            </p>
+          </div>
+      </div>
+  {% endif %}
 
   <div class="col-md-12">
     {% if group.collections.all %}
@@ -129,13 +130,13 @@
 
                       {% url 'module:collection-group-delete' collection_order_slug=collection_order.slug  as delete_url %}
 
-                      {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <ModuleGroup: "|add:group.name|add:">" %}
-                        {% if collection.has_linked_active_sequences %}
-                          {% with message="At least one student is still working on the Collection " %}
+                      {% with title="You are about delete configuration for <Collection: "|add:collection_order.collection.name|add:"> from <ModuleGroup: "|add:group.name|add:">" %}
+                        {% if collection_order.has_linked_active_sequences %}
+                          {% with message="At least one student is still working on the " %}
                             {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
-                        {% elif collection.has_linked_sequences %}
-                          {% with message="At least one student is linked to the Collection " %}
+                        {% elif collection_order.has_linked_sequences %}
+                          {% with message="At least one student is linked to the " %}
                             {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
                         {% else %}
@@ -151,7 +152,7 @@
                             {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                         href=""
                         data-id="{{ collection_order.id }}">
-                      <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
+                      <button class="btn btn-default btn-sm">{% fontawesome_icon icon='trash' %} Delete</button>
                     </a>
                         {% if grade_update_available %}
                             {% url 'module:update_grades' collection_order_slug=collection_order.slug as update_grades %}

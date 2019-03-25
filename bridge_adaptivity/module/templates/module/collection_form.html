@@ -1,2 +1,5 @@
 {% load bootstrap3 %}
-{% bootstrap_form form %}
+{% if form.fields %}
+    <h3>Collection settings:</h3>
+    {% bootstrap_form form %}
+{% endif %}
