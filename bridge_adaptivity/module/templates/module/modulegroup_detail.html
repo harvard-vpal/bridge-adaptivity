@@ -13,17 +13,19 @@
 <div class="col-md-12">
     <div class="detail-toolpanel">
         {% if not request.session.read_only_data %}
-            {% url 'module:group-change' group_slug=group.slug as group_edit %}
-            <a>
-            {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
-            </a>
-            <a class="pull-right delete-object
-                     {% if group.has_linked_active_sequences %}
-                       show-alarm {% else %} show-warning
-                     {% endif %}"
-               data-id="{{ group.slug }}">
-                {% bootstrap_button 'Delete' size='sm' icon='trash' %}
-            </a>
+            <div class="pull-right">
+                {% url 'module:group-change' group_slug=group.slug as group_edit %}
+                <a>
+                {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
+                </a>
+                <a class="delete-object
+                         {% if group.has_linked_active_sequences %}
+                           show-alarm {% else %} show-warning
+                         {% endif %}"
+                   data-id="{{ group.slug }}">
+                    {% bootstrap_button 'Delete' size='sm' icon='trash' %}
+                </a>
+            </div>
         {% endif %}
     </div>
   </div>
@@ -94,7 +96,7 @@
 
                 </td>
                 <td>
-                  <div>
+
 
                     <a id="launch-demo" class=""
                        href="{% url 'module:demo' collection_order_slug=collection_order.slug %}?back_url={% url 'module:group-list' %}">
@@ -145,7 +147,9 @@
                       {% endwith %}
                     {% endwith %}
                     {% url 'module:collection-order-change' collection_order_slug=collection_order.slug as collection_edit %}
-                    {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                     <a>
+                        {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                        <a/>
 
                     <a
                         class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
