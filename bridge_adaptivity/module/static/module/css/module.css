@@ -151,7 +151,8 @@ h3 .pull-right .btn {
 }
 
 
-table.table tr td:last-child:not(.text-center):not(.text-left) a:hover {
+table.table tr td:last-child:not(.text-center):not(.text-left) a:hover,
+a.edit-object:hover {
 	text-decoration: none;
 }
 

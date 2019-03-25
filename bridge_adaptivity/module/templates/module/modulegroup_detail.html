@@ -15,7 +15,7 @@
         {% if not request.session.read_only_data %}
             <div class="pull-right">
                 {% url 'module:group-change' group_slug=group.slug as group_edit %}
-                <a>
+                <a class="edit-object">
                 {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
                 </a>
                 <a class="delete-object
