@@ -237,6 +237,7 @@ class Collection(models.Model):
     owner = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     metadata = fields.CharField(max_length=255, blank=True, null=True)
     updated_at = fields.DateTimeField(auto_now=True)
+    resource = models.OneToOneField('share.Resource', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ('owner', 'name')

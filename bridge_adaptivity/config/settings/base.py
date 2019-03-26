@@ -70,6 +70,7 @@ INSTALLED_APPS = (
     'bridge_lti',
     'module',
     'api',
+    'share',
 )
 
 MIDDLEWARE = [
