@@ -35,7 +35,7 @@
               <div>
                     {% url 'module:collection-change' collection.slug as collection_edit %}
                     <a>
-                    {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                    {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
                     </a>
                   {% url 'module:collection-delete' slug=collection.slug as delete_url %}
                   <a
@@ -43,7 +43,7 @@
                       {% if collection.has_linked_active_sequences %} show-alarm
                       {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                       data-id="{{ collection.slug }}">
-                      {% bootstrap_button "" size='sm' icon='trash' %}
+                      {% bootstrap_button "Delete" size='sm' icon='trash' %}
                   </a>
                   {% with title="You are about deleting " add_obj_in_title=True %}
                     {% if collection.has_linked_active_sequences %}

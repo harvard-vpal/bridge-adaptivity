@@ -10,6 +10,26 @@
 {% include "module/modals/modal_wrapper.html" %}
 
 <div class="row">
+<div class="col-md-12">
+    <div class="detail-toolpanel">
+        {% if not request.session.read_only_data %}
+            <div class="pull-right">
+                {% url 'module:group-change' group_slug=group.slug as group_edit %}
+                <a class="edit-object">
+                {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
+                </a>
+                <a class="delete-object
+                         {% if group.has_linked_active_sequences %}
+                           show-alarm {% else %} show-warning
+                         {% endif %}"
+                   data-id="{{ group.slug }}">
+                    {% bootstrap_button 'Delete' size='sm' icon='trash' %}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+  </div>
+
   {% if group.description %}
       <div class="col-md-12">
           <div class="alert alert-info">
@@ -20,23 +40,6 @@
           </div>
       </div>
   {% endif %}
-  <div class="col-md-12">
-    <div class="detail-toolpanel">
-        {% if not request.session.read_only_data %}
-            {% url 'module:group-change' group_slug=group.slug as group_edit %}
-            <a>
-            {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
-            </a>
-            <a class="pull-right delete-object
-                     {% if group.has_linked_active_sequences %}
-                       show-alarm {% else %} show-warning
-                     {% endif %}"
-               data-id="{{ group.slug }}">
-                {% bootstrap_button 'Delete' size='sm' icon='trash' %}
-            </a>
-        {% endif %}
-    </div>
-  </div>
 
   <div class="col-md-12">
     {% if group.collections.all %}
@@ -93,7 +96,7 @@
 
                 </td>
                 <td>
-                  <div>
+
 
                     <a id="launch-demo" class=""
                        href="{% url 'module:demo' collection_order_slug=collection_order.slug %}?back_url={% url 'module:group-list' %}">
@@ -129,13 +132,13 @@
 
                       {% url 'module:collection-group-delete' collection_order_slug=collection_order.slug  as delete_url %}
 
-                      {% with title="You are about unlink <Collection: "|add:collection_order.collection.name|add:"> from <ModuleGroup: "|add:group.name|add:">" %}
-                        {% if collection.has_linked_active_sequences %}
-                          {% with message="At least one student is still working on the Collection " %}
+                      {% with title="You are about delete configuration for <Collection: "|add:collection_order.collection.name|add:"> from <ModuleGroup: "|add:group.name|add:">" %}
+                        {% if collection_order.has_linked_active_sequences %}
+                          {% with message="At least one student is still working on the " %}
                             {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
-                        {% elif collection.has_linked_sequences %}
-                          {% with message="At least one student is linked to the Collection " %}
+                        {% elif collection_order.has_linked_sequences %}
+                          {% with message="At least one student is linked to the " %}
                             {% include "module/modals/confirmation_modal.html" with object=collection_order action_url=delete_url id=collection_order.id %}
                           {% endwith %}
                         {% else %}
@@ -144,14 +147,16 @@
                       {% endwith %}
                     {% endwith %}
                     {% url 'module:collection-order-change' collection_order_slug=collection_order.slug as collection_edit %}
-                    {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                     <a>
+                        {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
+                        <a/>
 
                     <a
                         class="move-down delete-object {% if collection.has_linked_active_sequences %} show-alarm
                             {% elif collection.has_linked_sequences %} show-warning{% endif %}"
                         href=""
                         data-id="{{ collection_order.id }}">
-                      <button class="btn btn-default btn-sm">{% fontawesome_icon icon='chain-broken' %} Unlink</button>
+                      <button class="btn btn-default btn-sm">{% fontawesome_icon icon='trash' %} Delete</button>
                     </a>
                         {% if grade_update_available %}
                             {% url 'module:update_grades' collection_order_slug=collection_order.slug as update_grades %}

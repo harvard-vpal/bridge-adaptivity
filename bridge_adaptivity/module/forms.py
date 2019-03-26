@@ -78,7 +78,7 @@ class BaseCollectionForm(ModelForm):
         """
 
         model = Collection
-        fields = ['name', 'slug', 'metadata', 'owner']
+        fields = ['name', 'metadata', 'owner']
         widgets = {'owner': forms.HiddenInput()}
 
 
@@ -141,8 +141,8 @@ class CollectionOrderForm(ModelForm):
 
         model = CollectionOrder
         fields = (
-            'slug',
             'collection',
+            'slug',
             'engine',
             'grading_policy_name',
             'strict_forward',
@@ -150,6 +150,9 @@ class CollectionOrderForm(ModelForm):
             'ui_next'
         )
         labels = {'ui_option': _('UI Option'), 'ui_next': _('Additional NEXT Button')}
+        help_texts = {'collection': _(
+            "You can choose the available collection or create a new Collection above."
+        )}
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user')
