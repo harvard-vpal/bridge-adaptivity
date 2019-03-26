@@ -368,6 +368,9 @@ class ModuleGroup(models.Model):
     collections = models.ManyToManyField(
         Collection, related_name='collection_groups', blank=True, through='CollectionOrder'
     )
+    contributors = models.ManyToManyField(
+        BridgeUser, related_name='module_groups', blank=True, through='ContributorPermission'
+    )
 
     @property
     def ordered_collections(self):
@@ -397,6 +400,11 @@ class ModuleGroup(models.Model):
     def has_linked_sequences(self):
         return CollectionOrder.objects.filter(group=self, sequence__isnull=False).exists()
 
+
+class ContributorPermission(models.Model):
+    user = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
+    group = models.ForeignKey(ModuleGroup, on_delete=models.CASCADE)
+    full_permission = models.BooleanField(default=True)
 
 class Activity(OrderedModel):
     """General entity which represents problem/text/video material."""
