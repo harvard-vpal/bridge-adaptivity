@@ -46,6 +46,7 @@ class ModuleGroupList(BaseModuleGroupView, ListView):
     context_object_name = 'groups'
     ordering = ['id']
     filter = 'group_slug'
+    enable_sharing = True
 
 
 @method_decorator(login_required, name='dispatch')
@@ -115,6 +116,7 @@ class ModuleGroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseModu
     link_form_class = CollectionOrderForm
     link_object_name = 'collection'
     filter = 'group_slug'
+    enable_sharing = True
 
     def get_link_form_kwargs(self):
         return dict(user=self.request.user, group=self.object)

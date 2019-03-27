@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.db.models import Q
 
 from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
 from module.models import Collection, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS
@@ -137,14 +138,21 @@ class CollectionOrderEditFormMixin:
 
 class OnlyMyObjectsMixin(object):
     owner_field = 'owner'
+    enable_sharing = False
+    contributors_field = 'contributors'
 
     def get_queryset(self):
         qs = super().get_queryset()
         read_only_data = self.request.session.get('read_only_data')
         if read_only_data and getattr(self, 'filter', None) in read_only_data:
             return qs.filter(slug=read_only_data[self.filter])
-        return qs.filter(**{self.owner_field: self.request.user})
+        return self._get_avaliable_resources(qs)
 
+    def _get_avaliable_resources(self, qs):
+        result_query = qs.filter(**{self.owner_field: self.request.user})
+        if self.enable_sharing:
+            result_query = result_query.union(qs.filter(**{self.contributors_field: self.request.user}))
+        return result_query
 
 class BackURLMixin(object):
     def get_context_data(self, **kwargs):

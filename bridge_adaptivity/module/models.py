@@ -406,6 +406,7 @@ class ContributorPermission(models.Model):
     group = models.ForeignKey(ModuleGroup, on_delete=models.CASCADE)
     full_permission = models.BooleanField(default=True)
 
+
 class Activity(OrderedModel):
     """General entity which represents problem/text/video material."""
 
