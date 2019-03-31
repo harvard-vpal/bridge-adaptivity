@@ -39,7 +39,7 @@ def get_ecs_task_ips():
 
 # Add internal IPs to ALLOWED_HOSTS in order to support load balancer health checks 
 ec2_task_ip = get_ec2_task_ip()
-if ec2_task_ip():
+if ec2_task_ip:
     ALLOWED_HOSTS.append(ec2_task_ip)
 
 ecs_task_ips = get_ecs_task_ips()
