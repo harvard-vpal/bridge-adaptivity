@@ -146,13 +146,21 @@ class OnlyMyObjectsMixin(object):
         read_only_data = self.request.session.get('read_only_data')
         if read_only_data and getattr(self, 'filter', None) in read_only_data:
             return qs.filter(slug=read_only_data[self.filter])
-        return self._get_avaliable_resources(qs)
+        return self._get_avaliable_resources(self._filter_resourses(qs))
 
     def _get_avaliable_resources(self, qs):
         result_query = qs.filter(**{self.owner_field: self.request.user})
         if self.enable_sharing:
             result_query = result_query.union(qs.filter(**{self.contributors_field: self.request.user}))
         return result_query
+
+    def _filter_resourses(self, qs):
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        if slug:
+            slug_field = self.get_slug_field()
+            qs = qs.filter(**{slug_field: slug})
+        return qs
+
 
 class BackURLMixin(object):
     def get_context_data(self, **kwargs):

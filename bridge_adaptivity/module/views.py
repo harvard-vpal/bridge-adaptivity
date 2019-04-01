@@ -26,14 +26,14 @@ from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseModuleGroupView
 from module.forms import (
-    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
+    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ContributorPermissionForm, ModuleGroupForm
 )
 from module.mixins.views import (
     BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin,
     JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
+    Activity, Collection, CollectionOrder, ContributorPermission, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
@@ -47,6 +47,8 @@ class ModuleGroupList(BaseModuleGroupView, ListView):
     ordering = ['id']
     filter = 'group_slug'
     enable_sharing = True
+
+
 
 
 @method_decorator(login_required, name='dispatch')
@@ -167,6 +169,49 @@ class ModuleGroupUpdate(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin,
             return HttpResponse(status=201)
         return super().get(request, *args, **kwargs)
 
+
+@method_decorator(login_required, name='dispatch')
+class ModuleGroupShare(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView):
+    template_name = 'module/modals/share_module_group.html'
+    form_class = ContributorPermissionForm
+
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or reverse('module:group-detail', kwargs=self.kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model = context.get('object')
+        if model:
+            context['contributors'] = model.contributors.all()
+        return context
+
+    def form_valid(self, form):
+        if form.cleaned_data.get('new_consumer_obj') and form.instance.owner != form.cleaned_data.get('new_consumer_obj'):
+            super().form_valid(form)
+            form.fields['contributor_username'].help_text = "The new contributor added. You can add another one."
+            form.fields['contributor_username'].initial = None
+            return self.render_to_response(self.get_context_data(form=form, object=form.instance))
+        else:
+            self.form_invalid(form)
+
+    def get_form_kwargs(self):
+        result = super().get_form_kwargs()
+        return result
+
+
+@method_decorator(login_required, name='dispatch')
+class ContributorPermissionDelete(DeleteView):
+    model = ContributorPermission
+
+    def get_success_url(self):
+        return self.request.GET.get('return_url') or reverse('module:group-detail', kwargs={"group_slug": self.kwargs.get("group_slug")})
+
+    def get_object(self):
+        return self.model.objects.get(group__slug=self.kwargs.get("group_slug"), user__username=self.kwargs.get("username"))
+
+    # TODO check it
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
 
 @method_decorator(login_required, name='dispatch')
 class ModuleGroupDelete(BaseModuleGroupView, DeleteView):

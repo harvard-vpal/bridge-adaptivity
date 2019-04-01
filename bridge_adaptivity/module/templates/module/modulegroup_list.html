@@ -31,9 +31,13 @@
             {% endif %}
           </td>
           <td style="width:5%; " class="container text-center">{{ group.collections.count }}</td>
-            {% if not request.session.read_only_data %}
+            {% if not request.session.read_only_data and group.owner == user %}
             <td class="text-right" style="min-width: 90px;">
               <div>
+                {% url 'module:group-share' group_slug=group.slug as group_share %}
+                <a>
+                {% bootstrap_button "Share" size='sm' icon='share' extra_classes='modal_launcher' value=group_share %}
+                </a>
                   {% url 'module:group-change' group_slug=group.slug as group_edit %}
                     <a>
                   {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
@@ -47,6 +51,10 @@
                       data-id="{{ group.id }}">
                       {% bootstrap_button "" size='sm' icon='trash' %}
                   </a>
+              {% elif group.owner != user %}
+                <td class="text-right" style="min-width: 90px;">
+                <div>
+                <p>Shared with you by {{ group.owner.username }}</p>
               {% endif %}
 
               {% url 'module:group-delete' group_slug=group.slug as delete_url %}

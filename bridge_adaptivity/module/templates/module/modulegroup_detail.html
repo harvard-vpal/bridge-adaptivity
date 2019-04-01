@@ -22,7 +22,12 @@
   {% endif %}
   <div class="col-md-12">
     <div class="detail-toolpanel">
-        {% if not request.session.read_only_data %}
+        {% if not request.session.read_only_data and group.owner == user %}
+            {% url 'module:group-share' group_slug=group.slug as group_share %}
+            <a>
+            {% bootstrap_button "Share" size='sm' icon='share' extra_classes='modal_launcher' value=group_share %}
+            </a>
+
             {% url 'module:group-change' group_slug=group.slug as group_edit %}
             <a>
             {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
@@ -143,6 +148,7 @@
                         {% endif %}
                       {% endwith %}
                     {% endwith %}
+
                     {% url 'module:collection-order-change' collection_order_slug=collection_order.slug as collection_edit %}
                     {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
 
