@@ -1,5 +1,5 @@
 {% extends "module/base.html" %}
-{% load static bootstrap3 %}
+{% load static bootstrap3 module_extras %}
 
 {% block title %}Collections{% endblock title %}
 
@@ -26,17 +26,21 @@
             {{ collection.activities.count|pluralize:'activity,activities' }}</a>
           </td>
           <td style="max-width: 30%">
-            {% for group in collection.collection_groups.distinct %}
-              <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group.get_absolute_url }}">{{ group.name }}</a>
-            {% endfor %}
+            {% for group in avaliable_groups|key:collection.slug %}
+                {% url "module:group-detail"  group.slug as group_detail %}
+              <a class="{% if forloop.counter > 10 %}hidden-group {% endif %}label label-info" href="{{ group_detail }}">{{ group.name }}</a>
+
+          {% endfor %}
           </td>
-            {% if not request.session.read_only_data %}
+            {% if not request.session.read_only_data%}
             <td>
               <div>
+
                     {% url 'module:collection-change' collection.slug as collection_edit %}
                     <a>
                     {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=collection_edit %}
                     </a>
+                {% if collection.owner == user  %}
                   {% url 'module:collection-delete' slug=collection.slug as delete_url %}
                   <a
                       class="move-down delete-object
@@ -58,6 +62,7 @@
                       {% include "module/modals/confirmation_modal.html" with object=collection action_url=delete_url id=collection.slug %}
                     {% endif %}
                   {% endwith %}
+                    {% endif %}
             </div>
             </td>
             {% endif %}

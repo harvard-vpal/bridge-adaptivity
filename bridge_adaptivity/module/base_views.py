@@ -40,8 +40,16 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     """
 
     fields = ['name', 'slug', 'metadata', 'owner']
+    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
     model = Collection
     ordering = ['id']
+
+    def get_avaliable_resources(self, qs):
+        result_query = qs.filter(**{self.owner_field: self.request.user})
+        result_query = result_query.union(qs.filter(collection_groups__owner=self.request.user))
+        result_query = result_query.union(qs.filter(collection_groups__contributors=self.request.user))
+        return result_query.distinct()
 
 
 class BaseCollectionOrderView(BaseGetFormKwargs):

@@ -2,7 +2,9 @@ import datetime
 import logging
 import urllib
 from xml.sax.saxutils import escape
+from collections import defaultdict
 
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
@@ -226,6 +228,19 @@ class ModuleGroupDelete(BaseModuleGroupView, DeleteView):
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
     filter = 'collection_slug'
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        mg = ModuleGroup.objects.filter(collections__in=list(context['object_list'])).distinct()
+        res = mg.values('name', 'slug', 'collections__slug').filter(
+            Q(owner=self.request.user) | Q(contributors=self.request.user)
+        )
+        list_mg = list(res)
+        result_dict = defaultdict(list)
+        for mg_item in list_mg:
+            result_dict[mg_item.get("collections__slug")].append(mg_item)
+        context['avaliable_groups'] = dict(result_dict)
+        return context
 
 
 @method_decorator(login_required, name='dispatch')

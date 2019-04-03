@@ -267,6 +267,10 @@ class Collection(models.Model):
     def get_absolute_url(self):
         return reverse('module:collection-list')
 
+    def get_avaliable_groups(self):
+        x = self.collection_groups.distinct()
+        return x
+
 
 class Engine(ModelFieldIsDefaultMixin, models.Model):
     """Defines engine settings."""

@@ -240,3 +240,14 @@ class ContributorPermissionForm(ModelForm):
         user = self.cleaned_data.get("new_consumer_obj")
         permission = ContributorPermission.objects.create(group=self.instance, user=user)
         permission.save()
+
+from typing import Optional
+
+amount: int
+amount = None
+
+price: Optional[int]
+price = None
+
+print(price)
+print(amount)

@@ -123,8 +123,9 @@ class CollectionOrderEditFormMixin:
         collections = Collection.objects.filter(
             owner=self.request.user
         )
+        collections = collections.union(Collection.objects.filter(collection_groups__contributors=self.request.user, collection_groups=form.group))
         form.fields['engine'].initial = Engine.get_default()
-        form.fields['collection'].queryset = collections
+        form.fields['collection'].queryset = collections.distinct()
         form.fields['collection'].required = False
         if self.kwargs.get('collection_order_slug'):
             collection_order = get_object_or_404(
@@ -146,9 +147,9 @@ class OnlyMyObjectsMixin(object):
         read_only_data = self.request.session.get('read_only_data')
         if read_only_data and getattr(self, 'filter', None) in read_only_data:
             return qs.filter(slug=read_only_data[self.filter])
-        return self._get_avaliable_resources(self._filter_resourses(qs))
+        return self.get_avaliable_resources(self._filter_resourses(qs))
 
-    def _get_avaliable_resources(self, qs):
+    def get_avaliable_resources(self, qs):
         result_query = qs.filter(**{self.owner_field: self.request.user})
         if self.enable_sharing:
             result_query = result_query.union(qs.filter(**{self.contributors_field: self.request.user}))
