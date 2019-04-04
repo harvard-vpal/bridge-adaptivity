@@ -221,7 +221,6 @@ class ContributorPermissionDelete(DeleteView):
             group__slug=self.kwargs.get("group_slug"), user__username=self.kwargs.get("username")
         )
 
-    # TODO check it
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
 
@@ -242,12 +241,15 @@ class CollectionList(BaseCollectionView, ListView):
 
     def get_context_data(self):
         context = super().get_context_data()
+        # Get Module Groups where collections are used.
         mg = ModuleGroup.objects.filter(collections__in=list(context['object_list'])).distinct()
+        # The "name" and "slug" are ModuleGroup fields
         res = mg.values('name', 'slug', 'collections__slug').filter(
             Q(owner=self.request.user) | Q(contributors=self.request.user)
         )
         list_mg = list(res)
         result_dict = defaultdict(list)
+        # make a dictionary like: "{..."collection_slug": [{"name": "Name", "slug": "Slug"},..], ...}"
         for mg_item in list_mg:
             result_dict[mg_item.get("collections__slug")].append(mg_item)
         context['avaliable_groups'] = dict(result_dict)

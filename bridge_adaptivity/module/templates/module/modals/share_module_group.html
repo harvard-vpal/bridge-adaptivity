@@ -7,8 +7,6 @@
      <button class="btn btn-primary" type="submit">Add</button>
  </form>
 
-
-
 <h4>Contributors:</h4>
 {% if contributors %}
     <table class="table table-hover" id="contributors">
@@ -20,7 +18,7 @@
                 <tr>
                     <td>{{ contributor.username }}</td>
                     <td><a class="pull-right delete-contributor"
-               data-remove_url=" {% url 'module:group-share-remove' group_slug=object.slug  username=contributor.username  %} ">
+                           data-remove_url=" {% url 'module:group-share-remove' group_slug=object.slug  username=contributor.username %} ">
                 {% bootstrap_button 'Delete' size='sm' icon='trash' %}
             </a></td>
                 </tr>
