@@ -121,7 +121,8 @@ class CollectionOrderEditFormMixin:
         form = super().get_form()
         collections = (
             Collection.objects.filter(owner=self.request.user) |
-            Collection.objects.filter(collection_groups__contributors=self.request.user, collection_groups=form.group)
+            Collection.objects.filter(collection_groups__contributors=self.request.user, collection_groups=form.group)|
+            Collection.objects.filter(collection_groups__owner=self.request.user)
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections.distinct()
