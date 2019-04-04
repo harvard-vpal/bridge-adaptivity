@@ -1,16 +1,15 @@
+from collections import defaultdict
 import datetime
 import logging
 import urllib
 from xml.sax.saxutils import escape
-from collections import defaultdict
 
-from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
@@ -28,14 +27,16 @@ from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseModuleGroupView
 from module.forms import (
-    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ContributorPermissionForm, ModuleGroupForm
+    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ContributorPermissionForm,
+    ModuleGroupForm
 )
 from module.mixins.views import (
     BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin,
     JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionOrder, ContributorPermission, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
+    Activity, Collection, CollectionOrder, ContributorPermission, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup,
+    Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
@@ -49,8 +50,6 @@ class ModuleGroupList(BaseModuleGroupView, ListView):
     ordering = ['id']
     filter = 'group_slug'
     enable_sharing = True
-
-
 
 
 @method_decorator(login_required, name='dispatch')
@@ -191,7 +190,10 @@ class ModuleGroupShare(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, 
         return context
 
     def form_valid(self, form):
-        if form.cleaned_data.get('new_consumer_obj') and form.instance.owner != form.cleaned_data.get('new_consumer_obj'):
+        if (
+            form.cleaned_data.get('new_consumer_obj') and
+            form.instance.owner != form.cleaned_data.get('new_consumer_obj')
+        ):
             super().form_valid(form)
             form.fields['contributor_username'].help_text = "The new contributor added. You can add another one."
             form.fields['contributor_username'].initial = None
@@ -209,14 +211,20 @@ class ContributorPermissionDelete(DeleteView):
     model = ContributorPermission
 
     def get_success_url(self):
-        return self.request.GET.get('return_url') or reverse('module:group-detail', kwargs={"group_slug": self.kwargs.get("group_slug")})
+        return (
+            self.request.GET.get('return_url') or
+            reverse('module:group-detail', kwargs={"group_slug": self.kwargs.get("group_slug")})
+        )
 
     def get_object(self):
-        return self.model.objects.get(group__slug=self.kwargs.get("group_slug"), user__username=self.kwargs.get("username"))
+        return self.model.objects.get(
+            group__slug=self.kwargs.get("group_slug"), user__username=self.kwargs.get("username")
+        )
 
     # TODO check it
     def get(self, *args, **kwargs):
         return self.post(*args, **kwargs)
+
 
 @method_decorator(login_required, name='dispatch')
 class ModuleGroupDelete(BaseModuleGroupView, DeleteView):

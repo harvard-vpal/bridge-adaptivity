@@ -6,7 +6,6 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
-from django.db.models import Q
 
 from module.forms import BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
 from module.models import Collection, CollectionOrder, Engine, GRADING_POLICY_NAME_TO_CLS
@@ -120,10 +119,10 @@ class CollectionOrderEditFormMixin:
 
     def get_form(self):
         form = super().get_form()
-        collections = Collection.objects.filter(
-            owner=self.request.user
+        collections = (
+            Collection.objects.filter(owner=self.request.user) |
+            Collection.objects.filter(collection_groups__contributors=self.request.user, collection_groups=form.group)
         )
-        collections = collections.union(Collection.objects.filter(collection_groups__contributors=self.request.user, collection_groups=form.group))
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections.distinct()
         form.fields['collection'].required = False
@@ -152,7 +151,7 @@ class OnlyMyObjectsMixin(object):
     def get_avaliable_resources(self, qs):
         result_query = qs.filter(**{self.owner_field: self.request.user})
         if self.enable_sharing:
-            result_query = result_query.union(qs.filter(**{self.contributors_field: self.request.user}))
+            result_query = result_query | qs.filter(**{self.contributors_field: self.request.user})
         return result_query
 
     def _filter_resourses(self, qs):

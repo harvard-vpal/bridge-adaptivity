@@ -5,9 +5,10 @@ from django.views.generic import RedirectView
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
-    CollectionOrderUpdate, CollectionUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm, ContributorPermissionDelete,
-    ModuleGroupCreate, ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupUpdate, ModuleGroupShare, preview_collection,
-    sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection, update_students_grades
+    CollectionOrderUpdate, CollectionUpdate, ContributorPermissionDelete, demo_collection, GetCollectionForm,
+    GetGradingPolicyForm, ModuleGroupCreate, ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupShare,
+    ModuleGroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail,
+    sync_collection, update_students_grades
 )
 
 urlpatterns = ([

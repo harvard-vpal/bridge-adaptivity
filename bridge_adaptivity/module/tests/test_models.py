@@ -10,8 +10,8 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence,
-    SequenceItem
+    Activity, BridgeUser, Collection, CollectionOrder, ContributorPermission, Engine, GradingPolicy, ModuleGroup,
+    Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -379,3 +379,32 @@ class TestSequence(TestCase):
         self.collection_order.save()
         details = self.sequence.sequence_ui_details()
         self.assertEqual(expected_result, details)
+
+
+class TestContributorPermission(TestCase):
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        self.user = BridgeUser.objects.create_user(
+            username='test_user',
+            password='test_pass',
+            email='test@test.com'
+        )
+        self.contributor = BridgeUser.objects.create_user(
+            username='test_contributor',
+            password='test_contributor',
+            email='contributor@test.com'
+        )
+
+        self.test_cg = ModuleGroup.objects.create(
+            name='TestColGroup',
+            owner=self.user,
+        )
+
+    def test_create_and_delete_contributor_permission(self):
+        cp = ContributorPermission.objects.create(user=self.contributor, group=self.test_cg)
+        cp.save()
+        mg = ModuleGroup.objects.filter(id=self.test_cg.id).first()
+        self.assertTrue(mg.contributors.filter(username=self.contributor.username).exists())
+        cp.delete()
+        self.assertFalse(mg.contributors.filter(username=self.contributor.username).exists())

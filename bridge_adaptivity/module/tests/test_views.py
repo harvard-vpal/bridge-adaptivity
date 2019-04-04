@@ -528,3 +528,33 @@ class TestMultipleContentSources(BridgeTestCase):
         self.assertNotEqual(new_total_courses, total_courses)
         # we use 10 because mock function return list with size 10
         self.assertEqual(new_total_courses, expect_course_count - 10)
+
+
+class TestSharingModuleGroup(BridgeTestCase):
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        super().setUp()
+        self.contributor = BridgeUser.objects.create_user(
+            username='contributor',
+            password='contributor',
+            email='contributor@me.com'
+        )
+
+    def test_add_and_delete_contributor(self):
+        url = reverse('module:group-share', kwargs={'group_slug': self.test_cg.slug})
+        data = {
+            "contributor_username": self.contributor.username
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        mg = ModuleGroup.objects.filter(id=self.test_cg.id).first()
+        self.assertTrue(mg.contributors.filter(username=self.contributor.username).exists())
+        url = reverse(
+            'module:group-share-remove',
+            kwargs={'group_slug': self.test_cg.slug, 'username': self.contributor.username}
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+        mg = ModuleGroup.objects.filter(id=self.test_cg.id).first()
+        self.assertFalse(mg.contributors.filter(username=self.contributor.username).exists())

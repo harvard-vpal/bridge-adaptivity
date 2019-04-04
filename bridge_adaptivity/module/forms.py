@@ -230,12 +230,11 @@ class ContributorPermissionForm(ModelForm):
             })
 
         if ContributorPermission.objects.filter(group=self.instance, user=new_consumer_obj).exists():
-             raise forms.ValidationError(
-                 {'contributor_username': "User with this username already has got permission for this resource"}
-             )
+            raise forms.ValidationError(
+                {'contributor_username': "User with this username already has got permission for this resource"}
+            )
 
         self.cleaned_data["new_consumer_obj"] = new_consumer_obj
-
 
         return self.cleaned_data
 
@@ -243,14 +242,3 @@ class ContributorPermissionForm(ModelForm):
         user = self.cleaned_data.get("new_consumer_obj")
         permission = ContributorPermission.objects.create(group=self.instance, user=user)
         permission.save()
-
-from typing import Optional
-
-amount: int
-amount = None
-
-price: Optional[int]
-price = None
-
-print(price)
-print(amount)

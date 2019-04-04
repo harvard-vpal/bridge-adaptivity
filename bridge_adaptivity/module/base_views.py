@@ -46,9 +46,11 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     ordering = ['id']
 
     def get_avaliable_resources(self, qs):
-        result_query = qs.filter(**{self.owner_field: self.request.user})
-        result_query = result_query.union(qs.filter(collection_groups__owner=self.request.user))
-        result_query = result_query.union(qs.filter(collection_groups__contributors=self.request.user))
+        result_query = (
+            qs.filter(**{self.owner_field: self.request.user}) |
+            qs.filter(collection_groups__owner=self.request.user) |
+            qs.filter(collection_groups__contributors=self.request.user)
+        )
         return result_query.distinct()
 
 
