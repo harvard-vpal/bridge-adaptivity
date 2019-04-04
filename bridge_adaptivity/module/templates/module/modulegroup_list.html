@@ -40,7 +40,7 @@
                 </a>
                   {% url 'module:group-change' group_slug=group.slug as group_edit %}
                     <a>
-                  {% bootstrap_button "" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
+                  {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
                     </a>
 
                   <a class="move-down delete-object
@@ -49,7 +49,7 @@
                       {% endif %}"
                       href="{% url 'module:group-delete' group_slug=group.slug %}"
                       data-id="{{ group.id }}">
-                      {% bootstrap_button "" size='sm' icon='trash' %}
+                      {% bootstrap_button "Delete" size='sm' icon='trash' %}
                   </a>
               {% elif group.owner != user %}
                 <td class="text-right" style="min-width: 90px;">

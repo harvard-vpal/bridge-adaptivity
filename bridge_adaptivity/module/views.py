@@ -66,6 +66,9 @@ class GetCollectionForm(FormView):
     def get_form(self, form_class=None):
         form = super().get_form()
         form.fields['owner'].initial = self.request.user.id
+        form.fields['name'].help_text = (
+            "Name of the new Collection. You can choose available collections under the Collection settings block"
+        )
         collection_id = self.request.GET.get('collection_id')
         if collection_id and Collection.objects.filter(id=collection_id).first():
             form.fields.clear()
@@ -309,7 +312,12 @@ class CollectionOrderAdd(
         result = super().get(request, *args, **kwargs)
         result.context_data["group"] = get_object_or_404(ModuleGroup, slug=self.kwargs.get('group_slug'))
         result.context_data['form'].fields['collection'].required = False
+        result.context_data['form'].fields['collection'].empty_label = "--- Create a new Collection ---"
         result.context_data['collection_form'].fields['owner'].initial = self.request.user.id
+        result.context_data['collection_form'].fields['name'].help_text = (
+            "Name of the new Collection. You can choose available collections under the Collection settings block"
+        )
+
         return result
 
     def get_context_data(self, **kwargs):
