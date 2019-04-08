@@ -232,8 +232,15 @@ class ModuleGroupDelete(BaseModuleGroupView, DeleteView):
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
     filter = 'collection_slug'
+    # Note(AndreyLikhoman): Django.views.generic.ListView doesn't have default fields slug_url_kwarg and slug_field so
+    #  these fields were added.
+    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
 
     def get_context_data(self):
+        # FIXME(AndreyLykhoman): This implementation must be a rewrite after changing ContributorPermission model. You
+        #  should remove the 'owner' field because of the  'contributors' field contains the last one and additional
+        #  contributors. Also, you should change the forms' and the views' logic of work that work with Module Group.
         context = super().get_context_data()
         # Get Module Groups where collections are used.
         mg = ModuleGroup.objects.filter(collections__in=list(context['object_list'])).distinct()

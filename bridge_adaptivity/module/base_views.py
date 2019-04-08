@@ -32,7 +32,6 @@ class BaseModuleGroupView(BaseGetFormKwargs):
     """
 
     slug_url_kwarg = 'group_slug'
-    slug_field = 'slug'
     model = ModuleGroup
 
 
@@ -42,8 +41,6 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     """
 
     fields = ['name', 'slug', 'metadata', 'owner']
-    slug_url_kwarg = 'slug'
-    slug_field = 'slug'
     model = Collection
     ordering = ['id']
 
