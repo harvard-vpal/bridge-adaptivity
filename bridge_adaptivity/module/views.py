@@ -238,7 +238,7 @@ class CollectionList(BaseCollectionView, ListView):
     slug_field = 'slug'
 
     def get_context_data(self):
-        # FIXME(AndreyLykhoman): This implementation must be a rewrite after changing ContributorPermission model. You
+        # Note(AndreyLykhoman): This implementation must be a rewrite after changing ContributorPermission model. You
         #  should remove the 'owner' field because of the  'contributors' field contains the last one and additional
         #  contributors. Also, you should change the forms' and the views' logic of work that work with Module Group.
         context = super().get_context_data()

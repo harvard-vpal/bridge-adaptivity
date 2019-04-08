@@ -404,7 +404,7 @@ class ModuleGroup(models.Model):
 class ContributorPermission(models.Model):
     user = models.ForeignKey(BridgeUser, on_delete=models.CASCADE)
     group = models.ForeignKey(ModuleGroup, on_delete=models.CASCADE)
-    # FIXME(AndreyLykhoman): Change this field to field with the possibility to select more than one option for select.
+    # Note(AndreyLykhoman): Change this field to field with the possibility to select more than one option for select.
     full_permission = models.BooleanField(default=True)
 
 
