@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -119,12 +120,10 @@ class CollectionOrderEditFormMixin:
 
     def get_form(self):
         form = super().get_form()
-        collections = (
-            Collection.objects.filter(owner=self.request.user) |
-            Collection.objects.filter(
-                collection_groups__contributors=self.request.user, collection_groups=form.group
-            ) |
-            Collection.objects.filter(collection_groups__owner=self.request.user)
+        collections = Collection.objects.filter(
+            Q(owner=self.request.user) |
+            Q(collection_groups__contributors=self.request.user, collection_groups=form.group) |
+            Q(collection_groups__owner=self.request.user)
         )
         form.fields['engine'].initial = Engine.get_default()
         form.fields['collection'].queryset = collections.distinct()

@@ -42,7 +42,6 @@
                     <a>
                   {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
                     </a>
-
                   <a class="move-down delete-object
                       {% if group.has_linked_active_sequences %} show-alarm
                       {% elif group.has_linked_sequences %} show-warning
@@ -51,14 +50,12 @@
                       data-id="{{ group.id }}">
                       {% bootstrap_button "Delete" size='sm' icon='trash' %}
                   </a>
-              {% elif group.owner != user %}
+            {% elif group.owner != user %}
                 <td class="text-right" style="min-width: 90px;">
                 <div>
-                <p>Shared with you by {{ group.owner.username }}</p>
-              {% endif %}
-
+                <p>Shared by {{ group.owner.username }}</p>
+            {% endif %}
               {% url 'module:group-delete' group_slug=group.slug as delete_url %}
-
               {% if group.has_linked_active_sequences %}
                 {% with message="At least one student is still working on the Collection which is in " %}
                   {% include "module/modals/confirmation_modal.html" with object=group action_url=delete_url id=group.id %}

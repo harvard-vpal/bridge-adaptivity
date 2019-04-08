@@ -203,7 +203,7 @@ class ContributorPermissionForm(ModelForm):
     Share Module group to Bridge users.
     """
 
-    contributor_username = forms.CharField()
+    contributor_username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Write a valid username'}))
 
     class Meta:
         """
@@ -215,7 +215,7 @@ class ContributorPermissionForm(ModelForm):
 
     def clean(self):
         super().clean()
-        contributor_username = self.data.get("contributor_username")
+        contributor_username = self.cleaned_data.get("contributor_username")
         new_consumer_obj = BridgeUser.objects.filter(username=contributor_username).first()
         if not new_consumer_obj:
             raise forms.ValidationError(
@@ -239,6 +239,7 @@ class ContributorPermissionForm(ModelForm):
         return self.cleaned_data
 
     def save(self, **kwargs):
-        user = self.cleaned_data.get("new_consumer_obj")
-        permission = ContributorPermission.objects.create(group=self.instance, user=user)
+        permission = ContributorPermission.objects.create(
+            group=self.instance, user=self.cleaned_data.get("new_consumer_obj")
+        )
         permission.save()

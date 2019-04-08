@@ -17,9 +17,9 @@ urlpatterns = ([
     url(r'^group/(?P<group_slug>[\w-]+)/$', ModuleGroupDetail.as_view(), name='group-detail'),
     url(r'^group/(?P<group_slug>[\w-]+)/change/?$', ModuleGroupUpdate.as_view(), name='group-change'),
     url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', ModuleGroupDelete.as_view(), name='group-delete'),
-    url(r"group/(?P<group_slug>[\w-]+)/share/add/$", ModuleGroupShare.as_view(), name="group-share"),
-    url(
-        r"group/(?P<group_slug>[\w-]+)/share/remove/(?P<username>[\w-]+)/$",
+    path("group/<slug:group_slug>/share/add/", ModuleGroupShare.as_view(), name="group-share"),
+    path(
+        "group/<slug:group_slug>/share/remove/<username>/",
         ContributorPermissionDelete.as_view(),
         name="group-share-remove"
     ),

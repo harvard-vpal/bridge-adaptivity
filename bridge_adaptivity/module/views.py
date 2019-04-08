@@ -180,7 +180,7 @@ class ModuleGroupShare(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, 
     form_class = ContributorPermissionForm
 
     def get_success_url(self):
-        return self.request.GET.get('return_url') or reverse('module:group-detail', kwargs=self.kwargs)
+        return self.request.GET.get('return_url', reverse('module:group-detail', kwargs=self.kwargs))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -190,10 +190,8 @@ class ModuleGroupShare(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, 
         return context
 
     def form_valid(self, form):
-        if (
-            form.cleaned_data.get('new_consumer_obj') and
-            form.instance.owner != form.cleaned_data.get('new_consumer_obj')
-        ):
+        new_consumer_obj = form.cleaned_data.get('new_consumer_obj')
+        if new_consumer_obj and form.instance.owner != new_consumer_obj:
             super().form_valid(form)
             form.fields['contributor_username'].help_text = "The new contributor added. You can add another one."
             form.fields['contributor_username'].initial = None
@@ -201,18 +199,14 @@ class ModuleGroupShare(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, 
         else:
             self.form_invalid(form)
 
-    def get_form_kwargs(self):
-        result = super().get_form_kwargs()
-        return result
-
 
 @method_decorator(login_required, name='dispatch')
 class ContributorPermissionDelete(DeleteView):
     model = ContributorPermission
 
     def get_success_url(self):
-        return (
-            self.request.GET.get('return_url') or
+        return self.request.GET.get(
+            'return_url',
             reverse('module:group-detail', kwargs={"group_slug": self.kwargs.get("group_slug")})
         )
 
@@ -243,7 +237,7 @@ class CollectionList(BaseCollectionView, ListView):
         context = super().get_context_data()
         # Get Module Groups where collections are used.
         mg = ModuleGroup.objects.filter(collections__in=list(context['object_list'])).distinct()
-        # The "name" and "slug" are ModuleGroup fields
+        # The "name" and "slug" are ModuleGroup's fields
         res = mg.values('name', 'slug', 'collections__slug').filter(
             Q(owner=self.request.user) | Q(contributors=self.request.user)
         )

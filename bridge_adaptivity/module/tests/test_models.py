@@ -390,21 +390,27 @@ class TestContributorPermission(TestCase):
             password='test_pass',
             email='test@test.com'
         )
-        self.contributor = BridgeUser.objects.create_user(
-            username='test_contributor',
-            password='test_contributor',
-            email='contributor@test.com'
+        self.contributor_1 = BridgeUser.objects.create_user(
+            username='test_contributor_1',
+            password='test_contributor_1',
+            email='test_contributor_1@test.com'
         )
-
+        self.contributor_2 = BridgeUser.objects.create_user(
+            username='contributor_2',
+            password='contributor_2',
+            email='contributor_2@test.com'
+        )
         self.test_cg = ModuleGroup.objects.create(
             name='TestColGroup',
             owner=self.user,
         )
+        self.contributor_1_permisson = ContributorPermission.objects.create(user=self.contributor_1, group=self.test_cg)
 
-    def test_create_and_delete_contributor_permission(self):
-        cp = ContributorPermission.objects.create(user=self.contributor, group=self.test_cg)
+    def test_create_contributor_permission(self):
+        cp = ContributorPermission.objects.create(user=self.contributor_2, group=self.test_cg)
         cp.save()
-        mg = ModuleGroup.objects.filter(id=self.test_cg.id).first()
-        self.assertTrue(mg.contributors.filter(username=self.contributor.username).exists())
-        cp.delete()
-        self.assertFalse(mg.contributors.filter(username=self.contributor.username).exists())
+        self.assertTrue(self.test_cg.contributors.filter(username=self.contributor_2.username).exists())
+
+    def test_delete_contributor_permission(self):
+        self.contributor_1_permisson.delete()
+        self.assertFalse(self.test_cg.contributors.filter(username=self.contributor_1.username).exists())

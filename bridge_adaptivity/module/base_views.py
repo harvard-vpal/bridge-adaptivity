@@ -4,6 +4,8 @@ Base views for models.
 # coding: utf-8
 import logging
 
+from django.db.models import Q
+
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
 from module.models import Collection, CollectionOrder, ModuleGroup
 
@@ -46,12 +48,11 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     ordering = ['id']
 
     def get_avaliable_resources(self, qs):
-        result_query = (
-            qs.filter(**{self.owner_field: self.request.user}) |
-            qs.filter(collection_groups__owner=self.request.user) |
-            qs.filter(collection_groups__contributors=self.request.user)
-        )
-        return result_query.distinct()
+        return qs.filter(
+            Q(**{self.owner_field: self.request.user}) |
+            Q(collection_groups__owner=self.request.user) |
+            Q(collection_groups__contributors=self.request.user)
+        ).distinct()
 
 
 class BaseCollectionOrderView(BaseGetFormKwargs):
