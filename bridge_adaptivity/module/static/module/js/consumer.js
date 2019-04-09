@@ -9,7 +9,7 @@ $(document).ready(function() {
             console.log(textStatus + "(" + errorThrown + "): " + jqXHR.responseText.split('\n')[0]);
             element.closest("tr").children("td.error").append(
                 "<p>Cannot be removed, please try again later. " +
-                "If the problem will be procced contact with the Bridge admin.</p>"
+                "If the problem will proceed contact with the Bridge admin.</p>"
             );
         });
     });
