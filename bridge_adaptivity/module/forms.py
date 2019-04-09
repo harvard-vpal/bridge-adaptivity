@@ -30,7 +30,9 @@ class ActivityForm(ModelForm):
         model = Activity
         exclude = ['collection', 'points']
         widgets = {
-            'stype': forms.HiddenInput(), 'points': forms.HiddenInput(), 'lti_lms_platform': forms.HiddenInput()
+            'stype': forms.HiddenInput(),
+            'lti_lms_platform': forms.HiddenInput(),
+            'difficulty': forms.NumberInput(attrs={'step': "0.1", "min": 0.0, "max": 1.0}),
         }
 
 
