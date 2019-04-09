@@ -8,8 +8,12 @@ from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
 
-from module.models import Activity, Collection, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, ModuleGroup
+from bridge_lti.models import BridgeUser
+from module.models import (
+    Activity, Collection, CollectionOrder, ContributorPermission, GRADING_POLICY_NAME_TO_CLS, GradingPolicy, ModuleGroup
+)
 from module.widgets import PolicyChoiceWidget
+
 
 log = logging.getLogger(__name__)
 
@@ -194,3 +198,50 @@ class CollectionOrderForm(ModelForm):
         self.instance.engine = self.cleaned_data['engine']
         self.instance.grading_policy = self.cleaned_data['grading_policy']
         self.instance.save()
+
+
+class ContributorPermissionForm(ModelForm):
+    """
+    Share Module group to Bridge users.
+    """
+
+    contributor_username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Write a valid username'}))
+
+    class Meta:
+        """
+        Inner class with metadata options for ContributorPermissionForm.
+        """
+
+        model = ModuleGroup
+        fields = ('contributor_username',)
+
+    def clean(self):
+        super().clean()
+        contributor_username = self.cleaned_data.get("contributor_username")
+        new_consumer_obj = BridgeUser.objects.filter(username=contributor_username).first()
+        if not new_consumer_obj:
+            raise forms.ValidationError(
+                {'contributor_username': "Username is not valid or Bridge user with this username is not exist"}
+            )
+
+        if self.instance.owner == new_consumer_obj:
+            raise forms.ValidationError({
+                'contributor_username': (
+                    "You are already have got permission for this resource. You can share it with other Bridge users."
+                )
+            })
+
+        if ContributorPermission.objects.filter(group=self.instance, user=new_consumer_obj).exists():
+            raise forms.ValidationError(
+                {'contributor_username': "User with this username already has got permission for this resource"}
+            )
+
+        self.cleaned_data["new_consumer_obj"] = new_consumer_obj
+
+        return self.cleaned_data
+
+    def save(self, **kwargs):
+        permission = ContributorPermission.objects.create(
+            group=self.instance, user=self.cleaned_data.get("new_consumer_obj")
+        )
+        permission.save()

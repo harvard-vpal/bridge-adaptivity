@@ -4,6 +4,8 @@ Base views for models.
 # coding: utf-8
 import logging
 
+from django.db.models import Q
+
 from module.mixins.views import BackURLMixin, OnlyMyObjectsMixin
 from module.models import Collection, CollectionOrder, ModuleGroup
 
@@ -30,7 +32,6 @@ class BaseModuleGroupView(BaseGetFormKwargs):
     """
 
     slug_url_kwarg = 'group_slug'
-    slug_field = 'slug'
     model = ModuleGroup
 
 
@@ -42,6 +43,13 @@ class BaseCollectionView(OnlyMyObjectsMixin, BackURLMixin):
     fields = ['name', 'slug', 'metadata', 'owner']
     model = Collection
     ordering = ['id']
+
+    def get_avaliable_resources(self, qs):
+        return qs.filter(
+            Q(**{self.owner_field: self.request.user}) |
+            Q(collection_groups__owner=self.request.user) |
+            Q(collection_groups__contributors=self.request.user)
+        ).distinct()
 
 
 class BaseCollectionOrderView(BaseGetFormKwargs):

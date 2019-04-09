@@ -4,7 +4,8 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from ordered_model.admin import OrderedTabularInline
 
 from .models import (
-    Activity, Collection, CollectionOrder, Engine, GradingPolicy, Log, ModuleGroup, Sequence, SequenceItem
+    Activity, Collection, CollectionOrder, ContributorPermission, Engine, GradingPolicy, Log, ModuleGroup, Sequence,
+    SequenceItem
 )
 
 
@@ -99,3 +100,8 @@ class LogAdmin(admin.ModelAdmin):
 class ModuleGroupStackedInline(admin.StackedInline):
     model = ModuleGroup
     extra = 0
+
+
+@admin.register(ContributorPermission)
+class ContributorPermissionAdmin(admin.ModelAdmin):
+    pass

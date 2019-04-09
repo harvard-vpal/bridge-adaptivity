@@ -1,0 +1,31 @@
+{% load bootstrap3 static %}
+
+<h4>Add a new contributors by the username:</h4>
+ <form role="form" method="post" id="add_new_contributor">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+     <button class="btn btn-primary" type="submit">Add</button>
+ </form>
+
+<h4>Contributors:</h4>
+{% if contributors %}
+    <table class="table table-hover" id="contributors">
+          <tr>
+            <th>username</th>
+            <th></th>
+            <th>action</th>
+          </tr>
+            {% for contributor in contributors %}
+                <tr>
+                    <td>{{ contributor.username }}</td>
+                    <td class="error"></td>
+                    <td><a class="pull-right delete-contributor"
+                           data-remove_url=" {% url 'module:group-share-remove' group_slug=object.slug  username=contributor.username %} ">
+                {% bootstrap_button 'Delete' size='sm' icon='trash' %}
+            </a></td>
+                </tr>
+            {% endfor %}
+    </table>
+{% endif %}
+
+<script src="{% static 'module/js/consumer.js' %}"></script>

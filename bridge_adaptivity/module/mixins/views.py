@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.models import Q
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -120,10 +121,12 @@ class CollectionOrderEditFormMixin:
     def get_form(self):
         form = super().get_form()
         collections = Collection.objects.filter(
-            owner=self.request.user
+            Q(owner=self.request.user) |
+            Q(collection_groups__contributors=self.request.user, collection_groups=form.group) |
+            Q(collection_groups__owner=self.request.user)
         )
         form.fields['engine'].initial = Engine.get_default()
-        form.fields['collection'].queryset = collections
+        form.fields['collection'].queryset = collections.distinct()
         form.fields['collection'].required = False
         if self.kwargs.get('collection_order_slug'):
             collection_order = get_object_or_404(
@@ -137,13 +140,28 @@ class CollectionOrderEditFormMixin:
 
 class OnlyMyObjectsMixin(object):
     owner_field = 'owner'
+    enable_sharing = False
+    contributors_field = 'contributors'
 
     def get_queryset(self):
         qs = super().get_queryset()
         read_only_data = self.request.session.get('read_only_data')
         if read_only_data and getattr(self, 'filter', None) in read_only_data:
             return qs.filter(slug=read_only_data[self.filter])
-        return qs.filter(**{self.owner_field: self.request.user})
+        return self.get_avaliable_resources(self._filter_resourses(qs))
+
+    def get_avaliable_resources(self, qs):
+        result_query = qs.filter(**{self.owner_field: self.request.user})
+        if self.enable_sharing:
+            result_query = result_query | qs.filter(**{self.contributors_field: self.request.user})
+        return result_query
+
+    def _filter_resourses(self, qs):
+        slug = self.kwargs.get(self.slug_url_kwarg)
+        if slug:
+            slug_field = self.get_slug_field()
+            qs = qs.filter(**{slug_field: slug})
+        return qs
 
 
 class BackURLMixin(object):
