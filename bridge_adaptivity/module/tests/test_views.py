@@ -7,7 +7,9 @@ from oauthlib.common import generate_token
 
 from bridge_lti.models import LtiContentSource, LtiLmsPlatform
 from module.mixins.views import GroupEditFormMixin
-from module.models import Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup
+from module.models import (
+    Activity, BridgeUser, Collection, CollectionOrder, ContributorPermission, Engine, GradingPolicy, ModuleGroup
+)
 
 GRADING_POLICIES = (
     # value, display_name
@@ -528,3 +530,43 @@ class TestMultipleContentSources(BridgeTestCase):
         self.assertNotEqual(new_total_courses, total_courses)
         # we use 10 because mock function return list with size 10
         self.assertEqual(new_total_courses, expect_course_count - 10)
+
+
+class TestSharingModuleGroup(BridgeTestCase):
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        super().setUp()
+        self.contributor_1 = BridgeUser.objects.create_user(
+            username='test_contributor_1',
+            password='test_contributor_1',
+            email='test_contributor_1@test.com'
+        )
+        self.contributor_2 = BridgeUser.objects.create_user(
+            username='contributor_2',
+            password='contributor_2',
+            email='contributor_2@test.com'
+        )
+        self.test_cg = ModuleGroup.objects.create(
+            name='TestColGroup',
+            owner=self.user,
+        )
+        ContributorPermission.objects.create(user=self.contributor_1, group=self.test_cg)
+
+    def test_add_contributor(self):
+        url = reverse('module:group-share', kwargs={'group_slug': self.test_cg.slug})
+        data = {
+            "contributor_username": self.contributor_2.username
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.test_cg.contributors.filter(username=self.contributor_2.username).exists())
+
+    def test_delete_contributor(self):
+        url = reverse(
+            'module:group-share-remove',
+            kwargs={'group_slug': self.test_cg.slug, 'username': self.contributor_1.username}
+        )
+        response = self.client.get(url)
+        self.assertRedirects(response, reverse('module:group-detail', kwargs={'group_slug': self.test_cg.slug}))
+        self.assertFalse(self.test_cg.contributors.filter(username=self.contributor_1.username).exists())

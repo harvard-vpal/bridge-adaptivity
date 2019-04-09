@@ -1,3 +1,4 @@
+from collections import defaultdict
 import datetime
 import logging
 import urllib
@@ -8,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Max
+from django.db.models import Max, Q
 from django.http import HttpResponse, HttpResponseNotFound
 from django.http.response import Http404
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
@@ -26,14 +27,16 @@ from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseModuleGroupView
 from module.forms import (
-    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ModuleGroupForm
+    ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ContributorPermissionForm,
+    ModuleGroupForm
 )
 from module.mixins.views import (
     BackURLMixin, CollectionOrderEditFormMixin, CollectionSlugToContextMixin, GroupEditFormMixin,
     JsonResponseMixin, LinkObjectsMixin, LtiSessionMixin, ModalFormMixin, SetUserInFormMixin
 )
 from module.models import (
-    Activity, Collection, CollectionOrder, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup, Sequence, SequenceItem
+    Activity, Collection, CollectionOrder, ContributorPermission, GRADING_POLICY_NAME_TO_CLS, Log, ModuleGroup,
+    Sequence, SequenceItem
 )
 
 log = logging.getLogger(__name__)
@@ -46,6 +49,7 @@ class ModuleGroupList(BaseModuleGroupView, ListView):
     context_object_name = 'groups'
     ordering = ['id']
     filter = 'group_slug'
+    enable_sharing = True
 
 
 @method_decorator(login_required, name='dispatch')
@@ -118,6 +122,7 @@ class ModuleGroupDetail(CollectionOrderEditFormMixin, LinkObjectsMixin, BaseModu
     link_form_class = CollectionOrderForm
     link_object_name = 'collection'
     filter = 'group_slug'
+    enable_sharing = True
 
     def get_link_form_kwargs(self):
         return dict(user=self.request.user, group=self.object)
@@ -170,6 +175,51 @@ class ModuleGroupUpdate(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin,
 
 
 @method_decorator(login_required, name='dispatch')
+class ModuleGroupShare(BaseModuleGroupView, SetUserInFormMixin, ModalFormMixin, UpdateView):
+    template_name = 'module/modals/share_module_group.html'
+    form_class = ContributorPermissionForm
+
+    def get_success_url(self):
+        return self.request.GET.get('return_url', reverse('module:group-detail', kwargs=self.kwargs))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model = context.get('object')
+        if model:
+            context['contributors'] = model.contributors.all()
+        return context
+
+    def form_valid(self, form):
+        new_consumer_obj = form.cleaned_data.get('new_consumer_obj')
+        if new_consumer_obj and form.instance.owner != new_consumer_obj:
+            super().form_valid(form)
+            form.fields['contributor_username'].help_text = "The new contributor added. You can add another one."
+            form.fields['contributor_username'].initial = None
+            return self.render_to_response(self.get_context_data(form=form, object=form.instance))
+        else:
+            self.form_invalid(form)
+
+
+@method_decorator(login_required, name='dispatch')
+class ContributorPermissionDelete(DeleteView):
+    model = ContributorPermission
+
+    def get_success_url(self):
+        return self.request.GET.get(
+            'return_url',
+            reverse('module:group-detail', kwargs={"group_slug": self.kwargs.get("group_slug")})
+        )
+
+    def get_object(self):
+        return self.model.objects.get(
+            group__slug=self.kwargs.get("group_slug"), user__username=self.kwargs.get("username")
+        )
+
+    def get(self, *args, **kwargs):
+        return self.post(*args, **kwargs)
+
+
+@method_decorator(login_required, name='dispatch')
 class ModuleGroupDelete(BaseModuleGroupView, DeleteView):
     def get_success_url(self):
         return self.request.GET.get('return_url') or reverse('module:group-list')
@@ -182,6 +232,29 @@ class ModuleGroupDelete(BaseModuleGroupView, DeleteView):
 class CollectionList(BaseCollectionView, ListView):
     context_object_name = 'collections'
     filter = 'collection_slug'
+    # Note(AndreyLikhoman): Django.views.generic.ListView doesn't have default fields slug_url_kwarg and slug_field so
+    #  these fields were added.
+    slug_url_kwarg = 'slug'
+    slug_field = 'slug'
+
+    def get_context_data(self):
+        # Note(AndreyLykhoman): This implementation must be a rewrite after changing ContributorPermission model. You
+        #  should remove the 'owner' field because of the  'contributors' field contains the last one and additional
+        #  contributors. Also, you should change the forms' and the views' logic of work that work with Module Group.
+        context = super().get_context_data()
+        # Get Module Groups where collections are used.
+        mg = ModuleGroup.objects.filter(collections__in=list(context['object_list'])).distinct()
+        # The "name" and "slug" are ModuleGroup's fields
+        res = mg.values('name', 'slug', 'collections__slug').filter(
+            Q(owner=self.request.user) | Q(contributors=self.request.user)
+        )
+        list_mg = list(res)
+        result_dict = defaultdict(list)
+        # make a dictionary like: "{..."collection_slug": [{"name": "Name", "slug": "Slug"},..], ...}"
+        for mg_item in list_mg:
+            result_dict[mg_item.get("collections__slug")].append(mg_item)
+        context['avaliable_groups'] = dict(result_dict)
+        return context
 
 
 @method_decorator(login_required, name='dispatch')

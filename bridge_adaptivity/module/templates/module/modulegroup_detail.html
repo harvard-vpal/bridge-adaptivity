@@ -12,20 +12,23 @@
 <div class="row">
 <div class="col-md-12">
     <div class="detail-toolpanel">
-        {% if not request.session.read_only_data %}
-            <div class="pull-right">
-                {% url 'module:group-change' group_slug=group.slug as group_edit %}
-                <a class="edit-object">
-                {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
-                </a>
-                <a class="delete-object
-                         {% if group.has_linked_active_sequences %}
-                           show-alarm {% else %} show-warning
-                         {% endif %}"
-                   data-id="{{ group.slug }}">
-                    {% bootstrap_button 'Delete' size='sm' icon='trash' %}
-                </a>
-            </div>
+        {% if not request.session.read_only_data and group.owner == user %}
+            {% url 'module:group-share' group_slug=group.slug as group_share %}
+            <a>
+            {% bootstrap_button "Share" size='sm' icon='share' extra_classes='modal_launcher' value=group_share %}
+            </a>
+
+            {% url 'module:group-change' group_slug=group.slug as group_edit %}
+            <a>
+            {% bootstrap_button "Edit" size='sm' icon='edit' extra_classes='modal_launcher' value=group_edit %}
+            </a>
+            <a class="pull-right delete-object
+                     {% if group.has_linked_active_sequences %}
+                       show-alarm {% else %} show-warning
+                     {% endif %}"
+               data-id="{{ group.slug }}">
+                {% bootstrap_button 'Delete' size='sm' icon='trash' %}
+            </a>
         {% endif %}
     </div>
   </div>

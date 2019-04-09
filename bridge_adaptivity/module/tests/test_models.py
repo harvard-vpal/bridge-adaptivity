@@ -10,8 +10,8 @@ from module import models
 from module.engines.engine_mock import EngineMock
 from module.engines.engine_vpal import EngineVPAL
 from module.models import (
-    Activity, BridgeUser, Collection, CollectionOrder, Engine, GradingPolicy, ModuleGroup, Sequence,
-    SequenceItem
+    Activity, BridgeUser, Collection, CollectionOrder, ContributorPermission, Engine, GradingPolicy, ModuleGroup,
+    Sequence, SequenceItem
 )
 from module.policies.policy_full_credit import FullCreditOnCompleteGradingPolicy
 from module.policies.policy_points_earned import PointsEarnedGradingPolicy
@@ -379,3 +379,38 @@ class TestSequence(TestCase):
         self.collection_order.save()
         details = self.sequence.sequence_ui_details()
         self.assertEqual(expected_result, details)
+
+
+class TestContributorPermission(TestCase):
+
+    @patch('module.tasks.sync_collection_engines.apply_async')
+    def setUp(self, mock_apply_async):
+        self.user = BridgeUser.objects.create_user(
+            username='test_user',
+            password='test_pass',
+            email='test@test.com'
+        )
+        self.contributor_1 = BridgeUser.objects.create_user(
+            username='test_contributor_1',
+            password='test_contributor_1',
+            email='test_contributor_1@test.com'
+        )
+        self.contributor_2 = BridgeUser.objects.create_user(
+            username='contributor_2',
+            password='contributor_2',
+            email='contributor_2@test.com'
+        )
+        self.test_cg = ModuleGroup.objects.create(
+            name='TestColGroup',
+            owner=self.user,
+        )
+        self.contributor_1_permisson = ContributorPermission.objects.create(user=self.contributor_1, group=self.test_cg)
+
+    def test_create_contributor_permission(self):
+        cp = ContributorPermission.objects.create(user=self.contributor_2, group=self.test_cg)
+        cp.save()
+        self.assertTrue(self.test_cg.contributors.filter(username=self.contributor_2.username).exists())
+
+    def test_delete_contributor_permission(self):
+        self.contributor_1_permisson.delete()
+        self.assertFalse(self.test_cg.contributors.filter(username=self.contributor_1.username).exists())

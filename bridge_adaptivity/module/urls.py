@@ -5,9 +5,10 @@ from django.views.generic import RedirectView
 from module.views import (
     ActivityCreate, ActivityDelete, ActivityUpdate, AddCollectionInGroup, callback_sequence_item_grade,
     CollectionCreate, CollectionDelete, CollectionDetail, CollectionGroupDelete, CollectionList, CollectionOrderAdd,
-    CollectionOrderUpdate, CollectionUpdate, demo_collection, GetCollectionForm, GetGradingPolicyForm,
-    ModuleGroupCreate, ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupUpdate, preview_collection,
-    sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail, sync_collection, update_students_grades
+    CollectionOrderUpdate, CollectionUpdate, ContributorPermissionDelete, demo_collection, GetCollectionForm,
+    GetGradingPolicyForm, ModuleGroupCreate, ModuleGroupDelete, ModuleGroupDetail, ModuleGroupList, ModuleGroupShare,
+    ModuleGroupUpdate, preview_collection, sequence_item_next, SequenceComplete, SequenceDelete, SequenceItemDetail,
+    sync_collection, update_students_grades
 )
 
 urlpatterns = ([
@@ -16,6 +17,12 @@ urlpatterns = ([
     url(r'^group/(?P<group_slug>[\w-]+)/$', ModuleGroupDetail.as_view(), name='group-detail'),
     url(r'^group/(?P<group_slug>[\w-]+)/change/?$', ModuleGroupUpdate.as_view(), name='group-change'),
     url(r'^group/(?P<group_slug>[\w-]+)/delete/?$', ModuleGroupDelete.as_view(), name='group-delete'),
+    path("group/<slug:group_slug>/share/add/", ModuleGroupShare.as_view(), name="group-share"),
+    path(
+        "group/<slug:group_slug>/share/remove/<username>/",
+        ContributorPermissionDelete.as_view(),
+        name="group-share-remove"
+    ),
     url(r'^group/(?P<group_slug>[\w-]+)/add_collection/?$', AddCollectionInGroup.as_view(),
         name='add-collection-to-group'),
     url(r'^collection_order/(?P<collection_order_slug>[\w-]+)/delete/', CollectionGroupDelete.as_view(),
