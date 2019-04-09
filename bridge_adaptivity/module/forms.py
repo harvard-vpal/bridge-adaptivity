@@ -32,7 +32,7 @@ class ActivityForm(ModelForm):
         widgets = {
             'stype': forms.HiddenInput(),
             'lti_lms_platform': forms.HiddenInput(),
-            'difficulty': forms.NumberInput(attrs={'step': "0.1", "min": 0.0, "max": 1.0})
+            'difficulty': forms.NumberInput(attrs={'step': "0.1", "min": 0.0, "max": 1.0}),
         }
 
 
