@@ -44,5 +44,10 @@ services:
     image: rabbitmq
     env_file: ./envs/rabbit.env
 
+  redis:
+    image: 'redis:latest'
+    ports:
+      - "6379:6379"
+
 volumes:
   pgs:

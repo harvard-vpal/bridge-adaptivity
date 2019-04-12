@@ -39,6 +39,8 @@ from module.models import (
     Sequence, SequenceItem
 )
 
+from module.consumers import NextButtonConsumer
+
 log = logging.getLogger(__name__)
 
 DEMO_USER = 'demo_lti_user'
@@ -720,6 +722,7 @@ def callback_sequence_item_grade(request):
     ))
 
     sequence = sequence_item.sequence
+    NextButtonConsumer.send_message_to_channel(f'{sequence_item.id}_{sequence_item.position}', 'updated')
     if sequence.lis_result_sourcedid:
         policy = sequence.group.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
         policy.send_grade()
@@ -836,6 +839,8 @@ def demo_collection(request, collection_order_slug):
             activity=start_activity,
             position=1
         )
+        next_forbidden, last_item, sequence_item = _check_next_forbidden(sequence_item.id)
+        context.update({"forbidden": (next_forbidden or '')})
     else:
         s_item_id = request.GET.get('sequence_item_id') or test_sequence.items.last().id
         log.debug(f'SequienceItem id: {s_item_id}')
@@ -849,10 +854,13 @@ def demo_collection(request, collection_order_slug):
                 }
             )
             return redirect(f"{reverse_demo}?forbidden=true&back_url={back_url}&position={sequence_item.position}")
+
         update_activity = request.session.pop('Lti_update_activity', None)
         sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
             sequence_item, update_activity, last_item, position,
         )
+        next_forbidden, _, _ = _check_next_forbidden(sequence_item.id)
+        context.update({"forbidden": (next_forbidden or '')})
 
         if sequence_complete:
             context.update({'sequence_items': test_sequence.items.all(), 'demo': True, 'sequence_item': sequence_item})
@@ -882,3 +890,4 @@ def demo_collection(request, collection_order_slug):
         template_name="module/sequence_item.html",
         context=context
     )
+
