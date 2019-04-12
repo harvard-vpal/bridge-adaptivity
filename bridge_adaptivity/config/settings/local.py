@@ -102,3 +102,11 @@ for app in APPS_TO_LOG:
     }
 LOGGING['loggers'].update(APP_LOGGERS)
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
