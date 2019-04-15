@@ -18,3 +18,10 @@ shortuuid==0.5.0  # https://github.com/skorokithakis/shortuuid
 
 # sentry monitoring requirements
 sentry-sdk==0.6.9
+
+# django channels
+channels
+channels_redis
+
+# for testing web pages
+selenium
