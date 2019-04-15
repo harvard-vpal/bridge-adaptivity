@@ -532,6 +532,9 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['forbidden'] = True
+        if not self.request.GET.get('forbidden'):
+            context['forbidden'], _, _ = _check_next_forbidden(self.object.pk)
         sequence_items = SequenceItem.objects.filter(sequence=self.object.sequence)
         last_item = sequence_items.last()
         if (
@@ -541,8 +544,6 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
             not last_item.score
         ):
             sequence_items = sequence_items[:len(sequence_items) - 1]
-        if self.request.GET.get('forbidden'):
-            context['forbidden'] = True
         context['sequence_items'] = sequence_items
         log.debug("Sequence Items on the page: {}".format(len(sequence_items)))
 
@@ -550,7 +551,6 @@ class SequenceItemDetail(LtiSessionMixin, DetailView):
             sequence_item=self.object,
             log_type=Log.OPENED
         )
-
         return context
 
 
@@ -839,45 +839,37 @@ def demo_collection(request, collection_order_slug):
             activity=start_activity,
             position=1
         )
-        next_forbidden, last_item, sequence_item = _check_next_forbidden(sequence_item.id)
-        context.update({"forbidden": (next_forbidden or '')})
+        next_forbidden, _, _ = _check_next_forbidden(sequence_item.id)
+        context.update({"forbidden": next_forbidden})
     else:
         s_item_id = request.GET.get('sequence_item_id') or test_sequence.items.last().id
         log.debug(f'SequienceItem id: {s_item_id}')
         next_forbidden, last_item, sequence_item = _check_next_forbidden(s_item_id)
         position = int(request.GET.get('position') or 1)
-        if next_forbidden and position > sequence_item.position:
-            reverse_demo = reverse(
-                'module:demo',
-                kwargs={
-                    'collection_order_slug': collection_order_slug,
-                }
+        if not (next_forbidden and position > sequence_item.position):
+            update_activity = request.session.pop('Lti_update_activity', None)
+            sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
+                sequence_item, update_activity, last_item, position,
             )
-            return redirect(f"{reverse_demo}?forbidden=true&back_url={back_url}&position={sequence_item.position}")
+            next_forbidden, _, _ = _check_next_forbidden(sequence_item.id)
+            context.update({"forbidden": next_forbidden})
 
-        update_activity = request.session.pop('Lti_update_activity', None)
-        sequence_item, sequence_complete, stub = utils.select_next_sequence_item(
-            sequence_item, update_activity, last_item, position,
-        )
-        next_forbidden, _, _ = _check_next_forbidden(sequence_item.id)
-        context.update({"forbidden": (next_forbidden or '')})
-
-        if sequence_complete:
-            context.update({'sequence_items': test_sequence.items.all(), 'demo': True, 'sequence_item': sequence_item})
-            return render(
-                request,
-                template_name='module/sequence_complete.html',
-                context=context)
-        elif stub:
-            return stub_page(
-                request,
-                title="Warning",
-                message="Cannot get next activity from the engine.",
-                tip="Try again later or connect with the instructor.",
-                demo=True,
-                sequence=test_sequence,
-                back_url=back_url,
-            )
+            if sequence_complete:
+                context.update({'sequence_items': test_sequence.items.all(), 'demo': True, 'sequence_item': sequence_item})
+                return render(
+                    request,
+                    template_name='module/sequence_complete.html',
+                    context=context)
+            elif stub:
+                return stub_page(
+                    request,
+                    title="Warning",
+                    message="Cannot get next activity from the engine.",
+                    tip="Try again later or connect with the instructor.",
+                    demo=True,
+                    sequence=test_sequence,
+                    back_url=back_url,
+                )
 
     context.update({
         'sequence_item': sequence_item,

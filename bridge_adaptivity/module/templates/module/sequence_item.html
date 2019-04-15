@@ -30,7 +30,7 @@
 <div id="next-button"
      data-url="{% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}" data-sequence_item_id="{{ item.id }}"
      data-room_name="{{sequence_item.id }}_{{sequence_item.position}}"
-     data-is_disabled = "{{ forbidden }}"
+     data-is_disabled = "{% if forbidden%}{{ forbidden }}{% endif %}"
      data-next_item="
         {% if demo %}
           {% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}

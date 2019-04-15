@@ -195,3 +195,12 @@ REST_FRAMEWORK = {
 TEST_SEQUENCE_SUFFIX = 'test_sequence_suffix'
 
 ASGI_APPLICATION = "config.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}
