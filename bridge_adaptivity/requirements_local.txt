@@ -21,5 +21,3 @@ pytest-cov
 pytest-runner
 mock
 ddt
-channels
-channels_redis
