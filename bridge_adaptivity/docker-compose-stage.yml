@@ -8,5 +8,10 @@ services:
   bridge:
     image: bridge_adaptivity:stage
 
+  redis:
+    image: 'redis:latest'
+    ports:
+      - "6379:6379"
+
   nginx:
     image: bridge-nginx:stage
