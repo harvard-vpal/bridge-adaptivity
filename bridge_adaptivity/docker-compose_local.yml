@@ -49,5 +49,12 @@ services:
     ports:
       - "6379:6379"
 
+  chromedriver:
+    image: 'retreatguru/headless-chromedriver:latest'
+    ports:
+      - "4444:4444"
+    environment:
+      - "CHROMEDRIVER_WHITELISTED_IPS=''"
+
 volumes:
   pgs:

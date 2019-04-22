@@ -25,3 +25,4 @@ channels_redis
 
 # for testing web pages
 selenium
+django_selenium

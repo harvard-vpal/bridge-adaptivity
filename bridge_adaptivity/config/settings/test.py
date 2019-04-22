@@ -6,11 +6,11 @@ BRIDGE_HOST = BRIDGE_HOST.strip()
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
-UPDATE_DATABASE = {'NAME': 'traviscidb', 'HOST': 'localhost'}
+UPDATE_DATABASE = {'NAME': 'traviscidb', 'HOST': 'postgres'}
 
 try:
     from . import secure
-    UPDATE_DATABASE['PORT'] = 5430
+    # UPDATE_DATABASE['PORT'] = 5430
 except ImportError:
     from . import secure_example as secure
 
@@ -23,3 +23,11 @@ DEBUG = False
 
 # Disable versions of the static file for the tests
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+SELENIUM_DRIVER = 'Remote'
+
+SELENIUM_HOST = 'chromedriver'
+
+SELENIUM_TESTSERVER_HOST = 'bridge'
+
+TEST_RUNNER = 'django_selenium.selenium_runner.SeleniumTestRunner'
