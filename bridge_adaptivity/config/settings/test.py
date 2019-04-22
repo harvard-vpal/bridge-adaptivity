@@ -6,11 +6,11 @@ BRIDGE_HOST = BRIDGE_HOST.strip()
 
 TEST_RUNNER = 'config.test_runner.PytestTestRunner'
 
-UPDATE_DATABASE = {'NAME': 'traviscidb', 'HOST': 'postgres'}
+UPDATE_DATABASE = {'NAME': 'traviscidb', 'HOST': 'localhost'}
 
 try:
     from . import secure
-    # UPDATE_DATABASE['PORT'] = 5430
+    UPDATE_DATABASE['PORT'] = 5430
 except ImportError:
     from . import secure_example as secure
 
