@@ -29,5 +29,3 @@ var enable_next_buttons = function () {
         enable_next_buttons()
     }
 }());
-
-
