@@ -61,11 +61,6 @@ urlpatterns = ([
         demo_collection,
         name="demo"
     ),
-    # path(
-    #     r'collection_order/<int:sequence_item_id>/demo/<int:position>',
-    #     next_button_channel,
-    #     name="next_button_channel"
-    # ),
     path('sequence/<int:pk>', SequenceDelete.as_view(), name="delete_sequence"),
     url(
         r'^collection_order/(?P<collection_order_slug>[\w-]+)/move/(?P<order>\d+)?$',
