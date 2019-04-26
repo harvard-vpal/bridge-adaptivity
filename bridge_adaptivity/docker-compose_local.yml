@@ -1,48 +1,10 @@
-version: '2'
+version: '3.4'
 services:
-  postgres:
-    container_name: postgresql_BFA
-    image: postgres
-    env_file: ./envs/pg.env
-    volumes:
-      - pgs:/var/lib/postgresql/data/
-    ports:
-      - "5430:5432"
-
   bridge:
-    container_name: BFA_local
-    build:
-      context: .
-      dockerfile: Dockerfile_local
-    image: bridge_adaptivity
-    command: bash -c "sleep 5 && python manage.py runserver 0.0.0.0:8008 --settings=config.settings.local"
-    volumes:
-      - .:/bridge_adaptivity
-    ports:
-      - "8008:8008"
-    links:
-      - postgres
+    image: bridge_adaptivity:local
     stdin_open: true
     tty: true
 
   # Celery worker
   worker:
-    image: bridge_adaptivity
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings.local
-    command: bash -c "sleep 5 && celery -A config worker -l info"
-    volumes:
-      - .:/bridge_adaptivity
-    links:
-      - rabbit
-      - postgres
-    depends_on:
-      - bridge
-
-  rabbit:
-    container_name: rabbitmq
-    image: rabbitmq
-    env_file: ./envs/rabbit.env
-
-volumes:
-  pgs:
+    image: bridge_adaptivity:local

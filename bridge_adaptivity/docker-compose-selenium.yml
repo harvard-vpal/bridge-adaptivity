@@ -1,0 +1,19 @@
+version: '3.4'
+services:
+  selenium:
+    image: selenium/standalone-chrome:3.141.59-mercury
+    ports:
+      - 4444:4444
+    volumes:
+      - /dev/shm:/dev/shm
+
+  tests-functional:
+    image: bridge_adaptivity:local
+    volumes:
+      - .:/bridge_adaptivity
+    depends_on:
+      - selenium
+      - postgres
+      - bridge
+    entrypoint: ""
+    command: pytest --no-cov /bridge_adaptivity/tests/selenium
