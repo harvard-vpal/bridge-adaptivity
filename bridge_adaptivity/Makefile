@@ -1,4 +1,7 @@
 
+COMPOSE_BASE := docker-compose -f docker-compose.yml
+
+
 docker-build: .build/bridge .build/nginx
 
 .build/bridge:
@@ -15,13 +18,22 @@ docker-build: .build/bridge .build/nginx
 		-t bridge-nginx:stage .
 
 run-local: docker-build
-	docker-compose -f docker-compose.yml -f docker-compose_local.yml up -d bridge
+	$(COMPOSE_BASE) -f docker-compose_local.yml up -d bridge
 
 run-stage: docker-build
-	docker-compose -f docker-compose.yml -f docker-compose-stage.yml up -d
+	$(COMPOSE_BASE) -f docker-compose-stage.yml up -d
+
+run:
+	$(COMPOSE_BASE) up -d
+
+migrate-local:
+	$(COMPOSE_BASE) -f docker-compose_local.yml run --entrypoint "" bridge python3 manage.py migrate
+
+migrate-stage:
+	$(COMPOSE_BASE) -f docker-compose-stage.yml run --entrypoint "" bridge python3 manage.py migrate
 
 migrate:
-	docker-compose -f docker-compose.yml run --entrypoint "" bridge python3 manage.py migrate
+	$(COMPOSE_BASE) run --entrypoint "" bridge python3 manage.py migrate
 
 test-selenium: docker-build
 	docker-compose -f docker-compose.yml -f docker-compose_local.yml -f docker-compose-selenium.yml run tests-functional
