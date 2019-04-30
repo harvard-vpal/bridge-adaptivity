@@ -73,8 +73,7 @@ You can run tests locally (directly on your host), or on the docker machine.
 
 * to run tests locally:
     * install requirements with command `pip install -r requirements_local.txt`
-    * run tests: `python manage.py test --settings config.settings.test` or
-    just `pytest`. Both commands are equal.
+    * run tests: `python manage.py test --settings config.settings.test` or just `pytest`. Both commands are equal.
 * to run tests in docker container:
     * create docker container: `make run-local`
     * run tests: `docker exec -it BFA pytest`
@@ -106,8 +105,7 @@ is configured in proper way.
 
 Run make command to start production deployment:
 
-    sudo make run
-
+    [sudo] make run
 
 ### Additional notes
 
@@ -119,7 +117,8 @@ Run make command to start production deployment:
 - For run migration(production, stage and local): 
 
 
-    [sudo] make migrate 
-    [sudo] make migrate-stage 
+    [sudo] make migrate
+
+    [sudo] make migrate-stage
+
     [sudo] make migrate-local
- 
