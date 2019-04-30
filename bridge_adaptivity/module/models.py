@@ -458,7 +458,8 @@ class Activity(OrderedModel):
         return reverse('module:collection-detail', kwargs={'slug': self.collection.slug})
 
     def save(self, *args, **kwargs):
-        """Extension which sends notification to the Adaptive engine that Activity is created/updated."""
+        """Extension which sends notification to the Adaptive engine that Activity is created/updated
+        unless COLLECTION_SYNC_ON_ACTIVITY_UPDATE setting is present and set to False."""
         initial_id = self.id
         if initial_id:
             Log.objects.create(
@@ -471,16 +472,19 @@ class Activity(OrderedModel):
                 data=self.get_research_data()
             )
         super().save(*args, **kwargs)
-        self.collection.save()
+        if getattr(settings, 'COLLECTION_SYNC_ON_ACTIVITY_UPDATE', True):
+            self.collection.save()
 
     def delete(self, *args, **kwargs):
-        """Extension which sends notification to the Adaptive engine that Activity is deleted."""
+        """Extension which sends notification to the Adaptive engine that Activity is deleted
+        unless COLLECTION_SYNC_ON_ACTIVITY_UPDATE setting is present and set to False."""
         Log.objects.create(
             log_type=Log.ADMIN, action=Log.ACTIVITY_DELETED,
             data=self.get_research_data()
         )
         super().delete(*args, **kwargs)
-        self.collection.save()
+        if getattr(settings, 'COLLECTION_SYNC_ON_ACTIVITY_UPDATE', True):
+            self.collection.save()
 
     @property
     def last_pre(self):
