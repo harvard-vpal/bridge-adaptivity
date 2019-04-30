@@ -142,9 +142,10 @@
             {
                 return "";
             }
+            var encodedDisplayName = encodeURIComponent(item["display_name"]);
             return `${$('#activity-add-url-holder').data().url}?`
-                + `name=${item["display_name"]}&`
-                + `source_name=${item["display_name"]}&`
+                + `name=${encodedDisplayName}&`
+                + `source_name=${encodedDisplayName}&`
                 + `source_launch_url=${item["lti_url"]}&`
                 + `lti_content_source=${item["content_source_id"]}&`
                 + `stype=${item["type"]}`;
