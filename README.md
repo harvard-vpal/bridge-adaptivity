@@ -64,7 +64,7 @@ console in `bridge_adaptivity` directory:
 
 Volume "pgs" is added to the the database container.
 
-  Note: Development server available on `localhost:8000`
+  Note: Development server available on `localhost:8008`
 
 
 ### Running tests
