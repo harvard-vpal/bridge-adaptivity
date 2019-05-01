@@ -26,6 +26,7 @@ from bridge_lti.models import LtiLmsPlatform, LtiUser
 from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseModuleGroupView
+from module.consumers import NextButtonConsumer
 from module.forms import (
     ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ContributorPermissionForm,
     ModuleGroupForm
@@ -39,7 +40,6 @@ from module.models import (
     Sequence, SequenceItem
 )
 
-from module.consumers import NextButtonConsumer
 
 log = logging.getLogger(__name__)
 
@@ -855,7 +855,9 @@ def demo_collection(request, collection_order_slug):
             context.update({"forbidden": next_forbidden})
 
             if sequence_complete:
-                context.update({'sequence_items': test_sequence.items.all(), 'demo': True, 'sequence_item': sequence_item})
+                context.update(
+                    {'sequence_items': test_sequence.items.all(), 'demo': True, 'sequence_item': sequence_item}
+                )
                 return render(
                     request,
                     template_name='module/sequence_complete.html',
@@ -882,4 +884,3 @@ def demo_collection(request, collection_order_slug):
         template_name="module/sequence_item.html",
         context=context
     )
-
