@@ -13,11 +13,13 @@ var enable_next_buttons = function () {
 };
 
 (function() {
-    room_name = $("#next-button").data("room_name");
+    sequence_item = $("#next-button").data("sequence_item");
     is_disabled = $("#next-button").data("is_disabled");
-    if(room_name && is_disabled){
+    if(sequence_item && is_disabled){
         var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-        var buttonSocket = new WebSocket(ws_scheme + '://' +  window.location.host + '/sequence/'+ room_name + '/');
+        var buttonSocket = new WebSocket(
+            ws_scheme + '://' +  window.location.host + '/sequence/'+ sequence_item + '/'
+        );
          console.log("Next button channel run");
         buttonSocket.onmessage = function(e) {
             var data = JSON.parse(e.data);

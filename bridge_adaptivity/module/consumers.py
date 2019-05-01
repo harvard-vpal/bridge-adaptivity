@@ -1,34 +1,30 @@
-from asgiref.sync import async_to_sync
-import channels.layers
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
+
+from asgiref.sync import async_to_sync
+from channels.generic.websocket import AsyncWebsocketConsumer
+import channels.layers
+
 
 class NextButtonConsumer(AsyncWebsocketConsumer):
 
-    prefix = 'activity'
-
     async def connect(self):
-        self.room_name = f"{self.scope['url_route']['kwargs']['room_name']}"
-        self.room_group_name = f'{self.prefix}_{self.room_name}'
+        self.sequence_item_channel = f"{self.scope['url_route']['kwargs']['sequence_item']}"
+        self.sequence_item_group= f"group_{self.sequence_item_channel}"
 
-        # Join room group
         await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
+            self.sequence_item_group,
+            self.sequence_item_channel
         )
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Leave room group
         await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
+            self.sequence_item_group,
+            self.sequence_item_channel
         )
 
-    async def receive(self, text_data):
-        pass
 
-    async def chat_message(self, event):
+    async def send_message(self, event):
         message = event['message']
 
         # Send message to WebSocket
@@ -37,8 +33,8 @@ class NextButtonConsumer(AsyncWebsocketConsumer):
         }))
 
     @staticmethod
-    def send_message_to_channel(room_name, message):
+    def send_message_to_channel(sequence_item_channel, message):
         channel_layer = channels.layers.get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            f'{NextButtonConsumer.prefix}_{room_name}', {'type': 'chat_message', 'message': message}
+            f'grpup_{sequence_item_channel}', {'type': 'send_message', 'message': message}
         )
