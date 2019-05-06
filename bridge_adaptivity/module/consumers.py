@@ -36,5 +36,5 @@ class NextButtonConsumer(AsyncWebsocketConsumer):
     def send_message_to_channel(sequence_item_channel, message):
         channel_layer = channels.layers.get_channel_layer()
         async_to_sync(channel_layer.group_send)(
-            f'grpup_{sequence_item_channel}', {'type': 'send_message', 'message': message}
+            f'group_{sequence_item_channel}', {'type': 'send_message', 'message': message}
         )
