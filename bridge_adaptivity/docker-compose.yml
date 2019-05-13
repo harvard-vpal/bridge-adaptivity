@@ -1,3 +1,5 @@
+# This is the main docker-compose configuration. It has all services for stage and prod. Other configuration's files
+# use this file as default settings and change or supplement.
 version: '3.4'
 services:
   postgres:

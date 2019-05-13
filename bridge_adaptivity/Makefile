@@ -26,6 +26,27 @@ run-stage: docker-build
 run:
 	$(COMPOSE_BASE) up -d
 
+stop-local:
+	$(COMPOSE_BASE) -f docker-compose_local.yml stop
+
+stop-stage:
+	$(COMPOSE_BASE) -f docker-compose-stage.yml stop
+
+stop:
+	$(COMPOSE_BASE) stop
+
+config-local:
+	$(COMPOSE_BASE) -f docker-compose_local.yml config
+
+config-stage:
+	$(COMPOSE_BASE) -f docker-compose-stage.yml config
+
+config-selenium:
+	docker-compose -f docker-compose.yml -f docker-compose_local.yml -f docker-compose-selenium.yml config
+
+config:
+	$(COMPOSE_BASE) config
+
 migrate-local:
 	$(COMPOSE_BASE) -f docker-compose_local.yml run --entrypoint "" bridge python3 manage.py migrate
 

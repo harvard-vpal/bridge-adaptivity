@@ -1,3 +1,7 @@
+# This is the docker-compose configuration file for running stage. This file uses the docker-compose.yml as base configuration and changes a part of configuration.
+# You can run the next command and see the resulting configuration:
+# 'make config-stage'
+# You can see this command in bridge_adaptivity/Makefile.
 version: '3.4'
 services:
 
