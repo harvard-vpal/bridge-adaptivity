@@ -1,3 +1,4 @@
+# Start of cached part
 FROM python:3.6 as prod_base
 ENV PYTHONUNBUFFERED 1
 
@@ -28,7 +29,9 @@ FROM stage_base as local_base
 
 COPY requirements_local.txt ./
 RUN pip install -r requirements_local.txt
+# End of cached part
 
+# Start of not cached part
 FROM prod_base as prod
 
 ENTRYPOINT ["gunicorn"]
@@ -40,15 +43,14 @@ FROM local_base as local
 
 ENV DJANGO_SETTINGS_MODULE=config.settings.local
 
-ENTRYPOINT ["python", "manage.py"]
-CMD ["runserver", "0.0.0.0:8000"]
+ENTRYPOINT ["/bridge_adaptivity/local_run.sh"]
 
 COPY --from=prod /bridge_adaptivity /bridge_adaptivity
-COPY --from=prod /www/static /www/static
 
 FROM stage_base as stage
 
 COPY --from=prod /bridge_adaptivity /bridge_adaptivity
 COPY --from=prod /www/static /www/static
 
+# End of not cached part
 FROM prod
