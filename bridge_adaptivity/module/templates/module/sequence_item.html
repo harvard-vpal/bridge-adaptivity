@@ -31,6 +31,7 @@
      data-url="{% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}" data-sequence_item_id="{{ item.id }}"
      data-sequence_item="{{sequence_item.id }}_{{sequence_item.position}}"
      data-is_disabled = "{% if forbidden%}{{ forbidden }}{% endif %}"
+     data-enable_ui_option = "{% if sequence_item.sequence.collection_order.ui_option %}true{% endif %}"
      data-next_item="
         {% if demo %}
           {% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}

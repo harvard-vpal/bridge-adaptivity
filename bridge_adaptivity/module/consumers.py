@@ -9,7 +9,7 @@ class NextButtonConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.sequence_item_channel = f"{self.scope['url_route']['kwargs']['sequence_item']}"
-        self.sequence_item_group= f"group_{self.sequence_item_channel}"
+        self.sequence_item_group = f"group_{self.sequence_item_channel}"
 
         await self.channel_layer.group_add(
             self.sequence_item_group,

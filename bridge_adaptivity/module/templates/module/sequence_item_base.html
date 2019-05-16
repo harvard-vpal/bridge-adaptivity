@@ -31,7 +31,7 @@
         {% endfor %}
       </div>
       {% if sequence_item.sequence.collection_order.ui_option %}
-        <h4 class="pull-right">
+        <h4 class="pull-right" id="ui_option" data-child_elements="span" data-child_classes="label label-success column">
             {% for details in sequence_item.sequence.sequence_ui_details %}
                 <span class="label label-success column">{{ details }}</span>
             {% endfor %}
