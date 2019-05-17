@@ -720,9 +720,13 @@ def callback_sequence_item_grade(request):
     log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}, sequence is completed: {}".format(
         attempt, correct, sequence_item.sequence.completed
     ))
-
+    message_to_consumer = {"sequence_status": "updated"}
     sequence = sequence_item.sequence
-    NextButtonConsumer.send_message_to_channel(f'{sequence_item.id}_{sequence_item.position}', 'updated')
+    if sequence_item.sequence.collection_order.ui_option:
+        ui_details = sequence_item.sequence.sequence_ui_details()
+        message_to_consumer["ui_details"] = ui_details
+
+    NextButtonConsumer.send_message_to_channel(f'{sequence_item.id}_{sequence_item.position}', message_to_consumer)
     if sequence.lis_result_sourcedid:
         policy = sequence.group.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
         policy.send_grade()
