@@ -20,6 +20,7 @@ services:
     depends_on:
       - postgres
       - worker
+      - redis
     volumes:
       - .:/bridge_adaptivity
       - static:/www/static
@@ -54,6 +55,15 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
+
+  redis:
+    container_name: redis
+    image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   nginx:
     image: bridge-nginx

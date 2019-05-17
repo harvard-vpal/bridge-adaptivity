@@ -7,5 +7,5 @@ git pull
 
 cd ./bridge_adaptivity
 
-make migrate
+make migrate-stage
 make run-stage
