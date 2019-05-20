@@ -1,23 +1,36 @@
-os:
-- linux
-sudo: false
-language: python
-python:
-- "3.6"
-install: pip install tox-travis
-script: tox
+jobs:
+  include:
+    - stage: flake8
+      os:
+        - linux
+      sudo: false
+      language: python
+      python:
+        - "3.6"
+      install: pip install tox-travis
+      script: make flake8
 
-services:
-  - postgresql
-addons:
-  postgresql: "9.6"
+    - stage: pytest
+      os:
+      - linux
+      sudo: false
+      language: python
+      python:
+      - "3.6"
+      install: pip install tox-travis
+      script: make pytest
 
-before_script:
-  - psql -c "CREATE DATABASE traviscidb;" -U postgres
-  - psql -c "CREATE USER bridge PASSWORD 'bridge-adaptivity';" -U postgres
-  - psql -c "ALTER USER bridge CREATEDB;" -U postgres
-  - psql -c "GRANT ALL PRIVILEGES on DATABASE traviscidb to bridge;" -U postgres
+      services:
+        - postgresql
+      addons:
+        postgresql: "9.6"
 
-after_success:
-  - coveralls
-  - codecov
+      before_script:
+        - psql -c "CREATE DATABASE traviscidb;" -U postgres
+        - psql -c "CREATE USER bridge PASSWORD 'bridge-adaptivity';" -U postgres
+        - psql -c "ALTER USER bridge CREATEDB;" -U postgres
+        - psql -c "GRANT ALL PRIVILEGES on DATABASE traviscidb to bridge;" -U postgres
+
+      after_success:
+        - coveralls
+        - codecov

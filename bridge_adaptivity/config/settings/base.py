@@ -65,6 +65,7 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
     'multiselectfield',
     'django_filters',
+    'channels',
 
     # core functions
     'bridge_lti',
@@ -192,3 +193,14 @@ REST_FRAMEWORK = {
 
 # Demo functionality
 TEST_SEQUENCE_SUFFIX = 'test_sequence_suffix'
+
+ASGI_APPLICATION = "config.routing.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
+}

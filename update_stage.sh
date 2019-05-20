@@ -7,4 +7,5 @@ git pull
 
 cd ./bridge_adaptivity
 
-docker-compose -f ./docker-compose-stage.yml restart
+make migrate-stage
+make run-stage
