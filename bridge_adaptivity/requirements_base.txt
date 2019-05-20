@@ -22,7 +22,3 @@ sentry-sdk==0.6.9
 # django channels
 channels
 channels_redis
-
-# for testing web pages
-selenium
-django_selenium

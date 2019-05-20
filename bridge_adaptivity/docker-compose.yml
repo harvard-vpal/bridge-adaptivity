@@ -1,4 +1,6 @@
-version: '2'
+# This is the main docker-compose configuration. It has all services for stage and prod. Other configuration's files
+# use this file as default settings and change or supplement.
+version: '3.4'
 services:
   postgres:
     container_name: postgresql_BFA
@@ -6,42 +8,62 @@ services:
     env_file: ./envs/pg.env
     volumes:
       - pgs:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   bridge:
     container_name: BFA
-    build:
-      context: .
-      dockerfile: Dockerfile
     image: bridge_adaptivity
-    command: bash -c "./prod_run.sh"
+    depends_on:
+      - postgres
+      - worker
+      - redis
     volumes:
       - .:/bridge_adaptivity
       - static:/www/static
     ports:
       - "8000:8000"
-    links:
-      - postgres
+    healthcheck:
+      test: ['CMD-SHELL', 'nc -z 0.0.0.0 8000']
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   # Celery worker
   worker:
     image: bridge_adaptivity
-    environment:
-      DJANGO_SETTINGS_MODULE: config.settings.prod
-    command: bash -c "sleep 5 && celery -A config worker -l info"
+    entrypoint: celery
+    command: -A config worker -l info
     volumes:
       - .:/bridge_adaptivity
     links:
       - rabbit
       - postgres
     depends_on:
-      - bridge
+      - postgres
+      - rabbit
 
   rabbit:
     container_name: rabbitmq
     image: rabbitmq
     env_file: ./envs/rabbit.env
+    healthcheck:
+      test: ['CMD-SHELL', 'rabbitmqctl status']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    container_name: redis
+    image: redis
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   redis:
     image: 'redis:latest'
@@ -49,16 +71,13 @@ services:
       - "6379:6379"
 
   nginx:
-    container_name: nginx_BFA
-    build: ./nginx
+    image: bridge-nginx
     ports:
       - "80:80"
       - "443:443"
-    volumes_from:
-      - bridge
     volumes:
       - /etc/nginx/ssl/:/etc/nginx/ssl/
-    links:
+    depends_on:
       - bridge
 
 volumes:

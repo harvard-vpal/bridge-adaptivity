@@ -42,9 +42,9 @@ our group and our work.
 
 ### Deployment
 
-Deployment is based on the `Docker` containers. There are two config
-files `docker-compose_local.yml` and `docker-compose.yml` for local
-and production deployments respectively.
+Deployment is based on the `Docker` containers. There are three config
+files `docker-compose_local.yml`, `docker-compose-stage.yml` and `docker-compose.yml` for local
+, stage and production deployments respectively.
 
 Docker and Docker Compose are required to be installed before start
 the deploying.
@@ -57,13 +57,12 @@ Before running deployment configure `secure.py` settings in the
 
 ### Local deployment
 
-Local deployment can be started by the docker-compose up command in the
-console:
+Local deployment can be started by the make command in the
+console in `bridge_adaptivity` directory:
 
-    [sudo] docker-compose -f docker-compose_local.yml up
+    [sudo] make run-local
 
-
-  Volume "pgs" is added to the the database container.
+Volume "pgs" is added to the the database container.
 
   Note: Development server available on `localhost:8008`
 
@@ -74,11 +73,10 @@ You can run tests locally (directly on your host), or on the docker machine.
 
 * to run tests locally:
     * install requirements with command `pip install -r requirements_local.txt`
-    * run tests: `python manage.py test --settings config.settings.test` or
-    just `pytest`. Both commands are equal.
+    * run tests: `python manage.py test --settings config.settings.test` or just `pytest`. Both commands are equal.
 * to run tests in docker container:
-    * create docker container: `docker-compose -f docker-compose_local.yml up -d`
-    * run tests: `docker exec -it BFA_local pytest`
+    * create docker container: `make run-local`
+    * run tests: `docker exec -it BFA pytest`
         * if you see an error:
           ```
           import file mismatch:
@@ -87,39 +85,40 @@ You can run tests locally (directly on your host), or on the docker machine.
           HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules
           ```
           you should run: `find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf`
-          and after that retry running the tests: `docker exec -it BFA_local pytest`
+          and after that retry running the tests: `docker exec -it BFA pytest`
 
 
 ### Staging deployment
 
-Please ensure that file in `nginx/sites_enabled/bridge-stage.conf` exists and
+Please ensure that file in `nginx/stage/bridge.conf` exists and
 is configured in proper way.
 
-Run docker-compose up command with `docker-compose-stage.yml` file
-to start staging deployment:
+Run make command to start staging deployment:
 
-    [sudo] docker-compose -f ./docker-compose-stage.yml up
+    [sudo] make run-stage
 
 
 ### Production deployment
 
-Please ensure that file in `nginx/sites_enabled/bridge.conf` exists and
+Please ensure that file in `nginx/prod/bridge.conf` exists and
 is configured in proper way.
 
-Run docker-compose up command with default `docker-compose.yml` file
-to start production deployment:
+Run make command to start production deployment:
 
-    sudo docker-compose up -d
-
+    [sudo] make run
 
 ### Additional notes
 
 - if `requirements` changes were made containers rebuilding needed:
 
-production:
 
-    [sudo] docker-compose -f docker-compose.yml build
+    [sudo] make docker-build
 
-development:
+- For run migration(production, stage and local): 
 
-    [sudo] docker-compose -f docker-compose_local.yml build
+
+    [sudo] make migrate
+
+    [sudo] make migrate-stage
+
+    [sudo] make migrate-local
