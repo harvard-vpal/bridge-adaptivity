@@ -48,7 +48,8 @@ ENTRYPOINT ["/bridge_adaptivity/local_run.sh"]
 COPY --from=prod /bridge_adaptivity /bridge_adaptivity
 
 FROM stage_base as stage
-
+ENTRYPOINT ["gunicorn"]
+CMD ["config.wsgi:application", "-w", "2", "-b", ":8000"]
 COPY --from=prod /bridge_adaptivity /bridge_adaptivity
 COPY --from=prod /www/static /www/static
 
