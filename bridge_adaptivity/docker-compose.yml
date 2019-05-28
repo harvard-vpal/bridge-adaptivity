@@ -23,7 +23,6 @@ services:
       - redis
     volumes:
       - .:/bridge_adaptivity
-      - static:/www/static
     ports:
       - "8000:8000"
     healthcheck:
@@ -77,4 +76,3 @@ services:
 
 volumes:
   pgs:
-  static: {}
