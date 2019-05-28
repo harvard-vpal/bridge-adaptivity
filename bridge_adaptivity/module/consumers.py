@@ -13,14 +13,14 @@ class NextButtonConsumer(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_add(
             self.sequence_item_group,
-            self.sequence_item_channel
+            self.channel_name
         )
         await self.accept()
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.sequence_item_group,
-            self.sequence_item_channel
+            self.channel_name
         )
 
     async def send_message(self, event):
