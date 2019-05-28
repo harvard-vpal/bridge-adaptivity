@@ -101,4 +101,3 @@ for app in APPS_TO_LOG:
         'propagate': True,
     }
 LOGGING['loggers'].update(APP_LOGGERS)
-

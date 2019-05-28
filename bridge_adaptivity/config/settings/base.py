@@ -196,6 +196,7 @@ TEST_SEQUENCE_SUFFIX = 'test_sequence_suffix'
 
 ASGI_APPLICATION = "config.routing.application"
 
+# Use Redis as channel layer for django channels
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",

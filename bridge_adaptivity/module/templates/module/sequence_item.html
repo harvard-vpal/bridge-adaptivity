@@ -6,15 +6,9 @@
 
 <div class="row">
   <div class="col-md-{% if demo %}12{% else %}12{% endif %}">
-        <a href="
-          {% if demo %}
-            {% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}?back_url={{ back_url }}sequence_item_id={{ sequence_item.id }}&position={{ position }}
-          {% else %}
-            {% url 'module:sequence-item-next' sequence_item.id %}
-          {% endif %}
-        ">
+    <a class="next-button-link">
       {% if sequence_item.sequence.collection_order.ui_next %}
-        {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+        {% bootstrap_button 'Next' size='md' button_class='btn-primary ' extra_classes='pull-right disabled' %}
       {% endif %}
     </a>
   </div>
@@ -33,17 +27,21 @@
   </iframe>
 </div>
 <div class="row">
-<div id="next-button" data-forbidden="{{ forbidden }}"
+<div id="next-button"
      data-url="{% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}" data-sequence_item_id="{{ item.id }}"
+     data-sequence_item="{{sequence_item.id }}_{{sequence_item.position}}"
+     data-is_disabled = "{% if forbidden%}{{ forbidden }}{% endif %}"
+     data-enable_ui_option = "{% if sequence_item.sequence.collection_order.ui_option %}true{% endif %}"
+     data-next_item="
+        {% if demo %}
+          {% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}
+        {% else %}
+          {% url 'module:sequence-item-next' sequence_item.id %}
+        {% endif %}
+    "
      class="col-md-{% if demo %}12{% else %}12{% endif %}?sequence_item_id={{ item.id }}">
-  <a href="
-    {% if demo %}
-      {% url 'module:demo' collection_order_slug=sequence_item.sequence.collection_order.slug %}?back_url={{ back_url }}&sequence_item_id={{ sequence_item.id }}&position={{ position }}
-    {% else %}
-      {% url 'module:sequence-item-next' sequence_item.id %}
-    {% endif %}
-  ">
-  {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right' %}
+  <a class="next-button-link">
+      {% bootstrap_button 'Next' size='md' button_class='btn-primary' extra_classes='pull-right disabled' %}
   </a>
 </div>
 </div>

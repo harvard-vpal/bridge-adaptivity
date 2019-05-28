@@ -23,3 +23,11 @@ DEBUG = False
 
 # Disable versions of the static file for the tests
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+SELENIUM_DRIVER = 'Remote'
+
+SELENIUM_HOST = 'chromedriver'
+
+SELENIUM_TESTSERVER_HOST = 'bridge'
+
+TEST_RUNNER = 'django_selenium.selenium_runner.SeleniumTestRunner'
