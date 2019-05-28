@@ -23,7 +23,6 @@ class NextButtonConsumer(AsyncWebsocketConsumer):
             self.sequence_item_channel
         )
 
-
     async def send_message(self, event):
         message = event['message']
 
