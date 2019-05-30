@@ -27,8 +27,14 @@
         <button
                 class="btn btn-default activity-show-advanced-options"
                 data-toggle=".advanced_fields"
+                onclick=" $($(this).data('toggle')).toggle('slow');
+                        $('.activity-show-advanced-options .glyphicon').toggleClass('glyphicon-plus').toggleClass('glyphicon-minus');
+                        button_description = $(this).children('.button_description');
+                        button_description.text(((button_description.text()) == 'Show'? 'Hide' : 'Show' ));
+                        event.preventDefault();
+        "
         >
-            {% bootstrap_icon "plus" %} <span class="button_description">Show advanced options<span>
+            {% bootstrap_icon "plus" %} <span class="button_description">Show</span> advanced options
         </button>
 
         <button class="btn btn-primary" type="submit">{% if activity %}Update{% else %}Create{% endif %}</button>
