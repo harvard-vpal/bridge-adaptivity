@@ -24,7 +24,7 @@ class ActivityForm(ModelForm):
     """
 
     required_css_class = 'required'
-    advanced_fields = ['source_launch_url', 'source_name']
+    advanced_fields = ['source_launch_url', 'source_name', 'lti_content_source']
 
     class Meta:
         """
