@@ -360,8 +360,10 @@
         const modalSuccessListener = (url) => {
             return result => {
                 let modal = $('#modal-wrapper');
-                if (result.status !== undefined && result.status === 'ok') {
-                    window.location.href = window.location.href ;
+                if (result.status !== undefined && result.status === 'ok' && result.collection_slug !== undefined) {
+                    var new_url = new URL(window.location.href);
+                    new_url.searchParams.append('collection_slug', result.collection_slug);
+                    window.location.href = new_url.href;
                     return;
                 }
                 modal.find('.modal-body').html(result);

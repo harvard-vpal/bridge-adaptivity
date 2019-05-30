@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Max, Q
 from django.http import HttpResponse, HttpResponseNotFound
-from django.http.response import Http404
+from django.http.response import Http404, JsonResponse
 from django.shortcuts import get_list_or_404, get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -272,7 +272,13 @@ class CollectionCreate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, C
 
 @method_decorator(login_required, name='dispatch')
 class CollectionUpdate(BaseCollectionView, SetUserInFormMixin, ModalFormMixin, UpdateView):
-    pass
+
+    def form_valid(self, form):
+        """
+        Return status code as Accepted and JSON {'status': 'ok', 'collection_slug': new_slug}.
+        """
+        super().form_valid(form)
+        return JsonResponse(status=202, data={'status': 'ok', 'collection_slug': form.cleaned_data.get("slug")})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -356,6 +362,9 @@ class CollectionDetail(BaseCollectionView, DetailView):
         try:
             self.get_object()
         except Http404:
+            collection_slug = request.GET.get('collection_slug')
+            if collection_slug:
+                return redirect(reverse("module:collection-detail", kwargs={'slug': collection_slug}))
             return redirect(reverse('module:collection-list'))
         return super().get(request, *args, **kwargs)
 
