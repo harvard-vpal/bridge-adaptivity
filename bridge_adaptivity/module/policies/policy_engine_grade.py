@@ -26,7 +26,7 @@ class EngineGradedGradingPolicy(BaseGradingPolicy):
 
         :return: received grade from engine.
         """
-        return self.sequence.group.engine.engine_driver.get_grade(self.sequence)
+        return self.sequence.collection_order.engine.engine_driver.get_grade(self.sequence)
 
     @classmethod
     def get_form_class(cls):

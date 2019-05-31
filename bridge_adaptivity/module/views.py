@@ -728,7 +728,7 @@ def callback_sequence_item_grade(request):
 
     NextButtonConsumer.send_message_to_channel(f'{sequence_item.id}_{sequence_item.position}', message_to_consumer)
     if sequence.lis_result_sourcedid:
-        policy = sequence.group.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
+        policy = sequence.collection_order.grading_policy.policy_instance(sequence=sequence, request=request, user_id=user_id)
         policy.send_grade()
 
     return HttpResponse(xml, content_type="application/xml")
