@@ -33,7 +33,7 @@ var update_ui_details = function(uiDetailsArray){
     if(sequence_item && is_disabled){
         var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
         var buttonSocket = new WebSocket(
-            ws_scheme + '://' +  window.location.host + '/sequence/'+ sequence_item + '/'
+            ws_scheme + '://' +  window.location.host + '/ws/sequence/'+ sequence_item + '/'
         );
          console.log("Next button channel run");
         buttonSocket.onmessage = function(e) {
