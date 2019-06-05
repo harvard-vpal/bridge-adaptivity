@@ -10,3 +10,6 @@ services:
 
   nginx:
     image: bridge-nginx:stage
+
+  bridge_web_socket:
+    image: bridge_adaptivity:stage

@@ -45,6 +45,19 @@ services:
       - postgres
       - rabbit
 
+  bridge_web_socket:
+    image: bridge_adaptivity
+    depends_on:
+      - postgres
+      - worker
+      - redis
+    volumes:
+      - .:/bridge_adaptivity
+    ports:
+      - "8001:8001"
+    entrypoint: ""
+    command: daphne -b 0.0.0.0 -p 8001 config.asgi:application
+
   rabbit:
     container_name: rabbitmq
     image: rabbitmq
