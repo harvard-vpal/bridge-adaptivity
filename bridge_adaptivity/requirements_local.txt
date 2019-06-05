@@ -21,3 +21,4 @@ pytest-cov
 pytest-runner
 mock
 ddt
+cryptography
