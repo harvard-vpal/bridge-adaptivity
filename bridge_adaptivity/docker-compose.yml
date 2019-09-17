@@ -4,7 +4,7 @@ version: '3.4'
 services:
   postgres:
     container_name: postgresql_BFA
-    image: postgres
+    image: postgres:11.5
     env_file: ./envs/pg.env
     volumes:
       - pgs:/var/lib/postgresql/data/
