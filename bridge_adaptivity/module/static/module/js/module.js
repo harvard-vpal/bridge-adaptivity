@@ -360,9 +360,14 @@
         const modalSuccessListener = (url) => {
             return result => {
                 let modal = $('#modal-wrapper');
-                if (result.status !== undefined && result.status === 'ok' && result.collection_slug !== undefined) {
-                    var new_url = new URL(window.location.href);
+                let new_url = new URL(window.location.href);
+
+                // FixMe: Following statement checks 'collection_slug' in the result and adds get params to the URL.
+                //        This is required to have correct redirection in case collection slug is changed.
+                if (result.collection_slug !== undefined) {
                     new_url.searchParams.append('collection_slug', result.collection_slug);
+                }
+                if (result.status === 'ok') {
                     window.location.href = new_url.href;
                     return;
                 }
