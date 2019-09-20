@@ -370,7 +370,7 @@ class TestSequence(TestCase):
         #  from the multiselectfield.db.fields
         {'option': MSFList(OPTIONS, ['AT']), 'expected_result': ['Questions viewed/total: 4/5']},
         {'option': MSFList(OPTIONS, ['EP', 'AT', 'RW']), 'expected_result': [
-            'Earned grade: 0.3', 'Questions viewed/total: 4/5', 'Answers right/wrong: 2/1'
+            'Earned grade: 30.0%', 'Questions viewed/total: 4/5', 'Answers right/wrong: 2/1'
         ]},
         {'option': MSFList(OPTIONS, []), 'expected_result': []},
     )
