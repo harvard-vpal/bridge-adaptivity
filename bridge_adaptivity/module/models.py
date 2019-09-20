@@ -2,6 +2,7 @@ import hashlib
 import importlib
 import inspect
 import logging
+import math
 import os
 import uuid
 
@@ -126,7 +127,10 @@ class Sequence(models.Model):
                 )
             elif ui_option == CollectionOrder.OPTIONS[1][0]:
                 grade = self.collection_order.grading_policy.calculate_grade(self)
-                details = f"{CollectionOrder.OPTIONS[1][1]}: {grade}"
+                # NOTE(andrey.lykhoman): Operations with float numbers can lead to the creation of some numbers in
+                #     higher degrees after the decimal point.
+                grade = round(grade * 100, 1)
+                details = f"{CollectionOrder.OPTIONS[1][1]}: {grade}%"
             else:
                 details = (
                     f"{CollectionOrder.OPTIONS[2][1]}: "
@@ -214,7 +218,7 @@ class GradingPolicy(ModelFieldIsDefaultMixin, models.Model):
 
     def calculate_grade(self, sequence):
         policy = self.policy_cls(policy=self, sequence=sequence)
-        return policy.grade
+        return math.floor(policy.grade * 1000) / 1000
 
     def __str__(self):
         return "{}, public_name: {} params: {}{}".format(
