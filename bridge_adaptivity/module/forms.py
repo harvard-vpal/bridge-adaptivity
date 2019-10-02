@@ -4,6 +4,7 @@ Forms to work with module's models.
 import logging
 
 from django import forms
+from django.conf import settings
 from django.forms import ModelForm
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _
@@ -153,9 +154,16 @@ class CollectionOrderForm(ModelForm):
             'grading_policy_name',
             'strict_forward',
             'ui_option',
-            'ui_next'
+            'ui_next',
+            'congratulation_message',
         )
-        labels = {'ui_option': _('UI Option'), 'ui_next': _('Additional NEXT Button')}
+        labels = {
+            'ui_option': _('UI Option'),
+            'ui_next': _('Additional NEXT Button'),
+            'congratulation_message': _('Show congratulation message if score is {}%+').format(
+                int(settings.CONGRATULATION_SCORE_LEVEL * 100)
+            )
+        }
         help_texts = {'collection': _(
             "You can choose the available collection or create a new Collection above."
         )}

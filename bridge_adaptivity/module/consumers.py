@@ -1,11 +1,12 @@
 import json
 
+
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 import channels.layers
 
 
-class NextButtonConsumer(AsyncWebsocketConsumer):
+class CallbackSequenceConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.sequence_item_channel = f"{self.scope['url_route']['kwargs']['sequence_item']}"

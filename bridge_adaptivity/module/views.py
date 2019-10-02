@@ -26,7 +26,7 @@ from bridge_lti.models import LtiLmsPlatform, LtiUser
 from common.utils import get_engine_and_collection_order, stub_page
 from module import tasks, utils
 from module.base_views import BaseCollectionOrderView, BaseCollectionView, BaseModuleGroupView
-from module.consumers import NextButtonConsumer
+from module.consumers import CallbackSequenceConsumer
 from module.forms import (
     ActivityForm, BaseCollectionForm, BaseGradingPolicyForm, CollectionOrderForm, ContributorPermissionForm,
     ModuleGroupForm
@@ -675,6 +675,22 @@ class SequenceComplete(LtiSessionMixin, DetailView):
     template_name = 'module/sequence_complete.html'
 
 
+def _check_and_build_web_socket_message(sequence, score):
+    """
+    Build a dictionary with data for callback by Web Socket.
+
+    Check flags ui_option, congratulation_message and validate score.
+    """
+    web_socket_message_dict = {"is_button_enable": True}
+    if sequence.collection_order.congratulation_message and score >= settings.CONGRATULATION_SCORE_LEVEL:
+        web_socket_message_dict["is_show_pop_up"] = True
+
+    if sequence.collection_order.ui_option:
+        web_socket_message_dict["ui_details"] = sequence.sequence_ui_details()
+
+    return web_socket_message_dict
+
+
 @csrf_exempt
 def callback_sequence_item_grade(request):
     outcome_response = OutcomeResponse(
@@ -729,13 +745,11 @@ def callback_sequence_item_grade(request):
     log.debug("New Log is created log_type: 'Submitted', attempt: {}, correct: {}, sequence is completed: {}".format(
         attempt, correct, sequence_item.sequence.completed
     ))
-    message_to_consumer = {"sequence_status": "updated"}
     sequence = sequence_item.sequence
-    if sequence_item.sequence.collection_order.ui_option:
-        ui_details = sequence_item.sequence.sequence_ui_details()
-        message_to_consumer["ui_details"] = ui_details
-
-    NextButtonConsumer.send_message_to_channel(f'{sequence_item.id}_{sequence_item.position}', message_to_consumer)
+    web_socket_message_dict = _check_and_build_web_socket_message(sequence, score)
+    CallbackSequenceConsumer.send_message_to_channel(
+        f'{sequence_item.id}_{sequence_item.position}', web_socket_message_dict
+    )
     if sequence.lis_result_sourcedid:
         policy = sequence.collection_order.grading_policy.policy_instance(
             sequence=sequence, request=request, user_id=user_id
