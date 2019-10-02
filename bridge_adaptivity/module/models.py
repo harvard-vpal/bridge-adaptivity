@@ -342,6 +342,8 @@ class CollectionOrder(HasLinkedSequenceMixin, OrderedModel):
     ui_next = models.BooleanField(
         default=False, help_text="Add an optional NEXT button under the embedded unit."
     )
+    congratulation_message = fields.BooleanField(default=False)
+
     order_with_respect_to = 'group'
 
     class Meta:

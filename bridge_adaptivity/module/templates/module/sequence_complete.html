@@ -1,5 +1,5 @@
 {% extends "module/sequence_item_base.html" %}
-{% load staticfiles %}
+{% load staticfiles bootstrap3 %}
 
 
 {% block main_content %}
@@ -12,4 +12,7 @@
   </div>
 </div>
 
+{% bootstrap_javascript jquery=True %}
+<script src="{% static 'module/js/work_with_cookie.js' %}"></script>
+<script src="{% static 'module/js/clean_cookies.js' %}"></script>
 {% endblock main_content %}

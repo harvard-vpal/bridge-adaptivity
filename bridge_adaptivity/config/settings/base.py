@@ -205,3 +205,5 @@ CHANNEL_LAYERS = {
         },
     },
 }
+# Use for checking score and show congratulation message or not. Value must be between 0 to 1.
+CONGRATULATION_SCORE_LEVEL = 0.95
