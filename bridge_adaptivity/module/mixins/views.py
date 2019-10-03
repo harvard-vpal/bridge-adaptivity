@@ -153,7 +153,8 @@ class OnlyMyObjectsMixin(object):
     def get_avaliable_resources(self, qs):
         result_query = qs.filter(**{self.owner_field: self.request.user})
         if self.enable_sharing:
-            result_query = result_query | qs.filter(**{self.contributors_field: self.request.user})
+            # NOTE: Combines two QuerySets using the SQL OR (|) operator and  eliminates duplicate rows.
+            result_query = (result_query | qs.filter(**{self.contributors_field: self.request.user})).distinct()
         return result_query
 
     def _filter_resourses(self, qs):
