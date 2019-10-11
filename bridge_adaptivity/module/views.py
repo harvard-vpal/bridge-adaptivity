@@ -675,14 +675,15 @@ class SequenceComplete(LtiSessionMixin, DetailView):
     template_name = 'module/sequence_complete.html'
 
 
-def _check_and_build_web_socket_message(sequence, score):
+def _check_and_build_web_socket_message(sequence):
     """
     Build a dictionary with data for callback by Web Socket.
 
     Check flags ui_option, congratulation_message and validate score.
     """
     web_socket_message_dict = {"is_button_enable": True}
-    if sequence.collection_order.congratulation_message and score >= settings.CONGRATULATION_SCORE_LEVEL:
+    grade = sequence.collection_order.grading_policy.calculate_grade(sequence)
+    if sequence.collection_order.congratulation_message and grade >= settings.CONGRATULATION_SCORE_LEVEL:
         web_socket_message_dict["is_show_pop_up"] = True
 
     if sequence.collection_order.ui_option:
@@ -746,7 +747,7 @@ def callback_sequence_item_grade(request):
         attempt, correct, sequence_item.sequence.completed
     ))
     sequence = sequence_item.sequence
-    web_socket_message_dict = _check_and_build_web_socket_message(sequence, score)
+    web_socket_message_dict = _check_and_build_web_socket_message(sequence)
     CallbackSequenceConsumer.send_message_to_channel(
         f'{sequence_item.id}_{sequence_item.position}', web_socket_message_dict
     )

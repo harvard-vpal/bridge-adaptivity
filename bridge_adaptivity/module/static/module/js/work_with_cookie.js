@@ -1,8 +1,8 @@
 function getCookie(name) {
     // Get the value of cookie by name
     // I used a group with name as value in `name` parameter.
-    let v = document.cookie.match('[^|;] ?'+name+'=(?<'+name+'>[^;]*)[;|$]?');
-    return v ? v.groups[name] : null;
+    let v = document.cookie.match('[^|;] ?'+name+'=([^;]*)[;|$]?');
+    return v ? v[1] : null;
 }
 
 function setCookie(name, value, minutes) {
