@@ -1,11 +1,12 @@
 // WARNING(AndreyLykhoman):include base_drag_drop.js before this script
 
-before_add_element = function() {
+// NOTE(AndreyLykhoman): before_add_element, after_add_elements methods are used in base_drag_drop.js lines: 62 and 65.
+[before_add_element, after_add_elements] = function() {
     // Write a script that will be run before adding an ellement to the table
     // NOTE(AndreyLykhoman): Checking atype of elements and increase index or starting from zero
     atype = '';
     index = 0;
-    return function (element) {
+    return [function (element) {
         label = element.getElementsByClassName("label");
         if (label.length !== 0) {
             labelstring = element.getAttribute("data-atype");
@@ -21,7 +22,12 @@ before_add_element = function() {
             labelItem = label.item(0);
             labelItem.innerHTML = element.getAttribute("labelstring") + index;
         }
-    }
+    },
+      function () {
+        // NOTE(AndreyLykhoman): Clear atype and index after writing indexes.
+        atype = '';
+        index = 0;
+    }]
 }();
 
 function change_move_url(moveUrl, element_dataset) {
