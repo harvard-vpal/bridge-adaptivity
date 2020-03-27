@@ -74,7 +74,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = [
-    'module.middleware.BridgeSameSiteMiddleware'
+    'module.middleware.BridgeSameSiteMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
