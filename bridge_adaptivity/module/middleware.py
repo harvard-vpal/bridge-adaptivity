@@ -1,3 +1,6 @@
+from django.contrib.sites.shortcuts import get_current_site
+
+
 class BridgeSameSiteMiddleware:
     """
     Middleware to add a `SameSite=None` attribute to the session cookie for
@@ -36,10 +39,11 @@ class BridgeSameSiteMiddleware:
         # the view is called.
         from django.conf import settings
 
-        if settings.SESSION_COOKIE_NAME in response.cookies:
+        request_domain = get_current_site(request).domain
+
+        if settings.SESSION_COOKIE_NAME in response.cookies and not request_domain.startswith('localhost'):
             response.cookies[settings.SESSION_COOKIE_NAME]["samesite"] = "None"
             response.cookies[settings.SESSION_COOKIE_NAME]["secure"] = True
-
         return response
 
 
